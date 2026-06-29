@@ -1,0 +1,21 @@
+# Semgrep static analysis (SAST). OSS rulesets, no token or paid account needed.
+# Reports findings in the job log; not a hard merge gate by default.
+name: semgrep
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  semgrep:
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan
+        run: semgrep scan --config p/default --config p/secrets --config p/javascript

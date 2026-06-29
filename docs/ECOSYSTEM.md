@@ -22,11 +22,18 @@ editor/agent, which a remote or CI sandbox cannot do.
 ## Already wired into this repo
 
 - **`npm install`** pulls in `ant-design-vue` for the app.
+- **`.mcp.json`** — project-scoped MCP servers (`code-review-graph`,
+  `filesystem`, `playwright`). Any agent that opens this repo offers them
+  automatically — no per-machine setup.
 - **`.github/workflows/code-review-graph.yml`** — risk-scored PR reviews in CI
   (local-first; only needs `GITHUB_TOKEN`).
 - **`.github/workflows/open-code-review.yml`** — manual-trigger OCR review.
   Requires an `OCR_LLM_TOKEN` repo secret; flip its trigger to
   `on: pull_request` to gate every PR.
+- **`.github/workflows/semgrep.yml`** — Semgrep SAST on every PR (OSS rulesets,
+  no token needed).
+- **`.pre-commit-config.yaml`** — local hooks (whitespace, EOF, YAML/JSON
+  checks, prettier). Activated by `pre-commit install` (the bootstrap does it).
 
 ## What only you can do (client-side)
 

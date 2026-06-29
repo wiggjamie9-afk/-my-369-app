@@ -45,7 +45,18 @@ else
   warn "No npm found — install Node 18+ first, then re-run."
 fi
 
-# ── 3. Manual steps (client-only; can't be scripted) ─────────────────────────
+# ── 3. pre-commit (local quality hooks) ──────────────────────────────────────
+step "pre-commit"
+if have pipx; then
+  pipx install pre-commit || pipx upgrade pre-commit
+elif have pip3; then
+  pip3 install --user --upgrade pre-commit
+fi
+if have pre-commit && [ -f .pre-commit-config.yaml ]; then
+  pre-commit install && ok "git pre-commit hook installed"
+fi
+
+# ── 4. Manual steps (client-only; can't be scripted) ─────────────────────────
 step "Manual steps (run these inside your agent/editor)"
 cat <<'EOF'
   • Superpowers (Claude Code plugin):
@@ -54,6 +65,10 @@ cat <<'EOF'
   • Open Code Review as a Claude Code slash command (optional):
       /plugin marketplace add alibaba/open-code-review
       /plugin install open-code-review@open-code-review
+
+  • Project MCP servers are committed in .mcp.json (code-review-graph,
+    filesystem, playwright). Your agent picks them up automatically — approve
+    them when prompted.
 
   • Restart your editor/agent so new MCP servers and plugins load.
 EOF
