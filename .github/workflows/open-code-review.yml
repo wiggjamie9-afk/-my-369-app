@@ -1,0 +1,43 @@
+# Open Code Review (Alibaba) — AI diff review in CI.
+#
+# NOTE: Unlike code-review-graph, OCR sends changed files to an external LLM,
+# so it requires an API key and incurs token cost. To avoid surprise spend this
+# runs MANUALLY (workflow_dispatch) by default. To make it review every PR,
+# change the trigger to `on: pull_request`.
+#
+# Required repo secret: OCR_LLM_TOKEN  (your Anthropic/OpenAI API key)
+# Settings → Secrets and variables → Actions → New repository secret
+name: open-code-review
+
+on:
+  workflow_dispatch:
+    inputs:
+      from:
+        description: "Base ref to compare from"
+        default: "origin/main"
+      to:
+        description: "Head ref/SHA to compare to"
+        default: "HEAD"
+
+jobs:
+  ocr-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install Open Code Review
+        run: npm install -g @alibaba-group/open-code-review
+      - name: Run review
+        env:
+          OCR_LLM_TOKEN: ${{ secrets.OCR_LLM_TOKEN }}
+          OCR_USE_ANTHROPIC: "true"
+          OCR_LLM_MODEL: "claude-sonnet-4-6"
+        run: |
+          ocr review \
+            --from "${{ inputs.from }}" \
+            --to "${{ inputs.to }}" \
+            --format json
