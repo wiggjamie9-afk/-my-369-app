@@ -1,0 +1,20 @@
+{
+  "name": "my-369-app",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Vitruvian 369 Core — a 369 frequency / spatial-dynamics meditation app built with Vue 3 + ant-design-vue.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "ant-design-vue": "^4.2.6",
+    "vue": "^3.4.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
+    "vite": "^5.4.0"
+  }
+}
