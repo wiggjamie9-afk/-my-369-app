@@ -23,8 +23,16 @@ editor/agent, which a remote or CI sandbox cannot do.
 
 - **`npm install`** pulls in `ant-design-vue` for the app.
 - **`.mcp.json`** — project-scoped MCP servers (`code-review-graph`,
-  `filesystem`, `playwright`). Any agent that opens this repo offers them
-  automatically — no per-machine setup.
+  `filesystem`, `playwright`, `github`). Any agent that opens this repo offers
+  them automatically — no per-machine setup.
+  - The **`github`** server runs via Docker and reads a `GITHUB_PERSONAL_ACCESS_TOKEN`
+    from your environment (nothing is committed). Requirements: Docker running,
+    and `export GITHUB_PERSONAL_ACCESS_TOKEN=ghp_…` in your shell. Prefer the
+    hosted server? Replace the entry with
+    `{ "type": "http", "url": "https://api.githubcopilot.com/mcp/" }` and
+    authenticate via OAuth in a client that supports it.
+- **`.github/dependabot.yml`** — weekly dependency updates for npm (grouped
+  minor/patch) and GitHub Actions.
 - **`.github/workflows/code-review-graph.yml`** — risk-scored PR reviews in CI
   (local-first; only needs `GITHUB_TOKEN`).
 - **`.github/workflows/open-code-review.yml`** — manual-trigger OCR review.
