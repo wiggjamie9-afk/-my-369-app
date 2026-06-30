@@ -432,6 +432,14 @@
   @media (max-width: 480px) {
     body { font-size: 16px; }
     .wordmark { font-size: 13px; letter-spacing: 0.12em; }
+    .topbar { padding: 10px 16px; }
+    .btn { padding: 8px 14px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { transition: none !important; }
+    .idea:hover, .prompt:hover { transform: none; }
   }
 </style>
 </head>

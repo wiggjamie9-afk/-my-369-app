@@ -86,6 +86,24 @@
   }
   .btn-pdf:hover{background:var(--amber-strong);}
   .btn-pdf:active{transform:translateY(1px);}
+  .topbar-actions{display:flex;align-items:center;gap:.6rem;}
+  .btn-help{
+    font-family:var(--font-body);
+    display:inline-flex;align-items:center;gap:.4em;
+    color:var(--amber-strong);
+    border:1px solid var(--crisis-border);
+    background:rgba(224,138,108,.1);
+    padding:.5rem .9rem;border-radius:999px;
+    font-weight:600;font-size:.86rem;text-decoration:none;
+    white-space:nowrap;
+    transition:background .15s ease;
+  }
+  .btn-help::before{
+    content:"";width:7px;height:7px;border-radius:50%;
+    background:var(--crisis-border);
+    box-shadow:0 0 0 3px rgba(224,138,108,.25);
+  }
+  .btn-help:hover{background:rgba(224,138,108,.2);}
 
   /* ---------- Cover ---------- */
   .cover{
@@ -392,6 +410,12 @@
     .cover{padding:48px 20px;}
     .cover-glyph{font-size:18rem;right:-20px;bottom:-30px;}
     .crisis-grid{grid-template-columns:1fr 1fr;}
+    .topbar-inner{gap:8px;}
+    .btn-help{padding:.45rem .7rem;font-size:.8rem;}
+    .btn-pdf{padding:.5rem .85rem;font-size:.84rem;}
+  }
+  @media (max-width:380px){
+    .btn-help .full{display:none;}
   }
 
   /* ---------- Print ---------- */
@@ -399,7 +423,7 @@
     :root{--bg:#fff;--off:#1a1a1a;--muted:#444;--panel:#fff;--panel-2:#fafafa;--line:#bbb;}
     @page{size:A4;margin:18mm 16mm;}
     html,body{background:#fff;color:#000;font-size:11.5pt;}
-    .topbar,.btn-pdf,.scroll-hint,.skip{display:none !important;}
+    .topbar,.btn-pdf,.btn-help,.scroll-hint,.skip{display:none !important;}
     .cover{
       min-height:auto;page-break-after:always;
       background:#fff;color:#000;padding:0;text-align:left;
@@ -445,7 +469,10 @@
 <div class="topbar">
   <div class="topbar-inner">
     <a class="wordmark" href="#cover"><span class="dot" aria-hidden="true"></span>Dad's Code</a>
-    <button class="btn-pdf" type="button" onclick="window.print()" aria-label="Save or print this workbook as a PDF">Save as PDF</button>
+    <div class="topbar-actions">
+      <a class="btn-help" href="#crisis-top">Need help <span class="full">now</span>?</a>
+      <button class="btn-pdf" type="button" onclick="window.print()" aria-label="Save or print this workbook as a PDF">Save as PDF</button>
+    </div>
   </div>
 </div>
 
@@ -471,7 +498,7 @@
   </div>
 
   <!-- ===== Crisis panel (TOP) ===== -->
-  <aside class="crisis" role="region" aria-labelledby="crisis-top-h">
+  <aside class="crisis" id="crisis-top" role="region" aria-labelledby="crisis-top-h">
     <h2 id="crisis-top-h"><span class="crisis-dot" aria-hidden="true"></span> If you need to talk to someone right now</h2>
     <p>You don't have to be "in crisis" to call. Whatever you're carrying, these lines are here for it — <strong>any time, day or night, free and confidential.</strong> A real person will answer, and they will not judge you. If you're in Australia:</p>
     <ul class="crisis-grid">
