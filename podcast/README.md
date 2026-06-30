@@ -1,6 +1,6 @@
 # 🎙️ Podcast Project — Jamie Wigg
 
-Your central hub for producing all your shows. Everything you need is in this `podcasts/` folder:
+Your central hub for producing all your shows. Everything you need is in this `podcast/` folder:
 
 - **README.md** ← you are here (the plan + how it works)
 - **SCRIPTS.md** ← every episode script, ready to copy-paste
