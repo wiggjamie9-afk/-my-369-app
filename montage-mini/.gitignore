@@ -1,0 +1,6 @@
+# Generated output
+projects/
+demos/
+*.pyc
+__pycache__/
+.env

@@ -1,0 +1,54 @@
+{
+  "id": "animated_explainer",
+  "name": "Animated Explainer",
+  "produces": "A narrated, captioned explainer rendered as a self-contained HTML video.",
+  "best_for": ["educational content", "topic breakdowns", "tutorials"],
+  "render_runtime": "html_canvas",
+  "delivery_promise": "motion-led vector scenes (gradient + motif + Ken Burns), not static slides",
+  "stages": [
+    {
+      "id": "brief",
+      "skill": "skills/animated_explainer.md#brief",
+      "tool": "montagemini.brief.parse_brief",
+      "produces": "Brief (topic, duration, profile, tone, narration)"
+    },
+    {
+      "id": "script",
+      "skill": "skills/animated_explainer.md#script",
+      "tool": "montagemini.script.write_script",
+      "produces": "Script (title + ordered beats)",
+      "providers": ["llm (anthropic, if credentialed)", "template (offline default)"]
+    },
+    {
+      "id": "scene_plan",
+      "skill": "skills/animated_explainer.md#scene_plan",
+      "tool": "montagemini.sceneplan.plan_scenes",
+      "produces": "timed scenes with word-level caption timings"
+    },
+    {
+      "id": "assets",
+      "skill": "skills/animated_explainer.md#assets",
+      "tool": "montagemini.assets.build_assets",
+      "produces": "synthesized vector visual per scene"
+    },
+    {
+      "id": "compose",
+      "skill": "skills/animated_explainer.md#compose",
+      "tool": "montagemini.compose.render_html",
+      "produces": "final.html"
+    },
+    {
+      "id": "review",
+      "skill": "skills/animated_explainer.md#review",
+      "tool": "montagemini.review.review",
+      "produces": "pass/fail report",
+      "gate": true
+    }
+  ],
+  "success_gates": [
+    "every scene has a headline, narration and timed captions",
+    "captions stay within their scene bounds",
+    "total duration within 25% of the requested target",
+    "slideshow risk score <= 1"
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "montage-mini production",
+  "type": "object",
+  "required": ["title", "width", "height", "total", "scenes"],
+  "properties": {
+    "title": { "type": "string" },
+    "tone": { "type": "string" },
+    "backend": { "type": "string", "enum": ["llm", "template"] },
+    "width": { "type": "integer", "minimum": 1 },
+    "height": { "type": "integer", "minimum": 1 },
+    "aspect": { "type": "string" },
+    "profile": { "type": "string" },
+    "font": { "type": "string" },
+    "narration": { "type": "boolean" },
+    "vignette": { "type": "number" },
+    "total": { "type": "number", "minimum": 0 },
+    "scenes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["index", "headline", "narration", "start", "duration", "words", "visual"],
+        "properties": {
+          "index": { "type": "integer", "minimum": 0 },
+          "headline": { "type": "string" },
+          "narration": { "type": "string" },
+          "start": { "type": "number", "minimum": 0 },
+          "duration": { "type": "number", "exclusiveMinimum": 0 },
+          "words": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["text", "start", "end"],
+              "properties": {
+                "text": { "type": "string" },
+                "start": { "type": "number", "minimum": 0 },
+                "end": { "type": "number", "minimum": 0 }
+              }
+            }
+          },
+          "visual": {
+            "type": "object",
+            "required": ["bg0", "bg1", "accent", "motif", "motion"],
+            "properties": {
+              "bg0": { "type": "string" },
+              "bg1": { "type": "string" },
+              "accent": { "type": "string" },
+              "accent2": { "type": "string" },
+              "motif": { "type": "string", "enum": ["grid", "rays", "burst", "waves", "embers"] },
+              "motion": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
