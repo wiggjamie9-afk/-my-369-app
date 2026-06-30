@@ -41,6 +41,110 @@ Longer episodes (~7–8 min). Read in your "Jamie" voice. Frequency Bound: Stabi
 
 ---
 
+## THE FUN FREQUENCY — "Why Laughing Is Medicine" (~5 min)
+
+**Description:** Life's meant to be enjoyed. Why a proper belly laugh is genuinely good for you, how we lose our laughter as we grow up, and simple ways to find the funny again — starting today.
+
+**Script:**
+
+> Welcome to The Fun Frequency — the show that reminds you life is meant to be enjoyed. I'm Jamie, and today, we're talking about the cheapest, most powerful medicine there is. Laughing.
+>
+> Here's a fact that stopped me in my tracks. Little kids laugh hundreds of times a day. Hundreds. Adults? We're lucky to manage a handful. Somewhere between the playground and the office, we got serious. We got busy. We got a bit grey. The laughter quietly drained out of us, and most of us never even noticed it leaving.
+>
+> And that matters, because laughing isn't just nice — it's good for you. A proper belly laugh drops your stress hormones. It floods you with feel-good chemicals. It relaxes your whole body and yanks you straight back into the present moment, where there's no worrying about yesterday or tomorrow. There's just… now, and the giggle. Your body literally heals a little every time you laugh. We're built for it.
+>
+> So why do we stop? I think we start believing joy has to be earned. That we can only relax once the work's done, the bills are paid, the house is tidy — and of course, that day never comes. So we wait. We wait to enjoy our own lives. And that's the trap.
+>
+> Here's what I've learned the hard way, through some genuinely heavy years: joy isn't a reward for getting life right. It's how you get through life when it's hard. The laugh isn't the prize at the finish line. It's the fuel for the journey.
+>
+> Let me give you a few ways to turn the fun back on. First — be silly on purpose. Pull a daft face at your kid. Sing the wrong words to a song. Dance badly in the kitchen. Silliness is a muscle; the more you use it, the easier it comes back.
+>
+> Second — surround yourself with what makes you laugh. The friend who cracks you up. The show that gets you every time. We're so careful about what we eat — be as careful about what you feed your mood.
+>
+> And third — laugh at yourself first. It's the kindest, lightest way to live. The moment you can chuckle at your own mess, nothing anyone says can really land on you. You've already beaten them to the punchline.
+>
+> So here's your challenge today: find one thing to genuinely laugh at. Just one. And notice how your whole body feels lighter afterwards. That's the fun frequency. That's the one I want you living on.
+>
+> This has been The Fun Frequency. Go on — lighten up, have a laugh. You've earned it just by being here. See you next time.
+
+---
+
+## SLEEP & CALM — "The Wind-Down" (~5 min)  *(read very slowly · Stability ~60%)*
+
+**Description:** A gentle guided wind-down to release the day and drift toward rest. Soft breathing, a slow body relaxation, and permission to let go. Press play, get comfortable, and sleep.
+
+**Script:**
+
+> Welcome… to Sleep and Calm. There's nothing left to do now. Nowhere to be. The day is behind you… and this time… is just for you.
+>
+> So get comfortable. Let your body sink into wherever you are. And let's take a slow breath together. In… through the nose… and out… long and soft. Again. In… and out… letting the day loosen its grip, one breath at a time.
+>
+> You don't have to fix anything tonight. You don't have to solve anything. Whatever happened today… you can set it down. It will still be there tomorrow — and tomorrow, you'll be rested. Right now… your only job… is to rest.
+>
+> Let's gently let go of the body, piece by piece. Bring your attention to your feet… and let them grow heavy. Now your legs… softening… sinking. Let your stomach rise… and fall… on its own. Feel your shoulders melt away from your ears. And let your face soften — your jaw, your brow, the space between your eyes. There's nothing to hold anymore.
+>
+> And if your mind wanders off… that's okay. That's what minds do. Just gently… come back to the breath. In… and out. Like waves, slow and steady, carrying you a little further down each time.
+>
+> You are safe. You are warm. You have done enough today. Let that be true. Let yourself believe it.
+>
+> With every breath now… you sink a little deeper. Heavier. Calmer. Quieter. I'll stay right here with you as you drift. There's nowhere else to be… and nothing else to do… but rest.
+>
+> Breathe in… and out. Let go… and sleep. Goodnight.
+
+---
+
+## STOIC MINUTE — "Control What You Can" (~5 min)
+
+> Note: this show's name suggests 1-minute episodes. This is the longer ~5-min version per your request — you could also run a 1-min cut for daily posts.
+
+**Description:** The single idea the Stoics built everything on: some things are up to us, and some aren't. How learning the difference is the doorway to a calmer, freer life — with a simple practice to try today.
+
+**Script:**
+
+> Welcome to Stoic Minute. I'm Jamie. Today, one idea — the one the entire philosophy of Stoicism is built on. And once it clicks, it can change how you handle everything.
+>
+> It's this: some things are up to us… and some things are not. The philosopher Epictetus opened with it two thousand years ago, and it's lost none of its power. Your effort, your attitude, your choices, the way you respond — those are yours. Other people's opinions, the weather, the traffic, the outcome, the past — those are not.
+>
+> Sounds simple. But think about where your stress actually lives. Most of it comes from gripping tightly to things we were never holding in the first place. We replay an argument we can't change. We worry about what someone might think. We try to control a result that was never fully ours to control. And it exhausts us.
+>
+> The Stoics offered a different way. Pour everything you've got into what's actually yours — your effort, your character, your response. And then, the rest? Release it. Not because you don't care… but because grabbing at it only ever causes suffering.
+>
+> Let me make it real. Say something goes wrong at work — a decision lands badly, and it wasn't even your call. The un-Stoic response is to stew, to blame, to carry it home and let it poison your evening. The Stoic response is to ask one question: what part of this is actually mine? Maybe it's how I respond. How I show up tomorrow. That — I'll give my full energy to. The rest, I let go.
+>
+> It's not about being cold or passive. It's the opposite. When you stop wasting energy on what you can't control, you have so much more of it for what you can. That's where calm comes from. That's where real strength comes from.
+>
+> So here's your practice for today. Next time you feel that knot of stress, pause and ask: is this up to me… or not? If it is — act, fully. If it isn't — breathe, and let it go.
+>
+> Control what you can. Release the rest. That's the whole game. This has been Stoic Minute — carry it with you.
+
+---
+
+## LONGEVITY BRIEF — "The Habits That Actually Add Years" (~5 min)
+
+**Description:** Forget the miracle cures — the real longevity secrets are simple and free. Movement, sleep, food, connection, and purpose, plus the honest story of one man's own turnaround. (For wellbeing, not medical advice.)
+
+**Script:**
+
+> Welcome to Longevity Brief. I'm Jamie, and today we're cutting through the noise — past the miracle pills and the impossible regimes — to the handful of things that actually help you live longer, and better. And here's the good news: they're simple, and most of them are free. Quick note first — this is for your wellbeing, not medical advice. Always check with a professional for your own situation.
+>
+> Let me be honest about why this one matters to me. My mum died at fifty-four, from diabetes complications. For years I was heading down a similar road — overweight, anxious, my joints aching, my body screaming at me. I refused to follow her path. So I rebuilt myself, piece by piece — and these are the things that actually moved the needle.
+>
+> Number one: move every single day. Not punishing workouts — just movement. A walk counts. Your body was built to move, and when it does, almost everything improves: your mood, your sleep, your heart, your mind. After twenty-five years of barely moving, I now run most days. If I can get there, anyone can.
+>
+> Number two: protect your sleep like it's sacred. Because it is. Sleep is when your body repairs itself. Skimp on it, and nothing else works as well. Treat it as a priority, not an afterthought.
+>
+> Number three: eat mostly real food, mostly plants, and not too much. You don't need a perfect diet. You need a mostly-good one, most of the time. Simple beats extreme, because simple is the thing you can actually keep doing.
+>
+> Number four — and this one surprises people: connection. The research is overwhelming. People with strong relationships live longer than people who are isolated. Loneliness is as bad for you as smoking. So call your friend. Sit with your family. It's medicine.
+>
+> And number five: purpose. People with a reason to get up in the morning live longer. A goal. Someone who needs you. Something you're building. Purpose pulls you forward through the hard days.
+>
+> Move. Sleep. Eat well. Connect. And have a reason. None of it is glamorous. None of it goes viral. But done daily, for years, it adds up to a longer, sharper, fuller life. Boring, repeated, wins.
+>
+> This has been Longevity Brief. Look after yourself — you're worth the effort. See you next time.
+
+---
+
 ## FREQUENCY BOUND — "Why Everything Is Vibration"
 
 **Description:** Nothing is truly still — everything, including you, is vibration. In this opening episode we explore energy, frequency, and resonance: why sound moves us so deeply, what the Solfeggio tones are, and a simple practice to tune yourself back to calm. An honest, grounded look at frequency for wellbeing (not medical advice).
