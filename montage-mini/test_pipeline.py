@@ -65,8 +65,12 @@ class TestPipelineStages(unittest.TestCase):
         prod = build_production(brief, script, scenes, visuals)
         html = render_html(prod)
         self.assertNotIn("/*__PRODUCTION__*/", html)  # marker replaced
-        self.assertNotIn("http://", html)             # no external refs
-        self.assertNotIn("https://", html)
+        # No external resource loading. (An inline SVG data-URI legitimately
+        # contains the w3.org *namespace* URI; that's not a network fetch, so
+        # we check the loading mechanisms, not the bare substring.)
+        for ref in ('src="http', "src='http", 'href="http', "href='http",
+                    "url(http", 'url("http', "url('http"):
+            self.assertNotIn(ref, html)
         self.assertIn("const P = {", html)
 
 
