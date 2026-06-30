@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dad &amp; Me: 100 Conversation Cards — Dad's Code by Jamie Wigg</title>
+<meta name="description" content="100 warm, kid-friendly conversation questions a dad can use to spark real talks — in the car, at bedtime, at the dinner table. A printable card deck by Jamie Wigg, Dad's Code." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #14121A;
+    --panel: #1C1A26;
+    --amber: #DFB76C;
+    --offwhite: #F4F1EA;
+    --muted: #B4AEC0;
+
+    /* Category accents (kept WCAG-friendly against dark panels) */
+    --c-silly: #F2A65A;
+    --c-feelings: #E58FB0;
+    --c-big: #8FC7E5;
+    --c-memories: #9FD8A8;
+    --c-dreams: #C3A0F0;
+    --c-wyr: #E5C95A;
+
+    --display: "Fredoka", "Poppins", "Segoe UI", system-ui, sans-serif;
+    --body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+    --radius: 18px;
+    --maxw: 1180px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    font-family: var(--body);
+    background: var(--bg);
+    color: var(--offwhite);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  a { color: var(--amber); }
+
+  /* Accessibility: visible focus */
+  a:focus-visible,
+  button:focus-visible {
+    outline: 3px solid var(--amber);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: -999px;
+    top: 0;
+    background: var(--amber);
+    color: #14121A;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    z-index: 100;
+  }
+  .skip-link:focus {
+    left: 12px;
+    top: 12px;
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px clamp(16px, 4vw, 40px);
+    background: rgba(20, 18, 26, 0.86);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(223, 183, 108, 0.18);
+  }
+
+  .wordmark {
+    font-family: var(--display);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    font-size: 0.92rem;
+    color: var(--amber);
+    text-transform: uppercase;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    text-decoration: none;
+  }
+  .wordmark .by {
+    font-family: var(--body);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    font-size: 0.74rem;
+    color: var(--muted);
+  }
+
+  .btn {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 0.86rem;
+    letter-spacing: 0.02em;
+    color: #14121A;
+    background: var(--amber);
+    border: none;
+    border-radius: 999px;
+    padding: 10px 20px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+    box-shadow: 0 4px 14px rgba(223, 183, 108, 0.22);
+  }
+  .btn:hover { transform: translateY(-1px); background: #ecca87; }
+  .btn:active { transform: translateY(0); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--amber);
+    border: 1.5px solid rgba(223, 183, 108, 0.5);
+    box-shadow: none;
+  }
+  .btn-ghost:hover { background: rgba(223, 183, 108, 0.1); }
+
+  /* ---------- Cover ---------- */
+  .cover {
+    min-height: calc(100vh - 58px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 56px clamp(20px, 5vw, 48px) 64px;
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse 80% 55% at 50% 0%, rgba(223, 183, 108, 0.16), transparent 70%),
+      radial-gradient(ellipse 70% 50% at 50% 100%, rgba(143, 199, 229, 0.08), transparent 70%);
+  }
+
+  .cover .eyebrow {
+    font-family: var(--display);
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+    font-size: 0.78rem;
+    color: var(--amber);
+    margin: 0 0 22px;
+  }
+
+  .cover h1 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(2.5rem, 8vw, 5.2rem);
+    line-height: 1.02;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .cover h1 .amp { color: var(--amber); font-style: italic; }
+
+  .cover .sub {
+    font-size: clamp(1.05rem, 2.4vw, 1.35rem);
+    color: var(--muted);
+    max-width: 30ch;
+    margin: 24px auto 0;
+  }
+
+  .badge {
+    margin-top: 36px;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 132px;
+    height: 132px;
+    border-radius: 50%;
+    border: 2px solid var(--amber);
+    color: var(--amber);
+    font-family: var(--display);
+    line-height: 1;
+    background: rgba(223, 183, 108, 0.06);
+  }
+  .badge .num { font-size: 2.7rem; font-weight: 700; }
+  .badge .lbl {
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-top: 6px;
+    color: var(--offwhite);
+  }
+
+  .cover .meta {
+    margin-top: 40px;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .cover .meta strong { color: var(--offwhite); font-weight: 600; }
+
+  .tagline {
+    margin-top: 8px;
+    font-family: var(--display);
+    font-style: italic;
+    color: var(--amber);
+    letter-spacing: 0.02em;
+  }
+
+  /* ---------- Generic section wrapper ---------- */
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 clamp(16px, 5vw, 40px); }
+
+  .intro {
+    padding: clamp(48px, 8vw, 88px) 0 8px;
+  }
+
+  .intro-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  @media (min-width: 860px) {
+    .intro-grid { grid-template-columns: 1.2fr 1fr; gap: 44px; align-items: start; }
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid rgba(223, 183, 108, 0.14);
+    border-radius: var(--radius);
+    padding: clamp(24px, 4vw, 36px);
+  }
+
+  .panel h2 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 1.5rem;
+    margin: 0 0 14px;
+    color: var(--offwhite);
+  }
+  .panel h2 .dot { color: var(--amber); }
+
+  .panel p { color: var(--muted); margin: 0 0 14px; }
+  .panel p:last-child { margin-bottom: 0; }
+  .panel p strong { color: var(--offwhite); }
+  .panel .sig {
+    font-family: var(--display);
+    color: var(--amber);
+    margin-top: 18px;
+    font-size: 1.05rem;
+  }
+
+  .howto ol {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+    counter-reset: step;
+  }
+  .howto li {
+    position: relative;
+    padding: 0 0 18px 46px;
+    counter-increment: step;
+    color: var(--muted);
+  }
+  .howto li:last-child { padding-bottom: 0; }
+  .howto li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: -2px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(223, 183, 108, 0.14);
+    color: var(--amber);
+    font-family: var(--display);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+  }
+  .howto li strong { color: var(--offwhite); }
+
+  /* ---------- Category nav ---------- */
+  .catnav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    padding: clamp(36px, 6vw, 56px) 0 8px;
+  }
+  .catnav a {
+    text-decoration: none;
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: var(--offwhite);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    padding: 8px 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .catnav a:hover { background: rgba(255, 255, 255, 0.05); }
+  .catnav a .swatch {
+    width: 10px; height: 10px; border-radius: 50%;
+    display: inline-block;
+  }
+
+  /* ---------- Sections of cards ---------- */
+  .deck { padding: clamp(36px, 6vw, 64px) 0 16px; }
+
+  .cat {
+    margin-top: clamp(40px, 7vw, 72px);
+    scroll-margin-top: 80px;
+  }
+  .cat:first-of-type { margin-top: clamp(20px, 4vw, 36px); }
+
+  .cat-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding-bottom: 22px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 28px;
+  }
+  .cat-head .bar {
+    width: 6px;
+    align-self: stretch;
+    min-height: 44px;
+    border-radius: 6px;
+    background: var(--accent);
+  }
+  .cat-head h2 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    margin: 0;
+    color: var(--offwhite);
+  }
+  .cat-head .count {
+    font-family: var(--display);
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .cat-head .blurb {
+    flex-basis: 100%;
+    color: var(--muted);
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  @media (min-width: 620px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 980px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 3px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 22px 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-height: 170px;
+    transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
+    border-color: rgba(255, 255, 255, 0.16);
+    border-top-color: var(--accent);
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .card .label {
+    font-family: var(--display);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.66rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .card .no {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--muted);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 999px;
+    padding: 2px 10px;
+    min-width: 34px;
+    text-align: center;
+  }
+  .card .q {
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 1.16rem;
+    line-height: 1.34;
+    color: var(--offwhite);
+    margin: 0;
+  }
+
+  /* ---------- Footer ---------- */
+  footer {
+    margin-top: clamp(48px, 8vw, 96px);
+    border-top: 1px solid rgba(223, 183, 108, 0.18);
+    padding: 48px clamp(16px, 5vw, 40px) 64px;
+    text-align: center;
+  }
+  footer .wordmark { justify-content: center; margin-bottom: 14px; }
+  footer p { color: var(--muted); margin: 6px 0; font-size: 0.92rem; }
+  footer .tagline { margin-top: 4px; }
+
+  /* ---------- PRINT: clean cut-out cards ---------- */
+  @media print {
+    :root {
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --offwhite: #1a1a1a;
+      --muted: #555555;
+    }
+    @page { size: A4; margin: 12mm; }
+
+    body { background: #fff; color: #111; }
+
+    .topbar, .catnav, footer, .skip-link, .no-print { display: none !important; }
+
+    .cover {
+      min-height: auto;
+      page-break-after: always;
+      padding: 30mm 0;
+      background: none;
+    }
+    .cover h1 { color: #111; }
+    .cover h1 .amp { color: #b8893a; }
+    .cover .eyebrow, .cover .tagline { color: #b8893a; }
+    .cover .sub, .cover .meta { color: #444; }
+    .badge { border-color: #b8893a; color: #b8893a; }
+    .badge .lbl { color: #111; }
+
+    .intro { padding: 0 0 10mm; page-break-after: always; }
+    .panel {
+      background: #fff;
+      border: 1px solid #ccc;
+      break-inside: avoid;
+    }
+    .panel h2, .howto li strong, .panel p strong { color: #111; }
+    .panel p, .howto li { color: #444; }
+
+    .deck { padding: 0; }
+    .cat { margin-top: 0; page-break-before: always; }
+    .cat:first-of-type { page-break-before: avoid; }
+    .cat-head { border-color: #ccc; }
+    .cat-head h2, .card .q { color: #111; }
+    .cat-head .count, .card .label { color: #8a6a28; }
+    .cat-head .blurb { color: #444; }
+
+    .grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 0;
+    }
+
+    /* Ink-saving cut-out cards with cut guidelines */
+    .card {
+      background: #fff !important;
+      border: 1px dashed #999 !important;
+      border-radius: 0;
+      box-shadow: none !important;
+      transform: none !important;
+      margin: -0.5px;            /* collapse shared borders */
+      min-height: 52mm;
+      padding: 8mm 7mm;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .card .no {
+      background: none;
+      color: #777;
+      padding: 0;
+    }
+    .card .label { color: #8a6a28; }
+    .card .q { color: #111; font-size: 13pt; }
+
+    a { color: #111; text-decoration: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#deck">Skip to the cards</a>
+
+<header class="topbar">
+  <a class="wordmark" href="#top" aria-label="Dad's Code by Jamie Wigg, home">
+    DAD'S CODE
+    <span class="by">by Jamie Wigg</span>
+  </a>
+  <button class="btn no-print" type="button" onclick="window.print()">
+    <span aria-hidden="true">⤓</span> Save as PDF
+  </button>
+</header>
+
+<main id="top">
+
+  <!-- COVER -->
+  <section class="cover" aria-labelledby="cover-title">
+    <p class="eyebrow">Dad's Code · Printable Deck</p>
+    <h1 id="cover-title">Dad <span class="amp">&amp;</span> Me</h1>
+    <p class="sub">100 conversation cards to spark real talks with your kids.</p>
+
+    <div class="badge" role="img" aria-label="100 cards">
+      <span class="num" aria-hidden="true">100</span>
+      <span class="lbl" aria-hidden="true">Cards</span>
+    </div>
+
+    <p class="meta">A printable card deck by <strong>Jamie Wigg</strong></p>
+    <p class="tagline">Present, not perfect.</p>
+  </section>
+
+  <!-- INTRO + HOW TO USE -->
+  <section class="intro" aria-labelledby="intro-title">
+    <div class="wrap intro-grid">
+      <article class="panel">
+        <h2 id="intro-title">A note from Jamie <span class="dot">·</span></h2>
+        <p>Here's the thing I wish someone had told me earlier: <strong>the best talks happen sideways.</strong> Not across a table with a "so, how was your day?" that gets a shrug. They happen in the car at traffic lights, at bedtime with the light off, on a muddy walk when nobody's really looking at each other.</p>
+        <p>Kids open up when the pressure's off. A good question, dropped in at the right moment, does more than any lecture ever will. You don't need to be clever or have the answers — you just need to be curious about the small person in front of you.</p>
+        <p>These 100 cards are the questions I keep coming back to. Some are silly, some go deep, and a few will surprise you with where they lead. Pull one, ask it, and then — this is the important bit — really listen. You'll learn things about your kid you'd never have thought to ask.</p>
+        <p>You don't have to get it perfect. You just have to show up and be there.</p>
+        <p class="sig">— Jamie</p>
+      </article>
+
+      <article class="panel howto">
+        <h2>How to use the deck <span class="dot">·</span></h2>
+        <p>There's no right way. Keep the cards somewhere handy and reach for one when the moment's right:</p>
+        <ol>
+          <li><strong>At dinner.</strong> Pull one card and everyone answers — grown-ups too. Fair's fair.</li>
+          <li><strong>In the car.</strong> Hand the deck to whoever's in the back and let them pick. Side-by-side beats face-to-face.</li>
+          <li><strong>At bedtime.</strong> One quiet question as the lights go down. End the day on a real conversation.</li>
+          <li><strong>Follow the thread.</strong> If an answer opens a door, walk through it. Ask "why?" and "what else?" There's no rush to the next card.</li>
+        </ol>
+        <p style="margin-top:18px"><strong>Tip:</strong> print double-sided card stock, cut along the dashed lines, and pop them in a jar or tin.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- CATEGORY NAV -->
+  <nav class="wrap catnav" aria-label="Jump to a category">
+    <a href="#silly"><span class="swatch" style="background:var(--c-silly)" aria-hidden="true"></span> Silly &amp; Fun</a>
+    <a href="#feelings"><span class="swatch" style="background:var(--c-feelings)" aria-hidden="true"></span> Feelings</a>
+    <a href="#big"><span class="swatch" style="background:var(--c-big)" aria-hidden="true"></span> Big Questions</a>
+    <a href="#memories"><span class="swatch" style="background:var(--c-memories)" aria-hidden="true"></span> Memories</a>
+    <a href="#dreams"><span class="swatch" style="background:var(--c-dreams)" aria-hidden="true"></span> Dreams</a>
+    <a href="#wyr"><span class="swatch" style="background:var(--c-wyr)" aria-hidden="true"></span> Would You Rather</a>
+  </nav>
+
+  <!-- DECK -->
+  <div id="deck" class="wrap deck">
+
+    <!-- SILLY & FUN -->
+    <section class="cat" id="silly" style="--accent: var(--c-silly)" aria-labelledby="silly-h">
+      <div class="cat-head">
+        <span class="bar" aria-hidden="true"></span>
+        <h2 id="silly-h">Silly &amp; Fun</h2>
+        <span class="count">18 cards</span>
+        <p class="blurb">Daft, easy openers to get everyone laughing and talking.</p>
+      </div>
+      <div class="grid">
+        <article class="card"><div class="card-top"><span class="label">Silly &amp; Fun</span><span class="no">01</span></div><p class="q">If you could be any animal for a day, what would you be and why?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Silly &amp; Fun</span><span class="no">02</span></div><p class="q">If our family started a band, what would we be called and what would you play?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Silly &amp; Fun</span><span class="no">03</span></div><p class="q">What's the silliest thing you've ever seen me do?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Silly &amp; Fun</span><span class="no">04</span></div><p class="q">If you could eat only one food for the rest of your life, what would it be?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Silly &amp; Fun</span><span class="no">05</span></div><p class="q">What would you do all day if you woke up and you were the grown-up?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Silly &amp; Fun</span><span class="no">06</span></div><p class="q">If you could give yourself a superpower, what would it be and how would you use it?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Silly &amp; Fun</span><span class="no">07</span></div><p class="q">What's the funniest word you can think of right now?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Silly &amp; Fun</span><span class="no">08</span></div><p class="q">If our pet could talk for one minute, what do you think it would say?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Silly &amp; Fun</span><span class="no">09</span></div><p class="q">What would you name a new colour that nobody has ever seen?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Silly &amp; Fun</span><span class="no">10</span></div><p class="q">If you could swap places with anyone for a day, who would it be?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Silly &amp; Fun</span><span class="no">11</span></div><p class="q">What's the weirdest sandwich you could invent? What's in it?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Silly &amp; Fun</span><span class="no">12</span></div><p class="q">If you had a robot to do one job for you, what job would it do?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Silly &amp; Fun</span><span class="no">13</span></div><p class="q">What's the best joke you know? Tell it to me.</p></article>
+        <article class="card"><div class="card-top"><span class="label">Silly &amp; Fun</span><span class="no">14</span></div><p class="q">If you could make one rule everyone in the world had to follow, what would it be?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Silly &amp; Fun</span><span class="no">15</span></div><p class="q">If your shoes could take you anywhere right now, where would you go?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Silly &amp; Fun</span><span class="no">16</span></div><p class="q">What sound makes you laugh every single time you hear it?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Silly &amp; Fun</span><span class="no">17</span></div><p class="q">If you could turn invisible for an hour, what's the first thing you'd do?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Silly &amp; Fun</span><span class="no">18</span></div><p class="q">What's something you're really good at that might surprise people?</p></article>
+      </div>
+    </section>
+
+    <!-- FEELINGS -->
+    <section class="cat" id="feelings" style="--accent: var(--c-feelings)" aria-labelledby="feelings-h">
+      <div class="cat-head">
+        <span class="bar" aria-hidden="true"></span>
+        <h2 id="feelings-h">Feelings</h2>
+        <span class="count">18 cards</span>
+        <p class="blurb">Gentle questions that help kids name what's going on inside.</p>
+      </div>
+      <div class="grid">
+        <article class="card"><div class="card-top"><span class="label">Feelings</span><span class="no">19</span></div><p class="q">What's something that made you feel proud this week?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Feelings</span><span class="no">20</span></div><p class="q">What does it feel like in your body when you're really happy?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Feelings</span><span class="no">21</span></div><p class="q">When you're worried about something, what helps you feel better?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Feelings</span><span class="no">22</span></div><p class="q">Is there anything that's been bothering you lately that you haven't told me?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Feelings</span><span class="no">23</span></div><p class="q">What's something that makes you feel brave?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Feelings</span><span class="no">24</span></div><p class="q">When was the last time you felt really calm and happy?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Feelings</span><span class="no">25</span></div><p class="q">What do you do when you feel angry? Does it help?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Feelings</span><span class="no">26</span></div><p class="q">Who do you go to when you feel sad, and why them?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Feelings</span><span class="no">27</span></div><p class="q">What's something that's been a bit tricky for you lately?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Feelings</span><span class="no">28</span></div><p class="q">When do you feel the most like yourself?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Feelings</span><span class="no">29</span></div><p class="q">Is there a feeling you find hard to talk about?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Feelings</span><span class="no">30</span></div><p class="q">What's something kind someone did for you that you still remember?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Feelings</span><span class="no">31</span></div><p class="q">When you make a mistake, how do you usually feel afterwards?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Feelings</span><span class="no">32</span></div><p class="q">What makes you feel really loved?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Feelings</span><span class="no">33</span></div><p class="q">Is there something you wish I understood better about you?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Feelings</span><span class="no">34</span></div><p class="q">What's a worry you used to have that doesn't bother you anymore?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Feelings</span><span class="no">35</span></div><p class="q">When something exciting is coming up, how do you feel waiting for it?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Feelings</span><span class="no">36</span></div><p class="q">What's one thing that always cheers you up on a hard day?</p></article>
+      </div>
+    </section>
+
+    <!-- BIG QUESTIONS -->
+    <section class="cat" id="big" style="--accent: var(--c-big)" aria-labelledby="big-h">
+      <div class="cat-head">
+        <span class="bar" aria-hidden="true"></span>
+        <h2 id="big-h">Big Questions</h2>
+        <span class="count">16 cards</span>
+        <p class="blurb">The thinky ones — about people, fairness and how the world works.</p>
+      </div>
+      <div class="grid">
+        <article class="card"><div class="card-top"><span class="label">Big Questions</span><span class="no">37</span></div><p class="q">What do you think makes someone a good friend?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Big Questions</span><span class="no">38</span></div><p class="q">What does being brave actually mean to you?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Big Questions</span><span class="no">39</span></div><p class="q">Is it ever okay to break a rule? When?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Big Questions</span><span class="no">40</span></div><p class="q">What do you think the word "fair" really means?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Big Questions</span><span class="no">41</span></div><p class="q">If you could ask anyone in history one question, who and what?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Big Questions</span><span class="no">42</span></div><p class="q">What makes a person kind?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Big Questions</span><span class="no">43</span></div><p class="q">Do you think grown-ups always know what they're doing?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Big Questions</span><span class="no">44</span></div><p class="q">What's something you believe is true that some people might disagree with?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Big Questions</span><span class="no">45</span></div><p class="q">How do you know when you can trust someone?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Big Questions</span><span class="no">46</span></div><p class="q">What does it mean to be brave when no one is watching?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Big Questions</span><span class="no">47</span></div><p class="q">If everyone in the world could learn one thing, what should it be?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Big Questions</span><span class="no">48</span></div><p class="q">What's the difference between being clever and being wise?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Big Questions</span><span class="no">49</span></div><p class="q">Why do you think people sometimes find it hard to say sorry?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Big Questions</span><span class="no">50</span></div><p class="q">What's something you think is worth standing up for?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Big Questions</span><span class="no">51</span></div><p class="q">If you could change one rule at school, what would it be and why?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Big Questions</span><span class="no">52</span></div><p class="q">What do you think makes a happy life?</p></article>
+      </div>
+    </section>
+
+    <!-- MEMORIES -->
+    <section class="cat" id="memories" style="--accent: var(--c-memories)" aria-labelledby="memories-h">
+      <div class="cat-head">
+        <span class="bar" aria-hidden="true"></span>
+        <h2 id="memories-h">Memories</h2>
+        <span class="count">16 cards</span>
+        <p class="blurb">Looking back together — the moments that stuck with you both.</p>
+      </div>
+      <div class="grid">
+        <article class="card"><div class="card-top"><span class="label">Memories</span><span class="no">53</span></div><p class="q">What's your favourite thing we've ever done together?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Memories</span><span class="no">54</span></div><p class="q">What's the earliest thing you can remember?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Memories</span><span class="no">55</span></div><p class="q">What's a day you wish you could live again?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Memories</span><span class="no">56</span></div><p class="q">What's the best holiday or trip we've been on?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Memories</span><span class="no">57</span></div><p class="q">What's something that always makes you laugh when you remember it?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Memories</span><span class="no">58</span></div><p class="q">What's your favourite thing about your bedroom or our home?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Memories</span><span class="no">59</span></div><p class="q">Who's someone you've met who you'll never forget?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Memories</span><span class="no">60</span></div><p class="q">What's a tradition we do that you hope we never stop doing?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Memories</span><span class="no">61</span></div><p class="q">What's the best birthday you've ever had?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Memories</span><span class="no">62</span></div><p class="q">What's a smell or song that reminds you of something special?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Memories</span><span class="no">63</span></div><p class="q">What's the bravest thing you've ever done?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Memories</span><span class="no">64</span></div><p class="q">What's a time you were really proud of someone in our family?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Memories</span><span class="no">65</span></div><p class="q">What's a small ordinary day that you still think about?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Memories</span><span class="no">66</span></div><p class="q">What's the funniest thing that's happened at school?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Memories</span><span class="no">67</span></div><p class="q">What's something we did this year that you want to do again?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Memories</span><span class="no">68</span></div><p class="q">If you made a photo album of just happy moments, what would be on page one?</p></article>
+      </div>
+    </section>
+
+    <!-- DREAMS -->
+    <section class="cat" id="dreams" style="--accent: var(--c-dreams)" aria-labelledby="dreams-h">
+      <div class="cat-head">
+        <span class="bar" aria-hidden="true"></span>
+        <h2 id="dreams-h">Dreams</h2>
+        <span class="count">16 cards</span>
+        <p class="blurb">Where their imagination and hopes for the future want to go.</p>
+      </div>
+      <div class="grid">
+        <article class="card"><div class="card-top"><span class="label">Dreams</span><span class="no">69</span></div><p class="q">If you could fix one thing in the world, what would it be?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Dreams</span><span class="no">70</span></div><p class="q">What do you dream about being or doing when you're older?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Dreams</span><span class="no">71</span></div><p class="q">If you could travel anywhere in the world, where would you go first?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Dreams</span><span class="no">72</span></div><p class="q">What's something brand new you'd love to learn how to do?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Dreams</span><span class="no">73</span></div><p class="q">If you could invent something to help people, what would it do?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Dreams</span><span class="no">74</span></div><p class="q">What kind of grown-up do you hope you'll be?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Dreams</span><span class="no">75</span></div><p class="q">If you could build your dream home, what's the one room it must have?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Dreams</span><span class="no">76</span></div><p class="q">What's an adventure you really want us to go on one day?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Dreams</span><span class="no">77</span></div><p class="q">If you could be famous for one thing, what would you want it to be?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Dreams</span><span class="no">78</span></div><p class="q">What's a goal you're quietly working towards right now?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Dreams</span><span class="no">79</span></div><p class="q">If you could meet your future self, what would you want to ask them?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Dreams</span><span class="no">80</span></div><p class="q">What would make next year an amazing year for you?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Dreams</span><span class="no">81</span></div><p class="q">If you could give every kid in the world one thing, what would it be?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Dreams</span><span class="no">82</span></div><p class="q">What's a place you'd love to see in real life that you've only seen in pictures?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Dreams</span><span class="no">83</span></div><p class="q">If you could spend a whole day doing anything you wanted, what would the day look like?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Dreams</span><span class="no">84</span></div><p class="q">What's something you hope never changes about our family?</p></article>
+      </div>
+    </section>
+
+    <!-- WOULD YOU RATHER -->
+    <section class="cat" id="wyr" style="--accent: var(--c-wyr)" aria-labelledby="wyr-h">
+      <div class="cat-head">
+        <span class="bar" aria-hidden="true"></span>
+        <h2 id="wyr-h">Would You Rather</h2>
+        <span class="count">16 cards</span>
+        <p class="blurb">Quick-fire choices — always ask "why did you pick that?"</p>
+      </div>
+      <div class="grid">
+        <article class="card"><div class="card-top"><span class="label">Would You Rather</span><span class="no">85</span></div><p class="q">Would you rather be able to fly or be invisible?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Would You Rather</span><span class="no">86</span></div><p class="q">Would you rather have a pet dragon or a pet dinosaur?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Would You Rather</span><span class="no">87</span></div><p class="q">Would you rather it always be summer or always be winter?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Would You Rather</span><span class="no">88</span></div><p class="q">Would you rather be the funniest person you know or the kindest?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Would You Rather</span><span class="no">89</span></div><p class="q">Would you rather explore deep space or the deep sea?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Would You Rather</span><span class="no">90</span></div><p class="q">Would you rather only ever eat pizza or only ever eat ice cream?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Would You Rather</span><span class="no">91</span></div><p class="q">Would you rather have a time machine that only goes back, or only goes forward?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Would You Rather</span><span class="no">92</span></div><p class="q">Would you rather be really tall or really tiny?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Would You Rather</span><span class="no">93</span></div><p class="q">Would you rather talk to animals or speak every language in the world?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Would You Rather</span><span class="no">94</span></div><p class="q">Would you rather live by the sea or up in the mountains?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Would You Rather</span><span class="no">95</span></div><p class="q">Would you rather always win but on your own, or sometimes lose but with friends?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Would You Rather</span><span class="no">96</span></div><p class="q">Would you rather have a magic paintbrush or a magic notebook?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Would You Rather</span><span class="no">97</span></div><p class="q">Would you rather be an amazing singer or an amazing dancer?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Would You Rather</span><span class="no">98</span></div><p class="q">Would you rather never feel cold or never feel too hot?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Would You Rather</span><span class="no">99</span></div><p class="q">Would you rather have a treehouse or an underground den?</p></article>
+        <article class="card"><div class="card-top"><span class="label">Would You Rather</span><span class="no">100</span></div><p class="q">Would you rather give the best presents or always get the best presents?</p></article>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <a class="wordmark" href="#top" aria-label="Dad's Code by Jamie Wigg">
+    DAD'S CODE
+    <span class="by">by Jamie Wigg</span>
+  </a>
+  <p>Dad &amp; Me: 100 Conversation Cards</p>
+  <p>© <span id="year">2026</span> Jamie Wigg · For your family, printed at home. Please don't resell or redistribute.</p>
+  <p class="tagline">Present, not perfect.</p>
+</footer>
+
+<script>
+  // Keep the footer year current
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

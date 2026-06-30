@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Steady — A Dad's Mental Health Workbook · Dad's Code by Jamie Wigg</title>
+<meta name="description" content="Steady — a warm, hopeful, self-reflection workbook for dads running on empty. Short readings and write-in exercises by Jamie Wigg of the Dad's Code podcast. Present, not perfect." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#14121A;
+    --panel:#1C1A26;
+    --panel-2:#232030;
+    --amber:#DFB76C;
+    --amber-strong:#EAC788;
+    --off:#F4F1EA;
+    --muted:#B4AEC0;
+    --line:#3A3648;
+    --crisis-bg:#2A1F1C;
+    --crisis-border:#E08A6C;
+    --radius:14px;
+    --col:720px;
+    --font-head:"Fraunces", Georgia, "Times New Roman", serif;
+    --font-body:"Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--off);
+    font-family:var(--font-body);
+    font-size:17.5px;
+    line-height:1.72;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  /* ---------- Skip link ---------- */
+  .skip{
+    position:absolute;left:-9999px;top:0;
+    background:var(--amber);color:#1a1206;
+    padding:.6rem 1rem;border-radius:0 0 8px 0;
+    font-weight:600;z-index:100;
+  }
+  .skip:focus{left:0;}
+
+  /* ---------- Layout ---------- */
+  .wrap{max-width:var(--col);margin:0 auto;padding:0 22px;}
+  section{padding:0;}
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:40;
+    background:rgba(20,18,26,.92);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{
+    max-width:var(--col);margin:0 auto;padding:12px 22px;
+    display:flex;align-items:center;justify-content:space-between;gap:14px;
+  }
+  .wordmark{
+    font-family:var(--font-head);
+    font-weight:700;letter-spacing:.14em;
+    color:var(--amber);
+    font-size:.92rem;text-transform:uppercase;
+    text-decoration:none;
+    display:inline-flex;align-items:center;gap:.5em;
+  }
+  .wordmark .dot{width:7px;height:7px;border-radius:50%;background:var(--amber);display:inline-block;}
+  .btn-pdf{
+    font-family:var(--font-body);
+    background:var(--amber);
+    color:#1a1206;
+    border:none;
+    padding:.55rem 1.05rem;
+    border-radius:999px;
+    font-weight:600;
+    font-size:.9rem;
+    cursor:pointer;
+    transition:background .15s ease, transform .1s ease;
+  }
+  .btn-pdf:hover{background:var(--amber-strong);}
+  .btn-pdf:active{transform:translateY(1px);}
+
+  /* ---------- Cover ---------- */
+  .cover{
+    min-height:100vh;
+    display:flex;flex-direction:column;justify-content:center;
+    position:relative;
+    overflow:hidden;
+    padding:64px 22px;
+    background:
+      radial-gradient(1100px 620px at 76% 12%, rgba(223,183,108,.16), transparent 60%),
+      radial-gradient(800px 520px at 8% 92%, rgba(223,183,108,.08), transparent 60%),
+      var(--bg);
+    text-align:left;
+  }
+  .cover-inner{max-width:var(--col);margin:0 auto;width:100%;}
+  .cover .kicker{
+    font-family:var(--font-head);
+    letter-spacing:.22em;text-transform:uppercase;
+    color:var(--amber);font-weight:600;font-size:.82rem;
+    margin:0 0 1.4rem;
+  }
+  .cover h1{
+    font-family:var(--font-head);
+    font-weight:600;
+    font-size:clamp(3rem,9vw,5.4rem);
+    line-height:1.02;
+    margin:0 0 .5rem;
+    letter-spacing:-.01em;
+  }
+  .cover h1 em{
+    font-style:italic;color:var(--amber);font-weight:500;
+  }
+  .cover .sub{
+    font-size:clamp(1.1rem,2.6vw,1.4rem);
+    color:var(--muted);
+    max-width:36ch;
+    margin:1.2rem 0 2.2rem;
+    line-height:1.5;
+  }
+  .cover .byline{
+    font-size:1rem;color:var(--off);margin:0 0 .25rem;font-weight:500;
+  }
+  .cover .byline span{color:var(--muted);font-weight:400;}
+  .cover .tagline{
+    font-family:var(--font-head);
+    font-style:italic;color:var(--amber);
+    font-size:1.15rem;margin-top:2.4rem;
+  }
+  .cover-glyph{
+    position:absolute;right:-40px;bottom:-60px;
+    font-size:30rem;line-height:1;color:rgba(223,183,108,.045);
+    font-family:var(--font-head);font-weight:700;
+    pointer-events:none;user-select:none;
+  }
+  .scroll-hint{
+    margin-top:2.6rem;color:var(--muted);font-size:.85rem;
+    letter-spacing:.06em;text-transform:uppercase;
+    display:inline-flex;align-items:center;gap:.5em;
+  }
+
+  /* ---------- Crisis panel ---------- */
+  .crisis{
+    background:var(--crisis-bg);
+    border:2px solid var(--crisis-border);
+    border-radius:var(--radius);
+    padding:1.4rem 1.5rem;
+    margin:2.4rem auto;
+  }
+  .crisis h2{
+    font-family:var(--font-body);
+    font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--crisis-border);
+    margin:0 0 .8rem;font-weight:700;
+    display:flex;align-items:center;gap:.5em;
+  }
+  .crisis p{margin:0 0 1rem;font-size:1rem;color:var(--off);line-height:1.55;}
+  .crisis p:last-child{margin-bottom:0;}
+  .crisis-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:.65rem;margin:0 0 1rem;
+  }
+  .crisis-item{
+    background:rgba(0,0,0,.22);
+    border:1px solid rgba(224,138,108,.4);
+    border-radius:10px;
+    padding:.7rem .85rem;
+  }
+  .crisis-item .name{display:block;font-size:.8rem;color:var(--muted);margin-bottom:.15rem;}
+  .crisis-item .num{
+    display:block;font-family:var(--font-head);font-weight:700;
+    font-size:1.25rem;color:var(--off);letter-spacing:.01em;
+  }
+  .crisis-item.emergency{border-color:var(--crisis-border);background:rgba(224,138,108,.16);}
+  .crisis-item a{color:inherit;text-decoration:none;}
+
+  /* ---------- Content blocks ---------- */
+  .block{padding:2.6rem 0;border-bottom:1px solid var(--line);}
+  .block:last-of-type{border-bottom:none;}
+
+  .content-warn{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-left:4px solid var(--amber);
+    border-radius:10px;
+    padding:1.1rem 1.3rem;
+    margin:2.4rem auto;
+    color:var(--muted);
+    font-size:.96rem;
+  }
+  .content-warn strong{color:var(--off);}
+
+  .disclaimer{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:1.1rem 1.3rem;
+    margin:1.6rem auto;
+    font-size:.95rem;color:var(--muted);
+  }
+  .disclaimer strong{color:var(--off);}
+
+  h2.section-title{
+    font-family:var(--font-head);
+    font-weight:600;
+    font-size:clamp(1.7rem,4.4vw,2.3rem);
+    line-height:1.12;
+    margin:.2rem 0 1rem;
+    letter-spacing:-.01em;
+  }
+  .sec-num{
+    display:inline-block;
+    font-family:var(--font-head);
+    color:var(--amber);
+    font-weight:600;
+    font-size:.95rem;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    margin-bottom:.5rem;
+  }
+  h3{
+    font-family:var(--font-head);
+    font-weight:600;font-size:1.25rem;
+    margin:2rem 0 .6rem;color:var(--off);
+  }
+  p{margin:0 0 1.1rem;}
+  .lead{font-size:1.18rem;color:var(--off);}
+  .intro-wrap p{font-size:1.08rem;}
+  strong{color:var(--off);}
+  em{color:var(--off);}
+  a{color:var(--amber);}
+
+  blockquote{
+    margin:1.6rem 0;
+    padding:.4rem 0 .4rem 1.3rem;
+    border-left:3px solid var(--amber);
+    font-family:var(--font-head);
+    font-style:italic;
+    font-size:1.22rem;
+    color:var(--off);
+    line-height:1.45;
+  }
+
+  /* ---------- Exercise / write-in ---------- */
+  .exercise{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:1.5rem 1.6rem 1.7rem;
+    margin:1.8rem 0 .4rem;
+  }
+  .exercise .ex-label{
+    font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--amber);font-weight:700;margin:0 0 .35rem;
+  }
+  .exercise h4{
+    font-family:var(--font-head);font-weight:600;
+    font-size:1.18rem;margin:0 0 .5rem;color:var(--off);
+  }
+  .exercise .prompt{color:var(--muted);font-size:1rem;margin-bottom:1.1rem;}
+  .exercise ol,.exercise ul{margin:0 0 1.1rem;padding-left:1.3rem;color:var(--muted);}
+  .exercise li{margin-bottom:.4rem;}
+
+  .lines{margin:1.1rem 0 0;}
+  .lines .line{
+    height:2.35rem;
+    border-bottom:1.5px solid var(--line);
+    margin-bottom:.15rem;
+  }
+  .lines.short .line{height:2.2rem;}
+  .field-label{
+    display:block;
+    font-weight:600;color:var(--off);font-size:.98rem;
+    margin:1.2rem 0 .35rem;
+  }
+  .field-label:first-child{margin-top:0;}
+  .field-hint{color:var(--muted);font-size:.86rem;font-weight:400;}
+
+  /* checkbox style write line */
+  .check-row{display:flex;align-items:center;gap:.7rem;margin:.55rem 0;}
+  .check-box{
+    width:1.15rem;height:1.15rem;border:1.5px solid var(--amber);
+    border-radius:4px;flex:0 0 auto;
+  }
+  .check-line{flex:1;border-bottom:1.5px solid var(--line);height:1.9rem;}
+
+  .script-box{
+    background:var(--panel-2);
+    border:1px dashed var(--amber);
+    border-radius:10px;
+    padding:1.1rem 1.25rem;
+    margin:1.1rem 0;
+    font-size:1.02rem;
+    color:var(--off);
+    line-height:1.6;
+  }
+  .script-box .who{
+    display:block;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--amber);font-weight:700;margin-bottom:.45rem;
+  }
+
+  /* ---------- TOC ---------- */
+  .toc{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:1.5rem 1.6rem;
+    margin:2.4rem auto;
+  }
+  .toc h2{
+    font-family:var(--font-head);font-weight:600;font-size:1.3rem;
+    margin:0 0 1rem;
+  }
+  .toc ol{list-style:none;margin:0;padding:0;counter-reset:toc;}
+  .toc li{counter-increment:toc;margin:0;border-top:1px solid var(--line);}
+  .toc li:first-child{border-top:none;}
+  .toc a{
+    display:flex;align-items:baseline;gap:.8rem;
+    padding:.7rem .2rem;text-decoration:none;color:var(--off);
+    font-size:1.04rem;
+  }
+  .toc a::before{
+    content:counter(toc);
+    font-family:var(--font-head);color:var(--amber);font-weight:600;
+    min-width:1.5rem;
+  }
+  .toc a:hover{color:var(--amber);}
+  .toc a span.t{flex:1;}
+
+  /* ---------- Close / CTA ---------- */
+  .close-cta{
+    background:
+      radial-gradient(700px 400px at 80% 0%, rgba(223,183,108,.14), transparent 60%),
+      var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:2.2rem 1.8rem;
+    margin:2.4rem auto;
+    text-align:center;
+  }
+  .close-cta h2{font-family:var(--font-head);font-weight:600;font-size:1.8rem;margin:0 0 .8rem;}
+  .close-cta p{color:var(--muted);max-width:46ch;margin:0 auto 1rem;}
+  .cta-tag{
+    font-family:var(--font-head);font-style:italic;color:var(--amber);
+    font-size:1.2rem;margin-top:1.4rem;display:block;
+  }
+  .cta-btn{
+    display:inline-block;margin-top:1.4rem;
+    background:var(--amber);color:#1a1206;
+    padding:.8rem 1.6rem;border-radius:999px;
+    font-weight:600;text-decoration:none;
+    transition:background .15s ease;
+  }
+  .cta-btn:hover{background:var(--amber-strong);}
+
+  footer{
+    text-align:center;color:var(--muted);font-size:.86rem;
+    padding:2.6rem 22px 3.4rem;
+  }
+  footer .wordmark{margin-bottom:.8rem;}
+
+  /* ---------- Focus ---------- */
+  a:focus-visible,button:focus-visible{
+    outline:3px solid var(--amber-strong);
+    outline-offset:3px;border-radius:4px;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:560px){
+    body{font-size:17px;}
+    .cover{padding:48px 20px;}
+    .cover-glyph{font-size:18rem;right:-20px;bottom:-30px;}
+    .crisis-grid{grid-template-columns:1fr 1fr;}
+  }
+
+  /* ---------- Print ---------- */
+  @media print{
+    :root{--bg:#fff;--off:#1a1a1a;--muted:#444;--panel:#fff;--panel-2:#fafafa;--line:#bbb;}
+    @page{size:A4;margin:18mm 16mm;}
+    html,body{background:#fff;color:#000;font-size:11.5pt;}
+    .topbar,.btn-pdf,.scroll-hint,.skip{display:none !important;}
+    .cover{
+      min-height:auto;page-break-after:always;
+      background:#fff;color:#000;padding:0;text-align:left;
+    }
+    .cover h1 em,.cover .kicker,.cover .tagline{color:#9a6a12;}
+    .cover .sub,.cover .byline span{color:#333;}
+    .cover-glyph{display:none;}
+    .wrap{max-width:none;}
+    .block{page-break-inside:avoid;border-bottom:1px solid #ccc;padding:1.4rem 0;}
+    .crisis{
+      background:#fff;border:2px solid #000;color:#000;
+      page-break-inside:avoid;
+    }
+    .crisis h2,.crisis-item .num{color:#000;}
+    .crisis-item{background:#f4f4f4;border:1px solid #999;}
+    .exercise{
+      background:#fff;border:1px solid #000;
+      page-break-inside:avoid;
+    }
+    .exercise .ex-label,.sec-num,.exercise h4 .who{color:#9a6a12;}
+    .lines .line,.check-line{border-bottom:1.2px solid #555;}
+    .script-box{background:#fafafa;border:1px dashed #555;}
+    .toc{border:1px solid #999;page-break-inside:avoid;}
+    .close-cta{background:#fff;border:1px solid #000;}
+    blockquote{color:#222;border-left:3px solid #9a6a12;}
+    a{color:#000;text-decoration:none;}
+    h2.section-title{page-break-after:avoid;}
+    h3{page-break-after:avoid;}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- ===== Top bar ===== -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <a class="wordmark" href="#cover"><span class="dot" aria-hidden="true"></span>Dad's Code</a>
+    <button class="btn-pdf" type="button" onclick="window.print()" aria-label="Save or print this workbook as a PDF">Save as PDF</button>
+  </div>
+</div>
+
+<!-- ===== Cover ===== -->
+<header class="cover" id="cover">
+  <span class="cover-glyph" aria-hidden="true">S</span>
+  <div class="cover-inner">
+    <p class="kicker">Dad's Code · A Workbook</p>
+    <h1>Steady.</h1>
+    <p class="sub">A mental health workbook for dads who are running on empty — short readings and write-in exercises to help you find your feet again.</p>
+    <p class="byline">By Jamie Wigg <span>· host of the Dad's Code podcast</span></p>
+    <p class="tagline">Present, not perfect.</p>
+    <p class="scroll-hint" aria-hidden="true">Start reading ↓</p>
+  </div>
+</header>
+
+<main id="main">
+<div class="wrap">
+
+  <!-- ===== Content warning ===== -->
+  <div class="content-warn" role="note">
+    <strong>A quick heads-up before you start.</strong> This workbook talks honestly about stress, anxiety, low mood and dark times — including my own experience of depression and of surviving suicidal thinking. I keep it hopeful and I never go into detail or describe methods. Even so, if you're in a really raw place right now, please go gently, and skip ahead to the crisis numbers below whenever you need them. You don't have to read this all in one sitting.
+  </div>
+
+  <!-- ===== Crisis panel (TOP) ===== -->
+  <div class="crisis" role="region" aria-label="Crisis support phone numbers — available now">
+    <h2><span aria-hidden="true">●</span> If you need to talk to someone right now</h2>
+    <p>You can reach these any time, day or night. Free, confidential, and they will not judge you. If you're in Australia:</p>
+    <div class="crisis-grid">
+      <div class="crisis-item"><span class="name">Lifeline</span><a href="tel:131114"><span class="num">13 11 14</span></a></div>
+      <div class="crisis-item"><span class="name">Beyond Blue</span><a href="tel:1300224636"><span class="num">1300 22 4636</span></a></div>
+      <div class="crisis-item"><span class="name">MensLine</span><a href="tel:1300789978"><span class="num">1300 78 99 78</span></a></div>
+      <div class="crisis-item"><span class="name">13YARN (First Nations)</span><a href="tel:139276"><span class="num">13 92 76</span></a></div>
+      <div class="crisis-item emergency"><span class="name">Emergency</span><a href="tel:000"><span class="num">000</span></a></div>
+    </div>
+    <p style="margin-bottom:0;">If you feel you might not be safe, please call <strong>000</strong> or go to your nearest emergency department. Reaching out is the strong move, not the weak one.</p>
+  </div>
+
+  <!-- ===== Disclaimer ===== -->
+  <div class="disclaimer" role="note">
+    <strong>Please read this part.</strong> I'm Jamie — a dad, a podcaster, and someone who has lived through depression and anxiety and come out the other side. I'm not a doctor, a psychologist or a counsellor. This is <strong>my experience and a self-reflection workbook — it is not therapy or medical advice.</strong> Think of it as a mate sitting next to you with a pen, not a treatment plan. If things are heavy or not shifting, please reach out to a professional — your GP is a brilliant first door, and the numbers above are always open. You deserve real support, and asking for it changes everything.
+  </div>
+
+  <!-- ===== TOC ===== -->
+  <nav class="toc" aria-label="Contents">
+    <h2>What's inside</h2>
+    <ol>
+      <li><a href="#intro"><span class="t">If you're running on empty, this is for you</span></a></li>
+      <li><a href="#s1"><span class="t">Name it — how am I, really?</span></a></li>
+      <li><a href="#s2"><span class="t">The lie of "man up"</span></a></li>
+      <li><a href="#s3"><span class="t">Asking for help — the actual words</span></a></li>
+      <li><a href="#s4"><span class="t">Know your warning signs &amp; safety plan</span></a></li>
+      <li><a href="#s5"><span class="t">Small daily anchors</span></a></li>
+      <li><a href="#s6"><span class="t">Your person</span></a></li>
+      <li><a href="#close"><span class="t">Where to from here</span></a></li>
+    </ol>
+  </nav>
+
+  <!-- ===== Intro ===== -->
+  <section class="block intro-wrap" id="intro" aria-labelledby="intro-h">
+    <span class="sec-num">Welcome</span>
+    <h2 class="section-title" id="intro-h">If you're running on empty, this is for you.</h2>
+    <p class="lead">If you've opened this, my guess is something's been off for a while. Maybe you can't quite name it. Maybe you're just tired in a way that sleep doesn't fix.</p>
+    <p>I know that feeling because I lived in it for years. From the outside I looked fine — working, showing up, being "the strong one." On the inside I was flat, anxious, snapping at the people I loved, and quietly convinced I was failing at the one job that mattered most: being a good dad. For a long stretch, it got dark enough that I didn't think I'd come through it.</p>
+    <p>I did come through it. Not because I toughened up, but because I finally did the opposite — I let people in, I said the thing out loud, and I started doing a few small things on purpose every day. That's what this workbook is. The handful of things I wish someone had handed me years earlier.</p>
+    <p>Here's how to use it. Each section is a short read and then a bit where <strong>you pick up a pen</strong>. The writing is the point — not because your handwriting is going to fix anything, but because getting it out of your head and onto paper is where it starts to loosen. There are no right answers. No one's marking this. You can do one section a week, or sit with the whole thing on a quiet Sunday.</p>
+    <blockquote>You don't have to have it all together to be a good dad. You just have to keep showing up — and you can't show up for them if you're running on empty.</blockquote>
+    <p>Go at your own pace. Be honest, even if it's only honest to the page. And remember those numbers up top are there the whole way through.</p>
+  </section>
+
+  <!-- ===== Section 1 ===== -->
+  <section class="block" id="s1" aria-labelledby="s1-h">
+    <span class="sec-num">Section One</span>
+    <h2 class="section-title" id="s1-h">Name it.</h2>
+    <p>The first time someone asked me "how are you, really?" I didn't have an answer. I'd spent so long saying "yeah, good, busy" that I'd genuinely lost track of how I actually felt. I was so used to managing everyone else's weather that I'd stopped checking my own.</p>
+    <p>Naming it sounds soft, but it's the opposite. You can't deal with a thing you won't look at. When you put a word to it — flat, wired, numb, angry, scared, exhausted — it stops being this big formless fog and becomes something you can actually do something about. Naming it is the first handhold.</p>
+    <p>So let's do a real check-in. Not the autopilot "fine." The honest one — the one you'd only say to someone you trust.</p>
+
+    <div class="exercise">
+      <p class="ex-label">Write it down</p>
+      <h4>How am I, really?</h4>
+      <p class="prompt">Drop the autopilot answer. If a mate who genuinely cared sat across from you right now, what would you actually tell them?</p>
+
+      <label class="field-label">Right now, the closest word for how I feel is… <span class="field-hint">(e.g. flat, anxious, numb, angry, wrung-out, okay-ish)</span></label>
+      <div class="lines short"><div class="line"></div></div>
+
+      <label class="field-label">On a scale of 1–10, my mood lately has been about a…</label>
+      <div class="lines short"><div class="line"></div></div>
+
+      <label class="field-label">If I'm honest, the thing weighing on me most is…</label>
+      <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+
+      <label class="field-label">How long has it been since I felt like myself?</label>
+      <div class="lines short"><div class="line"></div></div>
+
+      <label class="field-label">One thing I've been carrying that nobody knows about…</label>
+      <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+    </div>
+  </section>
+
+  <!-- ===== Section 2 ===== -->
+  <section class="block" id="s2" aria-labelledby="s2-h">
+    <span class="sec-num">Section Two</span>
+    <h2 class="section-title" id="s2-h">The lie of "man up."</h2>
+    <p>Most of us were handed the same instruction manual: don't complain, don't cry, sort it yourself, be the rock. "Man up." And look — there's a good intention buried in there somewhere about resilience. But as actual advice for a struggling human being, it's one of the most dangerous things we've ever told each other.</p>
+    <p>Here's the truth I learned the hard way: bottling it doesn't make it disappear. It makes it ferment. The pressure doesn't vanish — it leaks out sideways. As a short fuse with the kids. As that third beer that became a nightly thing. As lying awake at 3am with your heart going. As going quiet and distant from the very people who'd help if you let them. "Manning up" didn't make me stronger. It made me more alone, and being alone with it made everything heavier.</p>
+    <p>Strength isn't carrying it all on your own until you snap. <strong>Strength is being honest about the load and asking for a hand.</strong> The strongest blokes I know are the ones who can say "I'm not doing great" without it costing them a thing. That's not weakness leaking out. That's a man taking care of his family by taking care of himself.</p>
+    <blockquote>Bottling it up isn't strength. It's just a slower way of breaking.</blockquote>
+
+    <div class="exercise">
+      <p class="ex-label">Write it down</p>
+      <h4>Unlearning the script</h4>
+      <p class="prompt">Let's get the old rules out where you can see them — and write some better ones.</p>
+
+      <label class="field-label">When I was growing up, the message I got about men and feelings was…</label>
+      <div class="lines"><div class="line"></div><div class="line"></div></div>
+
+      <label class="field-label">A time bottling things up actually made it worse for me or my family was…</label>
+      <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+
+      <label class="field-label">What does <em>real</em> strength look like to me now — the kind I'd want my kids to have?</label>
+      <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+
+      <label class="field-label">One old "man up" rule I'm choosing to retire:</label>
+      <div class="lines short"><div class="line"></div></div>
+    </div>
+  </section>
+
+  <!-- ===== Section 3 ===== -->
+  <section class="block" id="s3" aria-labelledby="s3-h">
+    <span class="sec-num">Section Three</span>
+    <h2 class="section-title" id="s3-h">Asking for help.</h2>
+    <p>Knowing you should reach out and actually doing it are two very different things. The gap between them is usually one thing: not knowing what to say. We freeze because we're scared of being a burden, of saying it wrong, of the awkward pause. So we say nothing, and the silence wins again.</p>
+    <p>So here's the cheat code: <strong>you don't have to find the perfect words.</strong> You just have to send the first clumsy ones. The person on the other end almost never cares how polished it is — they just care that you reached out. To make it easier, here are scripts you can copy more or less word-for-word. Steal them.</p>
+
+    <div class="script-box">
+      <span class="who">Text to a mate</span>
+      "Hey mate, bit of a random one — I've been struggling a bit lately and just need to talk to someone who isn't going to make it weird. No advice needed, just a chat. You free for a beer or a walk this week?"
+    </div>
+
+    <div class="script-box">
+      <span class="who">If you can't manage all that</span>
+      "Hey, not doing too well at the moment. Got time to talk?"
+    </div>
+
+    <div class="script-box">
+      <span class="who">Booking the GP (phone the clinic)</span>
+      "Hi, I'd like to book a standard appointment with a doctor. It's about my mental health — I've been feeling really low / anxious and I want to talk through some options. Could I please have a longer appointment if that's possible?"
+    </div>
+
+    <p style="margin-top:1.4rem;">That last one matters. A GP can be the start of a proper plan — a Mental Health Treatment Plan in Australia can get you Medicare-subsidised sessions with a psychologist. You don't need to have it all figured out before you book. That's literally their job to help with.</p>
+
+    <div class="exercise">
+      <p class="ex-label">Write it down</p>
+      <h4>Write your own message</h4>
+      <p class="prompt">Take one of the scripts above and make it yours. Write it out by hand first — then send it.</p>
+
+      <label class="field-label">The one person I could send something like this to:</label>
+      <div class="lines short"><div class="line"></div></div>
+
+      <label class="field-label">Here's the message, in my own words:</label>
+      <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div></div>
+
+      <label class="field-label">What's been stopping me from hitting send — and one thing I'll say back to that excuse:</label>
+      <div class="lines"><div class="line"></div><div class="line"></div></div>
+
+      <div class="check-row"><span class="check-box" aria-hidden="true"></span><span style="font-weight:600;color:var(--off);">I'll send it by:</span><span class="check-line"></span></div>
+    </div>
+  </section>
+
+  <!-- ===== Section 4 ===== -->
+  <section class="block" id="s4" aria-labelledby="s4-h">
+    <span class="sec-num">Section Four</span>
+    <h2 class="section-title" id="s4-h">Know your warning signs.</h2>
+    <p>Looking back, my low points never came out of nowhere. There were always signs — I just wasn't reading them. The sleep going first. Getting irritable over nothing. Pulling away from mates. Skipping the gym, then skipping meals, then skipping the people I loved. By the time I noticed, I was already deep in it.</p>
+    <p>The thing about your warning signs is that <strong>you can learn them.</strong> They're personal — yours might be a short fuse, mine might be going quiet. When you know your own early signals, you get to act early, while it's still a small thing. That's the whole game: catching it at a 4 instead of a 9.</p>
+    <p>Then there's a simple safety plan — a page you write now, while you're steady, for the version of you that isn't. Think of it like the emergency card on the back of a door. You hope you never need it. You're very glad it's there if you do. Filling this in is a calm, sensible thing to do, the same as knowing where the fire exit is.</p>
+
+    <div class="exercise">
+      <p class="ex-label">Write it down</p>
+      <h4>My early warning signs</h4>
+      <p class="prompt">What shows up first when things start sliding? Think about your sleep, mood, body, habits and how you treat the people around you.</p>
+
+      <label class="field-label">My earliest signs that I'm not coping (the small, easy-to-miss ones):</label>
+      <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+
+      <label class="field-label">The people closest to me would probably notice this first:</label>
+      <div class="lines short"><div class="line"></div></div>
+    </div>
+
+    <div class="exercise">
+      <p class="ex-label">Keep this somewhere safe</p>
+      <h4>My simple safety plan</h4>
+      <p class="prompt">For the hard days. Fill it in now, while you're steady.</p>
+
+      <label class="field-label">When I notice the warning signs, the first small thing I'll do is…</label>
+      <div class="lines short"><div class="line"></div></div>
+
+      <label class="field-label">Three people I can call or text (name + number):</label>
+      <div class="lines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+
+      <label class="field-label">Things that genuinely help me settle (a walk, the dog, music, a mate, getting outside):</label>
+      <div class="lines"><div class="line"></div><div class="line"></div></div>
+
+      <label class="field-label">Things or situations I should steer clear of when I'm low:</label>
+      <div class="lines short"><div class="line"></div></div>
+
+      <label class="field-label">My professional supports (GP name, psychologist, helpline):</label>
+      <div class="lines short"><div class="line"></div></div>
+
+      <div class="check-row"><span class="check-box" aria-hidden="true"></span><span style="font-weight:600;color:var(--off);">Crisis line I'll call if I'm not safe:</span><span class="check-line"></span></div>
+      <p class="prompt" style="margin:1rem 0 0;">Remember: Lifeline <strong>13 11 14</strong> · Beyond Blue <strong>1300 22 4636</strong> · MensLine <strong>1300 78 99 78</strong> · 13YARN <strong>13 92 76</strong> · Emergency <strong>000</strong>.</p>
+    </div>
+  </section>
+
+  <!-- ===== Section 5 ===== -->
+  <section class="block" id="s5" aria-labelledby="s5-h">
+    <span class="sec-num">Section Five</span>
+    <h2 class="section-title" id="s5-h">Small daily anchors.</h2>
+    <p>When you're struggling, "fix your whole life" is useless advice. You don't have the fuel for a grand plan, and the size of it just makes you feel worse. What actually pulled me up wasn't a transformation. It was three tiny things I did most days, whether I felt like it or not.</p>
+    <p>I call them anchors. They're small on purpose. Ten minutes outside in the morning light. A glass of water and a real breakfast before coffee. A two-minute message to a mate. Making the bed. None of these are impressive. That's exactly why they work — they're small enough to do on a bad day, and doing them gives you a little handhold of "I did something." Stack a few of those and you've got a day that holds together instead of one that falls apart.</p>
+    <blockquote>You don't climb out all at once. You climb out one small, boring, repeated thing at a time.</blockquote>
+    <p>Pick anchors that are almost too easy. If it feels ambitious, shrink it. "Go for a run" becomes "put my shoes on and step outside." The win is in the doing, not the size.</p>
+
+    <div class="exercise">
+      <p class="ex-label">Write it down</p>
+      <h4>My three daily anchors</h4>
+      <p class="prompt">Choose three tiny things you can do most days — small enough to manage even on a rough one.</p>
+
+      <label class="field-label">Anchor 1 <span class="field-hint">(and when in the day I'll do it)</span></label>
+      <div class="lines short"><div class="line"></div></div>
+
+      <label class="field-label">Anchor 2 <span class="field-hint">(and when)</span></label>
+      <div class="lines short"><div class="line"></div></div>
+
+      <label class="field-label">Anchor 3 <span class="field-hint">(and when)</span></label>
+      <div class="lines short"><div class="line"></div></div>
+
+      <label class="field-label">What's one anchor I can do <em>today</em>, before I put this down?</label>
+      <div class="lines short"><div class="line"></div></div>
+
+      <p class="ex-label" style="margin-top:1.4rem;">This week — tick the days you managed at least one anchor</p>
+      <div class="check-row">
+        <span class="check-box" aria-hidden="true"></span><span style="color:var(--muted);">Mon</span>
+        <span class="check-box" aria-hidden="true"></span><span style="color:var(--muted);">Tue</span>
+        <span class="check-box" aria-hidden="true"></span><span style="color:var(--muted);">Wed</span>
+        <span class="check-box" aria-hidden="true"></span><span style="color:var(--muted);">Thu</span>
+      </div>
+      <div class="check-row">
+        <span class="check-box" aria-hidden="true"></span><span style="color:var(--muted);">Fri</span>
+        <span class="check-box" aria-hidden="true"></span><span style="color:var(--muted);">Sat</span>
+        <span class="check-box" aria-hidden="true"></span><span style="color:var(--muted);">Sun</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Section 6 ===== -->
+  <section class="block" id="s6" aria-labelledby="s6-h">
+    <span class="sec-num">Section Six</span>
+    <h2 class="section-title" id="s6-h">Your person.</h2>
+    <p>If you take one thing from this whole workbook, make it this: <strong>don't do it alone.</strong> The single biggest shift for me wasn't a technique. It was one person who knew the real story and checked in on me. Just one. You don't need a crowd — you need one mate, one brother, one mentor, one good human who knows what's going on and won't let you disappear.</p>
+    <p>The trick is to set this up <em>before</em> you're in the hole, because that's exactly when reaching out feels impossible. Decide now who your person is. Tell them they're your person — actually say it: "Hey, I'm going through some stuff and I might lean on you a bit. That okay?" Almost everyone says yes, and most feel honoured you asked. Then agree on a way they can check in on you, so it's not all on your shoulders to reach out.</p>
+    <p>And here's the quiet bonus: when you let one person in, you give them permission to let you in too. That's how the whole "strong silent dad" thing finally breaks — one honest conversation at a time.</p>
+
+    <div class="exercise">
+      <p class="ex-label">Write it down</p>
+      <h4>Naming your person</h4>
+      <p class="prompt">Be specific. A name, and a plan for how you'll actually stay connected.</p>
+
+      <label class="field-label">My person is:</label>
+      <div class="lines short"><div class="line"></div></div>
+
+      <label class="field-label">Why I trust them with this:</label>
+      <div class="lines"><div class="line"></div><div class="line"></div></div>
+
+      <label class="field-label">How and when I'll tell them they're my person:</label>
+      <div class="lines"><div class="line"></div><div class="line"></div></div>
+
+      <label class="field-label">A simple way we'll stay in touch <span class="field-hint">(weekly walk, a text every Sunday, a standing phone call)</span>:</label>
+      <div class="lines"><div class="line"></div><div class="line"></div></div>
+
+      <label class="field-label">If I'm ever really not okay, the signal I'll send them is:</label>
+      <div class="lines short"><div class="line"></div></div>
+
+      <div class="check-row"><span class="check-box" aria-hidden="true"></span><span style="font-weight:600;color:var(--off);">I'll have this conversation by:</span><span class="check-line"></span></div>
+    </div>
+  </section>
+
+  <!-- ===== Close / CTA ===== -->
+  <section class="block" id="close" aria-labelledby="close-h">
+    <span class="sec-num">Where to from here</span>
+    <h2 class="section-title" id="close-h">You're still here. That counts.</h2>
+    <p>If you've made it to this page — even if half the lines are still blank — you've already done the hardest part, which is to stop pretending you're fine and start looking at it honestly. That's not a small thing. That's the turn.</p>
+    <p>I won't tell you it's all uphill from here, because some days will still be heavy. But I will tell you this, because I lived it: it does get lighter. The fog lifts. You laugh again, properly. You're present with your kids in a way you weren't when you were just surviving. The man who genuinely believed he wouldn't come through it is the one writing this to you now — steadier, lighter, and very glad he stuck around. If I can get there, so can you.</p>
+    <p>Come back to these pages whenever you need them. Redo a section. Fill in the safety plan again. And whatever you do — keep one person close, and keep showing up.</p>
+    <blockquote>You were never meant to carry this on your own. Present, not perfect — that's the whole job.</blockquote>
+
+    <div class="close-cta">
+      <h2>Keep going with Dad's Code</h2>
+      <p>If this landed for you, come and sit with the rest of us. The <strong>Dad's Code</strong> podcast is honest conversations about fatherhood, mental health, and figuring it out as we go — no fake perfection, just real dads keeping each other steady.</p>
+      <a class="cta-btn" href="#cover">Find the Dad's Code podcast</a>
+      <span class="cta-tag">Present, not perfect.</span>
+    </div>
+  </section>
+
+  <!-- ===== Crisis panel (BOTTOM) ===== -->
+  <div class="crisis" role="region" aria-label="Crisis support phone numbers — available now">
+    <h2><span aria-hidden="true">●</span> Help is here — any time, day or night</h2>
+    <div class="crisis-grid">
+      <div class="crisis-item"><span class="name">Lifeline</span><a href="tel:131114"><span class="num">13 11 14</span></a></div>
+      <div class="crisis-item"><span class="name">Beyond Blue</span><a href="tel:1300224636"><span class="num">1300 22 4636</span></a></div>
+      <div class="crisis-item"><span class="name">MensLine</span><a href="tel:1300789978"><span class="num">1300 78 99 78</span></a></div>
+      <div class="crisis-item"><span class="name">13YARN (First Nations)</span><a href="tel:139276"><span class="num">13 92 76</span></a></div>
+      <div class="crisis-item emergency"><span class="name">Emergency</span><a href="tel:000"><span class="num">000</span></a></div>
+    </div>
+    <p style="margin-bottom:0;">Reaching out is the strong move. If you're not safe, please call <strong>000</strong> now. You matter, and your kids need you here.</p>
+  </div>
+
+  <!-- ===== Reminder disclaimer ===== -->
+  <div class="disclaimer" role="note">
+    <strong>One more time, because it matters:</strong> this is my lived experience and a self-reflection workbook — <strong>not therapy or medical advice.</strong> If you're struggling, please reach out to a professional. Start with your GP, or call one of the lines above. You don't have to do this alone.
+  </div>
+
+</div>
+</main>
+
+<!-- ===== Footer ===== -->
+<footer>
+  <a class="wordmark" href="#cover"><span class="dot" aria-hidden="true"></span>Dad's Code</a>
+  <p>Steady — A Dad's Mental Health Workbook · by Jamie Wigg<br />
+  Present, not perfect. · © Dad's Code</p>
+</footer>
+
+<script>
+  // Save as PDF / print — also wired on the button via onclick as a fallback.
+  document.querySelectorAll('[data-print], .btn-pdf').forEach(function (el) {
+    el.addEventListener('click', function () { window.print(); });
+  });
+</script>
+</body>
+</html>

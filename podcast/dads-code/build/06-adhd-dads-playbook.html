@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The ADHD Dad's Playbook — Dad's Code by Jamie Wigg</title>
+<meta name="description" content="A practical toolkit for late-diagnosed ADHD dads. 7 Plays + a one-page Toolkit, by Jamie Wigg of Dad's Code. Present, not perfect." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #14121A;
+    --panel: #1C1A26;
+    --amber: #DFB76C;
+    --amber-soft: rgba(223, 183, 108, 0.14);
+    --amber-line: rgba(223, 183, 108, 0.35);
+    --off: #F4F1EA;
+    --muted: #B4AEC0;
+    --serif: "Fraunces", Georgia, "Times New Roman", serif;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --maxw: 720px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--off);
+    font-family: var(--sans);
+    font-size: 18px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px clamp(16px, 4vw, 40px);
+    background: rgba(20, 18, 26, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+  }
+
+  .wordmark {
+    font-family: var(--sans);
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    font-size: 13px;
+    color: var(--amber);
+    text-transform: uppercase;
+  }
+  .wordmark span { color: var(--muted); font-weight: 600; }
+
+  .btn-pdf {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--bg);
+    background: var(--amber);
+    border: none;
+    border-radius: 999px;
+    padding: 9px 18px;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+  }
+  .btn-pdf:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(223, 183, 108, 0.25); }
+  .btn-pdf:active { transform: translateY(0); }
+
+  a:focus-visible,
+  button:focus-visible {
+    outline: 3px solid var(--amber);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* ---------- Layout ---------- */
+  .wrap {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 0 clamp(20px, 5vw, 28px);
+  }
+
+  section { scroll-margin-top: 72px; }
+
+  /* ---------- Cover ---------- */
+  .cover {
+    min-height: calc(100vh - 58px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 64px clamp(20px, 5vw, 28px) 72px;
+    position: relative;
+    background:
+      radial-gradient(1100px 600px at 50% -10%, rgba(223, 183, 108, 0.10), transparent 60%),
+      linear-gradient(180deg, #16141d 0%, var(--bg) 100%);
+    border-bottom: 1px solid rgba(244, 241, 234, 0.06);
+  }
+
+  .cover-kicker {
+    font-size: 12px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--amber);
+    font-weight: 700;
+    margin-bottom: 28px;
+  }
+
+  .cover h1 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(2.6rem, 8vw, 4.6rem);
+    line-height: 1.02;
+    margin: 0 0 22px;
+    letter-spacing: -0.015em;
+    max-width: 14ch;
+  }
+  .cover h1 .accent { color: var(--amber); font-style: italic; }
+
+  .cover-sub {
+    font-size: clamp(1.05rem, 2.6vw, 1.3rem);
+    color: var(--muted);
+    max-width: 38ch;
+    margin: 0 auto 34px;
+    line-height: 1.5;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--amber);
+    border: 1px solid var(--amber-line);
+    background: var(--amber-soft);
+    border-radius: 999px;
+    padding: 8px 18px;
+    margin-bottom: 40px;
+  }
+
+  .tagline {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.15rem;
+    color: var(--off);
+    opacity: 0.9;
+  }
+
+  .cover-author {
+    margin-top: 18px;
+    font-size: 14px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+
+  .cover-author strong { color: var(--off); font-weight: 600; }
+
+  /* ---------- Table of contents ---------- */
+  .toc {
+    padding: 64px 0;
+    border-bottom: 1px solid rgba(244, 241, 234, 0.06);
+  }
+
+  .section-eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--amber);
+    font-weight: 700;
+    margin: 0 0 14px;
+  }
+
+  .toc h2,
+  .content h2.block-title {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(1.7rem, 4.5vw, 2.3rem);
+    line-height: 1.1;
+    margin: 0 0 28px;
+    letter-spacing: -0.01em;
+  }
+
+  .toc ol {
+    list-style: none;
+    counter-reset: toc;
+    margin: 0;
+    padding: 0;
+  }
+  .toc li { counter-increment: toc; margin: 0; }
+  .toc a {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    text-decoration: none;
+    color: var(--off);
+    padding: 14px 6px;
+    border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+    transition: color 0.12s ease, padding-left 0.15s ease;
+  }
+  .toc a:hover { color: var(--amber); padding-left: 12px; }
+  .toc a .num {
+    font-family: var(--serif);
+    color: var(--amber);
+    font-size: 1.05rem;
+    min-width: 1.5em;
+    font-weight: 600;
+  }
+  .toc a .txt { flex: 1; font-weight: 500; }
+  .toc a .meta { color: var(--muted); font-size: 13px; white-space: nowrap; }
+
+  .toc .toc-extra a .num::before { content: "—"; }
+
+  /* ---------- Content blocks ---------- */
+  .content { padding: 56px 0; }
+
+  .intro { border-bottom: 1px solid rgba(244, 241, 234, 0.06); }
+
+  .play {
+    padding-top: 56px;
+    padding-bottom: 56px;
+    border-bottom: 1px solid rgba(244, 241, 234, 0.06);
+  }
+
+  .play-head {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 10px;
+  }
+  .play-num {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(2.4rem, 7vw, 3.4rem);
+    color: var(--amber);
+    line-height: 0.9;
+    opacity: 0.85;
+  }
+  .play-label {
+    font-size: 12px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+  }
+
+  .content h2 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(1.6rem, 4.4vw, 2.2rem);
+    line-height: 1.12;
+    margin: 4px 0 22px;
+    letter-spacing: -0.01em;
+  }
+
+  .content h3 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 1.3rem;
+    margin: 36px 0 12px;
+  }
+
+  .content p { margin: 0 0 20px; }
+
+  .content p .lead {
+    font-size: 1.05em;
+  }
+
+  .content strong { color: var(--off); font-weight: 700; }
+  .content em { color: var(--off); }
+
+  .pull {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(1.25rem, 3.4vw, 1.55rem);
+    line-height: 1.4;
+    color: var(--off);
+    border-left: 3px solid var(--amber);
+    padding: 4px 0 4px 22px;
+    margin: 32px 0;
+  }
+
+  /* THE PLAY highlight box */
+  .play-box {
+    background: var(--amber-soft);
+    border: 1px solid var(--amber-line);
+    border-radius: 14px;
+    padding: 24px 26px;
+    margin: 34px 0;
+  }
+  .play-box .kicker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--amber);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .play-box p {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 1.25rem;
+    line-height: 1.4;
+    color: var(--off);
+    font-weight: 500;
+  }
+
+  /* Run It Today action box */
+  .action-box {
+    background: var(--panel);
+    border: 1px solid rgba(244, 241, 234, 0.12);
+    border-radius: 14px;
+    padding: 22px 26px;
+    margin: 28px 0 8px;
+  }
+  .action-box .kicker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--off);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .action-box .kicker .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--amber);
+    display: inline-block;
+  }
+  .action-box p { margin: 0; color: var(--off); }
+  .action-box p + p { margin-top: 12px; }
+
+  /* ---------- Toolkit ---------- */
+  .toolkit {
+    padding: 60px 0;
+    border-bottom: 1px solid rgba(244, 241, 234, 0.06);
+    background:
+      radial-gradient(900px 400px at 100% 0%, rgba(223, 183, 108, 0.06), transparent 60%);
+  }
+  .toolkit-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    margin-top: 28px;
+  }
+  .tool-card {
+    background: var(--panel);
+    border: 1px solid rgba(244, 241, 234, 0.10);
+    border-radius: 12px;
+    padding: 20px 22px;
+  }
+  .tool-card h4 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin: 0 0 12px;
+    color: var(--amber);
+  }
+  .tool-card ul { margin: 0; padding-left: 20px; }
+  .tool-card li { margin-bottom: 8px; color: var(--off); }
+  .tool-card li::marker { color: var(--amber); }
+
+  /* ---------- Close / CTA ---------- */
+  .close { padding: 60px 0; border-bottom: 1px solid rgba(244, 241, 234, 0.06); }
+
+  .cta {
+    background: linear-gradient(180deg, #201d2a, #1a1824);
+    border: 1px solid var(--amber-line);
+    border-radius: 16px;
+    padding: 34px clamp(22px, 5vw, 38px);
+    margin-top: 36px;
+    text-align: center;
+  }
+  .cta h3 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 1.5rem;
+    margin: 0 0 12px;
+  }
+  .cta p { color: var(--muted); margin: 0 auto 22px; max-width: 46ch; }
+  .cta-links { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+  .cta-btn {
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    border-radius: 999px;
+    padding: 12px 24px;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .cta-btn.primary { background: var(--amber); color: var(--bg); }
+  .cta-btn.primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(223,183,108,0.28); }
+  .cta-btn.ghost { border: 1px solid var(--amber-line); color: var(--amber); }
+  .cta-btn.ghost:hover { background: var(--amber-soft); transform: translateY(-1px); }
+
+  /* ---------- Disclaimer / footer ---------- */
+  .disclaimer {
+    padding: 44px 0 28px;
+  }
+  .note {
+    background: var(--panel);
+    border: 1px solid rgba(244, 241, 234, 0.10);
+    border-radius: 12px;
+    padding: 20px 24px;
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+  .note strong { color: var(--off); }
+
+  footer {
+    text-align: center;
+    padding: 32px 20px 56px;
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 0.02em;
+  }
+  footer .fm {
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    color: var(--amber);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 560px) {
+    body { font-size: 17px; }
+    .toolkit-grid { grid-template-columns: 1fr; }
+    .toc a .meta { display: none; }
+  }
+
+  /* ---------- Print / Save as PDF ---------- */
+  @media print {
+    :root { --bg: #ffffff; --off: #1a1a1a; --muted: #555; --panel: #faf7f0; }
+    body { background: #fff; color: #1a1a1a; font-size: 11.5pt; line-height: 1.5; }
+    .topbar, .btn-pdf, .cta-links { display: none !important; }
+    .cover { min-height: auto; padding: 40px 0; page-break-after: always; }
+    .cover h1 { color: #1a1a1a; }
+    .cover h1 .accent, .cover-kicker, .badge, .section-eyebrow,
+    .play-num, .play-box .kicker, .tool-card h4 { color: #9a7322 !important; }
+    .badge { border-color: #c9a85e; background: #fdf6e7; }
+    .play-box { background: #fdf6e7; border-color: #c9a85e; }
+    .play-box p, .pull { color: #1a1a1a; }
+    .action-box, .tool-card, .note, .cta { background: #faf7f0; border-color: #ddd; }
+    .toc, .intro, .play, .toolkit, .close, .disclaimer {
+      border: none;
+      page-break-inside: avoid;
+    }
+    .play { page-break-before: always; }
+    .toolkit { page-break-before: always; }
+    a { color: #1a1a1a; text-decoration: none; }
+    .wrap { max-width: 100%; }
+    footer { color: #777; }
+    @page { margin: 18mm 16mm; }
+  }
+</style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="wordmark">DAD'S CODE <span>· Jamie Wigg</span></div>
+    <button class="btn-pdf" onclick="window.print()" aria-label="Save this playbook as a PDF">Save as PDF</button>
+  </header>
+
+  <!-- ===================== COVER ===================== -->
+  <section class="cover" aria-label="Cover">
+    <p class="cover-kicker">Dad's Code presents</p>
+    <h1>The ADHD Dad's <span class="accent">Playbook</span></h1>
+    <p class="cover-sub">A no-fluff toolkit for late-diagnosed dads who are done feeling broken — and ready to actually work <em>with</em> their brain.</p>
+    <span class="badge" aria-label="Seven plays plus toolkit">★ 7 Plays + Toolkit</span>
+    <p class="tagline">Present, not perfect.</p>
+    <p class="cover-author">By <strong>Jamie Wigg</strong> — diagnosed at 47, dyslexic, dad of four.</p>
+  </section>
+
+  <!-- ===================== TABLE OF CONTENTS ===================== -->
+  <nav class="toc" aria-label="Table of contents">
+    <div class="wrap">
+      <p class="section-eyebrow">What's inside</p>
+      <h2>The whole playbook, on one page.</h2>
+      <ol>
+        <li><a href="#intro"><span class="num">00</span><span class="txt">Diagnosed at 47 — and everything finally made sense</span><span class="meta">Intro</span></a></li>
+        <li><a href="#play1"><span class="num">01</span><span class="txt">You're not broken, you're wired different</span><span class="meta">Play</span></a></li>
+        <li><a href="#play2"><span class="num">02</span><span class="txt">Systems beat willpower</span><span class="meta">Play</span></a></li>
+        <li><a href="#play3"><span class="num">03</span><span class="txt">Break the shame loop</span><span class="meta">Play</span></a></li>
+        <li><a href="#play4"><span class="num">04</span><span class="txt">Routines that survive an ADHD brain</span><span class="meta">Play</span></a></li>
+        <li><a href="#play5"><span class="num">05</span><span class="txt">Handle the overwhelm — yours and theirs</span><span class="meta">Play</span></a></li>
+        <li><a href="#play6"><span class="num">06</span><span class="txt">Hyperfocus as a superpower with your kids</span><span class="meta">Play</span></a></li>
+        <li><a href="#play7"><span class="num">07</span><span class="txt">Getting diagnosed &amp; meds (my experience)</span><span class="meta">Play</span></a></li>
+        <li class="toc-extra"><a href="#toolkit"><span class="num"></span><span class="txt">The Dad's ADHD Toolkit (quick reference)</span><span class="meta">Toolkit</span></a></li>
+        <li class="toc-extra"><a href="#close"><span class="num"></span><span class="txt">Where to go from here</span><span class="meta">Close</span></a></li>
+      </ol>
+    </div>
+  </nav>
+
+  <!-- ===================== INTRO ===================== -->
+  <section class="content intro" id="intro">
+    <div class="wrap">
+      <p class="section-eyebrow">Introduction</p>
+      <h2 class="block-title">Diagnosed at 47 — and everything finally made sense.</h2>
+
+      <p class="lead">I spent four decades thinking I was just a bit rubbish at being a grown-up.</p>
+
+      <p>Not stupid. I knew I wasn't stupid. But there was this gap I could never explain — the gap between how hard I was trying and what actually came out the other end. I'd start ten things and finish two. I'd lose my keys, my temper, my train of thought, all before breakfast. I'd promise my kids I'd remember and then I wouldn't, and I'd watch their little faces do that thing where they stop expecting you to.</p>
+
+      <p>I thought that was just <em>me</em>. A character flaw. Something I should've grown out of. So I did what a lot of us do — I white-knuckled it. Worked harder. Set more alarms I ignored. Made more promises I broke. And quietly carried around this low, constant hum of <strong>I'm letting everyone down.</strong></p>
+
+      <p>Then at 47, after one of my own kids got assessed, a clinician looked at me across a desk and basically described my entire life back to me. The lost keys. The half-finished projects. The way I could vanish into something for six hours but couldn't start a ten-minute job. The temper that came out of nowhere. The shame.</p>
+
+      <div class="pull">ADHD. Late. And honestly? My first feeling wasn't sadness. It was relief. It had a name. It wasn't a flaw in my character — it was the wiring in my head.</div>
+
+      <p>I'm dyslexic too, which is its own long story, so reading has never been my friend. That's exactly why this thing you're holding is short. No 300-page brick. No academic waffle. Just seven plays I wish someone had handed me twenty years ago, written by a dad who's still in the thick of it with four kids and a brain that does what it wants.</p>
+
+      <p>This isn't therapy and it isn't medicine — I'll be dead straight about that, especially in Play 7. It's one dad talking to another. Take what's useful, leave the rest. You don't have to do all seven. <strong>If you run one play this week, this book did its job.</strong></p>
+
+      <p>You're not behind. You're not broken. You just never had the manual. Here's mine.</p>
+    </div>
+  </section>
+
+  <!-- ===================== PLAY 1 ===================== -->
+  <section class="content play" id="play1">
+    <div class="wrap">
+      <div class="play-head">
+        <span class="play-num">1</span>
+        <span class="play-label">Play One</span>
+      </div>
+      <h2>You're not broken, you're wired different.</h2>
+
+      <p>For years I described myself like a faulty appliance. "Sorry, that's just me being useless." "Ignore me, my brain's broken." I said it as a joke, but a joke you repeat ten thousand times stops being a joke and starts being a belief.</p>
+
+      <p>The thing that cracked it open wasn't the diagnosis itself. It was a stupid little moment a few weeks after. I was building a Lego set with my youngest — properly building it, hours of it, lost in the instructions — and my wife said, almost offhand, "I don't know how you concentrate on that for so long, you can't sit through a phone call." And it just landed. The exact same brain that can't sit through a ten-minute call can disappear into a thousand-piece build like a monk. That's not broken. That's a brain with a very specific set of rules I'd never bothered to learn.</p>
+
+      <p>An ADHD brain isn't a worse version of a "normal" one. It runs on a different fuel. It struggles with the boring, the abstract, the far-away reward. It absolutely flies on the urgent, the interesting, the novel, the personal. Once I stopped fighting that and started designing around it, half my problems weren't problems anymore — they were just things I'd been doing in the wrong order, the wrong way, with the wrong tools.</p>
+
+      <div class="play-box">
+        <p class="kicker"><span aria-hidden="true">⚡</span> The Play</p>
+        <p>Stop trying to fix a brain that isn't faulty. Your job isn't to become a different person — it's to learn how <em>this</em> brain works and build a life that fits it.</p>
+      </div>
+
+      <div class="action-box">
+        <p class="kicker"><span class="dot" aria-hidden="true"></span> Run It Today</p>
+        <p>Write down one thing you've always called a "flaw" — easily bored, restless, blunt, scattered, intense. Next to it, write the flip side: curious, energetic, honest, big-picture, all-in. Same trait, different light. Read it twice. That reframe is the foundation everything else in this book sits on.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PLAY 2 ===================== -->
+  <section class="content play" id="play2">
+    <div class="wrap">
+      <div class="play-head">
+        <span class="play-num">2</span>
+        <span class="play-label">Play Two</span>
+      </div>
+      <h2>Systems beat willpower.</h2>
+
+      <p>Here's a hard truth that set me free: I have roughly the willpower of a labrador near a sausage. And for forty-seven years I built my entire life on the assumption that one day I'd magically develop the self-discipline of a Marine. I kept waiting to "just remember." To "just try harder." To "just be more organised."</p>
+
+      <p>It never came. Because willpower, for a brain like mine, is a terrible foundation. It's there in the morning and gone by 3pm. It evaporates the second I'm tired, stressed, or interested in literally anything else. Building your life on willpower is like building a house on a tide that goes out every afternoon.</p>
+
+      <p>What changed everything was this idea: <strong>build an external brain.</strong> Stop trying to hold things in your head — your head leaks. Put it somewhere your head can't lose it. The whiteboard in our kitchen does more parenting admin than my memory ever did. The alarm labelled "LEAVE NOW OR YOU'RE LATE FOR PICKUP" has saved me more times than I'll admit. A brain dump on a scrap of paper at 9pm means I don't lie awake spinning at midnight.</p>
+
+      <div class="pull">Your memory is not a hard drive. Stop saving important things to a hard drive that wipes itself. Save them somewhere outside your head.</div>
+
+      <p>None of it is clever. That's the point. The dads I know who are thriving with ADHD aren't more disciplined than the ones who are drowning — they've just outsourced the remembering to systems that don't get tired.</p>
+
+      <div class="play-box">
+        <p class="kicker"><span aria-hidden="true">⚡</span> The Play</p>
+        <p>Build an external brain. Alarms, whiteboards, lists, sticky notes on the door. If it matters, it lives outside your head — because inside your head, it will not survive the day.</p>
+      </div>
+
+      <div class="action-box">
+        <p class="kicker"><span class="dot" aria-hidden="true"></span> Run It Today</p>
+        <p>Pick the ONE thing you forget most often that hurts most — a pickup, a med, a bin day, a kid's appointment. Set a recurring alarm for it right now, with a blunt label that tells you exactly what to do. Not "reminder." Something like "PUT BINS OUT — DO IT NOW." One alarm. Today. That's a system.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PLAY 3 ===================== -->
+  <section class="content play" id="play3">
+    <div class="wrap">
+      <div class="play-head">
+        <span class="play-num">3</span>
+        <span class="play-label">Play Three</span>
+      </div>
+      <h2>Break the shame loop.</h2>
+
+      <p>I want to talk about the thing nobody warns you about, because it's the quiet one that does the most damage. It's not the forgetting. It's the shame about the forgetting.</p>
+
+      <p>Here's how the loop runs, and tell me if you recognise it. You forget something — say, you promised to take your kid to the park and it slipped your mind. You feel like garbage. That feeling of being garbage makes you want to hide, avoid, scroll, anything but face it. So you avoid the next thing too. Which means you drop that as well. Which makes you feel like even more of a garbage dad. And round and round it goes, picking up speed.</p>
+
+      <p>The cruel trick of it is this: the loop convinces you the problem is that you don't <em>care</em> enough or you're not <em>able</em> enough. But you care plenty — the shame is proof of how much you care. And ability was never the issue. The shame itself becomes the blocker. It's the thing that stops you starting, because starting means risking another failure, and you can't take another one.</p>
+
+      <p>What broke it for me wasn't getting more organised. It was learning to say, out loud and fast, "I dropped that. I'm sorry. Here's what I'll do." To my kids. No grovelling, no big emotional scene that makes it about me — just clean, quick repair. The first time I apologised properly to my eldest for forgetting something, I watched twenty years of "Dad doesn't mean it" start to soften. Kids forgive fast. It's us who can't let go.</p>
+
+      <div class="play-box">
+        <p class="kicker"><span aria-hidden="true">⚡</span> The Play</p>
+        <p>The real blocker isn't your ability — it's the shame. Name it, repair it fast, and refuse to let one dropped ball become a dropped week.</p>
+      </div>
+
+      <div class="action-box">
+        <p class="kicker"><span class="dot" aria-hidden="true"></span> Run It Today</p>
+        <p>Think of one thing you've been avoiding because you already feel bad about it. Don't fix the whole thing. Just do the smallest possible repair — a two-line apology, one text, one phone call. "I dropped this. Sorry. Sorting it now." Notice that the world doesn't end. That's how you starve the loop.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PLAY 4 ===================== -->
+  <section class="content play" id="play4">
+    <div class="wrap">
+      <div class="play-head">
+        <span class="play-num">4</span>
+        <span class="play-label">Play Four</span>
+      </div>
+      <h2>Routines that survive an ADHD brain.</h2>
+
+      <p>I have started so many "new routines." Sunday night, full of hope, I'd build this beautiful rigid schedule — 6:30 wake, 6:45 gym, 7:30 breakfast, the lot. Colour-coded. Gorgeous. Dead by Tuesday. Every single time. And every time it died I took it as more evidence I was hopeless.</p>
+
+      <p>The problem was never me. It was the design. Rigid, minute-by-minute schedules are built for brains that run on time. My brain doesn't run on time — it runs on triggers. So now I don't build schedules. I build <strong>anchor habits</strong>: I chain the thing I want to do onto a thing I already do without fail.</p>
+
+      <p>It looks like this. I already make a coffee every single morning — that never fails. So the kids' lunchboxes get packed <em>while the kettle boils.</em> I already brush my teeth at night — so I lay out tomorrow's clothes <em>right after I spit.</em> The boring task borrows the reliability of the habit that's already bombproof. I'm not relying on willpower or the clock. I'm relying on a coffee I was going to make anyway.</p>
+
+      <div class="pull">Don't schedule the task. Anchor it. "After I [thing I always do], I [thing I keep forgetting]." That little word — <em>after</em> — does more than any planner ever did for me.</div>
+
+      <p>The other rule: keep it stupidly small. One anchor at a time. If you try to bolt five new habits onto your morning, your brain treats it as one giant task and nopes out. One anchor, let it set like concrete for a couple of weeks, then add the next.</p>
+
+      <div class="play-box">
+        <p class="kicker"><span aria-hidden="true">⚡</span> The Play</p>
+        <p>Anchor habits, not rigid schedules. Bolt the thing you forget onto a thing you already do automatically — and your existing routine carries it for you.</p>
+      </div>
+
+      <div class="action-box">
+        <p class="kicker"><span class="dot" aria-hidden="true"></span> Run It Today</p>
+        <p>Finish this sentence and stick it where you'll see it: "After I _______ (something I do every single day without thinking), I will _______ (one small thing I keep dropping)." Make the coffee, the brush, the kettle do the remembering. One anchor. That's the whole job for this week.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PLAY 5 ===================== -->
+  <section class="content play" id="play5">
+    <div class="wrap">
+      <div class="play-head">
+        <span class="play-num">5</span>
+        <span class="play-label">Play Five</span>
+      </div>
+      <h2>Handle the overwhelm — yours and theirs.</h2>
+
+      <p>ADHD doesn't just affect attention. It affects the volume knob on your feelings. Mine goes from zero to one hundred with nothing in between. And when you've got four kids, there is no shortage of moments designed to crank that knob — the noise, the bickering, the one who needs you NOW while another is melting down over the wrong cup.</p>
+
+      <p>For years I'd flip. Not proud of it. I'd snap, raise my voice, and then sit in that special ADHD-dad guilt afterwards, the kind that keeps you up at night replaying it. The breakthrough was understanding one simple thing: <strong>you cannot calm a child down with a dysregulated nervous system.</strong> You just can't. They co-regulate off you. If you're a storm, they stay a storm. Two dysregulated people in a room is not parenting — it's a collision.</p>
+
+      <p>So the order of operations changed. I regulate myself <em>first</em>. Before I say a single word to a kid who's lost it, I take care of my own body — because a panicking brain can't think, and a regulated body lets the thinking brain switch back on. Sometimes that's three slow breaths. Sometimes it's literally saying, "I need a minute," and stepping into the hallway. That's not weakness in front of your kids. That's the single most useful thing you can model for them — a grown man noticing he's overheating and choosing to cool down instead of erupt.</p>
+
+      <p>And here's the bonus: when you regulate yourself out loud — "I'm getting wound up, I'm going to take some breaths" — you're teaching them the exact skill, live, in the moment they need it most.</p>
+
+      <div class="play-box">
+        <p class="kicker"><span aria-hidden="true">⚡</span> The Play</p>
+        <p>Regulate first. You can't pour calm from an empty, jangled cup. Settle your own body before you try to settle theirs — every time, in that order.</p>
+      </div>
+
+      <div class="action-box">
+        <p class="kicker"><span class="dot" aria-hidden="true"></span> Run It Today</p>
+        <p>Pick your reset. Three slow breaths out longer than in. A glass of cold water. Stepping outside for thirty seconds. Decide it now, while you're calm, so it's ready when you're not. Next time you feel the volume knob turning, run your reset <em>before</em> you open your mouth. One pause can change the whole evening.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PLAY 6 ===================== -->
+  <section class="content play" id="play6">
+    <div class="wrap">
+      <div class="play-head">
+        <span class="play-num">6</span>
+        <span class="play-label">Play Six</span>
+      </div>
+      <h2>Hyperfocus as a superpower with your kids.</h2>
+
+      <p>Everyone bangs on about the downsides of ADHD, so let me give you the one that's pure gold if you aim it right: hyperfocus. That ability to lock onto something so completely that the rest of the world disappears. It's wrecked plenty of my afternoons when it latched onto the wrong thing. But pointed at my kids? It's the best parenting tool I own.</p>
+
+      <p>Most parenting guilt is about quantity — am I giving them enough time? But kids don't actually measure it that way. They measure presence. And presence is the one thing a hyperfocus brain can deliver at a level most people can't touch. When I'm <em>in it</em> with my kid — building, playing, deep in some daft game they invented — I am all the way there. No phone, no half-listening, no part of me somewhere else. They feel that. It's rocket fuel for a kid.</p>
+
+      <p>I stopped beating myself up about not being a "present all day, every minute" dad — which I'm never going to be — and started deliberately spending the currency I'm rich in: short bursts of total, undivided focus. Twenty minutes of genuine, locked-in attention beats two hours of me on the sofa scrolling while they play near me. They don't remember the hours. They remember the moments you were fully <em>there.</em></p>
+
+      <div class="pull">You might never win "most hours." But you can absolutely win "most present." Spend your hyperfocus on connection, on purpose, and your kids get the very best of how your brain works.</div>
+
+      <div class="play-box">
+        <p class="kicker"><span aria-hidden="true">⚡</span> The Play</p>
+        <p>Channel your hyperfocus into connection. Trade scattered, half-there hours for short bursts of total, phone-down, all-in attention — and let that be your superpower.</p>
+      </div>
+
+      <div class="action-box">
+        <p class="kicker"><span class="dot" aria-hidden="true"></span> Run It Today</p>
+        <p>Pick one kid. Pick fifteen minutes. Phone in another room — not face-down on the table, another room. Let them choose what you do, and go all the way in, no agenda, no rushing it to the end. Fifteen fully-present minutes. Watch what it does to them. Then watch what it does to you.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PLAY 7 ===================== -->
+  <section class="content play" id="play7">
+    <div class="wrap">
+      <div class="play-head">
+        <span class="play-num">7</span>
+        <span class="play-label">Play Seven</span>
+      </div>
+      <h2>Getting diagnosed &amp; meds — my experience.</h2>
+
+      <p><strong>Straight up before I start: I'm a dad, not a doctor. Nothing in this play is medical advice. This is just my story. For anything to do with diagnosis or medication, you need a qualified professional — full stop.</strong> Right, with that nailed to the door, here's how it actually went for me.</p>
+
+      <p>I put off getting assessed for years. Partly the waiting lists, partly money, but mostly fear — fear that they'd tell me there was nothing wrong and I really was just lazy, and fear that they'd tell me there <em>was</em> and I'd have to rethink my whole life. Both turned out to be wrong. What I actually got was a calm, thorough conversation with someone who'd heard my story a thousand times before and made me feel, for once, completely normal.</p>
+
+      <p>The assessment itself was mostly talking — my history, school, work, relationships, the patterns. They spoke to people who knew me. It wasn't a quiz I could fail. If you're putting it off because you're scared of the verdict, I get it, but knowing genuinely beats wondering. Even just the name gave me back years of self-respect.</p>
+
+      <p>On medication, I'll only say this, and only about me: I was nervous about it, I'd swallowed all the scaremongering, and I went into it carefully and slowly with a professional guiding it. For me it wasn't a personality transplant — it was more like someone finally turned the brightness down on a screen that had been blasting at full whack my whole life. Quieter. Easier to pick what to look at. But — and this matters — meds are deeply personal, they're not right or possible for everyone, and the only person who can have that conversation with you is a qualified clinician who knows your health. Not me, and not the internet.</p>
+
+      <p>What I want you to take from this isn't "go get medicated." It's: <strong>you're allowed to get help, and getting assessed is not an admission of failure — it's an act of taking yourself seriously.</strong> You'd take your kid. Take yourself.</p>
+
+      <div class="play-box">
+        <p class="kicker"><span aria-hidden="true">⚡</span> The Play</p>
+        <p>Getting assessed isn't giving up — it's taking yourself as seriously as you'd take your kids. Knowing beats wondering. And every decision about diagnosis and meds belongs with a qualified professional, not a book.</p>
+      </div>
+
+      <div class="action-box">
+        <p class="kicker"><span class="dot" aria-hidden="true"></span> Run It Today</p>
+        <p>One small step toward finding out — no commitment to anything beyond it. Look up how assessment works where you live, or book a chat with your GP/doctor, or write down the patterns you'd want to tell a professional about. You're not signing up for anything. You're just opening the door.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TOOLKIT ===================== -->
+  <section class="content toolkit" id="toolkit">
+    <div class="wrap">
+      <p class="section-eyebrow">Quick reference</p>
+      <h2 class="block-title">The Dad's ADHD Toolkit</h2>
+      <p>One page. Stick it on the fridge. When your head's too loud to remember the whole book, just glance at this.</p>
+
+      <div class="toolkit-grid">
+        <div class="tool-card">
+          <h4>Build your external brain</h4>
+          <ul>
+            <li>If it matters, it lives outside your head.</li>
+            <li>Blunt alarm labels: tell yourself exactly what to do.</li>
+            <li>One whiteboard for family admin — everyone can see it.</li>
+            <li>Brain-dump on paper before bed so you stop spinning.</li>
+            <li>Phone reminders set <em>the moment</em> you say "I'll remember."</li>
+          </ul>
+        </div>
+        <div class="tool-card">
+          <h4>Beat overwhelm</h4>
+          <ul>
+            <li>Regulate yourself <em>before</em> you regulate the kids.</li>
+            <li>Know your reset: breath, cold water, step outside.</li>
+            <li>"I need a minute" out loud is strength, not weakness.</li>
+            <li>Two dysregulated people = a collision, not parenting.</li>
+            <li>Breathe out longer than you breathe in.</li>
+          </ul>
+        </div>
+        <div class="tool-card">
+          <h4>Make habits stick</h4>
+          <ul>
+            <li>Anchor, don't schedule: "After I ___, I ___."</li>
+            <li>One new habit at a time. Let it set before adding more.</li>
+            <li>Borrow the reliability of a thing you already never skip.</li>
+            <li>Make the first step stupidly small.</li>
+            <li>Rigid timetables die by Tuesday — triggers don't.</li>
+          </ul>
+        </div>
+        <div class="tool-card">
+          <h4>Mind &amp; shame</h4>
+          <ul>
+            <li>You're wired different, not broken.</li>
+            <li>The blocker is shame, not ability.</li>
+            <li>Repair fast: "I dropped it. Sorry. Sorting it now."</li>
+            <li>Kids forgive quick — don't out-punish them on yourself.</li>
+            <li>One dropped ball ≠ a dropped week.</li>
+          </ul>
+        </div>
+        <div class="tool-card">
+          <h4>Use your superpowers</h4>
+          <ul>
+            <li>Hyperfocus → point it at your kids on purpose.</li>
+            <li>15 present minutes beat 2 half-there hours.</li>
+            <li>Phone in another room, not face-down on the table.</li>
+            <li>Aim to win "most present," not "most hours."</li>
+            <li>Curious, intense, all-in — those are features.</li>
+          </ul>
+        </div>
+        <div class="tool-card">
+          <h4>Getting help</h4>
+          <ul>
+            <li>Knowing beats wondering — getting assessed isn't failure.</li>
+            <li>You'd take your kid. Take yourself.</li>
+            <li>Diagnosis &amp; meds = qualified professional, always.</li>
+            <li>This toolkit is general info, <em>not</em> medical advice.</li>
+            <li>Take what's useful. Leave the rest. Run one play.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CLOSE / CTA ===================== -->
+  <section class="content close" id="close">
+    <div class="wrap">
+      <p class="section-eyebrow">Before you go</p>
+      <h2 class="block-title">You don't have to do all seven.</h2>
+
+      <p>If you've read this far, you already care more than the shame ever let you believe. So let me say the thing I needed someone to say to me: you are not a bad dad with a good brain. You're a good dad with a brain that needed a different manual. Now you've got one.</p>
+
+      <p>Don't try to overhaul your whole life by Monday — that's the old willpower trap, and it'll burn you out by Tuesday. Pick <strong>one play.</strong> Run it this week. Let it set. Then come back for the next. Small, anchored, repeated. That's how an ADHD brain actually builds a life it's proud of.</p>
+
+      <p>And you don't have to do it on your own. This whole thing — Dad's Code — exists because I got sick of dads suffering in silence, thinking they were the only one. You're not the only one. Not even close.</p>
+
+      <div class="cta">
+        <h3>Keep going with Dad's Code</h3>
+        <p>Real talk for dads who are present, not perfect. Come find the podcast, and grab the companion eBook on showing up for your kids without burning yourself out.</p>
+        <div class="cta-links">
+          <a class="cta-btn primary" href="#" aria-label="Listen to the Dad's Code podcast">🎧 The Dad's Code Podcast</a>
+          <a class="cta-btn ghost" href="#" aria-label="Get the Present, Not Perfect eBook">📘 "Present, Not Perfect" eBook</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== DISCLAIMER ===================== -->
+  <section class="content disclaimer" aria-label="Important note">
+    <div class="wrap">
+      <div class="note">
+        <p><strong>A gentle but important note.</strong> This playbook is general information and one dad's lived experience — it is <strong>not</strong> medical, psychological, or therapeutic advice, and it isn't a substitute for care from a qualified professional. ADHD looks different in everyone, and only a properly qualified clinician can diagnose it or advise you on medication. If you're struggling, please reach out to your doctor, GP, or a mental health professional. If you're in crisis or thinking about harming yourself, contact your local emergency services or a crisis line right away. Take what helps here, leave what doesn't, and please be gentle with yourself along the way.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="fm">Dad's Code</span>
+    The ADHD Dad's Playbook · by Jamie Wigg · Present, not perfect.<br />
+    © 2026 Dad's Code. For your personal use. Share the message, not the file.
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dad's Bedtime Stories — Dad's Code by Jamie Wigg</title>
+<meta name="description" content="Six original read-aloud bedtime stories, each with a gentle lesson to share. By Jamie Wigg, Dad's Code. Present, not perfect." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Bitter:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#14121A;
+    --bg-soft:#1C1924;
+    --bg-card:#221F2C;
+    --amber:#DFB76C;
+    --amber-soft:#E8CF9E;
+    --offwhite:#F4F1EA;
+    --muted:#B4AEC0;
+    --line:rgba(223,183,108,0.22);
+    --serif:'Fraunces', Georgia, 'Times New Roman', serif;
+    --body:'Bitter', Georgia, serif;
+    --maxw:46rem;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--offwhite);
+    font-family:var(--body);
+    font-size:1.125rem;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  a{color:var(--amber-soft);}
+  a:focus-visible,
+  button:focus-visible{
+    outline:3px solid var(--amber);
+    outline-offset:3px;
+    border-radius:4px;
+  }
+
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 1.5rem;}
+
+  /* ---------- Top brand bar ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:30;
+    background:rgba(20,18,26,0.86);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{
+    max-width:64rem;margin:0 auto;padding:0.75rem 1.5rem;
+    display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  }
+  .wordmark{
+    font-family:var(--serif);
+    font-weight:600;
+    letter-spacing:0.22em;
+    font-size:0.82rem;
+    color:var(--amber);
+    text-transform:uppercase;
+  }
+  .wordmark small{
+    display:block;
+    letter-spacing:0.16em;
+    font-size:0.6rem;
+    color:var(--muted);
+    font-weight:400;
+    margin-top:2px;
+  }
+  .btn-pdf{
+    font-family:var(--body);
+    font-size:0.8rem;
+    letter-spacing:0.04em;
+    color:var(--bg);
+    background:var(--amber);
+    border:none;
+    padding:0.55rem 1rem;
+    border-radius:999px;
+    cursor:pointer;
+    font-weight:500;
+    transition:background .2s ease, transform .1s ease;
+  }
+  .btn-pdf:hover{background:var(--amber-soft);}
+  .btn-pdf:active{transform:translateY(1px);}
+
+  /* ---------- Cover ---------- */
+  .cover{
+    position:relative;
+    min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;
+    padding:5rem 1.5rem 4rem;
+    overflow:hidden;
+    background:
+      radial-gradient(60rem 40rem at 50% 18%, rgba(223,183,108,0.10), transparent 60%),
+      radial-gradient(50rem 50rem at 80% 90%, rgba(180,174,192,0.07), transparent 60%),
+      var(--bg);
+  }
+  .cover .stars{position:absolute;inset:0;pointer-events:none;}
+  .cover .stars span{
+    position:absolute;display:block;width:3px;height:3px;border-radius:50%;
+    background:var(--amber-soft);opacity:.5;
+    box-shadow:0 0 6px 1px rgba(232,207,158,.5);
+    animation:twinkle 4s ease-in-out infinite;
+  }
+  @keyframes twinkle{0%,100%{opacity:.2;}50%{opacity:.85;}}
+  @media (prefers-reduced-motion: reduce){
+    .cover .stars span{animation:none;}
+  }
+  .moon{
+    width:120px;height:120px;margin:0 auto 1.75rem;
+    color:var(--amber);
+    filter:drop-shadow(0 0 24px rgba(223,183,108,0.35));
+  }
+  .cover-kicker{
+    font-family:var(--serif);
+    letter-spacing:0.3em;text-transform:uppercase;
+    font-size:0.72rem;color:var(--muted);margin-bottom:1.25rem;
+  }
+  .cover h1{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:clamp(2.6rem,7vw,4.6rem);
+    line-height:1.04;
+    margin:0 0 1.25rem;
+    color:var(--offwhite);
+    letter-spacing:-0.01em;
+  }
+  .cover h1 em{
+    font-style:italic;color:var(--amber-soft);font-weight:400;
+  }
+  .badge{
+    display:inline-flex;align-items:center;gap:0.5rem;
+    border:1px solid var(--line);
+    background:rgba(223,183,108,0.08);
+    color:var(--amber-soft);
+    font-family:var(--serif);
+    font-size:0.82rem;letter-spacing:0.12em;text-transform:uppercase;
+    padding:0.5rem 1.1rem;border-radius:999px;margin-bottom:2rem;
+  }
+  .cover-sub{
+    max-width:32rem;color:var(--muted);font-size:1.05rem;margin:0 auto 2.25rem;font-style:italic;
+  }
+  .cover-by{
+    font-family:var(--serif);color:var(--offwhite);font-size:0.95rem;letter-spacing:0.04em;
+  }
+  .cover-by span{color:var(--amber);}
+  .tagline{
+    margin-top:0.6rem;color:var(--muted);font-size:0.8rem;letter-spacing:0.22em;text-transform:uppercase;
+  }
+  .scroll-hint{
+    margin-top:2.5rem;color:var(--muted);font-size:0.75rem;letter-spacing:0.18em;text-transform:uppercase;
+  }
+
+  /* ---------- Section shells ---------- */
+  section{padding:3.5rem 0;}
+  .intro{
+    background:var(--bg-soft);
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+  }
+  .eyebrow{
+    font-family:var(--serif);
+    letter-spacing:0.24em;text-transform:uppercase;
+    font-size:0.7rem;color:var(--amber);margin-bottom:0.9rem;
+  }
+  .intro h2,.toc h2{
+    font-family:var(--serif);font-weight:500;
+    font-size:clamp(1.8rem,4.5vw,2.5rem);
+    margin:0 0 1.25rem;color:var(--offwhite);
+  }
+  .intro p{color:var(--offwhite);margin:0 0 1.1rem;}
+  .intro p.note{
+    color:var(--muted);font-style:italic;border-left:3px solid var(--amber);
+    padding-left:1.1rem;margin-top:2rem;
+  }
+  .signoff{
+    font-family:var(--serif);font-style:italic;color:var(--amber-soft);
+    font-size:1.15rem;margin-top:1.75rem;
+  }
+
+  .howto{
+    margin-top:2rem;background:var(--bg-card);border:1px solid var(--line);
+    border-radius:14px;padding:1.4rem 1.6rem;
+  }
+  .howto strong{color:var(--amber);font-family:var(--serif);letter-spacing:0.04em;}
+  .howto p{margin:0.5rem 0 0;color:var(--muted);font-size:1rem;}
+
+  /* ---------- TOC ---------- */
+  .toc ol{list-style:none;counter-reset:story;margin:1.5rem 0 0;padding:0;}
+  .toc li{counter-increment:story;border-bottom:1px solid var(--line);}
+  .toc a{
+    display:flex;align-items:baseline;gap:1rem;
+    text-decoration:none;color:var(--offwhite);
+    padding:1rem 0.25rem;transition:color .2s ease,background .2s ease;
+  }
+  .toc a:hover{color:var(--amber-soft);background:rgba(223,183,108,0.05);}
+  .toc a::before{
+    content:counter(story,decimal-leading-zero);
+    font-family:var(--serif);color:var(--amber);font-size:0.9rem;
+    min-width:2rem;letter-spacing:0.05em;
+  }
+  .toc .t-title{font-family:var(--serif);font-size:1.18rem;flex:1;}
+  .toc .t-code{color:var(--muted);font-style:italic;font-size:0.9rem;display:none;}
+  @media(min-width:38rem){.toc .t-code{display:inline;}}
+
+  /* ---------- Stories ---------- */
+  .story{border-top:1px solid var(--line);}
+  .story-head{text-align:center;margin-bottom:2.25rem;}
+  .motif{
+    font-size:2.4rem;line-height:1;display:block;margin:0 auto 0.75rem;
+  }
+  .story-no{
+    font-family:var(--serif);letter-spacing:0.28em;text-transform:uppercase;
+    font-size:0.7rem;color:var(--amber);margin-bottom:0.6rem;
+  }
+  .story h2{
+    font-family:var(--serif);font-weight:500;
+    font-size:clamp(2rem,5.5vw,3rem);
+    line-height:1.1;margin:0;color:var(--offwhite);letter-spacing:-0.01em;
+  }
+  .story-body{font-size:1.22rem;line-height:1.95;}
+  .story-body p{margin:0 0 1.4rem;}
+  .story-body p:first-of-type::first-letter{
+    font-family:var(--serif);
+    font-size:3.4rem;line-height:0.8;float:left;
+    color:var(--amber);margin:0.35rem 0.6rem 0 0;font-weight:500;
+  }
+  .codeline{
+    margin:2.5rem auto 0;
+    border-top:1px solid var(--line);
+    padding-top:1.6rem;
+    text-align:center;
+  }
+  .codeline .label{
+    font-family:var(--serif);letter-spacing:0.24em;text-transform:uppercase;
+    font-size:0.68rem;color:var(--amber);display:block;margin-bottom:0.5rem;
+  }
+  .codeline .text{
+    font-family:var(--serif);font-style:italic;font-size:1.3rem;color:var(--amber-soft);
+    line-height:1.5;
+  }
+  .backtotop{
+    display:block;text-align:center;margin-top:2rem;
+    font-size:0.75rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);
+    text-decoration:none;
+  }
+  .backtotop:hover{color:var(--amber-soft);}
+
+  /* ---------- Footer ---------- */
+  footer{
+    background:var(--bg-soft);border-top:1px solid var(--line);
+    text-align:center;padding:3rem 1.5rem;
+  }
+  footer .wordmark{margin-bottom:0.75rem;}
+  footer p{color:var(--muted);font-size:0.9rem;margin:0.35rem 0;}
+  footer .tagline{margin-top:1rem;}
+
+  /* ---------- Print ---------- */
+  @media print{
+    @page{size:A4;margin:18mm 16mm;}
+    :root{--maxw:100%;}
+    html,body{background:#fffdf7;color:#2a2520;font-size:12.5pt;line-height:1.7;}
+    .topbar,.btn-pdf,.scroll-hint,.backtotop,.cover .stars{display:none !important;}
+    a{color:#5a4a2a;text-decoration:none;}
+    .cover{
+      min-height:auto;page-break-after:always;background:#fffdf7;color:#2a2520;
+      padding:3rem 0;
+    }
+    .cover h1{color:#1f1a12;}
+    .cover h1 em,.cover-by span,.cover-kicker,.cover-sub,.cover-by,.tagline{color:#5a4a2a !important;}
+    .moon{color:#9a7a3a;filter:none;}
+    .badge{color:#5a4a2a;border-color:#cbb98e;background:#f3ead6;}
+    .intro,.toc,footer{background:#fffdf7;border-color:#e3d8bd;}
+    .intro h2,.toc h2,.story h2,.cover-by{color:#1f1a12;}
+    .intro p,.story-body{color:#2a2520;}
+    .howto{background:#f6eed9;border-color:#e3d8bd;}
+    .eyebrow,.story-no,.codeline .label,.howto strong{color:#8a6a25;}
+    .signoff,.codeline .text,.story-body p:first-of-type::first-letter{color:#7a5e22;}
+    .toc{page-break-after:always;}
+    .story{page-break-before:always;border-top:none;padding-top:0.5rem;}
+    .story-body p:first-of-type::first-letter{color:#9a7a3a;}
+    .codeline{border-color:#d8cba8;}
+    section{padding:1.5rem 0;}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="wordmark">Dad's Code<small>By Jamie Wigg</small></div>
+    <button class="btn-pdf" id="savePdf" type="button">Save as PDF</button>
+  </div>
+</header>
+
+<!-- ============ COVER ============ -->
+<div class="cover" id="top">
+  <div class="stars" aria-hidden="true">
+    <span style="top:14%;left:18%;"></span>
+    <span style="top:22%;left:74%;animation-delay:.6s;"></span>
+    <span style="top:30%;left:40%;animation-delay:1.2s;"></span>
+    <span style="top:12%;left:58%;animation-delay:1.8s;"></span>
+    <span style="top:68%;left:24%;animation-delay:.9s;"></span>
+    <span style="top:76%;left:80%;animation-delay:2.1s;"></span>
+    <span style="top:60%;left:60%;animation-delay:1.5s;"></span>
+    <span style="top:84%;left:46%;animation-delay:.3s;"></span>
+    <span style="top:40%;left:88%;animation-delay:2.4s;"></span>
+    <span style="top:50%;left:8%;animation-delay:1.1s;"></span>
+  </div>
+
+  <svg class="moon" viewBox="0 0 100 100" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M64 14a38 38 0 1 0 22 69 30 30 0 0 1-22-69z" fill="rgba(223,183,108,0.10)"/>
+    <circle cx="42" cy="40" r="2.4" fill="currentColor" stroke="none"/>
+    <circle cx="34" cy="58" r="1.8" fill="currentColor" stroke="none"/>
+    <circle cx="50" cy="66" r="2.1" fill="currentColor" stroke="none"/>
+  </svg>
+
+  <p class="cover-kicker">Dad's Code presents</p>
+  <h1>Dad's <em>Bedtime</em> Stories</h1>
+  <span class="badge" aria-label="Six bedtime stories">✦ 6 bedtime stories</span>
+  <p class="cover-sub">Six little tales to read aloud in the dark, slow and soft &mdash; each one carrying a quiet lesson to tuck in beside you.</p>
+  <p class="cover-by">by <span>Jamie Wigg</span></p>
+  <p class="tagline">Present, not perfect.</p>
+  <p class="scroll-hint" aria-hidden="true">scroll to begin ↓</p>
+</div>
+
+<!-- ============ INTRO ============ -->
+<section class="intro">
+  <div class="wrap">
+    <p class="eyebrow">A note before lights-out</p>
+    <h2>From the dad who reads the story anyway</h2>
+    <p>I'm Jamie. I wrote these on the nights when I was tired, when the day had been long, when I wasn't sure I had much left to give. I wrote them because I've learned that the reading is the gift &mdash; not the doing it perfectly.</p>
+    <p>You don't have to be a great reader. You don't have to do the voices (though you can, and they'll love it). You just have to be there, on the edge of the bed, turning the page. That's the whole secret. Showing up is the magic.</p>
+    <p>Each story is short on purpose &mdash; written to be read in the small, sleepy light at the end of the day. And each one ends with a single line we call <em>"The Code"</em>: a tiny truth for you and your child to carry into the dark together.</p>
+    <p class="note">These belong to no kingdom and no screen. They belong to your voice, in your house, tonight.</p>
+
+    <div class="howto">
+      <strong>How to read this</strong>
+      <p>Dim the light. Sit close. Read slower than feels natural &mdash; let the words go soft and low, like you're letting the day down gently. Pause at the end of each story, read "The Code" aloud, and let it be the last thing you both hear before sleep.</p>
+    </div>
+
+    <p class="signoff">Goodnight, from one tired, lucky dad to another. &mdash; Jamie</p>
+  </div>
+</section>
+
+<!-- ============ TOC ============ -->
+<section class="toc">
+  <div class="wrap">
+    <p class="eyebrow">The stories</p>
+    <h2>Contents</h2>
+    <nav aria-label="Table of contents">
+      <ol>
+        <li><a href="#story-1"><span class="t-title">The Little Star Who Felt Too Small</span><span class="t-code">you are enough</span></a></li>
+        <li><a href="#story-2"><span class="t-title">Bramble the Bear Who Couldn't Sleep</span><span class="t-code">breathe and let go</span></a></li>
+        <li><a href="#story-3"><span class="t-title">The Lighthouse Keeper's Boy</span><span class="t-code">always there</span></a></li>
+        <li><a href="#story-4"><span class="t-title">Pip the Penguin Tries Again</span><span class="t-code">brave to try</span></a></li>
+        <li><a href="#story-5"><span class="t-title">The Kindest Kangaroo</span><span class="t-code">kindness comes back</span></a></li>
+        <li><a href="#story-6"><span class="t-title">Goodnight, Little Worry</span><span class="t-code">name it, shrink it</span></a></li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<!-- ============ STORY 1 ============ -->
+<section class="story" id="story-1">
+  <div class="wrap">
+    <div class="story-head">
+      <span class="motif" aria-hidden="true">✦</span>
+      <p class="story-no">Story One</p>
+      <h2>The Little Star Who Felt Too Small</h2>
+    </div>
+    <div class="story-body">
+      <p>High above the sleeping world, in the deep blue quiet of the night, there lived a little star named Wren. Wren was the smallest star in her patch of sky, and she worried about it terribly.</p>
+      <p>All around her shone enormous stars, bright as lanterns, blazing white and gold. When the people far below looked up, they pointed at those big stars and gasped. Nobody ever pointed at Wren. She was sure of it.</p>
+      <p>"What's the use of me?" she whispered. "I'm too small to matter. My light is hardly any light at all." And she dimmed herself down, tucking her glow away, until she was barely a speck.</p>
+      <p>That very night, far below, a small boy was lost in a wide, dark field. He had wandered too far chasing a firefly, and now he couldn't find his way home. The big stars were hidden behind a passing cloud, and the boy began to cry.</p>
+      <p>But there was one little gap in the cloud. And shining through that gap, soft and steady, was Wren.</p>
+      <p>The boy looked up and saw her &mdash; just one gentle light in all that dark. "There," he said, wiping his eyes. "I'll walk toward that little star." And he did. Step by step, following Wren's quiet glow, he found the path, and the gate, and the warm yellow window of his own home.</p>
+      <p>Wren watched him go inside. She had not been the brightest star that night. She had not been the biggest. She had simply been <em>there</em>, shining the only light she had, exactly when it was needed.</p>
+      <p>And from that night on, Wren never tried to be a bigger star. She just shone, the way only she could shine &mdash; and somewhere below, a sleepy boy always knew which star was his.</p>
+      <p>Up in the deep blue quiet, the little star glowed, content at last. She was small. And she was enough. She had always been enough.</p>
+
+      <div class="codeline">
+        <span class="label">The Code</span>
+        <p class="text">You don't have to be the brightest to light someone's way home. You are already enough.</p>
+      </div>
+      <a class="backtotop" href="#top">↑ back to top</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STORY 2 ============ -->
+<section class="story" id="story-2">
+  <div class="wrap">
+    <div class="story-head">
+      <span class="motif" aria-hidden="true">🐻</span>
+      <p class="story-no">Story Two</p>
+      <h2>Bramble the Bear Who Couldn't Sleep</h2>
+    </div>
+    <div class="story-body">
+      <p>Deep in the hush of the forest, in a den lined with moss and warm leaves, there lived a bear cub named Bramble. It was time for the long winter sleep, and all the other bears were already breathing slow and deep. But Bramble could not settle.</p>
+      <p>His thoughts were running like rabbits. Round and round they went &mdash; about the day, about tomorrow, about the wind he could hear nudging the trees. His heart felt fast and fluttery, like a bird trapped behind his ribs.</p>
+      <p>"I'll never sleep," Bramble fretted, wriggling in his leaves. "My thoughts are too loud."</p>
+      <p>Then, soft as falling snow, his mother's voice came through the dark. "Bramble," she murmured, "let's breathe with the forest. The forest knows how to be still."</p>
+      <p>"How do I do that?" asked Bramble.</p>
+      <p>"Breathe in," she said, "slow as the moon rising. Fill your tummy like a round, soft balloon." And Bramble breathed in &mdash; one, two, three, four &mdash; until his belly was big and full.</p>
+      <p>"Now hold it gently," she said, "like you're holding a sleepy snowflake." And he held it &mdash; one, two.</p>
+      <p>"And let it go," she whispered, "long and slow, like the wind sighing down the valley." And Bramble breathed out &mdash; one, two, three, four, five, six &mdash; and felt the racing rabbits in his mind begin to slow to a walk.</p>
+      <p>They breathed together. In like the rising moon. Out like the sighing wind. The fast little bird behind his ribs grew calm and folded its wings. His shoulders went soft. His paws grew heavy.</p>
+      <p>"You don't have to chase the thoughts away," his mother murmured. "Just breathe, and let them drift, like leaves on a quiet stream."</p>
+      <p>And so Bramble breathed, and the leaves of his thoughts floated gently downstream, one by one, until there was nothing left but the warm dark and the slow rise and fall of his own soft tummy.</p>
+      <p>By the time the snow began to fall outside, Bramble the bear was fast, fast asleep.</p>
+
+      <div class="codeline">
+        <span class="label">The Code</span>
+        <p class="text">When your thoughts run fast, breathe slow. In like the moon, out like the wind &mdash; and let the rest drift away.</p>
+      </div>
+      <a class="backtotop" href="#top">↑ back to top</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STORY 3 ============ -->
+<section class="story" id="story-3">
+  <div class="wrap">
+    <div class="story-head">
+      <span class="motif" aria-hidden="true">🌊</span>
+      <p class="story-no">Story Three</p>
+      <h2>The Lighthouse Keeper's Boy</h2>
+    </div>
+    <div class="story-body">
+      <p>On a rock at the edge of the sea stood a tall white lighthouse, and in the lighthouse lived a keeper and his boy, whose name was Finn. The keeper's job was the most important job on the whole wild coast: to keep the great lamp burning, so that no ship would ever lose its way in the dark.</p>
+      <p>Every evening, just before the sun slipped under the water, Finn would climb the long spiral stairs with his father to light the lamp. Up and up they went, round and round, until they reached the very top where the glass caught the last of the gold.</p>
+      <p>One night a storm came rolling in, big and grumbling, with waves that crashed like thunder against the rock. Finn felt small and frightened. The wind howled. The whole lighthouse seemed to shiver.</p>
+      <p>"What if the light goes out?" Finn whispered. "What if a ship can't find us?"</p>
+      <p>His father knelt down and looked him in the eye. "Finn," he said, "do you know why the light never goes out?"</p>
+      <p>Finn shook his head.</p>
+      <p>"Because someone is always here to tend it," said his father. "No matter how big the storm, no matter how dark the night, the keeper stays. That's the whole job. To stay. To be there." He squeezed Finn's hand. "And do you know what? That's my job with you, too."</p>
+      <p>"What do you mean?" asked Finn.</p>
+      <p>"I mean that I am your lighthouse," said his father softly. "When your nights get stormy &mdash; when you're scared, or sad, or lost &mdash; you look for my light, and it will be burning. Always. I will always be here. That's a promise that doesn't go out."</p>
+      <p>Outside, the storm still roared. But high in the tower the great lamp glowed warm and steady, sweeping its golden beam across the heaving sea. And far out on the water, a ship saw the light and turned safely toward home.</p>
+      <p>Finn leaned against his father and watched the beam go round, and round, and round. He wasn't frightened anymore. The storm could grumble all it liked. His light was right beside him, and it was never, ever going out.</p>
+
+      <div class="codeline">
+        <span class="label">The Code</span>
+        <p class="text">However stormy the night, your light is always burning. I will always be here.</p>
+      </div>
+      <a class="backtotop" href="#top">↑ back to top</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STORY 4 ============ -->
+<section class="story" id="story-4">
+  <div class="wrap">
+    <div class="story-head">
+      <span class="motif" aria-hidden="true">🐧</span>
+      <p class="story-no">Story Four</p>
+      <h2>Pip the Penguin Tries Again</h2>
+    </div>
+    <div class="story-body">
+      <p>On a wide white sheet of ice, beside a sea as blue as midnight, there lived a small penguin named Pip. All the other penguins could dive. They would waddle to the edge, tip forward, and slide down into the water as smooth as silver fish.</p>
+      <p>But Pip was afraid. The water looked so cold, and so deep, and so far down. Every time he stood at the edge, his little feet froze and his tummy went wobbly, and he waddled back to safety.</p>
+      <p>"I can't," Pip would say. "What if I do it wrong? What if I splash and slip and look silly?"</p>
+      <p>One frosty morning, his grandmother shuffled up beside him. She was very old and very wise, with kind eyes the colour of the sea. "Pip," she said, "do you know how I learned to dive?"</p>
+      <p>"How?" asked Pip.</p>
+      <p>"I splashed," she said, with a twinkle. "And I slipped. And once I did a flop so loud the whole colony laughed." She chuckled. "And then I tried again. And again. The falling is part of the flying, little one. Nobody learns without it."</p>
+      <p>So Pip took a deep breath, waddled to the edge, and jumped. <em>SPLASH!</em> He flopped sideways and bobbed up with ice on his beak. The water was freezing. He scrambled back out, dripping and embarrassed.</p>
+      <p>"Again," said his grandmother gently.</p>
+      <p>Pip jumped again. Another flop. "Again," she said. And again. And again. Each time, he wobbled a little less. Each time, he was a little less afraid.</p>
+      <p>And then &mdash; on the seventh try &mdash; Pip tipped forward, tucked in his flippers, and slipped into the sea as smooth as a silver fish. The cold rushed past him and turned to a thrill, and suddenly he was <em>flying</em>, flying through the water, twisting and looping with pure delight.</p>
+      <p>He surfaced with a happy squawk. All his flops, all his splashes, all his trying again &mdash; they had carried him here, to this. Pip had learned the bravest thing of all: it's not about getting it right. It's about getting back up.</p>
+
+      <div class="codeline">
+        <span class="label">The Code</span>
+        <p class="text">It's brave to try, and it's okay to fall. The falling is part of the flying &mdash; so try again.</p>
+      </div>
+      <a class="backtotop" href="#top">↑ back to top</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STORY 5 ============ -->
+<section class="story" id="story-5">
+  <div class="wrap">
+    <div class="story-head">
+      <span class="motif" aria-hidden="true">🦘</span>
+      <p class="story-no">Story Five</p>
+      <h2>The Kindest Kangaroo</h2>
+    </div>
+    <div class="story-body">
+      <p>Out on the warm red plains, where the grass grew gold and the sky stretched on forever, there lived a young kangaroo named Jo. Jo had a soft heart and a cosy pouch, and more than anything, Jo loved to be kind.</p>
+      <p>One morning Jo found a tiny lost joey crying by a creek, too small and tired to hop. So Jo scooped the little one up, tucked it warm into the pouch, and carried it all the way home. "Thank you," whispered the joey. Jo just smiled. Being kind felt good, like sunshine on the inside.</p>
+      <p>The next day, Jo found a thirsty wombat who couldn't reach the high green leaves, and Jo bent down a branch so he could nibble. The day after, Jo helped a beetle flip back onto its feet, and shared the last sweet berry with a hungry little quokka.</p>
+      <p>"Why do you help everyone?" asked a grumpy old crow, watching from a fence post. "What do you get for it?"</p>
+      <p>Jo thought about it. "I don't do it to get anything," Jo said. "I do it because it feels right." And Jo hopped on, leaving the crow to grumble.</p>
+      <p>But then came a hard day. The sky turned dark, and a great dust storm swept across the plain, swirling and roaring. Jo got lost in it, blinded and frightened, far from home with the wind tearing at the grass.</p>
+      <p>And then, through the dust, came a sound. Footsteps. Many of them. The little joey Jo had carried. The wombat. The quokka. Even the beetle, riding on the wombat's back. They had come looking for Jo, all of them together, forming a little chain to lead the way.</p>
+      <p>"You helped us," said the joey, now grown bigger. "Now we help you." And gently, kindly, they guided Jo all the way home, through the storm and into the calm.</p>
+      <p>That night, safe and warm, Jo understood something lovely. Kindness is never really given away. It goes out into the world like seeds on the wind &mdash; and one day, just when you need it most, it comes hopping back to you.</p>
+
+      <div class="codeline">
+        <span class="label">The Code</span>
+        <p class="text">Be kind, not to get something back, but because it's right &mdash; and kindness always finds its way home to you.</p>
+      </div>
+      <a class="backtotop" href="#top">↑ back to top</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STORY 6 ============ -->
+<section class="story" id="story-6">
+  <div class="wrap">
+    <div class="story-head">
+      <span class="motif" aria-hidden="true">🌙</span>
+      <p class="story-no">Story Six</p>
+      <h2>Goodnight, Little Worry</h2>
+    </div>
+    <div class="story-body">
+      <p>One night, a girl named Maya lay in her bed and could not sleep. Something was sitting on her chest &mdash; not heavy, exactly, but there. A small, grey, fidgety something. It was a Worry, and it would not be quiet.</p>
+      <p>It muttered and mumbled in the dark. <em>What if, what if, what if,</em> it whispered, growing a little bigger each time, until it loomed up large and shadowy on the wall.</p>
+      <p>Maya's father heard her wriggling and came and sat on the edge of her bed. "I can't sleep," Maya said. "There's a Worry, and it keeps getting bigger."</p>
+      <p>"Ah," said her father, nodding wisely. "Worries do that in the dark. But here's a secret: a Worry only grows big when it stays hidden. The moment you name it out loud, it begins to shrink." He smiled. "Shall we try? Tell me what it looks like."</p>
+      <p>Maya thought. "It's grey," she said. "And fidgety. And it's worried about my first day at the new school tomorrow."</p>
+      <p>And the strangest thing happened. As soon as she said it &mdash; <em>the new school, tomorrow</em> &mdash; the great shadow on the wall flickered and got a little smaller.</p>
+      <p>"Good," said her father. "Now tell me one true thing about tomorrow."</p>
+      <p>"My teacher sounded kind when we visited," said Maya slowly. The Worry shrank again, down to the size of a kitten.</p>
+      <p>"And one more."</p>
+      <p>"And you'll be picking me up after," she said. The Worry shrank to the size of a mouse.</p>
+      <p>"There," said her father softly. "See? It was never as big as it pretended. Worries are like shadows &mdash; they only seem huge until you shine a little light on them and look. Then they turn out quite small after all."</p>
+      <p>Maya looked at the tiny grey Worry, no bigger than a button now, sitting quietly in her palm. It didn't seem scary anymore. It just seemed small, and tired, and ready for sleep, like her.</p>
+      <p>"Goodnight, little Worry," she whispered, and tucked it under her pillow where it could rest. And Maya closed her eyes, light as a feather, and drifted off into a soft and easy sleep.</p>
+
+      <div class="codeline">
+        <span class="label">The Code</span>
+        <p class="text">A worry kept secret grows in the dark. Say it out loud, and watch it shrink down small.</p>
+      </div>
+      <a class="backtotop" href="#top">↑ back to top</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wordmark">Dad's Code<small>By Jamie Wigg</small></div>
+  <p>Dad's Bedtime Stories &mdash; six tales to read aloud, slow and soft.</p>
+  <p>Stories &amp; words &copy; Jamie Wigg. For your family, your voice, your night.</p>
+  <p class="tagline">Present, not perfect.</p>
+</footer>
+
+<script>
+  document.getElementById('savePdf').addEventListener('click', function(){
+    window.print();
+  });
+</script>
+
+</body>
+</html>
