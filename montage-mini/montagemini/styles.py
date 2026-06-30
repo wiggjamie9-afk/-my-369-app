@@ -41,7 +41,7 @@ PLAYBOOKS = {
         "muted": "#8d8576",
         "font": "Georgia, 'Times New Roman', serif",
         "motion": "slow_push",
-        "motif": "rays",
+        "motif": "cosmos",
         "vignette": 0.55,
     },
     "elegiac": {

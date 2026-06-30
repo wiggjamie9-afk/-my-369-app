@@ -96,6 +96,10 @@ _TEMPLATE = r"""<!DOCTYPE html>
   #captions .w.on { opacity: 1; }
   #vignette { position: absolute; inset: 0; pointer-events: none;
     background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.85) 100%); }
+  #grain { position: absolute; inset: 0; pointer-events: none; opacity: .05;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px 180px; }
   #controls {
     width: min(96vw, 1100px); display: flex; align-items: center; gap: 12px;
     background: #11151c; border: 1px solid #1e2632; border-radius: 10px; padding: 10px 14px;
@@ -127,6 +131,7 @@ _TEMPLATE = r"""<!DOCTYPE html>
       <div id="overlay"><div id="headline"></div></div>
       <div id="captions"></div>
       <div id="vignette"></div>
+      <div id="grain"></div>
     </div>
   </div>
   <div id="controls">
@@ -156,8 +161,10 @@ const timeEl = document.getElementById('time');
 
 headlineEl.style.fontFamily = P.font;
 headlineEl.style.color = P.text;
+headlineEl.style.textShadow = '0 2px 24px rgba(0,0,0,.75), 0 0 60px ' + P.accent + '55';
 captionsEl.style.fontFamily = P.font;
 captionsEl.style.color = P.text;
+captionsEl.style.textShadow = '0 2px 12px rgba(0,0,0,.85)';
 vignetteEl.style.opacity = P.vignette;
 document.getElementById('metaTitle').innerHTML =
   '<b>' + escapeHtml(P.title) + '</b> · ' + P.scenes.length + ' scenes · script: ' + P.backend;
@@ -258,6 +265,44 @@ function drawMotif(v, W, H, p) {
       }
       ctx.stroke();
     }
+  } else if (v.motif === 'cosmos') {
+    const cx = W*0.5, cy = H*0.5, R = Math.max(W,H);
+    // Drifting nebula clouds (soft radial color fields).
+    const neb = ctx.globalCompositeOperation;
+    ctx.globalCompositeOperation = 'lighter';
+    for (let i=0;i<3;i++){
+      const a = v.angle*0.0175 + i*2.1 + t*0.015;
+      const nx = cx + Math.cos(a)*W*0.22, ny = cy + Math.sin(a*0.7)*H*0.22;
+      const rad = R*(0.34+0.07*i);
+      const col = (i % 2) ? v.accent : v.accent2;
+      const rg = ctx.createRadialGradient(nx,ny,0,nx,ny,rad);
+      rg.addColorStop(0, hexA(col, 0.12));
+      rg.addColorStop(0.5, hexA(col, 0.05));
+      rg.addColorStop(1, hexA(col, 0));
+      ctx.fillStyle = rg; ctx.fillRect(0,0,W,H);
+    }
+    ctx.globalCompositeOperation = neb;
+    // Parallax starfield: 3 depth layers drift at different speeds + twinkle.
+    const layers = [[140,0.006,0.55],[90,0.013,0.9],[45,0.026,1.35]];
+    let li = 0;
+    for (const layer of layers){
+      const count = layer[0], speed = layer[1], size = layer[2];
+      for (let i=0;i<count;i++){
+        const sd = v.seed + li*1009 + i*7;
+        const sx = (rand(sd)*W + t*speed*W*0.35) % W;
+        const sy = (rand(sd*3.1)*H + t*speed*H*0.12) % H;
+        const tw = 0.35 + 0.65*Math.abs(Math.sin(t*1.6 + rand(sd*5.7)*6.283));
+        const r = size * Math.min(W,H) * 0.0016 * (0.6 + rand(sd*9.3));
+        ctx.fillStyle = hexA('#ffffff', 0.55*tw);
+        ctx.beginPath(); ctx.arc(sx, sy, r, 0, Math.PI*2); ctx.fill();
+      }
+      li++;
+    }
+    // Central glow / distant sun.
+    const gg = ctx.createRadialGradient(cx,cy,0,cx,cy,R*0.42);
+    gg.addColorStop(0, hexA(v.accent, 0.14));
+    gg.addColorStop(1, hexA(v.accent, 0));
+    ctx.fillStyle = gg; ctx.fillRect(0,0,W,H);
   } else if (v.motif === 'embers') {
     for (let i=0;i<40;i++){
       const sx = rand(v.seed+i)*W;
