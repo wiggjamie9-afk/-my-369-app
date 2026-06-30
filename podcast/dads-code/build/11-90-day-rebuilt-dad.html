@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The 90-Day Rebuilt Dad — A Lifestyle Reset · Dad's Code</title>
+<meta name="description" content="A 90-day, three-phase lifestyle reset for tired, run-down dads who want their energy, body and momentum back. Dad's Code by Jamie Wigg.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14121A;
+    --panel:#1C1A26;
+    --panel-2:#221F2E;
+    --amber:#DFB76C;
+    --amber-deep:#C99B4E;
+    --text:#F4F1EA;
+    --muted:#B6AFC2;
+    --line:rgba(223,183,108,0.28);
+    --radius:16px;
+    --shadow:0 18px 50px rgba(0,0,0,0.45);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    letter-spacing:0.01em;
+  }
+  .display{font-family:'Anton','Inter',sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:0.02em;line-height:0.95;}
+  a{color:var(--amber);text-decoration:none;}
+  a:focus-visible,.toc-item:focus-visible,.cta-btn:focus-visible,.print-btn:focus-visible,.skip-link:focus-visible{outline:3px solid var(--amber);outline-offset:3px;border-radius:6px;}
+  .sr-text{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+  .skip-link{position:absolute;left:-999px;top:8px;z-index:100;background:var(--amber);color:#1A1410;font-weight:800;padding:10px 16px;border-radius:8px;}
+  .skip-link:focus{left:12px;}
+
+  .wrap{max-width:920px;margin:0 auto;padding:0 22px;}
+
+  /* WORDMARK BAR */
+  .topbar{
+    border-bottom:1px solid var(--line);
+    background:rgba(20,18,26,0.85);
+    backdrop-filter:blur(8px);
+    position:sticky;top:0;z-index:50;
+  }
+  .topbar .inner{display:flex;align-items:center;justify-content:space-between;padding:12px 22px;max-width:920px;margin:0 auto;}
+  .wordmark{font-family:'Anton',sans-serif;letter-spacing:0.18em;color:var(--amber);font-size:0.95rem;text-transform:uppercase;}
+  .topbar-right{display:flex;align-items:center;gap:18px;}
+  .tagline-top{color:var(--muted);font-size:0.78rem;font-style:italic;letter-spacing:0.03em;}
+  .print-btn{
+    display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+    background:rgba(223,183,108,0.12);border:1px solid var(--line);color:var(--amber);
+    font-family:'Inter',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.04em;
+    padding:8px 15px;border-radius:999px;transition:background .15s,border-color .15s;
+  }
+  .print-btn:hover{background:rgba(223,183,108,0.22);border-color:var(--amber);}
+
+  /* COVER */
+  .cover{
+    min-height:100vh;
+    display:flex;flex-direction:column;justify-content:flex-end;
+    position:relative;overflow:hidden;
+    padding:0 0 64px;
+    background:
+      radial-gradient(120% 90% at 78% 12%, rgba(223,183,108,0.16), transparent 55%),
+      radial-gradient(120% 120% at 10% 100%, rgba(223,183,108,0.07), transparent 50%),
+      linear-gradient(180deg,#181520 0%, #14121A 60%, #100E15 100%);
+  }
+  .cover-grid{
+    position:absolute;inset:0;
+    background-image:linear-gradient(rgba(223,183,108,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(223,183,108,0.04) 1px,transparent 1px);
+    background-size:46px 46px;
+    mask-image:radial-gradient(circle at 50% 40%,#000 0%,transparent 78%);
+    -webkit-mask-image:radial-gradient(circle at 50% 40%,#000 0%,transparent 78%);
+    pointer-events:none;
+  }
+  .cover-inner{position:relative;z-index:2;width:100%;max-width:920px;margin:0 auto;padding:0 22px;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    color:var(--amber);font-weight:700;letter-spacing:0.22em;text-transform:uppercase;font-size:0.74rem;
+    margin-bottom:22px;
+  }
+  .eyebrow::before{content:"";width:30px;height:2px;background:var(--amber);display:inline-block;}
+  .cover h1{
+    font-size:clamp(3.2rem,12vw,7.4rem);
+    margin:0;
+    color:var(--text);
+    text-shadow:0 4px 30px rgba(0,0,0,0.5);
+  }
+  .cover h1 .em{color:var(--amber);display:block;}
+  .cover .subtitle{
+    font-size:clamp(1.05rem,2.4vw,1.45rem);
+    color:var(--text);
+    max-width:580px;
+    margin:20px 0 0;
+    font-weight:500;
+  }
+  .amber-rule{height:2px;width:120px;background:linear-gradient(90deg,var(--amber),transparent);margin:26px 0 18px;border:none;}
+  .cover-foot{color:var(--amber);font-size:0.86rem;letter-spacing:0.04em;font-weight:600;}
+  .cover-foot span{color:var(--muted);font-style:italic;font-weight:400;}
+
+  /* PHASE BADGE STICKER */
+  .badge-sticker{
+    position:absolute;top:9%;right:6%;z-index:3;
+    width:152px;height:152px;border-radius:50%;
+    background:radial-gradient(circle at 35% 28%, #F0CE8C, var(--amber) 55%, #B98B3F 100%);
+    color:#1A1410;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;
+    box-shadow:0 14px 36px rgba(223,183,108,0.32),inset 0 -6px 14px rgba(0,0,0,0.18);
+    transform:rotate(8deg);
+    border:3px solid rgba(255,255,255,0.22);
+  }
+  .badge-sticker .big{font-family:'Anton',sans-serif;font-size:2.6rem;line-height:1;}
+  .badge-sticker .small{font-weight:800;font-size:0.62rem;letter-spacing:0.13em;text-transform:uppercase;margin-top:5px;line-height:1.3;}
+
+  /* SECTIONS */
+  section.block{padding:54px 0;border-top:1px solid rgba(255,255,255,0.04);}
+  .kicker{color:var(--amber);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;font-size:0.74rem;margin:0 0 10px;}
+  h2.sec{font-size:clamp(1.9rem,4.5vw,2.8rem);margin:0 0 8px;color:var(--text);}
+  h2.sec .em{color:var(--amber);}
+  .sec-sub{color:var(--muted);margin:0 0 8px;font-size:1rem;}
+
+  .panel{
+    background:linear-gradient(180deg,var(--panel-2),var(--panel));
+    border:1px solid rgba(255,255,255,0.05);
+    border-radius:var(--radius);
+    padding:28px;
+    box-shadow:var(--shadow);
+  }
+  .lead{font-size:1.15rem;color:var(--text);}
+  .muted{color:var(--muted);}
+  .sign{color:var(--amber);font-style:italic;font-weight:600;}
+  .amber-em{color:var(--amber);}
+
+  /* TOC */
+  .toc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;}
+  .toc-item{
+    display:flex;align-items:center;gap:14px;
+    background:var(--panel);border:1px solid rgba(255,255,255,0.05);
+    border-radius:12px;padding:14px 16px;color:var(--text);font-weight:500;
+    transition:border-color .15s,transform .15s;
+  }
+  .toc-item:hover{border-color:var(--line);transform:translateX(3px);}
+  .toc-num{font-family:'Anton',sans-serif;color:var(--amber);font-size:1.2rem;min-width:30px;}
+
+  /* SAFETY PANEL */
+  .safety{
+    border:2px solid var(--amber);
+    border-radius:var(--radius);
+    background:linear-gradient(180deg,rgba(223,183,108,0.10),rgba(28,26,38,0.9));
+    padding:30px;
+    position:relative;
+    box-shadow:0 0 0 6px rgba(223,183,108,0.06),var(--shadow);
+  }
+  .safety .flag{
+    display:inline-flex;align-items:center;gap:10px;
+    background:var(--amber);color:#1A1410;font-weight:800;
+    padding:6px 16px;border-radius:999px;letter-spacing:0.12em;text-transform:uppercase;font-size:0.78rem;
+    margin-bottom:18px;
+  }
+  .safety h2{font-size:1.35rem;margin:0 0 14px;color:var(--text);line-height:1.35;}
+  .safety ul{margin:0;padding-left:0;list-style:none;}
+  .safety li{position:relative;padding:10px 0 10px 30px;border-top:1px solid var(--line);color:var(--text);}
+  .safety li:first-child{border-top:none;}
+  .safety li::before{content:"!";position:absolute;left:0;top:9px;width:20px;height:20px;border-radius:50%;background:var(--amber);color:#1A1410;font-weight:800;font-size:0.75rem;display:flex;align-items:center;justify-content:center;}
+  .safety strong{color:var(--amber);}
+
+  /* MINI SAFETY NOTE (near activity) */
+  .mininote{
+    background:rgba(223,183,108,0.09);
+    border:1px solid var(--line);
+    border-left:4px solid var(--amber);
+    border-radius:10px;
+    padding:14px 16px;
+    font-size:0.95rem;
+    margin:6px 0 0;
+  }
+  .mininote b{color:var(--amber);}
+
+  /* ONE RULE / PROMISE */
+  .onerule{
+    text-align:center;
+    background:
+      radial-gradient(120% 120% at 50% 0%, rgba(223,183,108,0.14), transparent 60%),
+      linear-gradient(180deg,var(--panel-2),var(--panel));
+    border:1px solid var(--line);
+  }
+  .onerule .tag{color:var(--amber);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;font-size:0.74rem;}
+  .onerule .big{font-family:'Anton',sans-serif;font-size:clamp(1.6rem,4vw,2.5rem);color:var(--text);margin:14px auto 12px;max-width:700px;line-height:1.1;text-transform:uppercase;}
+  .onerule .big em{color:var(--amber);font-style:normal;}
+
+  /* PHASE SECTION */
+  .phase{
+    background:linear-gradient(180deg,var(--panel-2),var(--panel));
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:var(--radius);
+    padding:30px 30px 26px;
+    margin-top:20px;
+    box-shadow:var(--shadow);
+    position:relative;
+    overflow:hidden;
+  }
+  .phase::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,var(--amber),transparent);}
+  .phase-head{display:flex;gap:22px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;}
+  .phase-no{
+    flex:0 0 auto;width:96px;height:96px;border-radius:18px;
+    background:radial-gradient(circle at 32% 26%, #F0CE8C, var(--amber) 60%, #B98B3F 100%);
+    color:#1A1410;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    box-shadow:0 8px 20px rgba(223,183,108,0.28),inset 0 -4px 10px rgba(0,0,0,0.18);
+    border:2px solid rgba(255,255,255,0.2);
+  }
+  .phase-no .days{font-family:'Anton',sans-serif;font-size:1.5rem;line-height:0.9;}
+  .phase-no .lbl{font-weight:800;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;}
+  .phase-title{font-size:1.55rem;font-weight:800;margin:0;color:var(--text);line-height:1.15;}
+  .phase-focus{color:var(--amber);font-weight:700;letter-spacing:0.04em;font-size:0.92rem;margin:6px 0 0;text-transform:uppercase;}
+  .phase-intro{color:var(--text);margin:16px 0 4px;font-size:1.02rem;}
+  .phase-intro.muted{color:var(--muted);}
+
+  .habit-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px;}
+  .habit{
+    background:var(--panel);border:1px solid rgba(255,255,255,0.06);border-radius:12px;
+    padding:18px 18px 16px;
+  }
+  .habit .h-top{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+  .habit .h-ico{
+    flex:0 0 auto;width:38px;height:38px;border-radius:10px;
+    background:rgba(223,183,108,0.14);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:1.2rem;
+  }
+  .habit h4{margin:0;font-size:1.02rem;color:var(--text);line-height:1.25;}
+  .habit p{margin:0;color:var(--muted);font-size:0.93rem;}
+
+  /* CORE HABITS DEEP DIVE */
+  .core{
+    background:linear-gradient(180deg,var(--panel-2),var(--panel));
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:var(--radius);
+    padding:24px 26px;
+    margin-top:18px;
+    box-shadow:var(--shadow);
+    position:relative;
+    overflow:hidden;
+  }
+  .core::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--amber),transparent);}
+  .core-head{display:flex;align-items:center;gap:16px;}
+  .core-ico{
+    flex:0 0 auto;width:52px;height:52px;border-radius:13px;
+    background:rgba(223,183,108,0.14);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:1.6rem;
+  }
+  .core-head h3{margin:0;font-size:1.25rem;color:var(--text);line-height:1.2;}
+  .core-head .num{font-family:'Anton',sans-serif;color:var(--amber);font-size:0.95rem;letter-spacing:0.08em;}
+  .core p{color:var(--text);margin:14px 0 0;font-size:0.99rem;}
+  .core .start{
+    margin-top:14px;background:rgba(223,183,108,0.09);border:1px solid var(--line);
+    border-left:4px solid var(--amber);border-radius:10px;padding:13px 15px;font-size:0.95rem;
+  }
+  .core .start b{color:var(--amber);}
+
+  /* TRACKER */
+  .tracker-wrap{margin-top:18px;overflow-x:auto;}
+  table.tracker{
+    width:100%;border-collapse:collapse;min-width:560px;
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+    font-size:0.92rem;
+  }
+  table.tracker caption{
+    caption-side:top;text-align:left;color:var(--muted);font-size:0.9rem;padding:0 0 12px;
+  }
+  table.tracker th,table.tracker td{border:1px solid rgba(223,183,108,0.18);padding:10px 8px;text-align:center;}
+  table.tracker thead th{
+    background:rgba(223,183,108,0.12);color:var(--amber);font-weight:800;
+    text-transform:uppercase;letter-spacing:0.04em;font-size:0.72rem;
+  }
+  table.tracker thead th.habit-col{text-align:left;min-width:140px;}
+  table.tracker tbody th{
+    text-align:left;font-weight:600;color:var(--text);background:rgba(255,255,255,0.02);
+    font-size:0.9rem;white-space:nowrap;
+  }
+  table.tracker tbody th .ico{color:var(--amber);margin-right:7px;}
+  .tick{
+    display:inline-block;width:20px;height:20px;border:2px solid var(--amber);
+    border-radius:5px;background:rgba(223,183,108,0.06);
+  }
+  .week-meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;color:var(--muted);font-size:0.92rem;}
+  .week-meta .field{display:flex;align-items:center;gap:8px;flex:1 1 200px;}
+  .week-meta .field .ruled{flex:1;border-bottom:1px solid var(--line);height:1.3em;}
+  .note-lines{margin-top:16px;}
+  .note-lines .nl-label{color:var(--amber);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;font-size:0.72rem;margin-bottom:10px;}
+  .note-lines .line{border-bottom:1px solid var(--line);height:1.9em;}
+
+  /* SLIP SECTION */
+  .slip-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;}
+  .slip-card{background:var(--panel);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:18px 18px 16px;}
+  .slip-card .x{font-family:'Anton',sans-serif;color:var(--amber);font-size:1.1rem;letter-spacing:0.06em;display:block;margin-bottom:6px;}
+  .slip-card b{color:var(--text);}
+  .slip-card p{margin:6px 0 0;color:var(--muted);font-size:0.93rem;}
+
+  /* CLOSE */
+  .close{text-align:center;background:radial-gradient(120% 120% at 50% 0%, rgba(223,183,108,0.12), transparent 60%),linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);}
+  .close .big{font-family:'Anton',sans-serif;font-size:clamp(1.6rem,4vw,2.4rem);text-transform:uppercase;line-height:1.1;margin:0 auto 14px;max-width:660px;}
+  .close .big em{color:var(--amber);font-style:normal;}
+  .cta-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:680px;margin:22px auto 6px;text-align:left;}
+  .cta-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:20px 20px 22px;display:flex;flex-direction:column;
+  }
+  .cta-card .eyebrow-s{color:var(--amber);font-weight:800;letter-spacing:0.16em;text-transform:uppercase;font-size:0.68rem;margin-bottom:8px;}
+  .cta-card h3{font-size:1.12rem;margin:0 0 6px;color:var(--text);line-height:1.25;}
+  .cta-card p{color:var(--muted);font-size:0.93rem;margin:0 0 16px;}
+  .cta-btn{
+    margin-top:auto;align-self:flex-start;
+    display:inline-flex;align-items:center;gap:8px;
+    font-weight:800;font-size:0.92rem;letter-spacing:0.02em;
+    padding:11px 20px;border-radius:999px;
+    background:var(--amber);color:#1A1410;border:2px solid var(--amber);
+  }
+  .cta-btn.ghost{background:transparent;color:var(--amber);}
+
+  footer.site{padding:40px 22px 60px;text-align:center;border-top:1px solid var(--line);color:var(--muted);font-size:0.85rem;}
+  footer.site .mark{font-family:'Anton',sans-serif;color:var(--amber);letter-spacing:0.18em;display:block;margin-bottom:6px;}
+
+  /* RESPONSIVE */
+  @media (max-width:680px){
+    .toc-grid{grid-template-columns:1fr;}
+    .habit-grid{grid-template-columns:1fr;}
+    .slip-grid{grid-template-columns:1fr;}
+    .cta-row{grid-template-columns:1fr;}
+    .badge-sticker{width:112px;height:112px;top:7%;right:5%;}
+    .badge-sticker .big{font-size:1.9rem;}
+    .phase-head{flex-direction:column;}
+    .tagline-top{display:none;}
+  }
+
+  /* PRINT */
+  @media print{
+    @page{size:A4 portrait;margin:14mm;}
+    html,body{background:#fff !important;color:#1a1a1a !important;}
+    .topbar{position:static;background:#fff;border-color:#caa85e;}
+    .print-btn,.skip-link{display:none !important;}
+    .wordmark,.kicker,.core-head .num,.phase-focus,.note-lines .nl-label{color:#9a7322 !important;}
+    .cover{min-height:auto;page-break-after:always;background:#fff !important;padding:30mm 0;}
+    .cover h1,.cover .subtitle,.cover-foot,.eyebrow{color:#1a1a1a !important;}
+    .cover h1 .em{color:#9a7322 !important;}
+    .cover-grid{display:none;}
+    .panel,.phase,.core,.safety,.onerule,.close,.toc-item,.habit,.slip-card,.cta-card,.mininote,.core .start{
+      background:#fff !important;border:1px solid #d8d8d8 !important;box-shadow:none !important;color:#1a1a1a !important;
+    }
+    .cta-card .eyebrow-s,.cta-card h3,.core-head h3,.phase-title,.habit h4,.slip-card .x,.slip-card b{color:#1a1a1a !important;}
+    .cta-card p,.habit p,.slip-card p,.muted,.sec-sub{color:#444 !important;}
+    .cta-btn{background:#f3e6c8 !important;color:#7a5a1a !important;border-color:#caa85e !important;}
+    .phase-no,.core-ico,.habit .h-ico{background:#f3e6c8 !important;color:#7a5a1a !important;border-color:#caa85e !important;}
+    .phase,.core,.safety,.panel,.tracker-wrap{page-break-inside:avoid;}
+    section.block{page-break-inside:avoid;padding:14px 0;border-top:none;}
+    h2.sec,.lead,.phase-intro,.core p{color:#1a1a1a !important;}
+    a{color:#9a7322 !important;}
+    .habit:hover,.toc-item:hover{transform:none;}
+    /* ink-light tracker */
+    #tracker{page-break-before:always;}
+    table.tracker{background:#fff !important;border:1px solid #999 !important;}
+    table.tracker th,table.tracker td{border:1px solid #999 !important;}
+    table.tracker thead th{background:#f3e6c8 !important;color:#7a5a1a !important;}
+    table.tracker tbody th{background:#fff !important;color:#1a1a1a !important;}
+    .tick{border:2px solid #555 !important;background:#fff !important;}
+    .week-meta .field .ruled,.note-lines .line{border-color:#999 !important;}
+    .week-meta,table.tracker caption{color:#444 !important;}
+  }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#contents">Skip to contents</a>
+
+<!-- WORDMARK BAR -->
+<div class="topbar">
+  <div class="inner">
+    <span class="wordmark">Dad's Code</span>
+    <span class="topbar-right">
+      <span class="tagline-top">Present, not perfect.</span>
+      <button type="button" class="print-btn" onclick="window.print()" aria-label="Print or save this guide as a PDF">
+        <span aria-hidden="true">⎙</span> Save as PDF
+      </button>
+    </span>
+  </div>
+</div>
+
+<!-- COVER -->
+<header class="cover">
+  <div class="cover-grid" aria-hidden="true"></div>
+  <div class="badge-sticker" role="img" aria-label="90 days, 3 phases">
+    <span class="big" aria-hidden="true">90</span>
+    <span class="small" aria-hidden="true">Days · 3 Phases</span>
+  </div>
+  <div class="cover-inner">
+    <span class="eyebrow">Dad's Code · A Lifestyle Reset</span>
+    <h1 class="display">The 90-Day<span class="em">Rebuilt Dad</span></h1>
+    <p class="subtitle">Get your energy, your body and your momentum back — one simple day at a time.</p>
+    <hr class="amber-rule">
+    <p class="cover-foot">Dad's Code by Jamie Wigg &nbsp;·&nbsp; <span>Present, not perfect.</span></p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- TABLE OF CONTENTS -->
+  <section class="block" id="contents">
+    <p class="kicker">Contents</p>
+    <h2 class="sec">What's <span class="em">inside</span></h2>
+    <p class="sec-sub">One whole-life reset. Three 30-day phases. A handful of simple daily habits, and a printable tracker so you never have to rely on willpower alone.</p>
+    <nav aria-label="Table of contents">
+      <div class="toc-grid">
+        <a class="toc-item" href="#intro"><span class="toc-num">01</span> I Rebuilt Myself at 48</a>
+        <a class="toc-item" href="#safety"><span class="toc-num">02</span> Read This First (safety)</a>
+        <a class="toc-item" href="#promise"><span class="toc-num">03</span> The 90-Day Promise</a>
+        <a class="toc-item" href="#phase1"><span class="toc-num">04</span> Days 1–30 · Foundations</a>
+        <a class="toc-item" href="#phase2"><span class="toc-num">05</span> Days 31–60 · Momentum</a>
+        <a class="toc-item" href="#phase3"><span class="toc-num">06</span> Days 61–90 · Identity</a>
+        <a class="toc-item" href="#habits"><span class="toc-num">07</span> The Core Habits, Explained</a>
+        <a class="toc-item" href="#tracker"><span class="toc-num">08</span> Your Weekly Tracker</a>
+        <a class="toc-item" href="#slip"><span class="toc-num">09</span> When You Slip</a>
+        <a class="toc-item" href="#close"><span class="toc-num">10</span> Keep Going — Podcast &amp; Dad Fuel</a>
+      </div>
+    </nav>
+  </section>
+
+  <!-- INTRO -->
+  <section class="block" id="intro">
+    <p class="kicker">01 · Intro</p>
+    <h2 class="sec">I rebuilt myself at <span class="em">48</span>. You can start today.</h2>
+    <div class="panel">
+      <p class="lead">For years I was the tired one. Overweight, anxious, knackered before lunch — dragging myself through the day and snapping at the people I loved most.</p>
+      <p>I told myself it was just age. Just being a busy dad. But deep down I knew where that road went, because I'd watched my mum walk it. I loved her, and I lost her too early. Standing there, I made a quiet promise: I wasn't going to hand my kids the same story.</p>
+      <p>So at 48, I started. Not with a gym membership I'd never use or a diet I'd quit by Friday — with <strong class="amber-em">a single walk around the block.</strong> Then another. I sorted my sleep. I drank some water. I caught the morning light. I talked to myself a bit kinder.</p>
+      <p>None of it was dramatic. All of it added up. I lost a lot of weight, the fog lifted, and now I run every day — something the old me would have laughed at. I'm not special, and I'm not finished. I'm just a dad who decided to stop waiting for the right moment and use this one.</p>
+      <p>This guide is the reset I wish someone had handed me. Ninety days, three phases, a few honest habits. Not a meal plan — your food's covered elsewhere — but the <strong class="amber-em">whole-life rebuild</strong>: how you move, sleep, think and keep going. It's achievable, it's honest, and you can start it today.</p>
+      <p class="sign">— Jamie. Present, not perfect.</p>
+    </div>
+  </section>
+
+  <!-- SAFETY -->
+  <section class="block" id="safety">
+    <p class="kicker">02 · Read This First</p>
+    <div class="safety">
+      <span class="flag"><span aria-hidden="true">⚠</span> Read this first</span>
+      <h2>This guide is general information only — not medical, health or fitness advice, and not a substitute for care from a qualified professional.</h2>
+      <ul>
+        <li><strong>Talk to your doctor before you change your exercise or lifestyle</strong> — especially if you have a medical condition, take medication, are recovering from illness or have had surgery, or simply haven't been active in a long time.</li>
+        <li>Start gently and build slowly. <strong>Stop and seek medical help</strong> if you feel chest pain, dizziness, breathlessness beyond normal exertion, or any pain that isn't right. Pushing through warning signs is not toughness.</li>
+        <li>Everything here is <strong>general and non-prescriptive.</strong> It is not a personalised plan and sets no targets for any individual. Your care team's advice always overrides anything in this book.</li>
+        <li>If anything here conflicts with professional advice you've been given, <strong>ignore this guide and follow the professional.</strong></li>
+        <li>This reset is about feeling well and showing up for your people — not punishment. Go at your own pace.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- THE PROMISE -->
+  <section class="block" id="promise">
+    <p class="kicker">03 · The 90-Day Promise</p>
+    <div class="panel onerule">
+      <span class="tag">How it works</span>
+      <p class="big">You don't need to overhaul your life. You just <em>don't break the chain</em> — one small, honest day at a time, for 90 days.</p>
+      <p class="muted" style="max-width:680px;margin:0 auto;">Ninety days is long enough to change how you feel and short enough to see the end. Three phases, each building on the last: <strong class="amber-em">Foundations</strong> (lay the base), <strong class="amber-em">Momentum</strong> (let it roll), <strong class="amber-em">Identity</strong> (become the bloke who just does this). Same handful of habits all the way through — you simply get steadier at them. <em>(See Read This First before you start moving.)</em></p>
+    </div>
+  </section>
+
+  <!-- PHASE 1 -->
+  <section class="block" id="phase1">
+    <p class="kicker">04 · Phase One</p>
+    <h2 class="sec">Days 1–30 · <span class="em">Foundations</span></h2>
+    <p class="sec-sub">Lay the base. We're not chasing results yet — we're proving to yourself that you turn up.</p>
+
+    <article class="phase">
+      <div class="phase-head">
+        <div class="phase-no" aria-hidden="true">
+          <span class="days">1–30</span>
+          <span class="lbl">Phase 1</span>
+        </div>
+        <div style="flex:1;min-width:200px;">
+          <h3 class="phase-title">Foundations</h3>
+          <p class="phase-focus">Focus: Show up, keep it tiny</p>
+        </div>
+      </div>
+      <p class="phase-intro">Month one is about one thing: becoming a man who keeps small promises to himself again. Forget intensity. Forget the scales. If the habit feels too easy, you've got it exactly right — easy is what survives a bad day. These four habits are the whole job for the next 30 days.</p>
+      <div class="habit-grid">
+        <div class="habit">
+          <div class="h-top"><span class="h-ico" aria-hidden="true">🚶</span><h4>A daily walk</h4></div>
+          <p>Ten minutes outside, every day. Round the block, to the shop, after dinner. Movement is the keystone — start here. <em>(See safety note.)</em></p>
+        </div>
+        <div class="habit">
+          <div class="h-top"><span class="h-ico" aria-hidden="true">🛏️</span><h4>A fixed bedtime</h4></div>
+          <p>Pick a lights-out time and protect it. Sleep is where your energy actually gets rebuilt.</p>
+        </div>
+        <div class="habit">
+          <div class="h-top"><span class="h-ico" aria-hidden="true">💧</span><h4>A glass of water first</h4></div>
+          <p>One big glass before your morning coffee. Easy win, every single day, no thinking required.</p>
+        </div>
+        <div class="habit">
+          <div class="h-top"><span class="h-ico" aria-hidden="true">✅</span><h4>Tick the box</h4></div>
+          <p>Mark it off on your tracker. The tick is the point — you're building proof, not perfection.</p>
+        </div>
+      </div>
+      <div class="mininote"><b>Move-safe note:</b> Before adding the daily walk, check Read This First. If walking is new for you, keep it flat and gentle, and clear it with your doctor — especially after any illness, injury or surgery.</div>
+    </article>
+  </section>
+
+  <!-- PHASE 2 -->
+  <section class="block" id="phase2">
+    <p class="kicker">05 · Phase Two</p>
+    <h2 class="sec">Days 31–60 · <span class="em">Momentum</span></h2>
+    <p class="sec-sub">Let it roll. The base is laid — now we nudge it forward and let the wins start stacking.</p>
+
+    <article class="phase">
+      <div class="phase-head">
+        <div class="phase-no" aria-hidden="true">
+          <span class="days">31–60</span>
+          <span class="lbl">Phase 2</span>
+        </div>
+        <div style="flex:1;min-width:200px;">
+          <h3 class="phase-title">Momentum</h3>
+          <p class="phase-focus">Focus: Build on the base, stack the wins</p>
+        </div>
+      </div>
+      <p class="phase-intro">By now the habits don't feel quite so heavy. This month you keep everything from Phase 1 and gently turn up the dial. You'll start to feel it — clearer mornings, a lighter step, a bit more patience with the kids. That feeling is the fuel. Add these on top of your Foundations.</p>
+      <div class="habit-grid">
+        <div class="habit">
+          <div class="h-top"><span class="h-ico" aria-hidden="true">🏃</span><h4>Stretch the walk</h4></div>
+          <p>Push your daily walk toward 20–30 minutes, or add a small hill. Move a little more, not a lot more. <em>(See safety note.)</em></p>
+        </div>
+        <div class="habit">
+          <div class="h-top"><span class="h-ico" aria-hidden="true">☀️</span><h4>Morning light</h4></div>
+          <p>Get outside within an hour of waking. Daylight first thing sets your body clock and steadies your energy and sleep.</p>
+        </div>
+        <div class="habit">
+          <div class="h-top"><span class="h-ico" aria-hidden="true">📵</span><h4>Wind-down hour</h4></div>
+          <p>Screens down 60 minutes before bed. Protect the sleep you fixed in Phase 1 so it actually pays off.</p>
+        </div>
+        <div class="habit">
+          <div class="h-top"><span class="h-ico" aria-hidden="true">🧠</span><h4>One kind line</h4></div>
+          <p>When the old self-talk shows up, swap it: "I'm a dad who's rebuilding." Notice the win, however small.</p>
+        </div>
+      </div>
+      <div class="mininote"><b>Move-safe note:</b> Increase distance, time or hills slowly and only as it feels comfortable. Breathlessness should be mild — if it isn't, ease off and check in with your doctor.</div>
+    </article>
+  </section>
+
+  <!-- PHASE 3 -->
+  <section class="block" id="phase3">
+    <p class="kicker">06 · Phase Three</p>
+    <h2 class="sec">Days 61–90 · <span class="em">Identity</span></h2>
+    <p class="sec-sub">Become the bloke who just does this. We stop "trying" and start being.</p>
+
+    <article class="phase">
+      <div class="phase-head">
+        <div class="phase-no" aria-hidden="true">
+          <span class="days">61–90</span>
+          <span class="lbl">Phase 3</span>
+        </div>
+        <div style="flex:1;min-width:200px;">
+          <h3 class="phase-title">Identity</h3>
+          <p class="phase-focus">Focus: This is just who you are now</p>
+        </div>
+      </div>
+      <p class="phase-intro">The final stretch isn't about doing more — it's about owning it. You're no longer a tired dad attempting a reset. You're an active dad who moves, sleeps well and keeps his word to himself. These habits lock that identity in so it outlasts the 90 days.</p>
+      <div class="habit-grid">
+        <div class="habit">
+          <div class="h-top"><span class="h-ico" aria-hidden="true">🔗</span><h4>Don't break the chain</h4></div>
+          <p>The streak is the prize now. Show up even on the small days — a 5-minute walk still counts. Keep the chain alive.</p>
+        </div>
+        <div class="habit">
+          <div class="h-top"><span class="h-ico" aria-hidden="true">🪞</span><h4>"I am" language</h4></div>
+          <p>Stop saying "I'm trying to get fit." Say "I'm a dad who moves every day." You become what you repeat.</p>
+        </div>
+        <div class="habit">
+          <div class="h-top"><span class="h-ico" aria-hidden="true">📈</span><h4>Pick your own next step</h4></div>
+          <p>Choose one thing that excites you — a longer run, a sport, lifting, a parkrun with the kids. Make it yours. <em>(See safety note.)</em></p>
+        </div>
+        <div class="habit">
+          <div class="h-top"><span class="h-ico" aria-hidden="true">👨‍👧</span><h4>Bring them with you</h4></div>
+          <p>Walk with your kids. Let them see it. The real win isn't your weight — it's the example you're setting.</p>
+        </div>
+      </div>
+      <div class="mininote"><b>Move-safe note:</b> Before stepping up to running, sport or lifting, clear it with your doctor and build gradually. New aches that linger, sharp pain or dizziness mean stop and get checked.</div>
+    </article>
+  </section>
+
+  <!-- CORE HABITS -->
+  <section class="block" id="habits">
+    <p class="kicker">07 · The Toolkit</p>
+    <h2 class="sec">The core habits, <span class="em">explained simply</span></h2>
+    <p class="sec-sub">Six levers run this whole reset. None of them are complicated. Here's the why and the where-to-start for each.</p>
+
+    <article class="core">
+      <div class="core-head">
+        <span class="core-ico" aria-hidden="true">🚶</span>
+        <div><span class="num">Habit 01</span><h3>Daily movement — start with a walk</h3></div>
+      </div>
+      <p>Movement is the keystone that holds the rest up. It lifts your mood, burns off the stress, helps you sleep and quietly changes your body. You don't need a gym or a plan — you need to put your shoes on and go outside. A walk is the most underrated exercise there is, and it's the one you'll actually keep doing.</p>
+      <div class="start"><b>Start here:</b> 10 minutes today. Same time each day if you can — after dinner is a good anchor. Build slowly from there, and read the move-safe notes first.</div>
+    </article>
+
+    <article class="core">
+      <div class="core-head">
+        <span class="core-ico" aria-hidden="true">🛏️</span>
+        <div><span class="num">Habit 02</span><h3>Sleep as the priority, not the leftover</h3></div>
+      </div>
+      <p>You can't rebuild on no sleep. Tired dads reach for sugar, snap more, and quit faster. Sleep is when your body actually repairs and your head resets — it's not lazy, it's maintenance. Most of your energy problem starts here, so we fix it first and protect it hard.</p>
+      <div class="start"><b>Start here:</b> Pick one fixed lights-out time and guard it like an appointment. In Phase 2 you add a screens-down hour before bed to make that sleep deeper.</div>
+    </article>
+
+    <article class="core">
+      <div class="core-head">
+        <span class="core-ico" aria-hidden="true">💧</span>
+        <div><span class="num">Habit 03</span><h3>Hydration — the easiest win you're missing</h3></div>
+      </div>
+      <p>Half of "I'm exhausted" is often "I'm dehydrated." It's the simplest lever in the whole book — no cost, no effort, instant. Water before coffee sets the tone for a day where you're looking after yourself, not just getting through it.</p>
+      <div class="start"><b>Start here:</b> One big glass of water before your first coffee, every morning. Keep a bottle where you'll see it.</div>
+    </article>
+
+    <article class="core">
+      <div class="core-head">
+        <span class="core-ico" aria-hidden="true">☀️</span>
+        <div><span class="num">Habit 04</span><h3>Sunlight &amp; a morning routine</h3></div>
+      </div>
+      <p>Daylight early in the day sets your body clock — it sharpens your mornings and helps you wind down at night. Pairing it with a simple, repeatable morning (water, light, a short walk) means you start the day in control instead of already behind.</p>
+      <div class="start"><b>Start here:</b> Get outside within an hour of waking, even for a few minutes. Combine it with your walk and your water and you've stacked three habits into one.</div>
+    </article>
+
+    <article class="core">
+      <div class="core-head">
+        <span class="core-ico" aria-hidden="true">🧠</span>
+        <div><span class="num">Habit 05</span><h3>Mindset &amp; self-talk</h3></div>
+      </div>
+      <p>The voice in your head can be your worst coach. "I always quit," "I'm too far gone," "what's the point." That voice kept me stuck for years. You don't have to believe every thought you have — you can answer it. Talk to yourself the way you'd talk to your mate, or your son.</p>
+      <div class="start"><b>Start here:</b> When the harsh line shows up, swap it for one honest, kinder one: "I'm a dad who's rebuilding, one day at a time." Say it even if you don't fully feel it yet.</div>
+    </article>
+
+    <article class="core">
+      <div class="core-head">
+        <span class="core-ico" aria-hidden="true">🔗</span>
+        <div><span class="num">Habit 06</span><h3>Momentum — don't break the chain</h3></div>
+      </div>
+      <p>Motivation comes and goes; the chain is what carries you. Every day you tick the box, you add a link, and the longer the chain the less you want to snap it. This is the engine of the whole 90 days. You're not trying to be perfect — you're trying not to miss twice in a row.</p>
+      <div class="start"><b>Start here:</b> Use the weekly tracker below. Tick every habit you hit. On a hard day, do the tiniest version and still tick it — keeping the chain alive beats doing it "properly" and quitting.</div>
+    </article>
+  </section>
+
+  <!-- WEEKLY TRACKER -->
+  <section class="block" id="tracker">
+    <p class="kicker">08 · The Tracker</p>
+    <h2 class="sec">Your weekly <span class="em">tracker</span></h2>
+    <p class="sec-sub">Print one copy per week. Tick a box for every habit you hit. Don't break the chain. (Hit "Save as PDF" up top to print a clean, ink-light copy.)</p>
+
+    <div class="panel" style="padding:24px;">
+      <div class="tracker-wrap">
+        <table class="tracker">
+          <caption>Week of <span style="border-bottom:1px solid var(--line);display:inline-block;min-width:170px;">&nbsp;</span> &nbsp;·&nbsp; Phase: Foundations / Momentum / Identity (circle one)</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="habit-col">Daily habit</th>
+              <th scope="col">Mon</th>
+              <th scope="col">Tue</th>
+              <th scope="col">Wed</th>
+              <th scope="col">Thu</th>
+              <th scope="col">Fri</th>
+              <th scope="col">Sat</th>
+              <th scope="col">Sun</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row"><span class="ico" aria-hidden="true">🚶</span>Daily walk / movement</th>
+              <td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td>
+            </tr>
+            <tr>
+              <th scope="row"><span class="ico" aria-hidden="true">🛏️</span>Slept by my bedtime</th>
+              <td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td>
+            </tr>
+            <tr>
+              <th scope="row"><span class="ico" aria-hidden="true">💧</span>Water before coffee</th>
+              <td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td>
+            </tr>
+            <tr>
+              <th scope="row"><span class="ico" aria-hidden="true">☀️</span>Morning light / routine</th>
+              <td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td>
+            </tr>
+            <tr>
+              <th scope="row"><span class="ico" aria-hidden="true">🧠</span>One kind line to myself</th>
+              <td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td>
+            </tr>
+            <tr>
+              <th scope="row"><span class="ico" aria-hidden="true">🔗</span>Chain unbroken</th>
+              <td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td><td><span class="tick" aria-hidden="true"></span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="week-meta">
+        <span class="field">Day count this week (0–7): <span class="ruled" aria-hidden="true"></span></span>
+        <span class="field">Best win of the week: <span class="ruled" aria-hidden="true"></span></span>
+      </div>
+
+      <div class="note-lines">
+        <p class="nl-label">Notes — how I felt, what got in the way</p>
+        <div class="line" aria-hidden="true"></div>
+        <div class="line" aria-hidden="true"></div>
+        <div class="line" aria-hidden="true"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHEN YOU SLIP -->
+  <section class="block" id="slip">
+    <p class="kicker">09 · When You Slip</p>
+    <h2 class="sec">You <span class="em">will</span> slip. Here's the rule.</h2>
+    <p class="sec-sub">Missing a day isn't failure — it's normal. What matters is the one move you make next. This is the part that decides whether you finish.</p>
+    <div class="slip-grid">
+      <div class="slip-card">
+        <span class="x" aria-hidden="true">The skip-rule</span>
+        <b>Never miss twice in a row.</b>
+        <p>One missed day is a blip. Two in a row is how a blip becomes a quit. Make tomorrow non-negotiable, even if it's the tiniest version.</p>
+      </div>
+      <div class="slip-card">
+        <span class="x" aria-hidden="true">Don't double up</span>
+        <b>No "making it up."</b>
+        <p>Missed yesterday's walk? You don't owe two walks today. There's no debt to repay. Just do today's. Doubling up is a trap that leads to burnout.</p>
+      </div>
+      <div class="slip-card">
+        <span class="x" aria-hidden="true">Just restart</span>
+        <b>Pick up exactly where you are.</b>
+        <p>No guilt spiral, no "I've ruined it." You haven't. One missed tick doesn't erase the chain behind it. Tick today's box and carry on.</p>
+      </div>
+      <div class="slip-card">
+        <span class="x" aria-hidden="true">Shrink it</span>
+        <b>On a bad day, go tiny.</b>
+        <p>Can't face 30 minutes? Walk to the end of the street. Five minutes still counts. A tick on a hard day is worth more than a perfect day you skipped.</p>
+      </div>
+    </div>
+    <div class="mininote" style="margin-top:16px;"><b>Remember:</b> Restarting isn't starting over. Every day you've already done is still in the bank. The only way to truly fail this is to stop — so don't.</div>
+  </section>
+
+  <!-- CLOSE -->
+  <section class="block" id="close">
+    <p class="kicker">10 · Close</p>
+    <div class="panel close">
+      <p class="big">Ninety days from now, you'll be a <em>different dad</em> — and it starts with one walk today.</p>
+      <p class="lead" style="max-width:580px;margin:0 auto 8px;">I'm proof it's not too late, and you don't have to do it perfectly — you just have to do it. Your kids don't need a perfect dad. They need a present one, here for the long haul. Print your tracker, take the walk, tick the box. Day one starts now.</p>
+      <div class="cta-row">
+        <div class="cta-card">
+          <span class="eyebrow-s">Hear the story</span>
+          <h3>The Dad's Code Podcast</h3>
+          <p>The honest version of how I rebuilt my energy, body and head at 48 — the conversations behind this reset.</p>
+          <a class="cta-btn" href="#">Listen to Dad's Code <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="cta-card">
+          <span class="eyebrow-s">Fuel the rebuild</span>
+          <h3>Dad Fuel</h3>
+          <p>The companion guide: high-protein, no-fuss meals to power your 90 days so you're never running on coffee and stress.</p>
+          <a class="cta-btn ghost" href="#">Get Dad Fuel <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+      <p class="sign" style="margin-top:18px;">— Jamie. Present, not perfect.</p>
+    </div>
+  </section>
+
+</div>
+
+<footer class="site">
+  <span class="mark">Dad's Code</span>
+  The 90-Day Rebuilt Dad · A Lifestyle Reset by Jamie Wigg<br>
+  Present, not perfect. &nbsp;·&nbsp; General information only, not medical advice — see <a href="#safety">Read This First</a>.
+</footer>
+
+</body>
+</html>
