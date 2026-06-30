@@ -240,12 +240,12 @@
     border:1px solid rgba(255,255,255,0.06);
     border-radius:14px;
     padding:18px 20px;margin:26px 0;
-    font-size:0.97rem;color:var(--muted);
+    font-size:0.97rem;color:#C5C0CD;
   }
   .research .tag{
     font-family:var(--sans);font-weight:700;
     letter-spacing:0.12em;text-transform:uppercase;
-    font-size:0.66rem;color:var(--amber);
+    font-size:0.7rem;color:var(--amber);
     white-space:nowrap;padding-top:3px;
   }
   .research b{color:var(--text);font-weight:600;}
@@ -323,8 +323,11 @@
   }
   .cta li:first-child{border-top:none;}
   .cta li .marker{
-    font-family:var(--serif);color:var(--amber);font-size:1.3rem;line-height:1;
-    padding-top:2px;
+    flex:0 0 auto;
+    display:inline-flex;align-items:center;justify-content:center;
+    width:38px;height:38px;border-radius:50%;
+    background:var(--amber-soft);border:1px solid var(--amber-line);
+    font-family:var(--serif);color:var(--amber);font-size:1.15rem;line-height:1;
   }
   .cta li b{display:block;color:var(--text);font-weight:600;margin-bottom:2px;}
   .cta li span{color:var(--muted);font-size:0.97rem;}
@@ -336,7 +339,7 @@
   .footer-note{
     max-width:var(--maxw);margin:0 auto;
     padding:34px 24px 60px;color:var(--muted);
-    font-size:0.82rem;line-height:1.7;text-align:center;
+    font-size:0.88rem;line-height:1.75;text-align:center;
     border-top:1px solid rgba(255,255,255,0.06);
   }
   .footer-note strong{color:var(--text);}
@@ -379,6 +382,10 @@
     }
     .code-box .code-title,.action-box .action-title,.research .tag,.eyebrow,.cta li b,.code-box .six-words{color:#8a6d2f;}
     .pull-quote{border-color:#c8a23a;}
+    .cover-meta{color:#555;}
+    .cover-meta li::before{background:#8a6d2f;}
+    .cta li .marker{border:1px solid #c8a23a;background:#fbf6ea;color:#8a6d2f;}
+    .research{color:#444;}
   }
 </style>
 </head>
@@ -446,8 +453,8 @@
         <li><a href="#ch4"><span class="num">04</span><span class="label">When Your Brain Works Differently<span class="sub">Systems, not shame</span></span></a></li>
         <li><a href="#ch5"><span class="num">05</span><span class="label">Repair Beats Perfect<span class="sub">What your kids remember is whether you come back</span></span></a></li>
         <li><a href="#ch6"><span class="num">06</span><span class="label">The Air Cuddle<span class="sub">Tiny rituals, lasting presence</span></span></a></li>
-        <li><a href="#close"><span class="num">—</span><span class="label">Close — Present, Not Perfect<span class="sub">The cycle stops with you</span></span></a></li>
-        <li><a href="#cta"><span class="num">→</span><span class="label">Keep Going<span class="sub">Where to go next</span></span></a></li>
+        <li><a href="#close"><span class="num" aria-hidden="true">—</span><span class="label">Close — Present, Not Perfect<span class="sub">The cycle stops with you</span></span></a></li>
+        <li><a href="#cta"><span class="num" aria-hidden="true">→</span><span class="label">Keep Going<span class="sub">Where to go next</span></span></a></li>
       </ol>
     </nav>
   </div>
@@ -657,7 +664,7 @@
   <div class="wrap">
     <div class="cta">
       <h2>Keep Going</h2>
-      <p style="text-align:center;color:var(--muted);margin-top:-8px;">You finished. That's a bid toward yourself — turn toward it.</p>
+      <p style="text-align:center;color:var(--muted);margin-top:-8px;max-width:46ch;margin-left:auto;margin-right:auto;">You finished the book. That's a bid toward yourself — so turn toward it. Here's where to go next.</p>
       <ul>
         <li>
           <span class="marker" aria-hidden="true">♪</span>

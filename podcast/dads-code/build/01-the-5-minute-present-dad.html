@@ -53,6 +53,11 @@
   .wrap{position:relative;z-index:1;}
 
   a{color:var(--amber);text-decoration:none;}
+  a:focus-visible,.btn:focus-visible{
+    outline:2px solid var(--amber);
+    outline-offset:3px;
+    border-radius:4px;
+  }
 
   /* ---------- Wordmark ---------- */
   .wordmark{
@@ -171,8 +176,10 @@
     letter-spacing:0.2em;
     text-transform:uppercase;
     color:var(--muted);
-    display:flex;align-items:center;gap:8px;
+    display:inline-flex;align-items:center;gap:8px;
+    transition:color .18s ease, gap .18s ease;
   }
+  .scroll-hint:hover{color:var(--amber);gap:12px;}
   .scroll-hint::after{content:"↓";font-size:1rem;}
 
   /* ---------- CONTENT COLUMN ---------- */
@@ -598,7 +605,7 @@
     }
     .research{border-left:3px solid var(--amber) !important;}
     .research h3,.tip h3,.close h2,.optin h3,.tip-num{color:#1a1622;}
-    .research li,.why,.close-pod,.nospam,.disclaimer{color:#4a4550;}
+    .research li,.why,.close-pod,.nospam,.disclaimer,.tip-eyebrow{color:#4a4550;}
     .research li em,.why em,.tip-body em{color:#1a1622;}
     .tip-num{color:#9a6b14;}
 
@@ -630,8 +637,8 @@
 
   <!-- ===================== COVER ===================== -->
   <header class="cover">
-    <div class="cover-shape"></div>
-    <div class="cover-shape two"></div>
+    <div class="cover-shape" aria-hidden="true"></div>
+    <div class="cover-shape two" aria-hidden="true"></div>
 
     <div class="cover-top">
       <span class="wordmark">Dad's Code</span>
@@ -641,13 +648,13 @@
     <div class="cover-main">
       <span class="cover-eyebrow">For tired dads running on empty</span>
       <h1>The 5-Minute<br><span class="amber">Present</span> Dad</h1>
-      <p class="cover-sub">5 ways to show up for your kids when you're running on empty.</p>
+      <p class="cover-sub">Five small ways to show up for your kids — even on the days you've got nothing left to give.</p>
     </div>
 
     <div class="cover-bottom">
       <div>
         <div class="cover-tagline">Present, not perfect.</div>
-        <div class="scroll-hint" style="margin-top:14px;">Scroll to begin</div>
+        <a class="scroll-hint" href="#start" style="margin-top:14px;">Read the guide</a>
       </div>
       <div class="cover-byline">
         A guide from <strong>Dad's Code</strong><br>
@@ -658,7 +665,7 @@
 
   <!-- ===================== INTRO ===================== -->
   <main>
-    <section class="content">
+    <section class="content" id="start">
       <div class="section-label">The why</div>
       <p class="intro-lead">
         You don't need to be a perfect dad. You don't need more hours, more patience, or more energy than you've got. You need <span class="five">five minutes</span> — and the willingness to actually be <em>in</em> them.
@@ -796,11 +803,11 @@
           That's it. Five small things, five minutes, starting tonight. Being present beats being perfect — <strong>always.</strong>
         </p>
         <p class="close-pod">
-          👉 Want more? The podcast <strong>Dad's Code</strong> drops weekly — real, honest fatherhood. When you're ready for the next step, grab <em>"Present, Not Perfect: A Rebuilt Dad's Field Guide."</em>
+          Want more? The podcast <strong>Dad's Code</strong> drops weekly — real, honest fatherhood, no perfect-parent act. When you're ready for the next step, grab <em>"Present, Not Perfect: A Rebuilt Dad's Field Guide."</em>
         </p>
 
         <!-- OPT-IN -->
-        <div class="optin">
+        <div class="optin" id="get-the-guide">
           <h3>Show up for your kids — even on the days you've got nothing left.</h3>
           <ul class="benefits">
             <li>5 tiny, repeatable habits you can start <em>tonight</em> — no extra time required.</li>

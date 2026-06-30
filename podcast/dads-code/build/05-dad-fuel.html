@@ -34,6 +34,8 @@
   }
   .display{font-family:'Anton','Inter',sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:0.02em;line-height:0.95;}
   a{color:var(--amber);text-decoration:none;}
+  a:focus-visible,.toc-item:focus-visible,.cta-btn:focus-visible{outline:3px solid var(--amber);outline-offset:3px;border-radius:6px;}
+  .sr-text{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 
   .wrap{max-width:920px;margin:0 auto;padding:0 22px;}
 
@@ -194,7 +196,7 @@
   .recipe-head{display:flex;gap:20px;align-items:flex-start;justify-content:space-between;}
   .recipe-title{font-size:1.45rem;font-weight:800;margin:0;color:var(--text);line-height:1.2;}
   .tags{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;}
-  .tag{font-size:0.68rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--amber);border:1px solid var(--line);border-radius:999px;padding:3px 10px;}
+  .tag{font-size:0.72rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--amber);border:1px solid var(--line);border-radius:999px;padding:3px 11px;}
   .meta{color:var(--muted);font-weight:600;font-size:0.92rem;margin-top:12px;letter-spacing:0.02em;}
   .meta b{color:var(--text);}
 
@@ -206,7 +208,7 @@
     border:2px solid rgba(255,255,255,0.2);
   }
   .protein-badge .g{font-family:'Anton',sans-serif;font-size:1.7rem;line-height:0.9;}
-  .protein-badge .lbl{font-weight:800;font-size:0.56rem;letter-spacing:0.12em;text-transform:uppercase;margin-top:3px;}
+  .protein-badge .lbl{font-weight:800;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;margin-top:3px;}
 
   .recipe-body{display:grid;grid-template-columns:0.9fr 1.4fr;gap:24px;margin-top:20px;}
   .col-h{color:var(--amber);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;font-size:0.72rem;margin:0 0 10px;}
@@ -265,6 +267,28 @@
   .close{text-align:center;background:radial-gradient(120% 120% at 50% 0%, rgba(223,183,108,0.12), transparent 60%),linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);}
   .close .big{font-family:'Anton',sans-serif;font-size:clamp(1.6rem,4vw,2.4rem);text-transform:uppercase;line-height:1.1;margin:0 auto 14px;max-width:640px;}
   .close .big em{color:var(--amber);font-style:normal;}
+  .cta-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:680px;margin:22px auto 6px;text-align:left;}
+  .cta-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:20px 20px 22px;display:flex;flex-direction:column;
+  }
+  .cta-card .eyebrow-s{color:var(--amber);font-weight:800;letter-spacing:0.16em;text-transform:uppercase;font-size:0.68rem;margin-bottom:8px;}
+  .cta-card h3{font-size:1.12rem;margin:0 0 6px;color:var(--text);line-height:1.25;}
+  .cta-card p{color:var(--muted);font-size:0.93rem;margin:0 0 16px;}
+  .cta-btn{
+    margin-top:auto;align-self:flex-start;
+    display:inline-flex;align-items:center;gap:8px;
+    font-weight:800;font-size:0.92rem;letter-spacing:0.02em;
+    padding:11px 20px;border-radius:999px;
+    background:var(--amber);color:#1A1410;border:2px solid var(--amber);
+  }
+  .cta-btn.ghost{background:transparent;color:var(--amber);}
+  .count-chip{
+    display:inline-flex;align-items:center;gap:6px;align-self:center;
+    background:rgba(223,183,108,0.12);border:1px solid var(--line);
+    color:var(--amber);font-weight:800;font-size:0.72rem;letter-spacing:0.06em;
+    text-transform:uppercase;border-radius:999px;padding:4px 12px;margin-left:auto;
+  }
 
   footer.site{padding:40px 22px 60px;text-align:center;border-top:1px solid var(--line);color:var(--muted);font-size:0.85rem;}
   footer.site .mark{font-family:'Anton',sans-serif;color:var(--amber);letter-spacing:0.18em;display:block;margin-bottom:6px;}
@@ -278,6 +302,8 @@
     .badge-sticker{width:108px;height:108px;top:7%;right:5%;}
     .badge-sticker .big{font-size:2rem;}
     .recipe-head{flex-direction:column-reverse;align-items:flex-start;}
+    .cta-row{grid-template-columns:1fr;}
+    .count-chip{margin-left:0;}
   }
 
   /* PRINT */
@@ -290,9 +316,13 @@
     .cover h1,.cover .subtitle,.cover-foot,.eyebrow{color:#1a1a1a !important;}
     .cover h1 .fuel{color:#9a7322 !important;}
     .cover-grid{display:none;}
-    .panel,.recipe,.safety,.onerule,.close,.toc-item,.legend div,.flow .step,.checklist li,.chip{
+    .panel,.recipe,.safety,.onerule,.close,.toc-item,.legend div,.flow .step,.checklist li,.chip,.cta-card,.count-chip{
       background:#fff !important;border:1px solid #d8d8d8 !important;box-shadow:none !important;color:#1a1a1a !important;
     }
+    .cta-card .eyebrow-s,.cta-card h3{color:#9a7322 !important;}
+    .cta-card p{color:#444 !important;}
+    .cta-btn{background:#f3e6c8 !important;color:#7a5a1a !important;border-color:#caa85e !important;}
+    .count-chip{color:#9a7322 !important;}
     .recipe,.safety,.panel{page-break-inside:avoid;}
     section.block{page-break-inside:avoid;padding:14px 0;border-top:none;}
     h2.sec,.recipe-title,.lead,.muted,.ing li,ol.steps li,.checklist li{color:#1a1a1a !important;}
@@ -317,13 +347,13 @@
 <!-- COVER -->
 <header class="cover">
   <div class="cover-grid"></div>
-  <div class="badge-sticker" aria-label="30 grams plus protein">
-    <span class="big">30g+</span>
-    <span class="small">Protein</span>
+  <div class="badge-sticker" role="img" aria-label="Most meals 30 grams or more of protein">
+    <span class="big" aria-hidden="true">30g+</span>
+    <span class="small" aria-hidden="true">Protein</span>
   </div>
   <div class="cover-inner">
     <span class="eyebrow">Dad's Code · High-Protein Meal Guide</span>
-    <h1 class="display">Dad<span class="fuel">Fuel</span></h1>
+    <h1 class="display"><span class="sr-text">Dad Fuel</span><span aria-hidden="true">Dad<span class="fuel">Fuel</span></span></h1>
     <p class="subtitle">High-protein meals for the tired dad who needs to keep going.</p>
     <hr class="amber-rule">
     <p class="cover-foot">Dad's Code by Jamie Wigg &nbsp;·&nbsp; <span>Present, not perfect.</span></p>
@@ -408,7 +438,7 @@
   <!-- 15-MIN FUEL -->
   <section class="block" id="fast">
     <p class="kicker">05 · Section One</p>
-    <div class="sec-head"><span class="ico">⏱️</span><h2 class="sec">15-Min <span class="em">Fuel</span></h2></div>
+    <div class="sec-head"><span class="ico" aria-hidden="true">⏱️</span><h2 class="sec">15-Min <span class="em">Fuel</span></h2><span class="count-chip">7 recipes</span></div>
     <p class="sec-sub">Fast, minimal cook. For the days you've got minutes, not hours.</p>
 
     <!-- 1 -->
@@ -640,7 +670,7 @@
   <!-- MEAL-PREP HEROES -->
   <section class="block" id="prep-heroes">
     <p class="kicker">06 · Section Two</p>
-    <div class="sec-head"><span class="ico">🍱</span><h2 class="sec">Meal-Prep <span class="em">Heroes</span></h2></div>
+    <div class="sec-head"><span class="ico" aria-hidden="true">🍱</span><h2 class="sec">Meal-Prep <span class="em">Heroes</span></h2><span class="count-chip">8 recipes</span></div>
     <p class="sec-sub">Big-batch and freezes well. Cook once, eat all week.</p>
 
     <!-- 8 -->
@@ -906,7 +936,7 @@
   <!-- GRAB & GO -->
   <section class="block" id="grab">
     <p class="kicker">07 · Section Three</p>
-    <div class="sec-head"><span class="ico">🥪</span><h2 class="sec">Grab &amp; <span class="em">Go</span></h2></div>
+    <div class="sec-head"><span class="ico" aria-hidden="true">🥪</span><h2 class="sec">Grab &amp; <span class="em">Go</span></h2></div>
     <p class="sec-sub">Near-zero cook — for the days you've got nothing left in the tank.</p>
     <div class="panel">
       <p class="gonote"><strong style="color:var(--amber)">Already in 15-Min Fuel:</strong> the <a href="#fast">Greek Yogurt Power Bowl</a>, <a href="#fast">Tuna &amp; White Bean Salad</a> and <a href="#fast">Cottage Cheese Toast</a> all double as grab-and-go.</p>

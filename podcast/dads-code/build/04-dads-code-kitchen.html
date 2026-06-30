@@ -38,6 +38,26 @@
   a{color:var(--amber);text-decoration:none}
   a:hover{text-decoration:underline}
 
+  /* Keyboard focus visibility (WCAG 2.4.7) */
+  a:focus-visible, .btn:focus-visible, .toc-link:focus-visible, .chip:focus-visible{
+    outline:3px solid var(--amber);
+    outline-offset:3px;
+    border-radius:6px;
+  }
+
+  /* Skip link */
+  .skip-link{
+    position:absolute;left:12px;top:-60px;z-index:100;
+    background:var(--amber);color:#1A1206;
+    padding:10px 18px;border-radius:0 0 10px 10px;font-weight:700;font-size:.9rem;
+    transition:top .18s ease;
+  }
+  .skip-link:focus{top:0;text-decoration:none}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}
+  }
+
   .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
 
   /* ---------- Wordmark bar ---------- */
@@ -55,6 +75,16 @@
   }
   .wordmark::before{content:"●";margin-right:9px;font-size:.6rem;vertical-align:middle;opacity:.85}
   .topbar .tagline{color:var(--muted);font-size:.78rem;font-style:italic}
+  .topbar-right{display:flex;align-items:center;gap:18px}
+  .print-btn{
+    font-family:"Inter",sans-serif;font-size:.74rem;font-weight:700;
+    letter-spacing:.04em;color:var(--amber);cursor:pointer;
+    background:var(--amber-soft);border:1px solid var(--amber-line);
+    padding:7px 14px;border-radius:999px;
+    transition:background .16s ease, border-color .16s ease;
+  }
+  .print-btn:hover{background:rgba(223,183,108,.22);border-color:var(--amber)}
+  @media(max-width:560px){.topbar .tagline{display:none}}
 
   /* ---------- Cover ---------- */
   .cover{
@@ -333,7 +363,36 @@
   }
   .close-card h2{font-size:clamp(1.8rem,4.5vw,2.6rem);margin-bottom:20px}
   .close-card p{font-size:1.12rem;color:#ECE7DC;max-width:600px;margin:0 auto 16px}
-  .close-card .sig{font-family:"Fraunces",serif;font-style:italic;color:var(--amber);font-size:1.2rem;margin-top:10px}
+  .close-card strong{color:var(--amber)}
+  .close-card .sig{font-family:"Fraunces",serif;font-style:italic;color:var(--amber);font-size:1.2rem;margin-top:26px}
+
+  /* ---------- CTA buttons ---------- */
+  .cta-row{
+    display:flex;flex-wrap:wrap;gap:16px;justify-content:center;
+    margin:30px auto 8px;max-width:640px;
+  }
+  .btn{
+    flex:1 1 260px;display:flex;align-items:center;gap:14px;text-align:left;
+    padding:16px 22px;border-radius:14px;
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+  }
+  .btn:hover{text-decoration:none;transform:translateY(-2px)}
+  .btn .btn-ic{font-size:1.7rem;flex:0 0 auto}
+  .btn .btn-lead{display:block;font-weight:700;font-size:1.02rem;line-height:1.2}
+  .btn .btn-lead em{font-style:italic}
+  .btn .btn-sub{display:block;font-size:.84rem;line-height:1.3;margin-top:3px;opacity:.85}
+  .btn-primary{
+    background:var(--amber);color:#1A1206;
+    box-shadow:0 12px 34px -14px rgba(223,183,108,.75);
+  }
+  .btn-primary .btn-sub{color:#3a2c10}
+  .btn-primary:hover{box-shadow:0 16px 40px -12px rgba(223,183,108,.85)}
+  .btn-ghost{
+    background:var(--panel-2);color:var(--text);
+    border:1px solid var(--amber-line);
+  }
+  .btn-ghost .btn-sub{color:var(--muted)}
+  .btn-ghost:hover{border-color:var(--amber);background:var(--panel)}
 
   /* ---------- Disclaimer / footer ---------- */
   .disclaimer{
@@ -375,11 +434,18 @@
 </head>
 <body>
 
+<a class="skip-link" href="#intro">Skip to recipes</a>
+
 <!-- ===== Wordmark bar ===== -->
 <div class="topbar">
   <div class="wrap">
     <span class="wordmark">Dad's Code</span>
-    <span class="tagline">Present, not perfect.</span>
+    <span class="topbar-right">
+      <span class="tagline">Present, not perfect.</span>
+      <button type="button" class="print-btn" onclick="window.print()" aria-label="Print or save this cookbook as a PDF">
+        <span aria-hidden="true">⎙</span> Save as PDF
+      </button>
+    </span>
   </div>
 </div>
 
@@ -426,27 +492,27 @@
     </div>
     <div class="key-grid">
       <div class="key-item">
-        <span class="glyph">⚡🙌</span>
+        <span class="glyph" aria-hidden="true">⚡🙌</span>
         <h4>Title badges</h4>
         <p><strong>⚡</strong> = extra protein. <strong>🙌</strong> = fun, hands-on for the kids.</p>
       </div>
       <div class="key-item">
-        <span class="glyph">⏱👥💪</span>
+        <span class="glyph" aria-hidden="true">⏱👥💪</span>
         <h4>Meta row</h4>
         <p>Time to table, how many it serves, and a rough protein-per-serve badge.</p>
       </div>
       <div class="key-item">
-        <span class="glyph">📋</span>
+        <span class="glyph" aria-hidden="true">📋</span>
         <h4>Ingredients &amp; steps</h4>
         <p>Ingredients on the left, numbered steps on the right. Stacks on your phone.</p>
       </div>
       <div class="key-item">
-        <span class="glyph">👨</span>
+        <span class="glyph" aria-hidden="true">👨</span>
         <h4>Dad Tip</h4>
         <p>The shortcut or save that turns "meltdown o'clock" into a win.</p>
       </div>
       <div class="key-item">
-        <span class="glyph">🧒</span>
+        <span class="glyph" aria-hidden="true">🧒</span>
         <h4>Kid Job</h4>
         <p>How the kids help — because it's more fun (and less work) with hands on deck.</p>
       </div>
@@ -532,12 +598,12 @@
           <span class="rbadges"><span class="rbadge">⚡ Protein</span><span class="rbadge kids">🙌 Kids</span></span>
         </h3>
         <div class="meta-row">
-          <span class="meta-chip"><span class="ic">⏱</span><span><span class="lbl">Time</span><span class="val">10 min</span></span></span>
-          <span class="meta-chip"><span class="ic">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
-          <span class="meta-chip"><span class="ic">💪</span><span><span class="lbl">Protein</span><span class="val">~18g / serve</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">⏱</span><span><span class="lbl">Time</span><span class="val">10 min</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">💪</span><span><span class="lbl">Protein</span><span class="val">~18g / serve</span></span></span>
         </div>
       </div>
-      <div class="photo-slot"><span class="cam">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Soft eggs, rolled wraps, dad's hands in frame</span></div>
+      <div class="photo-slot"><span class="cam" aria-hidden="true">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Soft eggs, rolled wraps, dad's hands in frame</span></div>
       <div class="cook">
         <div class="col-ingredients">
           <h4>Ingredients</h4>
@@ -561,8 +627,8 @@
         </div>
       </div>
       <div class="callouts">
-        <div class="callout dad"><span class="ce">👨</span><span><span class="ctitle">Dad Tip</span><p>Low and slow = soft eggs. Pull them off the heat while still glossy.</p></span></div>
-        <div class="callout kid"><span class="ce">🧒</span><span><span class="ctitle">Kid Job</span><p>Whisking the eggs and rolling the wraps.</p></span></div>
+        <div class="callout dad"><span class="ce" aria-hidden="true">👨</span><span><span class="ctitle">Dad Tip</span><p>Low and slow = soft eggs. Pull them off the heat while still glossy.</p></span></div>
+        <div class="callout kid"><span class="ce" aria-hidden="true">🧒</span><span><span class="ctitle">Kid Job</span><p>Whisking the eggs and rolling the wraps.</p></span></div>
       </div>
     </article>
 
@@ -574,12 +640,12 @@
           <span class="rbadges"><span class="rbadge">⚡ Protein</span></span>
         </h3>
         <div class="meta-row">
-          <span class="meta-chip"><span class="ic">⏱</span><span><span class="lbl">Time</span><span class="val">15 min</span></span></span>
-          <span class="meta-chip"><span class="ic">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
-          <span class="meta-chip"><span class="ic">💪</span><span><span class="lbl">Protein</span><span class="val">~22g / serve</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">⏱</span><span><span class="lbl">Time</span><span class="val">15 min</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">💪</span><span><span class="lbl">Protein</span><span class="val">~22g / serve</span></span></span>
         </div>
       </div>
-      <div class="photo-slot"><span class="cam">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Golden bubbling cheese on toasted rolls</span></div>
+      <div class="photo-slot"><span class="cam" aria-hidden="true">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Golden bubbling cheese on toasted rolls</span></div>
       <div class="cook">
         <div class="col-ingredients">
           <h4>Ingredients</h4>
@@ -602,8 +668,8 @@
         </div>
       </div>
       <div class="callouts">
-        <div class="callout dad"><span class="ce">👨</span><span><span class="ctitle">Dad Tip</span><p>Cheap, fast, big protein hit — keep tinned tuna in the cupboard for emergencies.</p></span></div>
-        <div class="callout kid"><span class="ce">🧒</span><span><span class="ctitle">Kid Job</span><p>Filling the boats with the tuna mix.</p></span></div>
+        <div class="callout dad"><span class="ce" aria-hidden="true">👨</span><span><span class="ctitle">Dad Tip</span><p>Cheap, fast, big protein hit — keep tinned tuna in the cupboard for emergencies.</p></span></div>
+        <div class="callout kid"><span class="ce" aria-hidden="true">🧒</span><span><span class="ctitle">Kid Job</span><p>Filling the boats with the tuna mix.</p></span></div>
       </div>
     </article>
 
@@ -615,12 +681,12 @@
           <span class="rbadges"><span class="rbadge">⚡ Protein</span><span class="rbadge kids">🙌 Kids</span></span>
         </h3>
         <div class="meta-row">
-          <span class="meta-chip"><span class="ic">⏱</span><span><span class="lbl">Time</span><span class="val">15 min</span></span></span>
-          <span class="meta-chip"><span class="ic">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
-          <span class="meta-chip"><span class="ic">💪</span><span><span class="lbl">Protein</span><span class="val">~24g / serve</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">⏱</span><span><span class="lbl">Time</span><span class="val">15 min</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">💪</span><span><span class="lbl">Protein</span><span class="val">~24g / serve</span></span></span>
         </div>
       </div>
-      <div class="photo-slot"><span class="cam">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Crispy triangles, cheese pull, salsa for dunking</span></div>
+      <div class="photo-slot"><span class="cam" aria-hidden="true">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Crispy triangles, cheese pull, salsa for dunking</span></div>
       <div class="cook">
         <div class="col-ingredients">
           <h4>Ingredients</h4>
@@ -642,8 +708,8 @@
         </div>
       </div>
       <div class="callouts">
-        <div class="callout dad"><span class="ce">👨</span><span><span class="ctitle">Dad Tip</span><p>Use leftover roast chook or a supermarket BBQ chicken to skip the cooking.</p></span></div>
-        <div class="callout kid"><span class="ce">🧒</span><span><span class="ctitle">Kid Job</span><p>Sprinkling cheese and cutting triangles (with a kid-safe knife).</p></span></div>
+        <div class="callout dad"><span class="ce" aria-hidden="true">👨</span><span><span class="ctitle">Dad Tip</span><p>Use leftover roast chook or a supermarket BBQ chicken to skip the cooking.</p></span></div>
+        <div class="callout kid"><span class="ce" aria-hidden="true">🧒</span><span><span class="ctitle">Kid Job</span><p>Sprinkling cheese and cutting triangles (with a kid-safe knife).</p></span></div>
       </div>
     </article>
 
@@ -655,12 +721,12 @@
           <span class="rbadges"><span class="rbadge">⚡ Protein</span></span>
         </h3>
         <div class="meta-row">
-          <span class="meta-chip"><span class="ic">⏱</span><span><span class="lbl">Time</span><span class="val">15 min</span></span></span>
-          <span class="meta-chip"><span class="ic">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
-          <span class="meta-chip"><span class="ic">💪</span><span><span class="lbl">Protein</span><span class="val">~16g / serve</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">⏱</span><span><span class="lbl">Time</span><span class="val">15 min</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">💪</span><span><span class="lbl">Protein</span><span class="val">~16g / serve</span></span></span>
         </div>
       </div>
-      <div class="photo-slot"><span class="cam">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Handheld wrap, crunchy fish fingers peeking out</span></div>
+      <div class="photo-slot"><span class="cam" aria-hidden="true">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Handheld wrap, crunchy fish fingers peeking out</span></div>
       <div class="cook">
         <div class="col-ingredients">
           <h4>Ingredients</h4>
@@ -683,8 +749,8 @@
         </div>
       </div>
       <div class="callouts">
-        <div class="callout dad"><span class="ce">👨</span><span><span class="ctitle">Dad Tip</span><p>Handheld = happy kids and almost no plates to wash.</p></span></div>
-        <div class="callout kid"><span class="ce">🧒</span><span><span class="ctitle">Kid Job</span><p>Building and rolling their own wrap.</p></span></div>
+        <div class="callout dad"><span class="ce" aria-hidden="true">👨</span><span><span class="ctitle">Dad Tip</span><p>Handheld = happy kids and almost no plates to wash.</p></span></div>
+        <div class="callout kid"><span class="ce" aria-hidden="true">🧒</span><span><span class="ctitle">Kid Job</span><p>Building and rolling their own wrap.</p></span></div>
       </div>
     </article>
 
@@ -712,12 +778,12 @@
           <span class="rbadges"><span class="rbadge">⚡ Protein</span><span class="rbadge kids">🙌 Kids</span></span>
         </h3>
         <div class="meta-row">
-          <span class="meta-chip"><span class="ic">⏱</span><span><span class="lbl">Time</span><span class="val">20 min</span></span></span>
-          <span class="meta-chip"><span class="ic">👥</span><span><span class="lbl">Serves</span><span class="val">4–5</span></span></span>
-          <span class="meta-chip"><span class="ic">💪</span><span><span class="lbl">Protein</span><span class="val">~26g / serve</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">⏱</span><span><span class="lbl">Time</span><span class="val">20 min</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">👥</span><span><span class="lbl">Serves</span><span class="val">4–5</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">💪</span><span><span class="lbl">Protein</span><span class="val">~26g / serve</span></span></span>
         </div>
       </div>
-      <div class="photo-slot"><span class="cam">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Bowls of toppings, shells lined up, kids assembling</span></div>
+      <div class="photo-slot"><span class="cam" aria-hidden="true">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Bowls of toppings, shells lined up, kids assembling</span></div>
       <div class="cook">
         <div class="col-ingredients">
           <h4>Ingredients</h4>
@@ -739,8 +805,8 @@
         </div>
       </div>
       <div class="callouts">
-        <div class="callout dad"><span class="ce">👨</span><span><span class="ctitle">Dad Tip</span><p>Lean into the chaos — letting them build it is half the fun.</p></span></div>
-        <div class="callout kid"><span class="ce">🧒</span><span><span class="ctitle">Kid Job</span><p>Assembling tacos and laying out the topping bowls.</p></span></div>
+        <div class="callout dad"><span class="ce" aria-hidden="true">👨</span><span><span class="ctitle">Dad Tip</span><p>Lean into the chaos — letting them build it is half the fun.</p></span></div>
+        <div class="callout kid"><span class="ce" aria-hidden="true">🧒</span><span><span class="ctitle">Kid Job</span><p>Assembling tacos and laying out the topping bowls.</p></span></div>
       </div>
     </article>
 
@@ -752,12 +818,12 @@
           <span class="rbadges"><span class="rbadge">⚡ Protein</span></span>
         </h3>
         <div class="meta-row">
-          <span class="meta-chip"><span class="ic">⏱</span><span><span class="lbl">Time</span><span class="val">30 min</span></span></span>
-          <span class="meta-chip"><span class="ic">👥</span><span><span class="lbl">Serves</span><span class="val">4–6</span></span></span>
-          <span class="meta-chip"><span class="ic">💪</span><span><span class="lbl">Protein</span><span class="val">~25g / serve</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">⏱</span><span><span class="lbl">Time</span><span class="val">30 min</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">👥</span><span><span class="lbl">Serves</span><span class="val">4–6</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">💪</span><span><span class="lbl">Protein</span><span class="val">~25g / serve</span></span></span>
         </div>
       </div>
-      <div class="photo-slot"><span class="cam">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Twirled spaghetti, rich sauce, grated cheese on top</span></div>
+      <div class="photo-slot"><span class="cam" aria-hidden="true">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Twirled spaghetti, rich sauce, grated cheese on top</span></div>
       <div class="cook">
         <div class="col-ingredients">
           <h4>Ingredients</h4>
@@ -780,8 +846,8 @@
         </div>
       </div>
       <div class="callouts">
-        <div class="callout dad"><span class="ce">👨</span><span><span class="ctitle">Dad Tip</span><p>Make a double batch — it freezes brilliantly for next week's solo night.</p></span></div>
-        <div class="callout kid"><span class="ce">🧒</span><span><span class="ctitle">Kid Job</span><p>Grating the hidden veg (carrot and zucchini).</p></span></div>
+        <div class="callout dad"><span class="ce" aria-hidden="true">👨</span><span><span class="ctitle">Dad Tip</span><p>Make a double batch — it freezes brilliantly for next week's solo night.</p></span></div>
+        <div class="callout kid"><span class="ce" aria-hidden="true">🧒</span><span><span class="ctitle">Kid Job</span><p>Grating the hidden veg (carrot and zucchini).</p></span></div>
       </div>
     </article>
 
@@ -791,12 +857,12 @@
         <div class="recipe-eyebrow"><span class="cat">🍽️ Family Favourites</span> · Recipe 07</div>
         <h3 class="recipe-title"><span class="num">07</span> Sheet-Pan Sausages &amp; Veg</h3>
         <div class="meta-row">
-          <span class="meta-chip"><span class="ic">⏱</span><span><span class="lbl">Time</span><span class="val">30 min</span></span></span>
-          <span class="meta-chip"><span class="ic">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
-          <span class="meta-chip"><span class="ic">💪</span><span><span class="lbl">Protein</span><span class="val">~20g / serve</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">⏱</span><span><span class="lbl">Time</span><span class="val">30 min</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">💪</span><span><span class="lbl">Protein</span><span class="val">~20g / serve</span></span></span>
         </div>
       </div>
-      <div class="photo-slot"><span class="cam">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">One tray, browned sausages and roasted veg, straight from oven</span></div>
+      <div class="photo-slot"><span class="cam" aria-hidden="true">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">One tray, browned sausages and roasted veg, straight from oven</span></div>
       <div class="cook">
         <div class="col-ingredients">
           <h4>Ingredients</h4>
@@ -819,8 +885,8 @@
         </div>
       </div>
       <div class="callouts">
-        <div class="callout dad"><span class="ce">👨</span><span><span class="ctitle">Dad Tip</span><p>One tray, almost no washing up. Line it with baking paper.</p></span></div>
-        <div class="callout kid"><span class="ce">🧒</span><span><span class="ctitle">Kid Job</span><p>Tossing the veg in oil before it goes in.</p></span></div>
+        <div class="callout dad"><span class="ce" aria-hidden="true">👨</span><span><span class="ctitle">Dad Tip</span><p>One tray, almost no washing up. Line it with baking paper.</p></span></div>
+        <div class="callout kid"><span class="ce" aria-hidden="true">🧒</span><span><span class="ctitle">Kid Job</span><p>Tossing the veg in oil before it goes in.</p></span></div>
       </div>
     </article>
 
@@ -832,12 +898,12 @@
           <span class="rbadges"><span class="rbadge">⚡ Protein</span></span>
         </h3>
         <div class="meta-row">
-          <span class="meta-chip"><span class="ic">⏱</span><span><span class="lbl">Time</span><span class="val">30 min</span></span></span>
-          <span class="meta-chip"><span class="ic">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
-          <span class="meta-chip"><span class="ic">💪</span><span><span class="lbl">Protein</span><span class="val">~28g / serve</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">⏱</span><span><span class="lbl">Time</span><span class="val">30 min</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">💪</span><span><span class="lbl">Protein</span><span class="val">~28g / serve</span></span></span>
         </div>
       </div>
-      <div class="photo-slot"><span class="cam">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Sticky glazed drumsticks, glossy on the tray — hero shot</span></div>
+      <div class="photo-slot"><span class="cam" aria-hidden="true">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Sticky glazed drumsticks, glossy on the tray — hero shot</span></div>
       <div class="cook">
         <div class="col-ingredients">
           <h4>Ingredients</h4>
@@ -859,8 +925,8 @@
         </div>
       </div>
       <div class="callouts">
-        <div class="callout dad"><span class="ce">👨</span><span><span class="ctitle">Dad Tip</span><p>Spoon the tray juices back over halfway for extra sticky glaze.</p></span></div>
-        <div class="callout kid"><span class="ce">🧒</span><span><span class="ctitle">Kid Job</span><p>Mixing the marinade and tossing the drumsticks (then washing hands!).</p></span></div>
+        <div class="callout dad"><span class="ce" aria-hidden="true">👨</span><span><span class="ctitle">Dad Tip</span><p>Spoon the tray juices back over halfway for extra sticky glaze.</p></span></div>
+        <div class="callout kid"><span class="ce" aria-hidden="true">🧒</span><span><span class="ctitle">Kid Job</span><p>Mixing the marinade and tossing the drumsticks (then washing hands!).</p></span></div>
       </div>
     </article>
 
@@ -872,12 +938,12 @@
           <span class="rbadges"><span class="rbadge">⚡ Protein</span></span>
         </h3>
         <div class="meta-row">
-          <span class="meta-chip"><span class="ic">⏱</span><span><span class="lbl">Time</span><span class="val">30 min</span></span></span>
-          <span class="meta-chip"><span class="ic">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
-          <span class="meta-chip"><span class="ic">💪</span><span><span class="lbl">Protein</span><span class="val">~24g / serve</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">⏱</span><span><span class="lbl">Time</span><span class="val">30 min</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">💪</span><span><span class="lbl">Protein</span><span class="val">~24g / serve</span></span></span>
         </div>
       </div>
-      <div class="photo-slot"><span class="cam">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Split sweet potatoes, mince piled high, melted cheese</span></div>
+      <div class="photo-slot"><span class="cam" aria-hidden="true">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Split sweet potatoes, mince piled high, melted cheese</span></div>
       <div class="cook">
         <div class="col-ingredients">
           <h4>Ingredients</h4>
@@ -898,8 +964,8 @@
         </div>
       </div>
       <div class="callouts">
-        <div class="callout dad"><span class="ce">👨</span><span><span class="ctitle">Dad Tip</span><p>Microwave first, oven last — that's how you beat the 30-minute clock.</p></span></div>
-        <div class="callout kid"><span class="ce">🧒</span><span><span class="ctitle">Kid Job</span><p>Sprinkling cheese on top of the boats.</p></span></div>
+        <div class="callout dad"><span class="ce" aria-hidden="true">👨</span><span><span class="ctitle">Dad Tip</span><p>Microwave first, oven last — that's how you beat the 30-minute clock.</p></span></div>
+        <div class="callout kid"><span class="ce" aria-hidden="true">🧒</span><span><span class="ctitle">Kid Job</span><p>Sprinkling cheese on top of the boats.</p></span></div>
       </div>
     </article>
 
@@ -927,12 +993,12 @@
           <span class="rbadges"><span class="rbadge">⚡ Protein</span><span class="rbadge kids">🙌 Kids</span></span>
         </h3>
         <div class="meta-row">
-          <span class="meta-chip"><span class="ic">⏱</span><span><span class="lbl">Time</span><span class="val">25 min</span></span></span>
-          <span class="meta-chip"><span class="ic">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
-          <span class="meta-chip"><span class="ic">💪</span><span><span class="lbl">Protein</span><span class="val">~30g / serve</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">⏱</span><span><span class="lbl">Time</span><span class="val">25 min</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">💪</span><span><span class="lbl">Protein</span><span class="val">~30g / serve</span></span></span>
         </div>
       </div>
-      <div class="photo-slot"><span class="cam">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Golden crumbed nuggets, oven chips, carrot sticks</span></div>
+      <div class="photo-slot"><span class="cam" aria-hidden="true">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Golden crumbed nuggets, oven chips, carrot sticks</span></div>
       <div class="cook">
         <div class="col-ingredients">
           <h4>Ingredients</h4>
@@ -955,8 +1021,8 @@
         </div>
       </div>
       <div class="callouts">
-        <div class="callout dad"><span class="ce">👨</span><span><span class="ctitle">Dad Tip</span><p>Set up an egg bowl and a crumb bowl — assembly-line crumbing keeps the mess in one place.</p></span></div>
-        <div class="callout kid"><span class="ce">🧒</span><span><span class="ctitle">Kid Job</span><p>Crushing the cornflakes and crumbing the chicken.</p></span></div>
+        <div class="callout dad"><span class="ce" aria-hidden="true">👨</span><span><span class="ctitle">Dad Tip</span><p>Set up an egg bowl and a crumb bowl — assembly-line crumbing keeps the mess in one place.</p></span></div>
+        <div class="callout kid"><span class="ce" aria-hidden="true">🧒</span><span><span class="ctitle">Kid Job</span><p>Crushing the cornflakes and crumbing the chicken.</p></span></div>
       </div>
     </article>
 
@@ -968,12 +1034,12 @@
           <span class="rbadges"><span class="rbadge">⚡ Protein</span><span class="rbadge kids">🙌 Kids</span></span>
         </h3>
         <div class="meta-row">
-          <span class="meta-chip"><span class="ic">⏱</span><span><span class="lbl">Time</span><span class="val">30 min</span></span></span>
-          <span class="meta-chip"><span class="ic">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
-          <span class="meta-chip"><span class="ic">💪</span><span><span class="lbl">Protein</span><span class="val">~27g / serve</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">⏱</span><span><span class="lbl">Time</span><span class="val">30 min</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">💪</span><span><span class="lbl">Protein</span><span class="val">~27g / serve</span></span></span>
         </div>
       </div>
-      <div class="photo-slot"><span class="cam">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Saucy meatballs tucked in rolls, melted cheese on top</span></div>
+      <div class="photo-slot"><span class="cam" aria-hidden="true">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Saucy meatballs tucked in rolls, melted cheese on top</span></div>
       <div class="cook">
         <div class="col-ingredients">
           <h4>Ingredients</h4>
@@ -995,8 +1061,8 @@
         </div>
       </div>
       <div class="callouts">
-        <div class="callout dad"><span class="ce">👨</span><span><span class="ctitle">Dad Tip</span><p>Wet your hands before rolling so the mince doesn't stick.</p></span></div>
-        <div class="callout kid"><span class="ce">🧒</span><span><span class="ctitle">Kid Job</span><p>Rolling the meatballs.</p></span></div>
+        <div class="callout dad"><span class="ce" aria-hidden="true">👨</span><span><span class="ctitle">Dad Tip</span><p>Wet your hands before rolling so the mince doesn't stick.</p></span></div>
+        <div class="callout kid"><span class="ce" aria-hidden="true">🧒</span><span><span class="ctitle">Kid Job</span><p>Rolling the meatballs.</p></span></div>
       </div>
     </article>
 
@@ -1008,12 +1074,12 @@
           <span class="rbadges"><span class="rbadge kids">🙌 Kids</span></span>
         </h3>
         <div class="meta-row">
-          <span class="meta-chip"><span class="ic">⏱</span><span><span class="lbl">Time</span><span class="val">20 min</span></span></span>
-          <span class="meta-chip"><span class="ic">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
-          <span class="meta-chip"><span class="ic">💪</span><span><span class="lbl">Protein</span><span class="val">~14g / serve</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">⏱</span><span><span class="lbl">Time</span><span class="val">20 min</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">💪</span><span><span class="lbl">Protein</span><span class="val">~14g / serve</span></span></span>
         </div>
       </div>
-      <div class="photo-slot"><span class="cam">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Pita pizzas with kid-designed faces, fresh from oven</span></div>
+      <div class="photo-slot"><span class="cam" aria-hidden="true">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Pita pizzas with kid-designed faces, fresh from oven</span></div>
       <div class="cook">
         <div class="col-ingredients">
           <h4>Ingredients</h4>
@@ -1035,8 +1101,8 @@
         </div>
       </div>
       <div class="callouts">
-        <div class="callout dad"><span class="ce">👨</span><span><span class="ctitle">Dad Tip</span><p>Add a few slices of ham or leftover chicken for a bigger protein hit.</p></span></div>
-        <div class="callout kid"><span class="ce">🧒</span><span><span class="ctitle">Kid Job</span><p>Designing their own face or animal pizza.</p></span></div>
+        <div class="callout dad"><span class="ce" aria-hidden="true">👨</span><span><span class="ctitle">Dad Tip</span><p>Add a few slices of ham or leftover chicken for a bigger protein hit.</p></span></div>
+        <div class="callout kid"><span class="ce" aria-hidden="true">🧒</span><span><span class="ctitle">Kid Job</span><p>Designing their own face or animal pizza.</p></span></div>
       </div>
     </article>
 
@@ -1048,12 +1114,12 @@
           <span class="rbadges"><span class="rbadge">⚡ Protein</span></span>
         </h3>
         <div class="meta-row">
-          <span class="meta-chip"><span class="ic">⏱</span><span><span class="lbl">Time</span><span class="val">25 min · make-ahead</span></span></span>
-          <span class="meta-chip"><span class="ic">👥</span><span><span class="lbl">Serves</span><span class="val">4 (12 muffins)</span></span></span>
-          <span class="meta-chip"><span class="ic">💪</span><span><span class="lbl">Protein</span><span class="val">~16g / serve</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">⏱</span><span><span class="lbl">Time</span><span class="val">25 min · make-ahead</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">👥</span><span><span class="lbl">Serves</span><span class="val">4 (12 muffins)</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">💪</span><span><span class="lbl">Protein</span><span class="val">~16g / serve</span></span></span>
         </div>
       </div>
-      <div class="photo-slot"><span class="cam">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Muffin tin of colourful egg cups, flecked with veg &amp; ham</span></div>
+      <div class="photo-slot"><span class="cam" aria-hidden="true">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Muffin tin of colourful egg cups, flecked with veg &amp; ham</span></div>
       <div class="cook">
         <div class="col-ingredients">
           <h4>Ingredients</h4>
@@ -1076,8 +1142,8 @@
         </div>
       </div>
       <div class="callouts">
-        <div class="callout dad"><span class="ce">👨</span><span><span class="ctitle">Dad Tip</span><p>Great hot or cold — make a batch for breakfast-for-dinner or lunchboxes.</p></span></div>
-        <div class="callout kid"><span class="ce">🧒</span><span><span class="ctitle">Kid Job</span><p>Choosing and stirring in the "rainbow" fillings.</p></span></div>
+        <div class="callout dad"><span class="ce" aria-hidden="true">👨</span><span><span class="ctitle">Dad Tip</span><p>Great hot or cold — make a batch for breakfast-for-dinner or lunchboxes.</p></span></div>
+        <div class="callout kid"><span class="ce" aria-hidden="true">🧒</span><span><span class="ctitle">Kid Job</span><p>Choosing and stirring in the "rainbow" fillings.</p></span></div>
       </div>
     </article>
 
@@ -1089,12 +1155,12 @@
           <span class="rbadges"><span class="rbadge">⚡ Protein</span></span>
         </h3>
         <div class="meta-row">
-          <span class="meta-chip"><span class="ic">⏱</span><span><span class="lbl">Time</span><span class="val">20 min</span></span></span>
-          <span class="meta-chip"><span class="ic">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
-          <span class="meta-chip"><span class="ic">💪</span><span><span class="lbl">Protein</span><span class="val">~15g / serve</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">⏱</span><span><span class="lbl">Time</span><span class="val">20 min</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">💪</span><span><span class="lbl">Protein</span><span class="val">~15g / serve</span></span></span>
         </div>
       </div>
-      <div class="photo-slot"><span class="cam">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Loaded nacho tray, crispy chickpeas, melted cheese, salsa</span></div>
+      <div class="photo-slot"><span class="cam" aria-hidden="true">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Loaded nacho tray, crispy chickpeas, melted cheese, salsa</span></div>
       <div class="cook">
         <div class="col-ingredients">
           <h4>Ingredients</h4>
@@ -1116,8 +1182,8 @@
         </div>
       </div>
       <div class="callouts">
-        <div class="callout dad"><span class="ce">👨</span><span><span class="ctitle">Dad Tip</span><p>Veggie protein and big crunch — pat the chickpeas dry before roasting for max crispness.</p></span></div>
-        <div class="callout kid"><span class="ce">🧒</span><span><span class="ctitle">Kid Job</span><p>Scattering chickpeas and cheese over the chips.</p></span></div>
+        <div class="callout dad"><span class="ce" aria-hidden="true">👨</span><span><span class="ctitle">Dad Tip</span><p>Veggie protein and big crunch — pat the chickpeas dry before roasting for max crispness.</p></span></div>
+        <div class="callout kid"><span class="ce" aria-hidden="true">🧒</span><span><span class="ctitle">Kid Job</span><p>Scattering chickpeas and cheese over the chips.</p></span></div>
       </div>
     </article>
 
@@ -1145,12 +1211,12 @@
           <span class="rbadges"><span class="rbadge kids">🙌 Kids</span></span>
         </h3>
         <div class="meta-row">
-          <span class="meta-chip"><span class="ic">⏱</span><span><span class="lbl">Time</span><span class="val">5 min</span></span></span>
-          <span class="meta-chip"><span class="ic">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
-          <span class="meta-chip"><span class="ic">💪</span><span><span class="lbl">Protein</span><span class="val">Treat</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">⏱</span><span><span class="lbl">Time</span><span class="val">5 min</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">👥</span><span><span class="lbl">Serves</span><span class="val">4</span></span></span>
+          <span class="meta-chip"><span class="ic" aria-hidden="true">💪</span><span><span class="lbl">Protein</span><span class="val">Treat</span></span></span>
         </div>
       </div>
-      <div class="photo-slot"><span class="cam">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Rolled banana "sushi" rounds on a board, kid-friendly</span></div>
+      <div class="photo-slot"><span class="cam" aria-hidden="true">📷</span><span class="ps-label">Photo slot</span><span class="ps-sub">Rolled banana "sushi" rounds on a board, kid-friendly</span></div>
       <div class="cook">
         <div class="col-ingredients">
           <h4>Ingredients</h4>
@@ -1171,9 +1237,9 @@
         </div>
       </div>
       <div class="callouts">
-        <div class="callout dad"><span class="ce">👨</span><span><span class="ctitle">Dad Tip</span><p>Five-minute treat or after-school win.</p></span></div>
-        <div class="callout kid"><span class="ce">🧒</span><span><span class="ctitle">Kid Job</span><p>Spreading, rolling and slicing (kid-safe knife).</p></span></div>
-        <div class="callout allergy"><span class="ce">⚠️</span><span><span class="ctitle">Nut Allergy</span><p>Swap peanut butter for cream cheese.</p></span></div>
+        <div class="callout dad"><span class="ce" aria-hidden="true">👨</span><span><span class="ctitle">Dad Tip</span><p>Five-minute treat or after-school win.</p></span></div>
+        <div class="callout kid"><span class="ce" aria-hidden="true">🧒</span><span><span class="ctitle">Kid Job</span><p>Spreading, rolling and slicing (kid-safe knife).</p></span></div>
+        <div class="callout allergy"><span class="ce" aria-hidden="true">⚠️</span><span><span class="ctitle">Nut Allergy</span><p>Swap peanut butter for cream cheese.</p></span></div>
       </div>
     </article>
 

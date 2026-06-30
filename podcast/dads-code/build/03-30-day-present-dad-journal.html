@@ -159,12 +159,12 @@
   .mini-dots i:first-child{opacity:1;}
   .mini-rule{height:2px;background:var(--amber);margin:8px 0;border-radius:2px;}
   .mini-box{border:1.5px solid var(--amber);border-radius:8px;padding:10px;margin:10px 0;}
-  .mini-box .ml{font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:#b08a3e;}
+  .mini-box .ml{font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:#8a6418;}
   .mini-box .mt{font-size:.72rem;color:var(--ink);margin-top:4px;}
   .mini-check{display:flex;align-items:center;gap:8px;font-size:.72rem;color:var(--ink);margin:8px 0;}
   .mini-check span{width:13px;height:13px;border:1.5px solid var(--ink-soft);border-radius:3px;display:block;}
   .mini-line{height:1px;background:var(--paper-line);margin-top:6px;}
-  .mini-callout{position:relative;font-size:.6rem;color:#b08a3e;letter-spacing:.04em;}
+  .mini-callout{position:relative;font-size:.6rem;color:#8a6418;letter-spacing:.04em;}
 
   /* ---------- DAILY PAGE ---------- */
   .day-page .day-inner,.checkin-page .day-inner{min-height:520px;}
@@ -180,7 +180,7 @@
   }
   .day-meta{display:flex;flex-direction:column;align-items:flex-end;gap:8px;text-align:right;}
   .day-theme{
-    font-weight:700;letter-spacing:.16em;text-transform:uppercase;font-size:.66rem;color:#b08a3e;
+    font-weight:700;letter-spacing:.16em;text-transform:uppercase;font-size:.66rem;color:#8a6418;
   }
   .day-range{font-size:.72rem;color:var(--ink-soft);letter-spacing:.04em;}
   .dots{display:flex;gap:7px;}
@@ -196,7 +196,7 @@
   }
   .prompt-label{
     display:block;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
-    font-size:.66rem;color:#b08a3e;margin-bottom:12px;
+    font-size:.66rem;color:#8a6418;margin-bottom:12px;
   }
   .prompt-text{
     margin:0;font-family:var(--serif);font-weight:500;
@@ -237,7 +237,7 @@
     margin-top:auto;padding-top:18px;border-top:1px solid var(--paper-line);
     display:flex;justify-content:space-between;align-items:center;gap:12px;
   }
-  .foot-tag{font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:.66rem;color:#b08a3e;}
+  .foot-tag{font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:.66rem;color:#8a6418;}
   .foot-page{font-size:.66rem;letter-spacing:.08em;color:var(--ink-soft);text-transform:uppercase;}
 
   /* ---------- Check-in / final ---------- */
@@ -266,8 +266,30 @@
     line-height:1.4;max-width:24ch;margin:0;color:var(--text);
   }
   .backpage p.big em{color:var(--amber);font-style:italic;}
-  .backpage .next{color:var(--muted);font-size:.95rem;max-width:34ch;line-height:1.5;}
+  .backpage .next{color:var(--muted);font-size:.95rem;max-width:36ch;line-height:1.55;}
   .backpage .amber-line{margin:4px auto;}
+  .cta-card{
+    width:min(440px,92%);margin:6px auto 0;
+    border:1px solid rgba(223,183,108,.30);border-radius:14px;
+    background:rgba(223,183,108,.05);
+    padding:22px 24px;display:flex;flex-direction:column;gap:16px;text-align:left;
+  }
+  .cta-card .cta-kicker{
+    font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+    font-size:.62rem;color:var(--amber);text-align:center;
+  }
+  .cta-item{display:flex;align-items:flex-start;gap:13px;}
+  .cta-item .cta-ico{
+    flex:none;width:34px;height:34px;border-radius:9px;
+    border:1px solid rgba(223,183,108,.40);display:flex;align-items:center;justify-content:center;
+  }
+  .cta-item .cta-ico svg{display:block;}
+  .cta-item .cta-body{display:flex;flex-direction:column;gap:3px;}
+  .cta-item .cta-title{font-weight:600;color:var(--text);font-size:.96rem;line-height:1.3;}
+  .cta-item .cta-sub{color:var(--muted);font-size:.82rem;line-height:1.45;}
+  .cta-item .cta-link{color:var(--amber);font-size:.82rem;letter-spacing:.02em;text-decoration:none;word-break:break-word;}
+  .cta-item .cta-link:hover{text-decoration:underline;}
+  .cta-item a:focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:3px;}
 
   /* ---------- Print: ink-saving, one page per sheet ---------- */
   @media print{
@@ -294,10 +316,22 @@
     .cover .subtitle,.cover-foot .tagline{color:var(--ink) !important;}
     .cover .wordmark-lg,.backpage .wordmark-lg{color:#9a6f23 !important;}
     .backpage p.big{color:var(--ink) !important;}
-    .backpage p.big em,.cover h1{}
-    .motif svg path,.motif svg circle,.motif svg line{stroke:#b08a3e !important;}
-    .write-line{border-bottom:1px solid #444;}
+    .backpage p.big em{color:#9a6f23 !important;}
+    .backpage .next{color:var(--ink-soft) !important;}
+    .motif svg path,.motif svg circle,.motif svg line{stroke:#8a6418 !important;}
+    .write-line{border-bottom:1px solid #555;}
+    .write-lines{
+      background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 33px,#555 33px,#555 34px) !important;
+    }
     .prompt-box{background:none !important;}
+    /* CTA card: ink-light on print */
+    .cta-card{background:none !important;border:1px solid #c9c0ac !important;break-inside:avoid;}
+    .cta-card .cta-kicker{color:#8a6418 !important;}
+    .cta-item .cta-ico{border-color:#c9c0ac !important;}
+    .cta-item .cta-ico svg path,.cta-item .cta-ico svg circle,.cta-item .cta-ico svg line,.cta-item .cta-ico svg rect{stroke:#8a6418 !important;}
+    .cta-item .cta-title{color:var(--ink) !important;}
+    .cta-item .cta-sub{color:var(--ink-soft) !important;}
+    .cta-item .cta-link{color:#8a6418 !important;}
     .day-foot,.close-banner,.backpage{break-inside:avoid;}
     .cover{min-height:240mm;justify-content:space-between;}
   }
@@ -404,9 +438,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -437,9 +471,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -470,9 +504,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -503,9 +537,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -536,9 +570,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -569,9 +603,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -602,9 +636,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -668,9 +702,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -701,9 +735,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -734,9 +768,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -767,9 +801,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -800,9 +834,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -833,9 +867,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -866,9 +900,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -932,9 +966,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -965,9 +999,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -998,9 +1032,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -1031,9 +1065,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -1064,9 +1098,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -1097,9 +1131,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -1130,9 +1164,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -1196,9 +1230,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -1229,9 +1263,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -1262,9 +1296,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -1295,9 +1329,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -1328,9 +1362,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -1361,9 +1395,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -1394,9 +1428,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -1460,9 +1494,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
@@ -1493,9 +1527,9 @@
       </label>
 
       <div class="reflect">
-        <span class="reflect-label">Tonight, one line</span>
-        <span class="reflect-q">What happened when I tried it?</span>
-        <span class="write-line"></span>
+        <span class="reflect-label">Tonight, a few lines</span>
+        <span class="reflect-q">What happened when I tried it? How did it feel?</span>
+        <span class="write-lines lines-3" aria-hidden="true"></span>
       </div>
 
       <footer class="day-foot">
