@@ -261,6 +261,68 @@
   }
   .backtotop:hover{color:var(--amber-soft);}
 
+  /* ---------- TOC motif ---------- */
+  .toc .t-motif{
+    font-size:1.15rem;line-height:1;min-width:1.6rem;text-align:center;
+  }
+
+  /* ---------- Closing CTA / cross-sell ---------- */
+  .closing{
+    background:
+      radial-gradient(50rem 30rem at 50% 0%, rgba(223,183,108,0.08), transparent 60%),
+      var(--bg-soft);
+    border-top:1px solid var(--line);
+    text-align:center;
+  }
+  .closing .moon-mini{
+    width:56px;height:56px;margin:0 auto 1rem;color:var(--amber);
+    filter:drop-shadow(0 0 16px rgba(223,183,108,0.3));
+  }
+  .closing h2{
+    font-family:var(--serif);font-weight:500;
+    font-size:clamp(1.7rem,4.2vw,2.3rem);
+    margin:0 0 1rem;color:var(--offwhite);
+  }
+  .closing p.lede{
+    max-width:34rem;margin:0 auto 2rem;color:var(--muted);font-size:1.05rem;
+  }
+  .cta-row{
+    display:flex;flex-wrap:wrap;gap:0.9rem;justify-content:center;margin-bottom:2.5rem;
+  }
+  .cta{
+    display:inline-flex;align-items:center;gap:0.5rem;
+    font-family:var(--body);font-size:0.95rem;font-weight:500;letter-spacing:0.02em;
+    text-decoration:none;border-radius:999px;padding:0.85rem 1.5rem;
+    transition:background .2s ease, transform .1s ease, border-color .2s ease;
+  }
+  .cta-primary{background:var(--amber);color:var(--bg);}
+  .cta-primary:hover{background:var(--amber-soft);}
+  .cta-primary:active{transform:translateY(1px);}
+  .cta-ghost{
+    background:transparent;color:var(--amber-soft);border:1px solid var(--line);
+  }
+  .cta-ghost:hover{border-color:var(--amber);background:rgba(223,183,108,0.06);}
+
+  .more{
+    max-width:42rem;margin:0 auto;text-align:left;
+    border-top:1px solid var(--line);padding-top:2rem;
+  }
+  .more .more-eyebrow{
+    font-family:var(--serif);letter-spacing:0.24em;text-transform:uppercase;
+    font-size:0.68rem;color:var(--amber);margin:0 0 1.1rem;text-align:center;
+  }
+  .more ul{list-style:none;margin:0;padding:0;display:grid;gap:0.7rem;}
+  .more li a{
+    display:flex;align-items:baseline;gap:0.75rem;
+    text-decoration:none;color:var(--offwhite);
+    background:var(--bg-card);border:1px solid var(--line);border-radius:12px;
+    padding:1rem 1.2rem;transition:border-color .2s ease, background .2s ease;
+  }
+  .more li a:hover{border-color:var(--amber);background:rgba(223,183,108,0.05);}
+  .more .m-icon{font-size:1.2rem;line-height:1.4;}
+  .more .m-title{font-family:var(--serif);font-size:1.05rem;}
+  .more .m-desc{display:block;color:var(--muted);font-size:0.9rem;font-style:italic;margin-top:0.15rem;}
+
   /* ---------- Footer ---------- */
   footer{
     background:var(--bg-soft);border-top:1px solid var(--line);
@@ -296,10 +358,20 @@
     .story-body p:first-of-type::first-letter{color:#9a7a3a;}
     .codeline{border-color:#d8cba8;}
     section{padding:1.5rem 0;}
+    .closing{background:#fffdf7;border-color:#e3d8bd;page-break-before:always;}
+    .closing h2{color:#1f1a12;}
+    .closing p.lede,.more .m-desc{color:#5a4a2a;}
+    .closing .moon-mini{color:#9a7a3a;filter:none;}
+    .more .more-eyebrow{color:#8a6a25;}
+    .more li a{background:#f6eed9;border-color:#e3d8bd;color:#2a2520;}
+    .cta-row{display:none !important;}
+    .more,.more li a{break-inside:avoid;}
   }
 </style>
 </head>
 <body>
+
+<a class="skip-link" href="#intro">Skip to the stories</a>
 
 <header class="topbar">
   <div class="topbar-inner">
@@ -339,8 +411,10 @@
   <p class="scroll-hint" aria-hidden="true">scroll to begin ↓</p>
 </div>
 
+<main>
+
 <!-- ============ INTRO ============ -->
-<section class="intro">
+<section class="intro" id="intro">
   <div class="wrap">
     <p class="eyebrow">A note before lights-out</p>
     <h2>From the dad who reads the story anyway</h2>
@@ -365,12 +439,12 @@
     <h2>Contents</h2>
     <nav aria-label="Table of contents">
       <ol>
-        <li><a href="#story-1"><span class="t-title">The Little Star Who Felt Too Small</span><span class="t-code">you are enough</span></a></li>
-        <li><a href="#story-2"><span class="t-title">Bramble the Bear Who Couldn't Sleep</span><span class="t-code">breathe and let go</span></a></li>
-        <li><a href="#story-3"><span class="t-title">The Lighthouse Keeper's Boy</span><span class="t-code">always there</span></a></li>
-        <li><a href="#story-4"><span class="t-title">Pip the Penguin Tries Again</span><span class="t-code">brave to try</span></a></li>
-        <li><a href="#story-5"><span class="t-title">The Kindest Kangaroo</span><span class="t-code">kindness comes back</span></a></li>
-        <li><a href="#story-6"><span class="t-title">Goodnight, Little Worry</span><span class="t-code">name it, shrink it</span></a></li>
+        <li><a href="#story-1"><span class="t-motif" aria-hidden="true">✦</span><span class="t-title">The Little Star Who Felt Too Small</span><span class="t-code">you are enough</span></a></li>
+        <li><a href="#story-2"><span class="t-motif" aria-hidden="true">🐻</span><span class="t-title">Bramble the Bear Who Couldn't Sleep</span><span class="t-code">breathe and let go</span></a></li>
+        <li><a href="#story-3"><span class="t-motif" aria-hidden="true">🌊</span><span class="t-title">The Lighthouse Keeper's Boy</span><span class="t-code">always there</span></a></li>
+        <li><a href="#story-4"><span class="t-motif" aria-hidden="true">🐧</span><span class="t-title">Pip the Penguin Tries Again</span><span class="t-code">brave to try</span></a></li>
+        <li><a href="#story-5"><span class="t-motif" aria-hidden="true">🦘</span><span class="t-title">The Kindest Kangaroo</span><span class="t-code">kindness comes back</span></a></li>
+        <li><a href="#story-6"><span class="t-motif" aria-hidden="true">🌙</span><span class="t-title">Goodnight, Little Worry</span><span class="t-code">name it, shrink it</span></a></li>
       </ol>
     </nav>
   </div>

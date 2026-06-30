@@ -325,11 +325,11 @@
     margin: 6px 0 14px;
     color: var(--off);
   }
-  .lines { margin-top: 8px; }
+  .lines { margin-top: 10px; }
   .lines .rule {
     height: 0;
     border-bottom: 1px solid var(--rule);
-    margin: 0 0 22px;
+    margin: 0 0 26px;
   }
   .lines .rule:last-child { margin-bottom: 0; }
 
@@ -364,7 +364,10 @@
     text-align: center;
     max-width: 24ch;
     margin: 8px auto;
+    padding: 0;
+    border: 0;
     font-weight: 500;
+    font-style: normal;
   }
   .pull .attr { display: block; font-family: var(--sans); font-size: 0.95rem; font-style: normal; color: var(--muted); margin-top: 18px; letter-spacing: 0.04em; }
 
@@ -381,10 +384,21 @@
   .cta h2 { font-size: clamp(1.7rem, 5vw, 2.3rem); margin: 0 0 0.5em; }
   .cta p { color: var(--muted); max-width: 44ch; margin: 0 auto 1.1em; }
   .cta .btn-link {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     margin-top: 12px;
+    padding: 13px 26px;
+    font-size: 15px;
     text-decoration: none;
   }
+  .cross-sell {
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+  .cross-sell a { font-weight: 600; }
 
   footer {
     text-align: center;
@@ -422,7 +436,8 @@
 
 <header class="topbar">
   <a class="wordmark" href="#cover">Dad's Code <span>· Jamie Wigg</span></a>
-  <button class="btn" id="pdfBtn" type="button" aria-label="Save this guide as a PDF">Save as PDF</button>
+  <button class="btn" id="pdfBtn" type="button" aria-label="Save or print this guide as a PDF">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Save as PDF</button>
 </header>
 
 <!-- ============ COVER ============ -->
@@ -537,10 +552,10 @@
   <hr class="div" aria-hidden="true" />
 
   <!-- ============ PULL QUOTE ============ -->
-  <section class="block" aria-hidden="false">
-    <p class="pull">"We stay together to conquer anything."
+  <section class="block">
+    <blockquote class="pull">"We stay together to conquer anything."
       <span class="attr">— the line Vanessa and I keep coming back to</span>
-    </p>
+    </blockquote>
   </section>
 
   <hr class="div" aria-hidden="true" />
@@ -717,7 +732,10 @@
       <p>You won't get it perfect. Some weeks you'll skip the check-in, snap when you shouldn't, fall asleep mid-sentence. That's fine. Love built in the parenting years isn't tidy — it's stubborn. It's the daily decision to turn back toward the person beside you, even when you're tired, even when it's hard.</p>
       <p>That's the whole thing. Not perfect. Present. Still choosing you.</p>
       <p style="margin-top:6px;">If this helped, come find the rest of the conversation. The <strong style="color:var(--amber);">Dad's Code</strong> podcast is where I talk honestly about marriage, fatherhood, burnout and showing up — for the people who matter most.</p>
-      <a class="btn btn-link" href="#cover">Listen to the Dad's Code podcast</a>
+      <a class="btn btn-link" href="https://dadscode.co/podcast" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right:8px;vertical-align:-3px;"><circle cx="12" cy="11" r="3.2"/><path d="M5.5 16.5a8 8 0 1 1 13 0"/><path d="M12 14.2V21"/><path d="M8.5 21h7"/></svg>Listen to the Dad's Code podcast
+      </a>
+      <p class="cross-sell">One small turn at a time. For more like this — short reads, journals and honest conversations on showing up at home — visit <a href="https://dadscode.co" rel="noopener">dadscode.co</a>.</p>
     </div>
   </section>
 

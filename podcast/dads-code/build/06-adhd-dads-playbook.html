@@ -490,6 +490,7 @@
     display: block;
     margin-bottom: 8px;
   }
+  footer strong { color: var(--amber); font-weight: 700; letter-spacing: 0.02em; }
 
   /* ---------- Responsive ---------- */
   @media (max-width: 560px) {
@@ -502,11 +503,13 @@
   @media print {
     :root { --bg: #ffffff; --off: #1a1a1a; --muted: #555; --panel: #faf7f0; }
     body { background: #fff; color: #1a1a1a; font-size: 11.5pt; line-height: 1.5; }
-    .topbar, .btn-pdf, .cta-links { display: none !important; }
+    .topbar, .btn-pdf, .cta-links, .skip-link { display: none !important; }
+    .cta-url { display: block !important; color: #9a7322 !important; }
     .cover { min-height: auto; padding: 40px 0; page-break-after: always; }
     .cover h1 { color: #1a1a1a; }
     .cover h1 .accent, .cover-kicker, .badge, .section-eyebrow,
-    .play-num, .play-box .kicker, .tool-card h4 { color: #9a7322 !important; }
+    .play-num, .play-box .kicker, .tool-card h4, .crest { color: #9a7322 !important; }
+    .crest { border-color: #c9a85e; background: #fdf6e7; }
     .badge { border-color: #c9a85e; background: #fdf6e7; }
     .play-box { background: #fdf6e7; border-color: #c9a85e; }
     .play-box p, .pull { color: #1a1a1a; }
@@ -903,6 +906,7 @@
   <footer>
     <span class="fm">Dad's Code</span>
     The ADHD Dad's Playbook · by Jamie Wigg · Present, not perfect.<br />
+    Find the podcast and more at <strong>dadscode.co</strong><br />
     © 2026 Dad's Code. For your personal use. Share the message, not the file.
   </footer>
 

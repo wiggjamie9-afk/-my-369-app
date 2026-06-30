@@ -219,6 +219,16 @@
   .phase-no .lbl{font-weight:800;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;}
   .phase-title{font-size:1.55rem;font-weight:800;margin:0;color:var(--text);line-height:1.15;}
   .phase-focus{color:var(--amber);font-weight:700;letter-spacing:0.04em;font-size:0.92rem;margin:6px 0 0;text-transform:uppercase;}
+  .phase-dots{display:flex;align-items:center;gap:7px;margin:12px 0 0;}
+  .phase-dots .dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--amber);background:transparent;}
+  .phase-dots .dot.on{background:var(--amber);}
+  .phase-dots .pd-label{color:var(--muted);font-size:0.78rem;letter-spacing:0.06em;text-transform:uppercase;margin-left:4px;}
+  .carry{
+    display:inline-flex;align-items:center;gap:8px;margin:14px 0 0;
+    background:rgba(223,183,108,0.10);border:1px solid var(--line);border-radius:999px;
+    padding:6px 14px;font-size:0.84rem;color:var(--text);font-weight:600;
+  }
+  .carry b{color:var(--amber);font-weight:800;}
   .phase-intro{color:var(--text);margin:16px 0 4px;font-size:1.02rem;}
   .phase-intro.muted{color:var(--muted);}
 
@@ -361,6 +371,11 @@
     h2.sec,.lead,.phase-intro,.core p{color:#1a1a1a !important;}
     a{color:#9a7322 !important;}
     .habit:hover,.toc-item:hover{transform:none;}
+    .phase-dots .dot{border-color:#7a5a1a !important;}
+    .phase-dots .dot.on{background:#7a5a1a !important;}
+    .phase-dots .pd-label{color:#444 !important;}
+    .carry{background:#f7efdc !important;border-color:#caa85e !important;color:#1a1a1a !important;}
+    .carry b{color:#7a5a1a !important;}
     /* ink-light tracker */
     #tracker{page-break-before:always;}
     table.tracker{background:#fff !important;border:1px solid #999 !important;}
@@ -484,6 +499,7 @@
         <div style="flex:1;min-width:200px;">
           <h3 class="phase-title">Foundations</h3>
           <p class="phase-focus">Focus: Show up, keep it tiny</p>
+          <p class="phase-dots"><span class="dot on" aria-hidden="true"></span><span class="dot" aria-hidden="true"></span><span class="dot" aria-hidden="true"></span><span class="pd-label">Phase 1 of 3</span></p>
         </div>
       </div>
       <p class="phase-intro">Month one is about one thing: becoming a man who keeps small promises to himself again. Forget intensity. Forget the scales. If the habit feels too easy, you've got it exactly right — easy is what survives a bad day. These four habits are the whole job for the next 30 days.</p>
@@ -524,9 +540,11 @@
         <div style="flex:1;min-width:200px;">
           <h3 class="phase-title">Momentum</h3>
           <p class="phase-focus">Focus: Build on the base, stack the wins</p>
+          <p class="phase-dots"><span class="dot on" aria-hidden="true"></span><span class="dot on" aria-hidden="true"></span><span class="dot" aria-hidden="true"></span><span class="pd-label">Phase 2 of 3</span></p>
         </div>
       </div>
       <p class="phase-intro">By now the habits don't feel quite so heavy. This month you keep everything from Phase 1 and gently turn up the dial. You'll start to feel it — clearer mornings, a lighter step, a bit more patience with the kids. That feeling is the fuel. Add these on top of your Foundations.</p>
+      <p class="carry"><span aria-hidden="true">↪</span> <span><b>Carry forward:</b> walk · bedtime · water · tick the box</span></p>
       <div class="habit-grid">
         <div class="habit">
           <div class="h-top"><span class="h-ico" aria-hidden="true">🏃</span><h4>Stretch the walk</h4></div>
@@ -564,9 +582,11 @@
         <div style="flex:1;min-width:200px;">
           <h3 class="phase-title">Identity</h3>
           <p class="phase-focus">Focus: This is just who you are now</p>
+          <p class="phase-dots"><span class="dot on" aria-hidden="true"></span><span class="dot on" aria-hidden="true"></span><span class="dot on" aria-hidden="true"></span><span class="pd-label">Phase 3 of 3</span></p>
         </div>
       </div>
       <p class="phase-intro">The final stretch isn't about doing more — it's about owning it. You're no longer a tired dad attempting a reset. You're an active dad who moves, sleeps well and keeps his word to himself. These habits lock that identity in so it outlasts the 90 days.</p>
+      <p class="carry"><span aria-hidden="true">↪</span> <span><b>Carry forward:</b> everything from Phases 1 &amp; 2 — now it's just normal</span></p>
       <div class="habit-grid">
         <div class="habit">
           <div class="h-top"><span class="h-ico" aria-hidden="true">🔗</span><h4>Don't break the chain</h4></div>
