@@ -1,0 +1,12 @@
+# Netlify config for the Vitruvian 369 Core static app.
+# It's a single static index.html, so the publish directory is the repo root.
+[build]
+  publish = "."
+  command = ""
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
