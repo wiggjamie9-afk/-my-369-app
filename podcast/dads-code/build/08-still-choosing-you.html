@@ -418,7 +418,10 @@
     .cover { min-height: auto; page-break-after: always; padding: 60px 20px; }
     .cover h1 { color: #1a1622 !important; -webkit-text-fill-color: #1a1622; }
     .block { padding: 22px 0; }
-    .idea, .prompt, .checkin, .toc, .cta { break-inside: avoid; border-color: #cfc9bd; box-shadow: none; }
+    .idea, .prompt, .checkin, .toc, .cta { break-inside: avoid; border-color: #cfc9bd; box-shadow: none; transform: none !important; }
+    .idea::before { background: #9a7320 !important; opacity: 1; }
+    .glyph { border-color: #9a7320; background: none; box-shadow: none; }
+    .cross-sell, .cta .btn-link svg { display: none; }
     section { page-break-inside: avoid; }
     h2.section-title { page-break-after: avoid; }
     a { color: #1a1622; text-decoration: underline; }
@@ -445,7 +448,7 @@
   <div class="glyph" aria-hidden="true">&amp;</div>
   <p class="eyebrow">A Couples Connection Guide &amp; Journal</p>
   <h1>Still Choosing You</h1>
-  <p class="sub">Keeping your relationship strong through the kids, the stress, and the hard times.</p>
+  <p class="sub">Keeping your relationship strong through the kids, the stress, and the hard times — one small turn toward each other at a time.</p>
   <hr class="cover-rule" aria-hidden="true" />
   <p class="byline">by <strong>Jamie Wigg</strong> — Dad's Code</p>
   <p class="tagline">Present, not perfect.</p>
