@@ -416,7 +416,10 @@
     :root{--bg:#fff;--panel:#fff;--panel-2:#f7f4ee;--text:#1a1622;--muted:#5a5466;--amber:#9a6f1e;--amber-soft:#f6efe0;--amber-line:#d9c79c}
     body{background:#fff;color:#1a1622}
     @page{size:A4;margin:14mm}
-    .topbar,.scroll-cue,.back-to-top,.photo-slot .ps-sub{display:none !important}
+    .topbar,.scroll-cue,.back-to-top,.photo-slot .ps-sub,.skip-link,.print-btn{display:none !important}
+    .cta-row{margin:18px auto 8px}
+    .btn{border:1px solid #d9c79c !important;box-shadow:none !important;color:#1a1622 !important;background:#f6efe0 !important;page-break-inside:avoid}
+    .btn .btn-sub{color:#5a5466 !important}
     .cover{min-height:auto;padding:30mm 0;page-break-after:always;background:#fff}
     .cover::after{display:none}
     .cover-plate{box-shadow:none;border:1px solid #d9c79c}
@@ -453,7 +456,7 @@
 <header class="cover">
   <div class="cover-inner">
     <div class="kicker">Dad's Code · by Jamie Wigg</div>
-    <div class="cover-plate">🍳</div>
+    <div class="cover-plate" aria-hidden="true">🍳</div>
     <h1>Dad's Code<br><span class="amber">Kitchen</span></h1>
     <p class="subtitle">Fast, fun, tasty meals a dad can make for the kids — even when Mum's working.</p>
     <div class="ribbon">Present, not perfect.</div>
@@ -548,7 +551,7 @@
       <div class="toc-list">
         <a class="toc-link" href="#r5"><span class="toc-num">5</span><span class="title">Build-Your-Own Taco Night</span><span class="badges">⚡🙌</span></a>
         <a class="toc-link" href="#r6"><span class="toc-num">6</span><span class="title">Speedy Spag Bol</span><span class="badges">⚡</span></a>
-        <a class="toc-link" href="#r7"><span class="toc-num">7</span><span class="title">Sheet-Pan Sausages &amp; Veg</span><span class="badges"></span></a>
+        <a class="toc-link" href="#r7"><span class="toc-num">7</span><span class="title">Sheet-Pan Sausages &amp; Veg</span><span class="badges" aria-hidden="true">🍽️</span></a>
         <a class="toc-link" href="#r8"><span class="toc-num">8</span><span class="title">Honey Soy Drumsticks</span><span class="badges">⚡</span></a>
         <a class="toc-link" href="#r9"><span class="toc-num">9</span><span class="title">Loaded Sweet Potato Boats</span><span class="badges">⚡</span></a>
       </div>
