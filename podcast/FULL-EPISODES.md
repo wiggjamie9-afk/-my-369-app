@@ -5,6 +5,42 @@ Longer episodes (~7–8 min). Read in your "Jamie" voice. Frequency Bound: Stabi
 
 ---
 
+## DAD'S CODE — "Present, Not Perfect" (from the memoir)
+
+**Description:** The heart of Dad's Code. Jamie grew up with a father whose love arrived as money, not presence — and at ten years old made a silent vow to be different. This is the story of becoming the dad he never had: four kids under four, choosing to show up through the hard days, and the wordless "air cuddle" that says everything. Being present beats being perfect, every single time. (Contains brief mention of depression and family loss — support: Lifeline 13 11 14 · Beyond Blue 1300 22 4636 · MensLine 1300 78 99 78.)
+
+**Script:**
+
+> Welcome to Dad's Code. I'm Jamie. And before we start, let me tell you what the code actually is — because it's not what you'd think. It's not about being the perfect dad. I'm not. The code is one word: present.
+>
+> Let me take you back, so you understand why that word means everything to me.
+>
+> I grew up with a father who worked away. His love, when it came, arrived as money — not presence. I'd see him once, maybe twice a year. I remember sitting in his car as a boy, and I had nothing to say… and he had nothing to ask. Two strangers, bound by blood. I'd watch my friends with their dads — the easy way they talked, the guidance — and I'd feel this hollow space where that was supposed to be.
+>
+> For a long time I was angry about it. But I understand him now. My dad was shaped by his own unbearable childhood — he lost his mum when he was just four, got shipped off, grew up with absence too. He was passing down the only thing he was ever given. Hurt people hurt people. And quiet boys carry it.
+>
+> So at ten years old, I made a silent vow. I didn't tell anyone. I just promised myself: if I ever have children… I will not be this. I will be there.
+>
+> Years later, life gave me the chance to keep that promise. My daughter was born, and I named her Indyanna — after my mum. Then came the twins, Savannah and Christopher. And then Jackson. Four children under four. Let that sink in. Nappies, bottles, sleepless nights, noise in every room. And for the first time in my whole life… I wasn't the boy left out. I was the man holding the centre.
+>
+> Now, here's where the code gets real. Being present sounds simple. It isn't. Because I've carried depression and anxiety for most of my adult life. There were days the weight was crushing. Days I had to drag myself up off the floor of my own mind. And on those days, I made a choice. I'd put on a smile for my kids. Not a fake one — a chosen one. Because they deserved my presence more than my pain deserved the spotlight. That smile wasn't a mask. It was a daily offering.
+>
+> And I showed up. First football kicks. First dance lessons. School assemblies. Every single one. My own dad likely never saw a single game I played. So I decided my kids would never wonder where I was. Work could wait. Their moments couldn't. Big smile. Biggest supporter. Win or lose, large or small — I was there.
+>
+> There's this thing my son Jackson and I do. At night, he whispers, "I love you, Dad." And then we press our ears together — we call it the air cuddle. No words. Just warmth, ear to ear. And in that little moment, every hard day I've had just… dissolves. That feeling — that exact feeling — is the one I never had as a child. And now it's alive between us, every night. That's the whole point. That's the code working.
+>
+> And here's the part that still gets me. Late in his life, my dad and I finally found each other. After twenty-five years of silence, I moved in with him. We cut wood together. Built furniture. Sat in comfortable quiet. We became, somehow, father and son again. And one ordinary Friday, something moved through me, and I said it: "I love you, Dad." He said, "I'll chat to you on Tuesday."
+>
+> Tuesday never came. He passed before it did. But those words did come. They live in me now — a final gift I didn't know I needed. And they taught me the most important thing I know about being a dad: say it. Show up. Don't wait for Tuesday.
+>
+> So that's the code. It's not perfection. It's presence. It's honesty. It's reliability. It's showing up, again and again, even on the days you can barely stand — until love becomes the very air your kids breathe.
+>
+> If you grew up with a hollow space where a dad should've been… you can be the one who fills it for someone else. The cycle stops with you. It stopped with me.
+>
+> This has been Dad's Code. Go and be present today — not perfect. Just there. I'll see you next time.
+
+---
+
 ## FREQUENCY BOUND — "Why Everything Is Vibration"
 
 **Description:** Nothing is truly still — everything, including you, is vibration. In this opening episode we explore energy, frequency, and resonance: why sound moves us so deeply, what the Solfeggio tones are, and a simple practice to tune yourself back to calm. An honest, grounded look at frequency for wellbeing (not medical advice).
