@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Still Choosing You — A Couples Connection Guide &amp; Journal | Dad's Code</title>
+<meta name="description" content="Still Choosing You — a warm, honest couples connection guide and journal for parents keeping their relationship strong through kids, stress and hard times. By Jamie Wigg, Dad's Code." />
+<meta name="author" content="Jamie Wigg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #14121A;
+    --panel: #1C1A26;
+    --panel-2: #221F2E;
+    --amber: #DFB76C;
+    --amber-soft: #e8c98c;
+    --off: #F4F1EA;
+    --muted: #B4AEC0;
+    --line: rgba(180, 174, 192, 0.22);
+    --rule: rgba(180, 174, 192, 0.45);
+    --maxw: 720px;
+    --serif: "Fraunces", Georgia, "Times New Roman", serif;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--off);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4 { font-family: var(--serif); font-weight: 600; line-height: 1.18; letter-spacing: -0.01em; }
+
+  a { color: var(--amber); }
+
+  p { margin: 0 0 1.1em; }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px clamp(16px, 4vw, 40px);
+    background: rgba(20, 18, 26, 0.86);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .wordmark {
+    font-family: var(--serif);
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    font-size: 15px;
+    color: var(--amber);
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .wordmark span { color: var(--muted); font-weight: 500; }
+
+  .btn {
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--bg);
+    background: var(--amber);
+    border: 1px solid var(--amber);
+    border-radius: 999px;
+    padding: 9px 18px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.05s ease;
+  }
+  .btn:hover { background: var(--amber-soft); }
+  .btn:active { transform: translateY(1px); }
+
+  :focus-visible {
+    outline: 3px solid var(--amber);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* ---------- Layout ---------- */
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 clamp(18px, 5vw, 28px); }
+
+  section { scroll-margin-top: 80px; }
+
+  /* ---------- Cover ---------- */
+  .cover {
+    min-height: calc(100vh - 58px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 64px clamp(18px, 5vw, 28px);
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(120% 80% at 50% -10%, rgba(223, 183, 108, 0.16), transparent 60%),
+      radial-gradient(90% 70% at 50% 120%, rgba(223, 183, 108, 0.08), transparent 60%),
+      var(--bg);
+  }
+
+  .cover .eyebrow {
+    font-size: 13px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--amber);
+    font-weight: 600;
+    margin-bottom: 28px;
+  }
+
+  .cover h1 {
+    font-size: clamp(2.6rem, 9vw, 5rem);
+    margin: 0 0 0.35em;
+    font-weight: 600;
+    max-width: 14ch;
+    background: linear-gradient(180deg, var(--off), #d9d3e4);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .cover .sub {
+    font-size: clamp(1.05rem, 3vw, 1.3rem);
+    color: var(--muted);
+    max-width: 38ch;
+    margin: 0 auto 36px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  .cover-rule {
+    width: 64px;
+    height: 2px;
+    background: var(--amber);
+    margin: 0 auto 36px;
+    border: 0;
+  }
+
+  .cover .byline {
+    font-size: 15px;
+    color: var(--off);
+    letter-spacing: 0.02em;
+  }
+  .cover .byline strong { color: var(--amber); font-weight: 600; }
+
+  .cover .tagline {
+    margin-top: 14px;
+    font-size: 12.5px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .glyph {
+    font-family: var(--serif);
+    font-size: clamp(3rem, 12vw, 6rem);
+    color: var(--amber);
+    line-height: 1;
+    margin-bottom: 18px;
+    opacity: 0.92;
+  }
+
+  /* ---------- Generic section heads ---------- */
+  .kicker {
+    font-size: 12.5px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--amber);
+    font-weight: 600;
+    margin: 0 0 10px;
+  }
+
+  h2.section-title { font-size: clamp(1.7rem, 5vw, 2.4rem); margin: 0 0 0.5em; }
+
+  .lead { font-size: 1.12rem; color: var(--off); }
+
+  hr.div {
+    border: 0;
+    border-top: 1px solid var(--line);
+    margin: 56px 0;
+  }
+
+  .block { padding: 56px 0; }
+
+  /* ---------- TOC ---------- */
+  .toc {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 28px clamp(20px, 4vw, 34px);
+    margin: 8px 0;
+  }
+  .toc ol { list-style: none; counter-reset: toc; margin: 0; padding: 0; }
+  .toc li { counter-increment: toc; border-bottom: 1px dashed var(--line); }
+  .toc li:last-child { border-bottom: 0; }
+  .toc a {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 12px 2px;
+    text-decoration: none;
+    color: var(--off);
+  }
+  .toc a:hover { color: var(--amber); }
+  .toc a::before {
+    content: counter(toc, decimal-leading-zero);
+    font-family: var(--serif);
+    color: var(--amber);
+    font-weight: 600;
+    font-size: 0.95rem;
+    min-width: 2.2ch;
+  }
+  .toc .t-sub { color: var(--muted); font-size: 0.92rem; margin-left: auto; text-align: right; }
+
+  /* ---------- Idea cards ---------- */
+  .idea {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: clamp(24px, 4vw, 36px);
+    margin: 0 0 26px;
+  }
+  .idea-num {
+    font-family: var(--serif);
+    font-size: 0.9rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--amber);
+    font-weight: 600;
+    margin: 0 0 6px;
+  }
+  .idea h3 { font-size: 1.5rem; margin: 0 0 0.6em; }
+  .idea p { color: var(--off); }
+  .idea p.muted { color: var(--muted); }
+
+  .action {
+    margin-top: 18px;
+    padding: 16px 18px;
+    background: var(--panel-2);
+    border-left: 3px solid var(--amber);
+    border-radius: 0 10px 10px 0;
+  }
+  .action .label {
+    display: block;
+    font-size: 11.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--amber);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .action p { margin: 0; color: var(--off); }
+
+  /* ---------- Prompts ---------- */
+  .prompt-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: 18px;
+  }
+  .prompt {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px 22px 22px;
+    break-inside: avoid;
+  }
+  .prompt .pn {
+    font-family: var(--serif);
+    color: var(--amber);
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+  }
+  .prompt .q {
+    font-family: var(--serif);
+    font-size: 1.12rem;
+    line-height: 1.35;
+    margin: 6px 0 14px;
+    color: var(--off);
+  }
+  .lines { margin-top: 8px; }
+  .lines .rule {
+    height: 0;
+    border-bottom: 1px solid var(--rule);
+    margin: 0 0 22px;
+  }
+  .lines .rule:last-child { margin-bottom: 0; }
+
+  /* ---------- Check-in ---------- */
+  .checkin {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: clamp(24px, 4vw, 36px);
+  }
+  .checkin .qrow { margin-bottom: 30px; }
+  .checkin .qrow:last-child { margin-bottom: 0; }
+  .checkin h4 {
+    font-size: 1.2rem;
+    margin: 0 0 4px;
+    color: var(--off);
+  }
+  .checkin .hint { color: var(--muted); font-size: 0.95rem; margin: 0 0 14px; }
+  .date-line {
+    display: flex; align-items: center; gap: 10px;
+    color: var(--muted); font-size: 0.9rem; letter-spacing: 0.04em;
+    margin-bottom: 22px;
+  }
+  .date-line .fill { flex: 1; border-bottom: 1px solid var(--rule); height: 0; }
+
+  /* ---------- Pull quote ---------- */
+  .pull {
+    font-family: var(--serif);
+    font-size: clamp(1.4rem, 4.2vw, 2rem);
+    line-height: 1.3;
+    color: var(--off);
+    text-align: center;
+    max-width: 24ch;
+    margin: 8px auto;
+    font-weight: 500;
+  }
+  .pull .attr { display: block; font-family: var(--sans); font-size: 0.95rem; font-style: normal; color: var(--muted); margin-top: 18px; letter-spacing: 0.04em; }
+
+  /* ---------- Close / CTA ---------- */
+  .cta {
+    text-align: center;
+    background:
+      radial-gradient(100% 100% at 50% 0%, rgba(223,183,108,0.12), transparent 65%),
+      var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: clamp(36px, 6vw, 56px) clamp(22px, 5vw, 44px);
+  }
+  .cta h2 { font-size: clamp(1.7rem, 5vw, 2.3rem); margin: 0 0 0.5em; }
+  .cta p { color: var(--muted); max-width: 44ch; margin: 0 auto 1.1em; }
+  .cta .btn-link {
+    display: inline-block;
+    margin-top: 12px;
+    text-decoration: none;
+  }
+
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 48px 18px 60px;
+    border-top: 1px solid var(--line);
+    margin-top: 40px;
+  }
+  footer .wm { color: var(--amber); letter-spacing: 0.16em; font-family: var(--serif); font-weight: 600; }
+
+  /* ---------- Print ---------- */
+  @media print {
+    :root { --bg: #ffffff; --panel: #ffffff; --panel-2: #f6f3ec; --off: #1a1622; --muted: #4a4458; --line: #cfc9bd; --rule: #9a9385; --amber: #9a7320; }
+    body { background: #fff; color: #1a1622; font-size: 12pt; }
+    .topbar { display: none !important; }
+    .cover { min-height: auto; page-break-after: always; padding: 60px 20px; }
+    .cover h1 { color: #1a1622 !important; -webkit-text-fill-color: #1a1622; }
+    .block { padding: 22px 0; }
+    .idea, .prompt, .checkin, .toc, .cta { break-inside: avoid; border-color: #cfc9bd; box-shadow: none; }
+    section { page-break-inside: avoid; }
+    h2.section-title { page-break-after: avoid; }
+    a { color: #1a1622; text-decoration: underline; }
+    .lines .rule, .date-line .fill { border-color: #9a9385; }
+    @page { size: A4; margin: 16mm; }
+  }
+
+  @media (max-width: 480px) {
+    body { font-size: 16px; }
+    .wordmark { font-size: 13px; letter-spacing: 0.12em; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="wordmark" href="#cover">Dad's Code <span>· Jamie Wigg</span></a>
+  <button class="btn" id="pdfBtn" type="button" aria-label="Save this guide as a PDF">Save as PDF</button>
+</header>
+
+<!-- ============ COVER ============ -->
+<section class="cover" id="cover">
+  <div class="glyph" aria-hidden="true">&amp;</div>
+  <p class="eyebrow">A Couples Connection Guide &amp; Journal</p>
+  <h1>Still Choosing You</h1>
+  <p class="sub">Keeping your relationship strong through the kids, the stress, and the hard times.</p>
+  <hr class="cover-rule" aria-hidden="true" />
+  <p class="byline">by <strong>Jamie Wigg</strong> — Dad's Code</p>
+  <p class="tagline">Present, not perfect.</p>
+</section>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="block" id="intro">
+    <p class="kicker">Start here</p>
+    <h2 class="section-title">Choosing each other on the ordinary days</h2>
+    <p class="lead">Nobody warns you that the real test of a relationship isn't the big dramatic moments. It's a wet Tuesday, both of you running on four hours' sleep, a kid with a temperature, a sink full of dishes, and a phone that won't stop buzzing.</p>
+    <p>My wife Vanessa and I have a line we come back to: <em>we stay together to conquer anything</em>. Not because it's always easy — it hasn't been. We've been through illness, through burnout, through seasons where we were more like two tired colleagues running a small chaotic business than two people in love. And still, somehow, we keep choosing each other. Again, and again, and again.</p>
+    <p>That's what this little guide is about. Not grand gestures. Not a weekend away you can't afford or find a babysitter for. Just the small, repeatable turns toward each other that keep a marriage warm when life is doing its best to cool it down.</p>
+    <p>Inside you'll find five short ideas, each with one tiny action you can actually do this week. Then twenty questions to ask each other — slow ones, real ones — with room to write. And a weekly "us" check-in you can come back to for years.</p>
+    <p class="lead">Do it together if you can. Do it scrappy if you can't. There's no gold star for finishing — only the quiet win of two people deciding, one more time, that they're worth the effort.</p>
+  </section>
+
+  <hr class="div" aria-hidden="true" />
+
+  <!-- ============ TOC ============ -->
+  <section class="block" id="contents" aria-label="Contents">
+    <p class="kicker">Contents</p>
+    <h2 class="section-title">What's inside</h2>
+    <nav class="toc" aria-label="Table of contents">
+      <ol>
+        <li><a href="#intro"><span>Choosing each other on the ordinary days</span><span class="t-sub">Intro</span></a></li>
+        <li><a href="#idea-1"><span>Connection over chaos</span><span class="t-sub">Idea</span></a></li>
+        <li><a href="#idea-2"><span>Repair beats winning</span><span class="t-sub">Idea</span></a></li>
+        <li><a href="#idea-3"><span>Notice out loud</span><span class="t-sub">Idea</span></a></li>
+        <li><a href="#idea-4"><span>Share the invisible load</span><span class="t-sub">Idea</span></a></li>
+        <li><a href="#idea-5"><span>The intimacy of small acts</span><span class="t-sub">Idea</span></a></li>
+        <li><a href="#prompts"><span>20 questions to ask each other</span><span class="t-sub">Journal</span></a></li>
+        <li><a href="#checkin"><span>The weekly "us" check-in</span><span class="t-sub">Template</span></a></li>
+        <li><a href="#close"><span>One more time</span><span class="t-sub">Close</span></a></li>
+      </ol>
+    </nav>
+  </section>
+
+  <hr class="div" aria-hidden="true" />
+
+  <!-- ============ IDEAS ============ -->
+  <section class="block" id="ideas">
+    <p class="kicker">Five small ideas</p>
+    <h2 class="section-title">The turns that keep you close</h2>
+    <p class="lead" style="margin-bottom:34px;">Five things, each small enough to do tired. Read one, do the action, see what shifts. You don't need all five at once — start with the one that pricks at you.</p>
+
+    <article class="idea" id="idea-1">
+      <p class="idea-num">Idea One</p>
+      <h3>Connection over chaos</h3>
+      <p>When the house is loud and the to-do list is screaming, connection feels like a luxury you'll get to "later." But later rarely comes. The couples who stay close aren't the ones with more time — they're the ones who make tiny turns toward each other inside the chaos, not after it.</p>
+      <p class="muted">A relationship is built in the micro-moments: a hand on the back as you pass in the kitchen, looking up when they walk in the door, a ten-second hug that lasts long enough to actually mean something. These don't cost time you don't have. They cost attention you keep giving away to your phone.</p>
+      <div class="action">
+        <span class="label">Tiny action</span>
+        <p>Once today, when your partner walks into the room, stop what you're doing for five seconds. Make eye contact. Say something — even just "hey, you." That's the whole turn.</p>
+      </div>
+    </article>
+
+    <article class="idea" id="idea-2">
+      <p class="idea-num">Idea Two</p>
+      <h3>Repair beats winning</h3>
+      <p>You will get it wrong. You'll snap when you're tired, misread each other, dig in over something that won't matter by Friday. The strong couples aren't the ones who never fight — they're the ones who repair fast. Repair beats winning every single time.</p>
+      <p class="muted">Apologising first isn't losing. It's choosing the relationship over your ego. "I'm sorry, I was sharp with you, you didn't deserve that" defuses more than any perfectly-argued point ever will. The goal was never to be right. The goal was to stay close.</p>
+      <div class="action">
+        <span class="label">Tiny action</span>
+        <p>Next time there's friction, be the one to reach back first — within the hour, not the day. A short, clean apology, no "but." Watch how quickly the wall comes down.</p>
+      </div>
+    </article>
+
+    <article class="idea" id="idea-3">
+      <p class="idea-num">Idea Three</p>
+      <h3>Notice out loud</h3>
+      <p>Appreciation is oxygen. We notice plenty about each other — the meal cooked, the early start, the patience with a toddler melting down — but we keep it inside our heads where it does no good. The relationship breathes when you say it out loud.</p>
+      <p class="muted">It's easy to drift into a partnership that only talks logistics: bins, pickups, who's got the dentist. Spoken appreciation breaks that spell. It tells your partner they're seen — not just as a co-parent or a co-worker in the family business, but as someone you still admire.</p>
+      <div class="action">
+        <span class="label">Tiny action</span>
+        <p>Before bed tonight, name one specific thing they did today that you appreciated. Specific, not generic. "Thanks for handling bath time when I was wiped" beats "thanks for everything."</p>
+      </div>
+    </article>
+
+    <article class="idea" id="idea-4">
+      <p class="idea-num">Idea Four</p>
+      <h3>Share the invisible load</h3>
+      <p>So much of running a family is invisible work — the remembering, the planning, the worrying, the mental tabs that never close. When one person carries most of it, resentment grows quietly, even when nobody's being lazy. You can't split a load you won't name.</p>
+      <p class="muted">This isn't about a perfectly equal scorecard. It's about making the invisible visible — saying out loud what's actually being held — and then deciding together who carries what. Often your partner doesn't know how much you're tracking. Naming it is the first relief.</p>
+      <div class="action">
+        <span class="label">Tiny action</span>
+        <p>Each of you name one invisible task you've been carrying that the other might not see. Pick one to genuinely hand over this week — fully, without taking it back.</p>
+      </div>
+    </article>
+
+    <article class="idea" id="idea-5">
+      <p class="idea-num">Idea Five</p>
+      <h3>The intimacy of small acts</h3>
+      <p>Intimacy isn't only the big stuff. It lives in a cup of tea made the way they like it, a kiss before work that isn't on the way to anything else, a hand found in the dark. Small acts say <em>I was thinking of you</em> louder than any grand gesture.</p>
+      <p class="muted">When you're deep in the parenting years, the small acts are sometimes all you've got — and that's enough. They're the threads that keep two people woven together through the seasons where energy is short and time is shorter. Tend them and the closeness survives almost anything.</p>
+      <div class="action">
+        <span class="label">Tiny action</span>
+        <p>Do one small, unprompted thing for them tomorrow morning. Tea in bed. A note in their bag. A real kiss before the door. No occasion required — that's the point.</p>
+      </div>
+    </article>
+  </section>
+
+  <hr class="div" aria-hidden="true" />
+
+  <!-- ============ PULL QUOTE ============ -->
+  <section class="block" aria-hidden="false">
+    <p class="pull">"We stay together to conquer anything."
+      <span class="attr">— the line Vanessa and I keep coming back to</span>
+    </p>
+  </section>
+
+  <hr class="div" aria-hidden="true" />
+
+  <!-- ============ PROMPTS ============ -->
+  <section class="block" id="prompts">
+    <p class="kicker">The journal</p>
+    <h2 class="section-title">20 questions to ask each other</h2>
+    <p class="lead" style="margin-bottom:30px;">Pick a couple at a time — over dinner, in the car, lying in the dark. Take turns. There are no wrong answers, only honest ones. Write a few down if you want to remember where you were when you asked.</p>
+
+    <div class="prompt-grid">
+
+      <div class="prompt">
+        <span class="pn">01</span>
+        <p class="q">When did you last feel really chosen by me?</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+      <div class="prompt">
+        <span class="pn">02</span>
+        <p class="q">What's one thing I do that makes you feel loved without me saying a word?</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+      <div class="prompt">
+        <span class="pn">03</span>
+        <p class="q">What part of this season of life feels heaviest for you right now?</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+      <div class="prompt">
+        <span class="pn">04</span>
+        <p class="q">When did we last laugh until it hurt — and how do we get more of that?</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+      <div class="prompt">
+        <span class="pn">05</span>
+        <p class="q">What did you need from me last week that you didn't ask for?</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+      <div class="prompt">
+        <span class="pn">06</span>
+        <p class="q">What's one invisible thing you carry that you wish I noticed more?</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+      <div class="prompt">
+        <span class="pn">07</span>
+        <p class="q">Where do you feel furthest from me lately, and where do you feel closest?</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+      <div class="prompt">
+        <span class="pn">08</span>
+        <p class="q">What's a small thing I used to do that you miss?</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+      <div class="prompt">
+        <span class="pn">09</span>
+        <p class="q">When you picture us in five years, what do you hope is still true?</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+      <div class="prompt">
+        <span class="pn">10</span>
+        <p class="q">What's a hard thing we got through together that you're quietly proud of?</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+      <div class="prompt">
+        <span class="pn">11</span>
+        <p class="q">How do you most like to be comforted when you're stressed or low?</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+      <div class="prompt">
+        <span class="pn">12</span>
+        <p class="q">What's one way I could make your mornings easier?</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+      <div class="prompt">
+        <span class="pn">13</span>
+        <p class="q">What's something you've been wanting to say but haven't found the moment for?</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+      <div class="prompt">
+        <span class="pn">14</span>
+        <p class="q">When did you last feel like a team with me, and what made it click?</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+      <div class="prompt">
+        <span class="pn">15</span>
+        <p class="q">What's one fear about us you've never quite said out loud?</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+      <div class="prompt">
+        <span class="pn">16</span>
+        <p class="q">If we had two free hours, no kids, no phones — how would you want to spend them with me?</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+      <div class="prompt">
+        <span class="pn">17</span>
+        <p class="q">What's something I do well as a parent that I should hear more often?</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+      <div class="prompt">
+        <span class="pn">18</span>
+        <p class="q">How are we doing at repairing after we argue — and what could we do better?</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+      <div class="prompt">
+        <span class="pn">19</span>
+        <p class="q">What does feeling wanted look like for you these days?</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+      <div class="prompt">
+        <span class="pn">20</span>
+        <p class="q">If you had to remind me of one promise we made each other, which would it be?</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="div" aria-hidden="true" />
+
+  <!-- ============ CHECK-IN ============ -->
+  <section class="block" id="checkin">
+    <p class="kicker">The template</p>
+    <h2 class="section-title">The weekly "us" check-in</h2>
+    <p class="lead" style="margin-bottom:28px;">Ten minutes, once a week. Same three questions every time. Sit together, no screens, and take turns answering each one. Print this page, or copy the three lines into a notebook and keep it going.</p>
+
+    <div class="checkin">
+      <div class="date-line">Week of <span class="fill" aria-hidden="true"></span></div>
+
+      <div class="qrow">
+        <h4>1. What went well between us this week?</h4>
+        <p class="hint">A moment you felt close, a turn toward each other, something the other did that landed.</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+      <div class="qrow">
+        <h4>2. Where did we drift, or what felt hard?</h4>
+        <p class="hint">No blame — just honest. Name it so it doesn't go quiet and turn into resentment.</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div><div class="rule"></div></div>
+      </div>
+
+      <div class="qrow">
+        <h4>3. What's one thing we'll choose to do for "us" next week?</h4>
+        <p class="hint">Small and specific. One date, one task to share, one habit to try. Agree it together.</p>
+        <div class="lines"><div class="rule"></div><div class="rule"></div><div class="rule"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="div" aria-hidden="true" />
+
+  <!-- ============ CLOSE / CTA ============ -->
+  <section class="block" id="close">
+    <div class="cta">
+      <p class="kicker" style="text-align:center;">One more time</p>
+      <h2>Keep choosing each other</h2>
+      <p>You won't get it perfect. Some weeks you'll skip the check-in, snap when you shouldn't, fall asleep mid-sentence. That's fine. Love built in the parenting years isn't tidy — it's stubborn. It's the daily decision to turn back toward the person beside you, even when you're tired, even when it's hard.</p>
+      <p>That's the whole thing. Not perfect. Present. Still choosing you.</p>
+      <p style="margin-top:6px;">If this helped, come find the rest of the conversation. The <strong style="color:var(--amber);">Dad's Code</strong> podcast is where I talk honestly about marriage, fatherhood, burnout and showing up — for the people who matter most.</p>
+      <a class="btn btn-link" href="#cover">Listen to the Dad's Code podcast</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p class="wm">DAD'S CODE</p>
+  <p>Still Choosing You — a couples connection guide &amp; journal · by Jamie Wigg<br />
+  Present, not perfect. &nbsp;·&nbsp; © 2026 Dad's Code. For your own use with the one you love.</p>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('pdfBtn');
+    if (btn) {
+      btn.addEventListener('click', function () {
+        window.print();
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>
