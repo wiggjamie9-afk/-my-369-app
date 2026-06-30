@@ -12,6 +12,8 @@
   - `01-lead-magnet-5-ways.md` — FREE PDF (builds the email list)
   - `02-ebook-present-not-perfect.md` — ~$9 MVP eBook
   - `03-journal-30-day.md` — ~$14 printable journal
+  - `04-cookbook-dads-code-kitchen.md` — ~$12–15 family cookbook (40 quick meals)
+  - `05-dad-fuel-high-protein.md` — ~$12–15 high-protein energy guide (40 meals)
 - *(Dad's Code podcast scripts live in the parent folder: `FULL-EPISODES.md` + `SCRIPTS.md` Section C — the memoir season.)*
 
 ## The product funnel (MVP)
