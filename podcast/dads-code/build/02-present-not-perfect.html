@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Present, Not Perfect — A Rebuilt Dad's Field Guide | Dad's Code</title>
+<meta name="description" content="Present, Not Perfect — A Rebuilt Dad's Field Guide to Showing Up. By Jamie Wigg, Dad's Code. Six short chapters, six stories, six things you can do today.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14121A;
+    --panel:#1C1A26;
+    --amber:#DFB76C;
+    --amber-soft:rgba(223,183,108,0.14);
+    --amber-line:rgba(223,183,108,0.32);
+    --text:#F4F1EA;
+    --muted:#A39CB0;
+    --serif:"Fraunces", Georgia, "Times New Roman", serif;
+    --sans:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --maxw:720px;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    font-size:18px;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  ::selection{background:var(--amber);color:#14121A;}
+
+  a{color:var(--amber);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+
+  /* ---------- Top nav / wordmark ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 22px;
+    background:rgba(20,18,26,0.82);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(255,255,255,0.05);
+  }
+  .wordmark{
+    font-family:var(--sans);
+    font-weight:700;
+    letter-spacing:0.22em;
+    font-size:0.74rem;
+    color:var(--amber);
+    text-transform:uppercase;
+  }
+  .topbar .tagline{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:0.92rem;
+    color:var(--muted);
+  }
+
+  /* ---------- Layout ---------- */
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
+  section{scroll-margin-top:70px;}
+
+  /* ---------- Cover ---------- */
+  .cover{
+    min-height:100vh;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    text-align:center;
+    padding:64px 24px;
+    position:relative;
+    overflow:hidden;
+    background:
+      radial-gradient(1100px 620px at 50% -8%, rgba(223,183,108,0.16), transparent 60%),
+      radial-gradient(900px 700px at 50% 118%, rgba(223,183,108,0.10), transparent 55%),
+      linear-gradient(180deg,#161320 0%, #14121A 55%, #100E16 100%);
+  }
+  .cover::after{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(60% 40% at 50% 88%, rgba(223,183,108,0.12), transparent 70%);
+    pointer-events:none;
+  }
+  .cover-inner{position:relative;z-index:2;max-width:680px;}
+  .cover .kicker{
+    font-family:var(--sans);
+    font-weight:700;letter-spacing:0.34em;text-transform:uppercase;
+    font-size:0.74rem;color:var(--amber);margin-bottom:30px;
+  }
+  .cover h1{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(3rem,11vw,5.6rem);
+    line-height:0.98;
+    letter-spacing:-0.01em;
+    margin:0 0 26px;
+  }
+  .cover h1 .not{color:var(--amber);font-style:italic;}
+  .hairline{
+    width:120px;height:2px;margin:0 auto 26px;
+    background:linear-gradient(90deg,transparent,var(--amber),transparent);
+  }
+  .cover .subtitle{
+    font-family:var(--serif);
+    font-size:clamp(1.15rem,3.6vw,1.5rem);
+    color:var(--text);
+    font-weight:400;
+    margin:0 auto 44px;
+    max-width:30ch;
+    line-height:1.4;
+  }
+  .cover .author{
+    font-family:var(--sans);
+    font-size:1rem;color:var(--muted);
+    letter-spacing:0.04em;margin-bottom:10px;
+  }
+  .cover .author b{color:var(--text);font-weight:600;}
+  .cover .cover-tag{
+    margin-top:46px;
+    font-family:var(--serif);font-style:italic;
+    font-size:1.1rem;color:var(--amber);
+  }
+  .scroll-hint{
+    position:absolute;bottom:26px;left:0;right:0;z-index:2;
+    text-align:center;color:var(--muted);
+    font-size:0.72rem;letter-spacing:0.22em;text-transform:uppercase;
+  }
+
+  /* ---------- Section headings / generic ---------- */
+  .block{padding:62px 0;border-top:1px solid rgba(255,255,255,0.06);}
+  .block:first-of-type{border-top:none;}
+  h2.section-title{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(1.7rem,5vw,2.4rem);
+    line-height:1.12;
+    margin:0 0 8px;
+    letter-spacing:-0.01em;
+  }
+  .eyebrow{
+    font-family:var(--sans);
+    font-weight:700;letter-spacing:0.24em;text-transform:uppercase;
+    font-size:0.72rem;color:var(--amber);margin-bottom:16px;
+  }
+  p{margin:0 0 1.15em;}
+  .lead{font-size:1.12rem;color:var(--text);}
+  .muted{color:var(--muted);}
+
+  /* ---------- Table of contents ---------- */
+  .toc{
+    background:
+      linear-gradient(180deg, rgba(28,26,38,0.9), rgba(24,22,32,0.9));
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:18px;
+    padding:34px 30px;
+    margin-top:8px;
+  }
+  .toc ol{list-style:none;counter-reset:toc;margin:0;padding:0;}
+  .toc li{counter-increment:toc;border-top:1px solid rgba(255,255,255,0.06);}
+  .toc li:first-child{border-top:none;}
+  .toc a{
+    display:flex;align-items:baseline;gap:16px;
+    padding:14px 4px;color:var(--text);
+    transition:color .15s ease, padding .15s ease;
+  }
+  .toc a:hover{color:var(--amber);text-decoration:none;padding-left:8px;}
+  .toc .num{
+    font-family:var(--serif);
+    color:var(--amber);font-size:0.95rem;
+    min-width:2.6em;font-variant-numeric:tabular-nums;
+  }
+  .toc .label{font-size:1.04rem;font-weight:500;flex:1;}
+  .toc .sub{display:block;font-size:0.85rem;color:var(--muted);font-weight:400;}
+
+  /* ---------- Chapter template ---------- */
+  .chapter-head{margin-bottom:26px;}
+  .chapter-num{
+    font-family:var(--serif);font-style:italic;
+    font-size:1.05rem;color:var(--amber);margin-bottom:6px;
+  }
+  .story-label{
+    font-family:var(--sans);font-weight:700;
+    letter-spacing:0.16em;text-transform:uppercase;
+    font-size:0.7rem;color:var(--muted);
+    margin:30px 0 10px;
+  }
+
+  /* THE CODE box */
+  .code-box{
+    position:relative;
+    background:
+      linear-gradient(180deg, rgba(223,183,108,0.13), rgba(223,183,108,0.05));
+    border:1px solid var(--amber-line);
+    border-left:3px solid var(--amber);
+    border-radius:16px;
+    padding:26px 28px;
+    margin:30px 0;
+  }
+  .code-box .code-title{
+    font-family:var(--sans);font-weight:700;
+    letter-spacing:0.2em;text-transform:uppercase;
+    font-size:0.74rem;color:var(--amber);
+    margin-bottom:12px;display:flex;align-items:center;gap:10px;
+  }
+  .code-box .code-title::before{
+    content:"";width:26px;height:2px;background:var(--amber);display:inline-block;
+  }
+  .code-box p{
+    font-family:var(--serif);
+    font-size:1.18rem;line-height:1.55;color:var(--text);margin:0;
+  }
+  .code-box .six-words{font-style:italic;color:var(--amber);}
+
+  /* research note */
+  .research{
+    display:flex;gap:14px;align-items:flex-start;
+    background:rgba(255,255,255,0.025);
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:14px;
+    padding:18px 20px;margin:26px 0;
+    font-size:0.97rem;color:var(--muted);
+  }
+  .research .tag{
+    font-family:var(--sans);font-weight:700;
+    letter-spacing:0.12em;text-transform:uppercase;
+    font-size:0.66rem;color:var(--amber);
+    white-space:nowrap;padding-top:3px;
+  }
+  .research b{color:var(--text);font-weight:600;}
+
+  /* One Thing Today */
+  .action-box{
+    background:linear-gradient(180deg, rgba(28,26,38,0.95), rgba(22,20,30,0.95));
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:16px;
+    padding:24px 26px;margin:30px 0 4px;
+    position:relative;
+  }
+  .action-box .action-title{
+    font-family:var(--sans);font-weight:700;
+    letter-spacing:0.16em;text-transform:uppercase;
+    font-size:0.72rem;color:var(--amber);
+    margin-bottom:10px;display:flex;align-items:center;gap:9px;
+  }
+  .action-box .action-title .dot{
+    width:8px;height:8px;border-radius:50%;background:var(--amber);
+    box-shadow:0 0 0 4px var(--amber-soft);
+  }
+  .action-box p{font-size:1.05rem;margin:0;color:var(--text);}
+
+  /* ---------- Front matter / support ---------- */
+  .support{
+    background:rgba(255,255,255,0.025);
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:16px;padding:24px 26px;margin:24px 0;
+  }
+  .support h3{
+    font-family:var(--sans);font-weight:700;font-size:0.95rem;
+    margin:0 0 8px;color:var(--text);
+  }
+  .support p{font-size:0.96rem;color:var(--muted);margin-bottom:0;}
+  .support strong{color:var(--amber);}
+  .pull-quote{
+    font-family:var(--serif);font-style:italic;
+    font-size:clamp(1.4rem,4.5vw,1.9rem);
+    line-height:1.35;color:var(--text);
+    text-align:center;
+    padding:28px 0;margin:8px 0;
+    border-top:1px solid var(--amber-line);
+    border-bottom:1px solid var(--amber-line);
+  }
+  .pull-quote .by{
+    display:block;font-style:normal;font-family:var(--sans);
+    font-size:0.85rem;letter-spacing:0.1em;color:var(--muted);
+    text-transform:uppercase;margin-top:14px;
+  }
+
+  /* ---------- Close + CTA ---------- */
+  .close-block{text-align:center;}
+  .close-block .big{
+    font-family:var(--serif);
+    font-size:clamp(1.6rem,5vw,2.2rem);line-height:1.3;
+    margin:0 0 18px;
+  }
+  .cta{
+    background:
+      radial-gradient(700px 400px at 50% -20%, rgba(223,183,108,0.16), transparent 60%),
+      linear-gradient(180deg, rgba(28,26,38,0.96), rgba(20,18,26,0.96));
+    border:1px solid var(--amber-line);
+    border-radius:20px;
+    padding:40px 30px;margin-top:10px;text-align:left;
+  }
+  .cta h2{
+    font-family:var(--serif);font-weight:600;
+    font-size:clamp(1.6rem,5vw,2.1rem);margin:0 0 22px;text-align:center;
+  }
+  .cta ul{list-style:none;margin:0 0 8px;padding:0;}
+  .cta li{
+    display:flex;gap:14px;align-items:flex-start;
+    padding:16px 0;border-top:1px solid rgba(255,255,255,0.07);
+  }
+  .cta li:first-child{border-top:none;}
+  .cta li .marker{
+    font-family:var(--serif);color:var(--amber);font-size:1.3rem;line-height:1;
+    padding-top:2px;
+  }
+  .cta li b{display:block;color:var(--text);font-weight:600;margin-bottom:2px;}
+  .cta li span{color:var(--muted);font-size:0.97rem;}
+  .sign-off{
+    text-align:center;font-family:var(--serif);font-style:italic;
+    font-size:1.15rem;color:var(--amber);margin-top:30px;
+  }
+
+  .footer-note{
+    max-width:var(--maxw);margin:0 auto;
+    padding:34px 24px 60px;color:var(--muted);
+    font-size:0.82rem;line-height:1.7;text-align:center;
+    border-top:1px solid rgba(255,255,255,0.06);
+  }
+  .footer-note strong{color:var(--text);}
+
+  .back-to-top{
+    display:inline-block;margin-top:18px;
+    font-size:0.74rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:560px){
+    body{font-size:17px;}
+    .wrap{padding:0 20px;}
+    .block{padding:48px 0;}
+    .topbar .tagline{display:none;}
+    .toc{padding:26px 20px;}
+    .code-box,.action-box,.cta{padding:22px 20px;}
+    .research{flex-direction:column;gap:8px;}
+  }
+
+  /* ---------- Print ---------- */
+  @media print{
+    :root{--bg:#fff;--text:#1a1a1a;--muted:#555;--panel:#fff;}
+    @page{size:A4;margin:18mm 16mm;}
+    body{background:#fff;color:#1a1a1a;font-size:11.5pt;line-height:1.55;}
+    .topbar,.scroll-hint,.back-to-top{display:none !important;}
+    a{color:#1a1a1a;text-decoration:none;}
+    .cover{min-height:auto;padding:40mm 0 30mm;page-break-after:always;background:none;}
+    .cover::after{display:none;}
+    .cover .kicker,.cover .cover-tag,.cover h1 .not,.cover-tag{color:#8a6d2f;}
+    .hairline{background:#8a6d2f;}
+    section.block{page-break-before:always;border-top:none;padding:0 0 10mm;}
+    #frontmatter{page-break-before:avoid;}
+    .toc,.support,.research,.action-box,.cta{
+      border:1px solid #ccc;background:#fafafa;break-inside:avoid;
+    }
+    .code-box{
+      border:1px solid #c8a23a;border-left:3px solid #c8a23a;
+      background:#fbf6ea;break-inside:avoid;
+    }
+    .code-box .code-title,.action-box .action-title,.research .tag,.eyebrow,.cta li b,.code-box .six-words{color:#8a6d2f;}
+    .pull-quote{border-color:#c8a23a;}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="wordmark">Dad's Code</span>
+  <span class="tagline">Present, not perfect.</span>
+</header>
+
+<!-- ============ COVER ============ -->
+<section class="cover" id="cover">
+  <div class="cover-inner">
+    <div class="kicker">Dad's Code</div>
+    <h1>Present,<br><span class="not">Not</span> Perfect</h1>
+    <div class="hairline"></div>
+    <p class="subtitle">A Rebuilt Dad's Field Guide to Showing Up</p>
+    <p class="author"><b>Jamie Wigg</b></p>
+    <p class="author muted">Dad's Code</p>
+    <p class="cover-tag">Present, not perfect.</p>
+  </div>
+  <div class="scroll-hint">Scroll to begin · 6 chapters</div>
+</section>
+
+<!-- ============ FRONT MATTER ============ -->
+<section class="block" id="frontmatter">
+  <div class="wrap">
+    <div class="eyebrow">Front Matter &amp; A Note on Support</div>
+    <h2 class="section-title">Before we start</h2>
+    <p class="muted"><em>Present, Not Perfect</em> · © Jamie Wigg / Dad's Code.<br>For my kids — and the dad I'm still becoming.</p>
+
+    <div class="pull-quote">
+      “Being present beats being perfect.”
+      <span class="by">Dad's Code</span>
+    </div>
+
+    <div class="support">
+      <h3>A note on support</h3>
+      <p>This is one dad's lived experience, not medical advice. If you're struggling, please reach out — you're not weak for needing help. In Australia: <strong>Lifeline 13 11 14</strong>, <strong>Beyond Blue 1300 22 4636</strong>. If you're in immediate danger, call <strong>000</strong>.</p>
+    </div>
+
+    <div class="support">
+      <h3>How to read this</h3>
+      <p>Short on purpose. Each chapter is a story, the core idea (“The Code”), a quick note on the research behind it, and <strong>one thing to try today</strong>. You don't need to read it in order. You don't need to finish it tonight. You just need to start.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TABLE OF CONTENTS ============ -->
+<section class="block" id="contents">
+  <div class="wrap">
+    <div class="eyebrow">Contents</div>
+    <h2 class="section-title">What's inside</h2>
+    <nav class="toc">
+      <ol>
+        <li><a href="#intro"><span class="num">00</span><span class="label">Introduction<span class="sub">The Dad I Thought I Had to Be</span></span></a></li>
+        <li><a href="#ch1"><span class="num">01</span><span class="label">The Myth of the Perfect Dad<span class="sub">Why chasing perfect makes you less present</span></span></a></li>
+        <li><a href="#ch2"><span class="num">02</span><span class="label">What “Present” Actually Means<span class="sub">Attention given, not hours logged</span></span></a></li>
+        <li><a href="#ch3"><span class="num">03</span><span class="label">The 6-Word Reset<span class="sub">Regulate your storm first</span></span></a></li>
+        <li><a href="#ch4"><span class="num">04</span><span class="label">When Your Brain Works Differently<span class="sub">Systems, not shame</span></span></a></li>
+        <li><a href="#ch5"><span class="num">05</span><span class="label">Repair Beats Perfect<span class="sub">What your kids remember is whether you come back</span></span></a></li>
+        <li><a href="#ch6"><span class="num">06</span><span class="label">The Air Cuddle<span class="sub">Tiny rituals, lasting presence</span></span></a></li>
+        <li><a href="#close"><span class="num">—</span><span class="label">Close — Present, Not Perfect<span class="sub">The cycle stops with you</span></span></a></li>
+        <li><a href="#cta"><span class="num">→</span><span class="label">Keep Going<span class="sub">Where to go next</span></span></a></li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<!-- ============ INTRODUCTION ============ -->
+<section class="block" id="intro">
+  <div class="wrap">
+    <div class="chapter-head">
+      <div class="chapter-num">Introduction</div>
+      <h2 class="section-title">The Dad I Thought I Had to Be</h2>
+    </div>
+    <p class="lead">I grew up with a father whose love arrived as money, not presence. At ten, I made a silent vow: if I ever have kids, I'll be there.</p>
+    <p>It took me decades — and a lot of falling down — to learn that “being there” was never about being perfect. I chased the perfect-dad image for years and it made me <em>worse</em>: tense, distant, performing instead of connecting.</p>
+    <p>This little book is the field guide I wish someone had handed me. It's blunt, it's short, and it works. Six chapters. Six small shifts. Let's go.</p>
+    <a class="back-to-top" href="#contents">↑ Contents</a>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 1 ============ -->
+<section class="block" id="ch1">
+  <div class="wrap">
+    <div class="chapter-head">
+      <div class="chapter-num">Chapter One</div>
+      <h2 class="section-title">The Myth of the Perfect Dad</h2>
+    </div>
+
+    <div class="story-label">The story</div>
+    <p>For years I measured myself against a dad who doesn't exist — calm always, right always, never tired. Chasing him, I was so busy performing that I stopped actually <em>connecting</em> with my kids.</p>
+
+    <div class="code-box">
+      <div class="code-title">The Code</div>
+      <p>The perfect-dad image is a trap. Chasing it makes you <em>less</em> present, because you're managing your image instead of being with your child.</p>
+    </div>
+
+    <div class="research">
+      <span class="tag">The research, lightly</span>
+      <span>Winnicott's idea of the <b>“good-enough” parent</b> — kids don't need perfect parents, they need consistent, warm, good-enough ones. Consistency beats perfection every time.</span>
+    </div>
+
+    <div class="action-box">
+      <div class="action-title"><span class="dot"></span>One Thing Today</div>
+      <p>Write down one “perfect dad” standard you're going to drop this week. Say it out loud: “I'm letting that one go.”</p>
+    </div>
+    <a class="back-to-top" href="#contents">↑ Contents</a>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 2 ============ -->
+<section class="block" id="ch2">
+  <div class="wrap">
+    <div class="chapter-head">
+      <div class="chapter-num">Chapter Two</div>
+      <h2 class="section-title">What “Present” Actually Means</h2>
+    </div>
+
+    <div class="story-label">The story</div>
+    <p>I used to think presence meant hours logged — same room, same couch. But I'd be <em>there</em> and not there, half on my phone. My son would say “Dad, look!” and I'd miss it.</p>
+
+    <div class="code-box">
+      <div class="code-title">The Code</div>
+      <p>Presence isn't hours logged. It's attention given. The bond is built in the small moments you choose to turn toward.</p>
+    </div>
+
+    <div class="research">
+      <span class="tag">The research, lightly</span>
+      <span>Gottman's <b>“bids for connection”</b> — relationships are built (or eroded) in tiny everyday moments. “Dad, look!” is a bid. Turning toward it is the whole game.</span>
+    </div>
+
+    <div class="action-box">
+      <div class="action-title"><span class="dot"></span>One Thing Today</div>
+      <p>Turn toward three bids today — fully, phone down — for one week. Watch what changes.</p>
+    </div>
+    <a class="back-to-top" href="#contents">↑ Contents</a>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 3 ============ -->
+<section class="block" id="ch3">
+  <div class="wrap">
+    <div class="chapter-head">
+      <div class="chapter-num">Chapter Three</div>
+      <h2 class="section-title">The 6-Word Reset</h2>
+    </div>
+
+    <div class="story-label">The story</div>
+    <p>I couldn't be present when I was flooded — jaw tight, fuse short. The reframe that saved me came in six words, said under my breath before I reacted.</p>
+
+    <div class="code-box">
+      <div class="code-title">The Code</div>
+      <p>You can't parent well while you're flooded. Regulate <em>your</em> storm first — the parenting follows. The six words: <span class="six-words">“They're not giving me a hard time — they're having one.”</span></p>
+    </div>
+
+    <div class="research">
+      <span class="tag">The research, lightly</span>
+      <span>Emotional co-regulation — a calm adult nervous system helps settle a child's. You can't pour calm from a flooded cup.</span>
+    </div>
+
+    <div class="action-box">
+      <div class="action-title"><span class="dot"></span>One Thing Today</div>
+      <p>Before you react next time: one slow breath, then the six words. Just once today.</p>
+    </div>
+    <a class="back-to-top" href="#contents">↑ Contents</a>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 4 ============ -->
+<section class="block" id="ch4">
+  <div class="wrap">
+    <div class="chapter-head">
+      <div class="chapter-num">Chapter Four</div>
+      <h2 class="section-title">When Your Brain Works Differently</h2>
+    </div>
+
+    <div class="story-label">The story</div>
+    <p>Diagnosed with ADHD at 47, dyslexic my whole life — I spent years sure I was broken. I wasn't. I just needed systems, not shame.</p>
+
+    <div class="code-box">
+      <div class="code-title">The Code</div>
+      <p>Neurodivergent dads don't thrive on willpower — they thrive on external systems. Reminders, routines, and self-forgiveness beat white-knuckling it every time.</p>
+    </div>
+
+    <div class="research">
+      <span class="tag">The research, lightly</span>
+      <span>For ADHD/dyslexic parents, the real blocker isn't capability — it's <b>shame</b>. Outsource memory to systems and the shame loses its grip.</span>
+    </div>
+
+    <div class="action-box">
+      <div class="action-title"><span class="dot"></span>One Thing Today</div>
+      <p>Build one “second brain” system for the thing you keep forgetting — a phone alarm, a whiteboard, a sticky note on the door.</p>
+    </div>
+    <a class="back-to-top" href="#contents">↑ Contents</a>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 5 ============ -->
+<section class="block" id="ch5">
+  <div class="wrap">
+    <div class="chapter-head">
+      <div class="chapter-num">Chapter Five</div>
+      <h2 class="section-title">Repair Beats Perfect</h2>
+    </div>
+
+    <div class="story-label">The story</div>
+    <p>I snap. I get it wrong. I've raised my voice and watched my kid's face fall. For a long time I thought that made me a bad dad. It doesn't. What I did <em>next</em> did.</p>
+
+    <div class="code-box">
+      <div class="code-title">The Code</div>
+      <p>You'll get it wrong. What your kids remember is whether you come back. “I got that wrong, mate. I'm sorry.” That's the repair — and it builds more trust than never rupturing at all.</p>
+    </div>
+
+    <div class="research">
+      <span class="tag">The research, lightly</span>
+      <span><b>Rupture and repair</b> — secure attachment comes from <em>fixing</em> the breaks, not avoiding them. The repair is the lesson.</span>
+    </div>
+
+    <div class="action-box">
+      <div class="action-title"><span class="dot"></span>One Thing Today</div>
+      <p>Make one real repair this week, out loud. No “but.” Just: “I got that wrong. I'm sorry.”</p>
+    </div>
+    <a class="back-to-top" href="#contents">↑ Contents</a>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 6 ============ -->
+<section class="block" id="ch6">
+  <div class="wrap">
+    <div class="chapter-head">
+      <div class="chapter-num">Chapter Six</div>
+      <h2 class="section-title">The Air Cuddle</h2>
+    </div>
+
+    <div class="story-label">The story</div>
+    <p>My son whispers “I love you, Dad,” and we press our ears together — the air cuddle. It costs nothing. It's ours. And it's the thing he'll remember.</p>
+
+    <div class="code-box">
+      <div class="code-title">The Code</div>
+      <p>Tiny rituals are how presence becomes permanent. They cost nothing and outlast everything.</p>
+    </div>
+
+    <div class="research">
+      <span class="tag">The research, lightly</span>
+      <span>Small, predictable rituals build security and belonging — the everyday repetition matters more than the grand gesture.</span>
+    </div>
+
+    <div class="action-box">
+      <div class="action-title"><span class="dot"></span>One Thing Today</div>
+      <p>Create one two-second ritual that's just yours — a handshake, a word, a press of the ears.</p>
+    </div>
+    <a class="back-to-top" href="#contents">↑ Contents</a>
+  </div>
+</section>
+
+<!-- ============ CLOSE ============ -->
+<section class="block close-block" id="close">
+  <div class="wrap">
+    <div class="eyebrow" style="text-align:center;">Close</div>
+    <h2 class="section-title" style="margin-bottom:24px;">Present, Not Perfect</h2>
+    <p class="big">The cycle stops with you.</p>
+    <p>You don't have to become the dad you never had overnight. You don't have to get it all right. You just have to show up today — imperfectly, honestly, present.</p>
+    <p class="muted">That's the whole code. That's enough.</p>
+  </div>
+</section>
+
+<!-- ============ KEEP GOING / CTA ============ -->
+<section class="block" id="cta">
+  <div class="wrap">
+    <div class="cta">
+      <h2>Keep Going</h2>
+      <p style="text-align:center;color:var(--muted);margin-top:-8px;">You finished. That's a bid toward yourself — turn toward it.</p>
+      <ul>
+        <li>
+          <span class="marker">♪</span>
+          <span><b>Listen weekly</b><span>Tune into the <em>Dad's Code</em> podcast for the stories behind these chapters.</span></span>
+        </li>
+        <li>
+          <span class="marker">▣</span>
+          <span><b>Read the full story</b><span>Go deeper in the memoir <em>The Frequency of Being Real</em>.</span></span>
+        </li>
+        <li>
+          <span class="marker">✓</span>
+          <span><b>Try one thing today</b><span>Pick a single “One Thing Today” from this book and do it before you sleep.</span></span>
+        </li>
+      </ul>
+      <p class="sign-off">Present, not perfect. — Jamie</p>
+    </div>
+  </div>
+</section>
+
+<div class="footer-note">
+  <p><strong>Present, Not Perfect</strong> · A Rebuilt Dad's Field Guide to Showing Up<br>
+  © Jamie Wigg / Dad's Code</p>
+  <p>This book is one dad's lived experience, not medical or psychological advice. If you're struggling, please reach out — Lifeline 13 11 14 · Beyond Blue 1300 22 4636 · Emergency 000.</p>
+</div>
+
+</body>
+</html>

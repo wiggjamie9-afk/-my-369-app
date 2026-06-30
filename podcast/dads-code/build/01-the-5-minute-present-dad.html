@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The 5-Minute Present Dad — Dad's Code</title>
+<meta name="description" content="5 ways to show up for your kids when you're running on empty. A free guide from Dad's Code by Jamie Wigg. Present, not perfect.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14121A;
+    --panel:#1C1A26;
+    --panel-2:#222030;
+    --amber:#DFB76C;
+    --amber-soft:rgba(223,183,108,0.12);
+    --amber-line:rgba(223,183,108,0.28);
+    --text:#F4F1EA;
+    --muted:#A39CB0;
+    --radius:16px;
+    --maxw:720px;
+    --serif:"Fraunces", Georgia, "Times New Roman", serif;
+    --sans:"Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    font-size:17px;
+    line-height:1.72;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+
+  /* radial / gradient atmosphere */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:
+      radial-gradient(1100px 700px at 78% -8%, rgba(223,183,108,0.10), transparent 60%),
+      radial-gradient(900px 600px at -10% 105%, rgba(223,183,108,0.06), transparent 55%);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .wrap{position:relative;z-index:1;}
+
+  a{color:var(--amber);text-decoration:none;}
+
+  /* ---------- Wordmark ---------- */
+  .wordmark{
+    font-family:var(--sans);
+    font-weight:700;
+    letter-spacing:0.28em;
+    font-size:0.72rem;
+    text-transform:uppercase;
+    color:var(--amber);
+    display:inline-flex;
+    align-items:center;
+    gap:0.6em;
+  }
+  .wordmark::before{
+    content:"";
+    width:22px;height:1px;
+    background:var(--amber);
+    opacity:0.7;
+  }
+
+  /* ---------- COVER ---------- */
+  .cover{
+    min-height:100vh;
+    min-height:100svh;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:clamp(28px,6vw,64px) clamp(22px,6vw,72px);
+    position:relative;
+    overflow:hidden;
+  }
+  .cover-shape{
+    position:absolute;
+    top:-12%;
+    right:-14%;
+    width:min(58vw,640px);
+    height:min(58vw,640px);
+    background:radial-gradient(circle at 35% 35%, rgba(223,183,108,0.55), rgba(223,183,108,0.05) 60%, transparent 72%);
+    filter:blur(8px);
+    opacity:0.55;
+    border-radius:50%;
+    pointer-events:none;
+  }
+  .cover-shape.two{
+    top:auto;bottom:-18%;left:-16%;right:auto;
+    width:min(46vw,460px);height:min(46vw,460px);
+    background:radial-gradient(circle at 50% 50%, rgba(223,183,108,0.22), transparent 68%);
+    opacity:0.5;
+  }
+  .cover-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    position:relative;z-index:2;
+  }
+  .cover-kicker{
+    font-size:0.7rem;
+    letter-spacing:0.26em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .cover-main{position:relative;z-index:2;max-width:880px;}
+  .cover-eyebrow{
+    display:inline-block;
+    font-size:0.78rem;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--amber);
+    border:1px solid var(--amber-line);
+    border-radius:999px;
+    padding:7px 16px;
+    margin-bottom:clamp(20px,4vw,30px);
+    background:var(--amber-soft);
+  }
+  .cover h1{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:clamp(3rem,9.5vw,6.6rem);
+    line-height:0.98;
+    letter-spacing:-0.02em;
+    margin:0 0 clamp(18px,3vw,26px);
+  }
+  .cover h1 .amber{color:var(--amber);font-style:italic;font-weight:600;}
+  .cover-sub{
+    font-size:clamp(1.15rem,2.6vw,1.55rem);
+    line-height:1.5;
+    color:var(--text);
+    max-width:30ch;
+    margin:0;
+    font-weight:400;
+  }
+  .cover-bottom{
+    position:relative;z-index:2;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:18px;
+    padding-top:24px;
+    border-top:1px solid rgba(244,241,234,0.08);
+  }
+  .cover-tagline{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:1.2rem;
+    color:var(--amber);
+  }
+  .cover-byline{
+    font-size:0.92rem;
+    color:var(--muted);
+    text-align:right;
+  }
+  .cover-byline strong{color:var(--text);font-weight:600;}
+  .scroll-hint{
+    font-size:0.72rem;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--muted);
+    display:flex;align-items:center;gap:8px;
+  }
+  .scroll-hint::after{content:"↓";font-size:1rem;}
+
+  /* ---------- CONTENT COLUMN ---------- */
+  .content{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:clamp(56px,9vw,104px) clamp(22px,5vw,32px) 40px;
+  }
+
+  .section-label{
+    font-size:0.72rem;
+    letter-spacing:0.24em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin-bottom:18px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .section-label::before{content:"";width:26px;height:1px;background:var(--amber-line);}
+
+  .intro-lead{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:clamp(1.5rem,4vw,2.1rem);
+    line-height:1.32;
+    letter-spacing:-0.01em;
+    margin:0 0 26px;
+  }
+  .intro-lead em{color:var(--amber);font-style:italic;}
+  .intro-lead .five{color:var(--amber);}
+
+  .intro-body{
+    color:var(--text);
+    margin:0 0 18px;
+  }
+  .intro-body strong{color:var(--amber);font-weight:600;}
+
+  .signoff{
+    color:var(--muted);
+    font-size:1rem;
+    margin:0 0 8px;
+  }
+  .signoff strong{color:var(--text);}
+
+  /* ---------- RESEARCH BOX ---------- */
+  .research{
+    background:linear-gradient(180deg, var(--panel-2), var(--panel));
+    border:1px solid rgba(244,241,234,0.07);
+    border-left:3px solid var(--amber);
+    border-radius:var(--radius);
+    padding:clamp(24px,4vw,34px);
+    margin:38px 0;
+    box-shadow:0 24px 50px -30px rgba(0,0,0,0.7);
+  }
+  .research h3{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:1.25rem;
+    margin:0 0 18px;
+    color:var(--text);
+  }
+  .research h3 .tag{
+    display:block;
+    font-family:var(--sans);
+    font-size:0.68rem;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin-bottom:6px;
+    font-weight:700;
+  }
+  .research ul{margin:0;padding:0;list-style:none;}
+  .research li{
+    position:relative;
+    padding-left:30px;
+    margin-bottom:16px;
+    color:var(--muted);
+    font-size:1rem;
+    line-height:1.62;
+  }
+  .research li:last-child{margin-bottom:0;}
+  .research li::before{
+    content:"";
+    position:absolute;
+    left:0;top:0.62em;
+    width:9px;height:9px;
+    border-radius:50%;
+    background:var(--amber);
+    box-shadow:0 0 0 4px var(--amber-soft);
+  }
+  .research li em{color:var(--text);font-style:italic;}
+
+  /* ---------- PULL QUOTE ---------- */
+  .pullquote{
+    text-align:center;
+    margin:clamp(48px,8vw,76px) 0;
+    padding:0 10px;
+  }
+  .pullquote blockquote{
+    font-family:var(--serif);
+    font-weight:500;
+    font-style:italic;
+    font-size:clamp(1.9rem,5.5vw,2.9rem);
+    line-height:1.18;
+    letter-spacing:-0.01em;
+    margin:0;
+    color:var(--text);
+  }
+  .pullquote .amber{color:var(--amber);}
+  .pullquote .mark{
+    font-family:var(--serif);
+    color:var(--amber);
+    font-size:2.4rem;
+    line-height:0;
+    display:block;
+    margin-bottom:10px;
+    opacity:0.8;
+  }
+
+  /* ---------- TIPS ---------- */
+  .tips-head{
+    text-align:center;
+    margin:0 0 clamp(34px,6vw,52px);
+  }
+  .tips-head h2{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:clamp(2rem,5vw,2.7rem);
+    letter-spacing:-0.02em;
+    margin:14px 0 0;
+  }
+  .tips-head .section-label{justify-content:center;}
+  .tips-head .section-label::before{display:none;}
+
+  .tip{
+    background:linear-gradient(180deg, var(--panel-2), var(--panel));
+    border:1px solid rgba(244,241,234,0.06);
+    border-radius:var(--radius);
+    padding:clamp(26px,4.5vw,40px);
+    margin-bottom:26px;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 26px 56px -34px rgba(0,0,0,0.75);
+  }
+  .tip::after{
+    content:"";
+    position:absolute;
+    top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg, transparent, var(--amber-line), transparent);
+  }
+  .tip-num{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:clamp(3.4rem,9vw,4.6rem);
+    line-height:0.8;
+    color:var(--amber);
+    display:block;
+    margin-bottom:6px;
+    letter-spacing:-0.04em;
+  }
+  .tip-num sup{
+    font-size:0.32em;
+    font-family:var(--sans);
+    font-weight:700;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--muted);
+    vertical-align:top;
+    margin-left:10px;
+    top:0.6em;
+  }
+  .tip h3{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(1.5rem,4vw,2rem);
+    letter-spacing:-0.01em;
+    margin:0 0 16px;
+    color:var(--text);
+  }
+  .tip-body{
+    color:var(--text);
+    margin:0 0 20px;
+    font-size:1.05rem;
+  }
+  .tip-body strong{color:var(--amber);font-weight:600;}
+  .tip-body em{color:var(--text);font-style:italic;}
+
+  .why{
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    color:var(--muted);
+    font-size:0.97rem;
+    line-height:1.6;
+    margin:0 0 22px;
+    padding-left:2px;
+  }
+  .why .why-label{
+    flex:0 0 auto;
+    font-size:0.66rem;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--amber);
+    font-weight:700;
+    margin-top:0.28em;
+  }
+  .why em{font-style:italic;color:var(--text);}
+
+  .micro{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background:var(--amber-soft);
+    border:1px solid var(--amber-line);
+    border-radius:12px;
+    padding:16px 20px;
+  }
+  .micro-tag{
+    flex:0 0 auto;
+    font-size:0.64rem;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--bg);
+    background:var(--amber);
+    border-radius:999px;
+    padding:6px 12px;
+  }
+  .micro-text{
+    font-size:1rem;
+    color:var(--text);
+    line-height:1.45;
+  }
+  .micro-text em{font-style:italic;color:var(--amber);}
+
+  /* ---------- CLOSE / CTA ---------- */
+  .close{
+    text-align:center;
+    margin-top:clamp(52px,9vw,80px);
+    padding:clamp(34px,6vw,52px) clamp(24px,5vw,44px);
+    background:
+      radial-gradient(600px 300px at 50% 0%, rgba(223,183,108,0.10), transparent 70%),
+      linear-gradient(180deg, var(--panel-2), var(--panel));
+    border:1px solid rgba(244,241,234,0.08);
+    border-radius:24px;
+    box-shadow:0 30px 70px -40px rgba(0,0,0,0.8);
+  }
+  .close h2{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:clamp(1.9rem,5vw,2.6rem);
+    letter-spacing:-0.02em;
+    margin:14px 0 18px;
+  }
+  .close-lead{
+    font-size:1.1rem;
+    color:var(--text);
+    margin:0 auto 14px;
+    max-width:32ch;
+  }
+  .close-lead strong{color:var(--amber);}
+  .close-pod{
+    color:var(--muted);
+    font-size:1rem;
+    max-width:42ch;
+    margin:0 auto 30px;
+  }
+  .close-pod strong{color:var(--text);}
+  .close-pod em{font-style:italic;color:var(--amber);}
+
+  /* opt-in panel */
+  .optin{
+    margin-top:8px;
+    padding-top:30px;
+    border-top:1px solid var(--amber-line);
+  }
+  .optin h3{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(1.4rem,3.6vw,1.75rem);
+    line-height:1.25;
+    letter-spacing:-0.01em;
+    margin:0 0 22px;
+  }
+  .benefits{
+    list-style:none;
+    margin:0 auto 28px;
+    padding:0;
+    max-width:440px;
+    text-align:left;
+  }
+  .benefits li{
+    position:relative;
+    padding-left:34px;
+    margin-bottom:14px;
+    color:var(--text);
+    font-size:1rem;
+    line-height:1.5;
+  }
+  .benefits li::before{
+    content:"✓";
+    position:absolute;left:0;top:0;
+    width:22px;height:22px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--amber);
+    color:var(--bg);
+    font-size:0.78rem;
+    font-weight:800;
+    border-radius:50%;
+  }
+  .cta-blurb{
+    font-size:1.05rem;
+    color:var(--text);
+    max-width:36ch;
+    margin:0 auto 24px;
+  }
+  .cta-blurb em{font-style:italic;color:var(--amber);}
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:12px;
+    background:linear-gradient(180deg,#EAC988,var(--amber));
+    color:#1a1622;
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:1.08rem;
+    letter-spacing:0.01em;
+    padding:18px 34px;
+    border-radius:999px;
+    box-shadow:0 16px 36px -14px rgba(223,183,108,0.6), inset 0 1px 0 rgba(255,255,255,0.35);
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 22px 44px -14px rgba(223,183,108,0.7), inset 0 1px 0 rgba(255,255,255,0.4);}
+  .btn .arrow{transition:transform .18s ease;}
+  .btn:hover .arrow{transform:translateX(4px);}
+
+  .nospam{
+    margin:22px 0 0;
+    font-size:0.86rem;
+    color:var(--muted);
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:clamp(44px,7vw,72px) clamp(22px,5vw,32px) clamp(48px,8vw,80px);
+    text-align:center;
+  }
+  .footer-rule{
+    height:1px;
+    background:linear-gradient(90deg, transparent, var(--amber-line), transparent);
+    margin-bottom:30px;
+  }
+  .footer-mark{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    margin-bottom:26px;
+  }
+  .footer-tagline{
+    font-family:var(--serif);
+    font-style:italic;
+    color:var(--amber);
+    font-size:1.05rem;
+  }
+  .disclaimer{
+    font-size:0.82rem;
+    line-height:1.6;
+    color:var(--muted);
+    max-width:54ch;
+    margin:0 auto;
+    opacity:0.85;
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:540px){
+    body{font-size:16.5px;}
+    .cover-byline{text-align:left;}
+    .cover-bottom{flex-direction:column;align-items:flex-start;}
+    .why{flex-direction:column;gap:4px;}
+    .micro{flex-direction:column;align-items:flex-start;gap:12px;}
+  }
+
+  /* ---------- PRINT (A4) ---------- */
+  @media print{
+    @page{size:A4;margin:16mm 15mm;}
+    :root{--maxw:100%;}
+    html,body{background:#fff !important;color:#1a1622 !important;}
+    body::before,.cover-shape{display:none !important;}
+    .scroll-hint{display:none !important;}
+    a{color:#9a6b14 !important;}
+
+    .cover{
+      min-height:auto;
+      page-break-after:always;
+      padding:0 0 10mm;
+      border-bottom:2px solid var(--amber);
+    }
+    .cover h1{color:#1a1622;}
+    .cover h1 .amber{color:#9a6b14;}
+    .cover-sub,.cover-byline,.cover-kicker{color:#3a3640;}
+    .cover-byline strong{color:#1a1622;}
+    .cover-eyebrow{color:#9a6b14;border-color:#caa860;background:transparent;}
+    .cover-tagline{color:#9a6b14;}
+    .cover-bottom{border-top-color:#ddd;}
+
+    .content{padding:8mm 0;}
+    .wordmark{color:#9a6b14;}
+    .section-label,.section-label::before{color:#9a6b14;}
+    .intro-lead em,.intro-lead .five,.intro-body strong{color:#9a6b14;}
+    .intro-lead,.intro-body,.tip-body{color:#1a1622;}
+
+    .research,.tip,.close,.micro{
+      background:#fff !important;
+      border:1px solid #d9d2c4 !important;
+      box-shadow:none !important;
+      page-break-inside:avoid;
+    }
+    .research{border-left:3px solid var(--amber) !important;}
+    .research h3,.tip h3,.close h2,.optin h3,.tip-num{color:#1a1622;}
+    .research li,.why,.close-pod,.nospam,.disclaimer{color:#4a4550;}
+    .research li em,.why em,.tip-body em{color:#1a1622;}
+    .tip-num{color:#9a6b14;}
+
+    .pullquote blockquote{color:#1a1622;}
+    .pullquote .amber,.pullquote .mark{color:#9a6b14;}
+
+    .micro{background:#faf5ea !important;border-color:#e2d4b3 !important;}
+    .micro-tag{background:var(--amber);color:#1a1622;}
+    .micro-text em{color:#9a6b14;}
+
+    .why .why-label,.micro-tag{color:#9a6b14;}
+    .benefits li{color:#1a1622;}
+    .benefits li::before{background:var(--amber);color:#1a1622;}
+
+    .btn{
+      background:none !important;
+      color:#9a6b14 !important;
+      border:2px solid var(--amber);
+      box-shadow:none !important;
+      padding:12px 22px;
+    }
+    .tip{margin-bottom:8mm;}
+    .footer-tagline{color:#9a6b14;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===================== COVER ===================== -->
+  <header class="cover">
+    <div class="cover-shape"></div>
+    <div class="cover-shape two"></div>
+
+    <div class="cover-top">
+      <span class="wordmark">Dad's Code</span>
+      <span class="cover-kicker">Free Guide · No. 01</span>
+    </div>
+
+    <div class="cover-main">
+      <span class="cover-eyebrow">For tired dads running on empty</span>
+      <h1>The 5-Minute<br><span class="amber">Present</span> Dad</h1>
+      <p class="cover-sub">5 ways to show up for your kids when you're running on empty.</p>
+    </div>
+
+    <div class="cover-bottom">
+      <div>
+        <div class="cover-tagline">Present, not perfect.</div>
+        <div class="scroll-hint" style="margin-top:14px;">Scroll to begin</div>
+      </div>
+      <div class="cover-byline">
+        A guide from <strong>Dad's Code</strong><br>
+        by <strong>Jamie Wigg</strong>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== INTRO ===================== -->
+  <main>
+    <section class="content">
+      <div class="section-label">The why</div>
+      <p class="intro-lead">
+        You don't need to be a perfect dad. You don't need more hours, more patience, or more energy than you've got. You need <span class="five">five minutes</span> — and the willingness to actually be <em>in</em> them.
+      </p>
+      <p class="intro-body">
+        I'm Jamie, a dad of four who spent years feeling like I was failing. Here's what actually moved the needle.
+      </p>
+
+      <!-- RESEARCH BOX -->
+      <div class="research">
+        <h3><span class="tag">Why this works — the research</span>It isn't about doing more</h3>
+        <ul>
+          <li>Kids don't need more <em>time</em> — they need <em>attention</em>. Psychologists call the small everyday moments "bids for connection" (Gottman); responding to them is what builds secure attachment.</li>
+          <li>Brief, fully-present moments register more than long, distracted ones.</li>
+          <li>For a burnt-out or neurodivergent dad, <em>tiny and repeatable</em> beats <em>big and occasional</em> — every time.</li>
+        </ul>
+      </div>
+
+      <!-- PULL QUOTE -->
+      <div class="pullquote">
+        <span class="mark">&ldquo;</span>
+        <blockquote>You don't need <span class="amber">more hours.</span></blockquote>
+      </div>
+    </section>
+
+    <!-- ===================== TIPS ===================== -->
+    <section class="content" style="padding-top:0;">
+      <div class="tips-head">
+        <div class="section-label">Five small things</div>
+        <h2>Start tonight</h2>
+      </div>
+
+      <!-- TIP 1 -->
+      <article class="tip">
+        <span class="tip-num">1<sup>The 5-Minute Rule</sup></span>
+        <h3>The 5-Minute Rule</h3>
+        <p class="tip-body">
+          Give one child <strong>five minutes of your whole attention</strong> — phone away, eyes up, their choice of what you do. Five present minutes beats an hour of half-watching.
+        </p>
+        <p class="why">
+          <span class="why-label">Why it works</span>
+          <span>Undivided attention signals "you matter," which research links to stronger secure attachment than time alone.</span>
+        </p>
+        <div class="micro">
+          <span class="micro-tag">Tonight</span>
+          <span class="micro-text">Say <em>"You've got me for five minutes — what do you want to do?"</em></span>
+        </div>
+      </article>
+
+      <!-- TIP 2 -->
+      <article class="tip">
+        <span class="tip-num">2<sup>Catch the Bid</sup></span>
+        <h3>Catch the Bid</h3>
+        <p class="tip-body">
+          Kids constantly throw out little "bids" — <em>"Dad, look at this!"</em> Most get half a grunt. <strong>Turn toward one bid fully today.</strong> Stop, look, react like it matters. To them, it does.
+        </p>
+        <p class="why">
+          <span class="why-label">Why it works</span>
+          <span>Gottman found relationships thrive on how often we "turn toward" these small bids, not on grand gestures.</span>
+        </p>
+        <div class="micro">
+          <span class="micro-tag">Next "Dad, look"</span>
+          <span class="micro-text">Drop everything for 20 seconds.</span>
+        </div>
+      </article>
+
+      <!-- TIP 3 -->
+      <article class="tip">
+        <span class="tip-num">3<sup>The 6-Word Reset</sup></span>
+        <h3>The 6-Word Reset</h3>
+        <p class="tip-body">
+          When you feel the snap coming, don't push through it. Pause and tell yourself: <em>"They're not giving me a hard time — they're having one."</em> Then respond to the feeling under the behaviour.
+        </p>
+        <p class="why">
+          <span class="why-label">Why it works</span>
+          <span>Naming the emotion calms your own stress response, so you react from the thinking brain, not the reflex.</span>
+        </p>
+        <div class="micro">
+          <span class="micro-tag">Every time</span>
+          <span class="micro-text">One deep breath before you react.</span>
+        </div>
+      </article>
+
+      <!-- TIP 4 -->
+      <article class="tip">
+        <span class="tip-num">4<sup>Repair Beats Perfect</sup></span>
+        <h3>Repair Beats Perfect</h3>
+        <p class="tip-body">
+          You'll lose it sometimes. Every dad does. What kids remember isn't the slip — it's whether you came back. <strong>Apologise to your kid:</strong> <em>"I got that wrong, I'm sorry."</em> It teaches more than never failing ever could.
+        </p>
+        <p class="why">
+          <span class="why-label">Why it works</span>
+          <span>"Rupture and repair" research shows it's the repair, not flawless parenting, that builds trust and resilience.</span>
+        </p>
+        <div class="micro">
+          <span class="micro-tag">Next time you snap</span>
+          <span class="micro-text">Repair it, out loud.</span>
+        </div>
+      </article>
+
+      <!-- TIP 5 -->
+      <article class="tip">
+        <span class="tip-num">5<sup>One Small Ritual</sup></span>
+        <h3>One Small Ritual</h3>
+        <p class="tip-body">
+          Presence sticks when it's a habit. Build one tiny ritual that's <em>yours</em> — a handshake, a song, the "air cuddle" my son and I do (ears pressed together, no words). It costs nothing and they'll carry it forever.
+        </p>
+        <p class="why">
+          <span class="why-label">Why it works</span>
+          <span>Predictable rituals create felt safety and become anchors of connection kids return to for years.</span>
+        </p>
+        <div class="micro">
+          <span class="micro-tag">This week</span>
+          <span class="micro-text">Invent one two-second ritual.</span>
+        </div>
+      </article>
+    </section>
+
+    <!-- ===================== CLOSE / CTA ===================== -->
+    <section class="content" style="padding-top:0;">
+      <div class="close">
+        <div class="section-label" style="justify-content:center;"><span style="background:none;">The close</span></div>
+        <h2>Five minutes, starting tonight</h2>
+        <p class="close-lead">
+          That's it. Five small things, five minutes, starting tonight. Being present beats being perfect — <strong>always.</strong>
+        </p>
+        <p class="close-pod">
+          👉 Want more? The podcast <strong>Dad's Code</strong> drops weekly — real, honest fatherhood. When you're ready for the next step, grab <em>"Present, Not Perfect: A Rebuilt Dad's Field Guide."</em>
+        </p>
+
+        <!-- OPT-IN -->
+        <div class="optin">
+          <h3>Show up for your kids — even on the days you've got nothing left.</h3>
+          <ul class="benefits">
+            <li>5 tiny, repeatable habits you can start <em>tonight</em> — no extra time required.</li>
+            <li>Built for tired, busy, neurodivergent dads — short, plain, no lectures.</li>
+            <li>Backed by real psychology (attachment, bids for connection, repair) — not hustle-culture fluff.</li>
+          </ul>
+          <p class="cta-blurb">
+            <strong>Get the free PDF.</strong> Drop your email and I'll send <em>The 5-Minute Present Dad</em> straight to your inbox.
+          </p>
+          <a class="btn" href="#">Send me the guide <span class="arrow">→</span></a>
+          <p class="nospam">No spam. Just honest fatherhood from Dad's Code. Unsubscribe anytime.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== FOOTER ===================== -->
+    <footer>
+      <div class="footer-rule"></div>
+      <div class="footer-mark">
+        <span class="wordmark">Dad's Code</span>
+        <span class="footer-tagline">Present, not perfect.</span>
+      </div>
+      <p class="disclaimer">
+        This guide shares personal experience and general parenting ideas for support and encouragement only. It is not medical, psychological, or therapeutic advice. If you or your child are struggling, please speak to a qualified professional.
+      </p>
+    </footer>
+  </main>
+
+</div>
+</body>
+</html>
