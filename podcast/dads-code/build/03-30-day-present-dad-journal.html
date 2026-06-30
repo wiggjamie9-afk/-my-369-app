@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The 30-Day Present Dad Journal — Dad's Code</title>
+<meta name="description" content="A printable 30-day journal for dads. One small moment a day. Thirty days to a closer kid. Present, not perfect. — Dad's Code by Jamie Wigg.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14121A;
+    --panel:#1C1A26;
+    --amber:#DFB76C;
+    --amber-soft:rgba(223,183,108,.35);
+    --text:#F4F1EA;
+    --muted:#A39CB0;
+    --serif:'Fraunces', Georgia, 'Times New Roman', serif;
+    --sans:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+    /* print ink palette (used on screen for the paper pages too, inverted) */
+    --ink:#2A2730;
+    --ink-soft:#5b5566;
+    --paper:#FBFAF6;
+    --paper-line:#d9d3c7;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  /* ---------- Brand bar (screen only) ---------- */
+  .brandbar{
+    position:sticky;top:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px clamp(18px,5vw,48px);
+    background:rgba(20,18,26,.82);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .wordmark{
+    font-family:var(--sans);
+    font-weight:700;letter-spacing:.28em;font-size:.72rem;
+    color:var(--amber);text-transform:uppercase;
+  }
+  .brandbar .tag{
+    font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+  }
+
+  /* ---------- Page shell ---------- */
+  .sheet{
+    max-width:880px;
+    margin:0 auto;
+    padding:clamp(20px,4vw,40px) clamp(14px,4vw,32px);
+  }
+
+  .page{
+    position:relative;
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:14px;
+    margin:0 auto 30px;
+    padding:clamp(28px,5vw,56px);
+    box-shadow:0 22px 60px rgba(0,0,0,.45), 0 2px 0 rgba(255,255,255,.03);
+    width:100%;
+    /* A4-ish aspect on screen */
+    min-height: 0;
+  }
+  .day-inner{display:flex;flex-direction:column;min-height:100%;}
+
+  /* ---------- Cover (dark brand theme) ---------- */
+  .cover{
+    background:
+      radial-gradient(120% 80% at 50% -10%, rgba(223,183,108,.10), transparent 60%),
+      linear-gradient(180deg,#1A1722 0%, #14121A 100%);
+    color:var(--text);
+    min-height:min(92vh,1000px);
+    display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+    text-align:center;
+    border:1px solid rgba(223,183,108,.18);
+    overflow:hidden;
+  }
+  .cover-top{padding-top:clamp(10px,4vh,40px);}
+  .cover .wordmark-lg{
+    font-weight:700;letter-spacing:.32em;font-size:.8rem;color:var(--amber);
+  }
+  .cover-center{display:flex;flex-direction:column;align-items:center;gap:18px;flex:1;justify-content:center;}
+  .cover h1{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(2.3rem,7vw,4.2rem);
+    line-height:1.04;
+    margin:0;
+    color:var(--amber);
+    letter-spacing:-.01em;
+  }
+  .cover h1 .small{display:block;font-size:.42em;letter-spacing:.04em;color:var(--text);font-weight:500;margin-bottom:.35em;}
+  .cover .subtitle{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:clamp(1.05rem,2.6vw,1.5rem);
+    color:var(--text);
+    max-width:24ch;margin:.2em auto 0;line-height:1.4;
+  }
+  .motif{margin:6px auto 0;display:block;}
+  .motif svg{display:block;}
+  .cover-foot{padding-bottom:clamp(14px,4vh,44px);width:100%;display:flex;flex-direction:column;align-items:center;gap:14px;}
+  .amber-line{height:1px;width:min(280px,60%);background:linear-gradient(90deg,transparent,var(--amber),transparent);}
+  .cover-foot .tagline{font-weight:700;letter-spacing:.06em;color:var(--text);}
+  .cover-foot .by{font-size:.8rem;color:var(--muted);letter-spacing:.04em;}
+
+  /* ---------- Generic paper headings ---------- */
+  .paper-page h2{
+    font-family:var(--serif);font-weight:600;
+    font-size:clamp(1.6rem,4vw,2.2rem);
+    color:var(--ink);margin:0 0 .2em;line-height:1.1;
+  }
+  .eyebrow{
+    font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+    font-size:.68rem;color:#b08a3e;margin:0 0 10px;
+  }
+  .amber-rule{height:2px;background:var(--amber);width:100%;border-radius:2px;margin:18px 0 26px;}
+
+  /* ---------- How to use ---------- */
+  .howto .lead{font-size:clamp(1rem,2.4vw,1.18rem);color:var(--ink);max-width:60ch;}
+  .howto .lead strong{color:#9a6f23;}
+  .howto .sign{font-family:var(--serif);font-style:italic;color:var(--ink-soft);margin-top:6px;}
+  .howto-grid{
+    display:grid;grid-template-columns:1.1fr .9fr;gap:30px;margin-top:34px;align-items:start;
+  }
+  @media (max-width:680px){.howto-grid{grid-template-columns:1fr;}}
+  .howto-steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:16px;}
+  .howto-steps li{display:flex;gap:14px;align-items:flex-start;}
+  .step-n{
+    flex:none;width:30px;height:30px;border-radius:50%;
+    border:1.5px solid var(--amber);color:#9a6f23;font-weight:700;
+    display:flex;align-items:center;justify-content:center;font-size:.85rem;
+  }
+  .howto-steps li b{color:var(--ink);}
+  .howto-steps li span{color:var(--ink-soft);}
+
+  /* mini diagram of a daily page */
+  .mini{
+    border:1.5px solid var(--paper-line);border-radius:12px;padding:18px;background:#fff;
+  }
+  .mini-cap{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:12px;text-align:center;}
+  .mini-row{display:flex;justify-content:space-between;align-items:center;font-size:.62rem;color:var(--ink-soft);letter-spacing:.12em;}
+  .mini-dots{display:flex;gap:4px;}
+  .mini-dots i{width:6px;height:6px;border-radius:50%;background:var(--amber);display:block;opacity:.4;}
+  .mini-dots i:first-child{opacity:1;}
+  .mini-rule{height:2px;background:var(--amber);margin:8px 0;border-radius:2px;}
+  .mini-box{border:1.5px solid var(--amber);border-radius:8px;padding:10px;margin:10px 0;}
+  .mini-box .ml{font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:#b08a3e;}
+  .mini-box .mt{font-size:.72rem;color:var(--ink);margin-top:4px;}
+  .mini-check{display:flex;align-items:center;gap:8px;font-size:.72rem;color:var(--ink);margin:8px 0;}
+  .mini-check span{width:13px;height:13px;border:1.5px solid var(--ink-soft);border-radius:3px;display:block;}
+  .mini-line{height:1px;background:var(--paper-line);margin-top:6px;}
+  .mini-callout{position:relative;font-size:.6rem;color:#b08a3e;letter-spacing:.04em;}
+
+  /* ---------- DAILY PAGE ---------- */
+  .day-page .day-inner,.checkin-page .day-inner{min-height:520px;}
+  .day-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;}
+  .day-num{display:flex;align-items:baseline;gap:12px;}
+  .day-word{
+    font-weight:700;letter-spacing:.26em;font-size:.8rem;color:var(--ink-soft);text-transform:uppercase;
+    align-self:center;
+  }
+  .day-n{
+    font-family:var(--serif);font-weight:600;
+    font-size:clamp(3rem,9vw,4.6rem);line-height:.85;color:var(--ink);
+  }
+  .day-meta{display:flex;flex-direction:column;align-items:flex-end;gap:8px;text-align:right;}
+  .day-theme{
+    font-weight:700;letter-spacing:.16em;text-transform:uppercase;font-size:.66rem;color:#b08a3e;
+  }
+  .day-range{font-size:.72rem;color:var(--ink-soft);letter-spacing:.04em;}
+  .dots{display:flex;gap:7px;}
+  .dot{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--amber);display:block;}
+  .dot.filled{background:var(--amber);}
+
+  .prompt-box{
+    border:1.6px solid var(--amber);
+    border-radius:14px;
+    padding:clamp(18px,3.4vw,30px);
+    background:linear-gradient(180deg, rgba(223,183,108,.05), transparent);
+    margin-bottom:26px;
+  }
+  .prompt-label{
+    display:block;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+    font-size:.66rem;color:#b08a3e;margin-bottom:12px;
+  }
+  .prompt-text{
+    margin:0;font-family:var(--serif);font-weight:500;
+    font-size:clamp(1.25rem,3.6vw,1.7rem);line-height:1.32;color:var(--ink);
+  }
+  .prompt-text em{font-style:italic;}
+
+  .done-row{display:flex;align-items:center;gap:13px;margin-bottom:30px;cursor:default;}
+  .checkbox{
+    width:24px;height:24px;border:2px solid var(--ink-soft);border-radius:6px;display:block;flex:none;
+  }
+  .done-text{font-weight:600;font-size:1.02rem;color:var(--ink);}
+
+  .reflect{display:flex;flex-direction:column;margin-bottom:18px;}
+  .reflect-label{
+    font-weight:700;letter-spacing:.2em;text-transform:uppercase;font-size:.66rem;color:var(--ink-soft);margin-bottom:6px;
+  }
+  .reflect-q{font-family:var(--serif);font-style:italic;font-size:1.02rem;color:var(--ink);margin-bottom:14px;}
+  .write-line{display:block;height:0;border-bottom:1.5px solid var(--paper-line);margin-bottom:26px;}
+
+  .day-foot{
+    margin-top:auto;padding-top:18px;border-top:1px solid var(--paper-line);
+    display:flex;justify-content:space-between;align-items:center;gap:12px;
+  }
+  .foot-tag{font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:.66rem;color:#b08a3e;}
+  .foot-page{font-size:.66rem;letter-spacing:.08em;color:var(--ink-soft);text-transform:uppercase;}
+
+  /* ---------- Check-in / final ---------- */
+  .checkin-intro{font-family:var(--serif);font-style:italic;font-size:1.05rem;color:var(--ink-soft);max-width:52ch;margin:0 0 26px;}
+  .checkin-foot{justify-content:center;}
+  .checkin-foot .foot-tag{text-transform:none;letter-spacing:.04em;font-family:var(--serif);font-style:italic;font-weight:600;font-size:.92rem;color:#9a6f23;}
+  .close-banner{
+    margin-top:auto;border-top:1px solid var(--paper-line);padding-top:24px;text-align:center;
+  }
+  .close-banner p{
+    font-family:var(--serif);font-weight:600;font-size:clamp(1.15rem,3vw,1.5rem);
+    line-height:1.35;color:var(--ink);margin:0;max-width:30ch;margin-inline:auto;
+  }
+  .close-banner em{color:#9a6f23;font-style:italic;}
+
+  /* ---------- Back page ---------- */
+  .backpage{
+    background:linear-gradient(180deg,#1A1722,#14121A);
+    color:var(--text);text-align:center;border:1px solid rgba(223,183,108,.18);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+    min-height:min(70vh,760px);
+  }
+  .backpage .wordmark-lg{font-weight:700;letter-spacing:.32em;font-size:.78rem;color:var(--amber);}
+  .backpage p.big{
+    font-family:var(--serif);font-weight:600;font-size:clamp(1.3rem,3.4vw,1.8rem);
+    line-height:1.4;max-width:24ch;margin:0;color:var(--text);
+  }
+  .backpage p.big em{color:var(--amber);font-style:italic;}
+  .backpage .next{color:var(--muted);font-size:.95rem;max-width:34ch;line-height:1.5;}
+  .backpage .amber-line{margin:4px auto;}
+
+  /* ---------- Print: ink-saving, one page per sheet ---------- */
+  @media print{
+    @page{size:A4;margin:14mm 16mm;}
+    html,body{background:#fff;color:#000;}
+    .brandbar,.print-hide{display:none !important;}
+    .sheet{max-width:none;margin:0;padding:0;}
+    .page{
+      box-shadow:none;border-radius:0;margin:0;padding:6mm 4mm;
+      background:#fff !important;color:var(--ink) !important;
+      page-break-after:always;break-after:page;
+      min-height:auto;border:none;
+    }
+    .page:last-child{page-break-after:auto;}
+    .day-inner{min-height:auto;height:auto;}
+    .day-page .day-inner,.checkin-page .day-inner{min-height:0;}
+    /* invert dark cover/back to ink-saving paper */
+    .cover,.backpage{
+      background:#fff !important;color:var(--ink) !important;border:none;
+      min-height:auto;
+    }
+    .cover h1{color:#9a6f23 !important;}
+    .cover h1 .small{color:var(--ink) !important;}
+    .cover .subtitle,.cover-foot .tagline{color:var(--ink) !important;}
+    .cover .wordmark-lg,.backpage .wordmark-lg{color:#9a6f23 !important;}
+    .backpage p.big{color:var(--ink) !important;}
+    .backpage p.big em,.cover h1{}
+    .motif svg path,.motif svg circle,.motif svg line{stroke:#b08a3e !important;}
+    .write-line{border-bottom:1px solid #444;}
+    .prompt-box{background:none !important;}
+    .day-foot,.close-banner,.backpage{break-inside:avoid;}
+    .cover{min-height:240mm;justify-content:space-between;}
+  }
+
+  @media (max-width:520px){
+    .day-head{flex-wrap:wrap;}
+    .howto-grid{gap:22px;}
+  }
+</style>
+</head>
+<body>
+
+  <header class="brandbar print-hide">
+    <span class="wordmark">Dad&rsquo;s Code</span>
+    <span class="tag">Present, not perfect.</span>
+  </header>
+
+  <main class="sheet">
+
+    <!-- ===================== COVER ===================== -->
+    <section class="page cover">
+      <div class="cover-top">
+        <span class="wordmark-lg">Dad&rsquo;s Code</span>
+      </div>
+      <div class="cover-center">
+        <h1><span class="small">The 30-Day</span>Present Dad Journal</h1>
+        <div class="motif" aria-hidden="true">
+          <svg width="118" height="74" viewBox="0 0 118 74" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="92" cy="20" r="11" stroke="#DFB76C" stroke-width="1.6"/>
+            <line x1="92" y1="3" x2="92" y2="-1" stroke="#DFB76C" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="108.5" y1="20" x2="113" y2="20" stroke="#DFB76C" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="103.9" y1="8.1" x2="107" y2="5" stroke="#DFB76C" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M6 68 C 20 64, 26 50, 30 40 C 34 50, 40 64, 54 68" stroke="#DFB76C" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+            <circle cx="30" cy="22" r="9" stroke="#DFB76C" stroke-width="1.6"/>
+            <path d="M62 68 C 72 65, 75 54, 78 47 C 81 54, 84 65, 94 68" stroke="#DFB76C" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+            <circle cx="78" cy="34" r="6.5" stroke="#DFB76C" stroke-width="1.6"/>
+            <path d="M48 60 C 56 56, 58 54, 62 60" stroke="#DFB76C" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+          </svg>
+        </div>
+        <p class="subtitle">One small moment a day. Thirty days to a closer kid.</p>
+      </div>
+      <div class="cover-foot">
+        <span class="amber-line"></span>
+        <span class="tagline">Present, not perfect.</span>
+        <span class="by">by Jamie Wigg &middot; Dad&rsquo;s Code</span>
+      </div>
+    </section>
+
+    <!-- ===================== HOW TO USE ===================== -->
+    <section class="page paper-page howto">
+      <div class="day-inner">
+        <p class="eyebrow">How to use this journal</p>
+        <h2>Two minutes. That&rsquo;s the whole deal.</h2>
+        <div class="amber-rule"></div>
+
+        <p class="lead">One page a day. Each page gives you a <strong>micro-action</strong> to do today and <strong>one line to write</strong> tonight. Two minutes &mdash; that&rsquo;s it.</p>
+        <p class="lead">Don&rsquo;t aim for perfect. Aim for <strong>present</strong>. Miss a day? Just start the next one. No catch-up, no guilt.</p>
+        <p class="sign">&mdash; Jamie, Dad&rsquo;s Code</p>
+
+        <div class="howto-grid">
+          <ol class="howto-steps">
+            <li><span class="step-n">1</span><span><b>Read the micro-action</b> in the amber box each morning. Keep it in your back pocket for the day.</span></li>
+            <li><span class="step-n">2</span><span><b>Do it</b> sometime today &mdash; it takes two minutes &mdash; then tick the box.</span></li>
+            <li><span class="step-n">3</span><span><b>Write one line</b> tonight: what happened when you tried it. That&rsquo;s what locks it in.</span></li>
+            <li><span class="step-n">4</span><span><b>Pause weekly.</b> A short check-in after days 7, 14, 21 and 28, then a final reflection on day 30.</span></li>
+          </ol>
+
+          <div class="mini" aria-hidden="true">
+            <div class="mini-cap">Your daily page</div>
+            <div class="mini-row"><span>DAY 1</span><span class="mini-dots"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+            <div class="mini-rule"></div>
+            <div class="mini-box">
+              <div class="ml">Today&rsquo;s micro-action</div>
+              <div class="mt">The thing to do today &rarr;</div>
+            </div>
+            <div class="mini-check"><span></span> I did it today.</div>
+            <div class="mini-callout">Tonight, one line</div>
+            <div class="mini-line"></div>
+            <div class="mini-line" style="margin-top:14px"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">1</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Show up</span>
+          <span class="dots" aria-label="Day 1 of the week"><span class="dot filled"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Give one child 5 minutes of your full, phone-free attention.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 1 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">2</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Show up</span>
+          <span class="dots" aria-label="Day 2 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Say &ldquo;I love you&rdquo; first, before they do.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 2 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">3</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Show up</span>
+          <span class="dots" aria-label="Day 3 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Turn fully toward the next &ldquo;Dad, look at this!&rdquo;</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 3 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">4</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Show up</span>
+          <span class="dots" aria-label="Day 4 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Apologise to your kid for something &mdash; out loud.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 4 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">5</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Show up</span>
+          <span class="dots" aria-label="Day 5 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Ask one child, &ldquo;What was the best part of your day?&rdquo; and just listen.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 5 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">6</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Show up</span>
+          <span class="dots" aria-label="Day 6 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Put your phone in another room for the whole evening routine.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 6 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">7</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Show up</span>
+          <span class="dots" aria-label="Day 7 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Make up a silly song or handshake together.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 7 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page checkin-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">WEEK</span><span class="day-n">1</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Weekly check-in</span>
+          <span class="day-range">Days 1&ndash;7</span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <p class="checkin-intro">A quiet pause. No score to chase &mdash; just notice what this week gave you.</p>
+
+      <div class="reflect">
+        <span class="reflect-q">What&rsquo;s one moment from this week I want to remember?</span>
+        <span class="write-line"></span><span class="write-line"></span><span class="write-line"></span>
+      </div>
+
+      <div class="reflect">
+        <span class="reflect-q">What got easier?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <div class="reflect">
+        <span class="reflect-q">One thing to carry into next week:</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot checkin-foot">
+        <span class="foot-tag">You showed up this week. That&rsquo;s the code.</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">8</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Slow down</span>
+          <span class="dots" aria-label="Day 8 of the week"><span class="dot filled"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Catch yourself before one snap &mdash; breathe, then respond.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 8 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">9</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Slow down</span>
+          <span class="dots" aria-label="Day 9 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Tell one kid one specific thing you&rsquo;re proud of (not &ldquo;good job&rdquo;).</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 9 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">10</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Slow down</span>
+          <span class="dots" aria-label="Day 10 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Let them choose the activity, and don&rsquo;t fix how they do it.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 10 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">11</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Slow down</span>
+          <span class="dots" aria-label="Day 11 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Sit on the floor and play <em>their</em> way for 10 minutes.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 11 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">12</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Slow down</span>
+          <span class="dots" aria-label="Day 12 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Share one small story from when you were their age.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 12 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">13</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Slow down</span>
+          <span class="dots" aria-label="Day 13 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Do the bedtime routine slowly tonight &mdash; no rushing.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 13 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">14</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Slow down</span>
+          <span class="dots" aria-label="Day 14 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Ask, &ldquo;Is there anything you wish I did differently?&rdquo; Just listen.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 14 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page checkin-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">WEEK</span><span class="day-n">2</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Weekly check-in</span>
+          <span class="day-range">Days 8&ndash;14</span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <p class="checkin-intro">A quiet pause. No score to chase &mdash; just notice what this week gave you.</p>
+
+      <div class="reflect">
+        <span class="reflect-q">What&rsquo;s one moment from this week I want to remember?</span>
+        <span class="write-line"></span><span class="write-line"></span><span class="write-line"></span>
+      </div>
+
+      <div class="reflect">
+        <span class="reflect-q">What got easier?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <div class="reflect">
+        <span class="reflect-q">One thing to carry into next week:</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot checkin-foot">
+        <span class="foot-tag">You showed up this week. That&rsquo;s the code.</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">15</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Repair &amp; connect</span>
+          <span class="dots" aria-label="Day 15 of the week"><span class="dot filled"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Give a two-minute cuddle with zero agenda.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 15 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">16</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Repair &amp; connect</span>
+          <span class="dots" aria-label="Day 16 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Eat one meal with no screens &mdash; for anyone, including you.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 16 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">17</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Repair &amp; connect</span>
+          <span class="dots" aria-label="Day 17 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Say sorry to your partner in front of the kids (modelling repair).</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 17 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">18</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Repair &amp; connect</span>
+          <span class="dots" aria-label="Day 18 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Write your child a tiny note and leave it where they&rsquo;ll find it.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 18 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">19</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Repair &amp; connect</span>
+          <span class="dots" aria-label="Day 19 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">When they melt down, ask yourself, &ldquo;What are they really telling me?&rdquo;</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 19 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">20</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Repair &amp; connect</span>
+          <span class="dots" aria-label="Day 20 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Do one chore <em>together</em> instead of alone.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 20 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">21</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Repair &amp; connect</span>
+          <span class="dots" aria-label="Day 21 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Tell them about a time you failed and what you learned.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 21 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page checkin-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">WEEK</span><span class="day-n">3</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Weekly check-in</span>
+          <span class="day-range">Days 15&ndash;21</span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <p class="checkin-intro">A quiet pause. No score to chase &mdash; just notice what this week gave you.</p>
+
+      <div class="reflect">
+        <span class="reflect-q">What&rsquo;s one moment from this week I want to remember?</span>
+        <span class="write-line"></span><span class="write-line"></span><span class="write-line"></span>
+      </div>
+
+      <div class="reflect">
+        <span class="reflect-q">What got easier?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <div class="reflect">
+        <span class="reflect-q">One thing to carry into next week:</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot checkin-foot">
+        <span class="foot-tag">You showed up this week. That&rsquo;s the code.</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">22</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Make it stick</span>
+          <span class="dots" aria-label="Day 22 of the week"><span class="dot filled"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Put work away 15 minutes earlier than usual today.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 22 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">23</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Make it stick</span>
+          <span class="dots" aria-label="Day 23 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Name a feeling out loud: &ldquo;I&rsquo;m feeling stressed, so I&rsquo;m taking a breath.&rdquo;</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 23 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">24</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Make it stick</span>
+          <span class="dots" aria-label="Day 24 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Ask one open question at dinner and let the silence sit.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 24 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">25</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Make it stick</span>
+          <span class="dots" aria-label="Day 25 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Create one new tiny ritual (your own &ldquo;air cuddle&rdquo;).</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 25 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">26</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Make it stick</span>
+          <span class="dots" aria-label="Day 26 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Praise effort, not result, once today.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 26 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">27</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Make it stick</span>
+          <span class="dots" aria-label="Day 27 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Let one small mess go without commenting.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 27 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">28</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Make it stick</span>
+          <span class="dots" aria-label="Day 28 of the week"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Look them in the eyes and say one thing you love about them.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 28 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page checkin-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">WEEK</span><span class="day-n">4</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Weekly check-in</span>
+          <span class="day-range">Days 22&ndash;28</span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <p class="checkin-intro">A quiet pause. No score to chase &mdash; just notice what this week gave you.</p>
+
+      <div class="reflect">
+        <span class="reflect-q">What&rsquo;s one moment from this week I want to remember?</span>
+        <span class="write-line"></span><span class="write-line"></span><span class="write-line"></span>
+      </div>
+
+      <div class="reflect">
+        <span class="reflect-q">What got easier?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <div class="reflect">
+        <span class="reflect-q">One thing to carry into next week:</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot checkin-foot">
+        <span class="foot-tag">You showed up this week. That&rsquo;s the code.</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">29</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Finish strong</span>
+          <span class="dots" aria-label="Day 29 of the week"><span class="dot filled"></span><span class="dot"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Do the thing they always ask for that you usually say &ldquo;later&rdquo; to.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 29 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page day-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">30</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Finish strong</span>
+          <span class="dots" aria-label="Day 30 of the week"><span class="dot filled"></span><span class="dot filled"></span></span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <div class="prompt-box">
+        <span class="prompt-label">Today&rsquo;s micro-action</span>
+        <p class="prompt-text">Reflect: what changed in 30 days? Write three lines &mdash; and keep going.</p>
+      </div>
+
+      <label class="done-row">
+        <span class="checkbox" aria-hidden="true"></span>
+        <span class="done-text">I did it today.</span>
+      </label>
+
+      <div class="reflect">
+        <span class="reflect-label">Tonight, one line</span>
+        <span class="reflect-q">What happened when I tried it?</span>
+        <span class="write-line"></span>
+      </div>
+
+      <footer class="day-foot">
+        <span class="foot-tag">Present, not perfect.</span>
+        <span class="foot-page">Day 30 / 30 &middot; Dad&rsquo;s Code</span>
+      </footer>
+    </div>
+  </section>
+  <section class="page checkin-page final-page">
+    <div class="day-inner">
+      <header class="day-head">
+        <div class="day-num"><span class="day-word">DAY</span><span class="day-n">30</span></div>
+        <div class="day-meta">
+          <span class="day-theme">Final reflection</span>
+          <span class="day-range">You made it</span>
+        </div>
+      </header>
+      <div class="amber-rule"></div>
+
+      <p class="checkin-intro">Thirty days. One small moment at a time. Take a breath and look back.</p>
+
+      <div class="reflect">
+        <span class="reflect-q">What changed in 30 days?</span>
+        <span class="write-line"></span><span class="write-line"></span><span class="write-line"></span><span class="write-line"></span>
+      </div>
+
+      <div class="reflect">
+        <span class="reflect-q">What did my kid get from this that I didn&rsquo;t expect?</span>
+        <span class="write-line"></span><span class="write-line"></span>
+      </div>
+
+      <div class="reflect">
+        <span class="reflect-q">One ritual I&rsquo;m keeping for good:</span>
+        <span class="write-line"></span>
+      </div>
+
+      <div class="close-banner">
+        <p>You showed up for 30 days. Not perfectly &mdash; <em>present</em>. That&rsquo;s the code.</p>
+      </div>
+    </div>
+  </section>
+    <!-- ===================== BACK PAGE ===================== -->
+    <section class="page backpage">
+      <span class="wordmark-lg">Dad&rsquo;s Code</span>
+      <span class="amber-line"></span>
+      <p class="big">You showed up for 30 days. Not perfectly &mdash; <em>present</em>. That&rsquo;s the code.</p>
+      <p class="next">Keep going with the Dad&rsquo;s Code podcast and the field guide, <em>&ldquo;Present, Not Perfect.&rdquo;</em></p>
+      <span class="amber-line"></span>
+    </section>
+
+  </main>
+
+</body>
+</html>

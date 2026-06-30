@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dad Fuel — High-Protein Meal Guide · Dad's Code</title>
+<meta name="description" content="High-protein, no-fuss meals for the tired dad who needs to keep going. Dad's Code by Jamie Wigg.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14121A;
+    --panel:#1C1A26;
+    --panel-2:#221F2E;
+    --amber:#DFB76C;
+    --amber-deep:#C99B4E;
+    --text:#F4F1EA;
+    --muted:#A39CB0;
+    --line:rgba(223,183,108,0.28);
+    --radius:16px;
+    --shadow:0 18px 50px rgba(0,0,0,0.45);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    letter-spacing:0.01em;
+  }
+  .display{font-family:'Anton','Inter',sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:0.02em;line-height:0.95;}
+  a{color:var(--amber);text-decoration:none;}
+
+  .wrap{max-width:920px;margin:0 auto;padding:0 22px;}
+
+  /* WORDMARK BAR */
+  .topbar{
+    border-bottom:1px solid var(--line);
+    background:rgba(20,18,26,0.85);
+    backdrop-filter:blur(8px);
+    position:sticky;top:0;z-index:50;
+  }
+  .topbar .inner{display:flex;align-items:center;justify-content:space-between;padding:12px 22px;max-width:920px;margin:0 auto;}
+  .wordmark{font-family:'Anton',sans-serif;letter-spacing:0.18em;color:var(--amber);font-size:0.95rem;text-transform:uppercase;}
+  .tagline-top{color:var(--muted);font-size:0.78rem;font-style:italic;letter-spacing:0.03em;}
+
+  /* COVER */
+  .cover{
+    min-height:100vh;
+    display:flex;flex-direction:column;justify-content:flex-end;
+    position:relative;overflow:hidden;
+    padding:0 0 64px;
+    background:
+      radial-gradient(120% 90% at 78% 12%, rgba(223,183,108,0.16), transparent 55%),
+      radial-gradient(120% 120% at 10% 100%, rgba(223,183,108,0.07), transparent 50%),
+      linear-gradient(180deg,#181520 0%, #14121A 60%, #100E15 100%);
+  }
+  .cover-grid{
+    position:absolute;inset:0;
+    background-image:linear-gradient(rgba(223,183,108,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(223,183,108,0.04) 1px,transparent 1px);
+    background-size:46px 46px;
+    mask-image:radial-gradient(circle at 50% 40%,#000 0%,transparent 78%);
+    pointer-events:none;
+  }
+  .cover-inner{position:relative;z-index:2;width:100%;max-width:920px;margin:0 auto;padding:0 22px;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    color:var(--amber);font-weight:700;letter-spacing:0.22em;text-transform:uppercase;font-size:0.74rem;
+    margin-bottom:22px;
+  }
+  .eyebrow::before{content:"";width:30px;height:2px;background:var(--amber);display:inline-block;}
+  .cover h1{
+    font-size:clamp(4.2rem,17vw,9.5rem);
+    margin:0;
+    color:var(--text);
+    text-shadow:0 4px 30px rgba(0,0,0,0.5);
+  }
+  .cover h1 .fuel{color:var(--amber);display:block;}
+  .cover .subtitle{
+    font-size:clamp(1.05rem,2.4vw,1.45rem);
+    color:var(--text);
+    max-width:560px;
+    margin:20px 0 0;
+    font-weight:500;
+  }
+  .amber-rule{height:2px;width:120px;background:linear-gradient(90deg,var(--amber),transparent);margin:26px 0 18px;border:none;}
+  .cover-foot{color:var(--amber);font-size:0.86rem;letter-spacing:0.04em;font-weight:600;}
+  .cover-foot span{color:var(--muted);font-style:italic;font-weight:400;}
+
+  /* PROTEIN BADGE STICKER */
+  .badge-sticker{
+    position:absolute;top:9%;right:6%;z-index:3;
+    width:148px;height:148px;border-radius:50%;
+    background:radial-gradient(circle at 35% 28%, #F0CE8C, var(--amber) 55%, #B98B3F 100%);
+    color:#1A1410;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;
+    box-shadow:0 14px 36px rgba(223,183,108,0.32),inset 0 -6px 14px rgba(0,0,0,0.18);
+    transform:rotate(8deg);
+    border:3px solid rgba(255,255,255,0.22);
+  }
+  .badge-sticker .big{font-family:'Anton',sans-serif;font-size:2.7rem;line-height:1;}
+  .badge-sticker .small{font-weight:800;font-size:0.66rem;letter-spacing:0.16em;text-transform:uppercase;margin-top:4px;}
+
+  /* SECTIONS */
+  section.block{padding:54px 0;border-top:1px solid rgba(255,255,255,0.04);}
+  .kicker{color:var(--amber);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;font-size:0.74rem;margin:0 0 10px;}
+  h2.sec{font-size:clamp(1.9rem,4.5vw,2.8rem);margin:0 0 8px;color:var(--text);}
+  h2.sec .em{color:var(--amber);}
+  .sec-sub{color:var(--muted);margin:0 0 8px;font-size:1rem;}
+
+  .panel{
+    background:linear-gradient(180deg,var(--panel-2),var(--panel));
+    border:1px solid rgba(255,255,255,0.05);
+    border-radius:var(--radius);
+    padding:28px;
+    box-shadow:var(--shadow);
+  }
+  .lead{font-size:1.15rem;color:var(--text);}
+  .muted{color:var(--muted);}
+  .sign{color:var(--amber);font-style:italic;font-weight:600;}
+
+  /* TOC */
+  .toc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;}
+  .toc-item{
+    display:flex;align-items:center;gap:14px;
+    background:var(--panel);border:1px solid rgba(255,255,255,0.05);
+    border-radius:12px;padding:14px 16px;color:var(--text);font-weight:500;
+    transition:border-color .15s,transform .15s;
+  }
+  .toc-item:hover{border-color:var(--line);transform:translateX(3px);}
+  .toc-num{font-family:'Anton',sans-serif;color:var(--amber);font-size:1.2rem;min-width:30px;}
+
+  /* SAFETY PANEL */
+  .safety{
+    border:2px solid var(--amber);
+    border-radius:var(--radius);
+    background:linear-gradient(180deg,rgba(223,183,108,0.10),rgba(28,26,38,0.9));
+    padding:30px;
+    position:relative;
+    box-shadow:0 0 0 6px rgba(223,183,108,0.06),var(--shadow);
+  }
+  .safety .flag{
+    display:inline-flex;align-items:center;gap:10px;
+    background:var(--amber);color:#1A1410;font-weight:800;
+    padding:6px 16px;border-radius:999px;letter-spacing:0.12em;text-transform:uppercase;font-size:0.78rem;
+    margin-bottom:18px;
+  }
+  .safety h2{font-size:1.35rem;margin:0 0 14px;color:var(--text);line-height:1.35;}
+  .safety ul{margin:0;padding-left:0;list-style:none;}
+  .safety li{position:relative;padding:10px 0 10px 30px;border-top:1px solid var(--line);color:var(--text);}
+  .safety li:first-child{border-top:none;}
+  .safety li::before{content:"!";position:absolute;left:0;top:9px;width:20px;height:20px;border-radius:50%;background:var(--amber);color:#1A1410;font-weight:800;font-size:0.75rem;display:flex;align-items:center;justify-content:center;}
+  .safety strong{color:var(--amber);}
+
+  /* ONE RULE */
+  .onerule{
+    text-align:center;
+    background:
+      radial-gradient(120% 120% at 50% 0%, rgba(223,183,108,0.14), transparent 60%),
+      linear-gradient(180deg,var(--panel-2),var(--panel));
+    border:1px solid var(--line);
+  }
+  .onerule .tag{color:var(--amber);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;font-size:0.74rem;}
+  .onerule .big{font-family:'Anton',sans-serif;font-size:clamp(1.6rem,4vw,2.5rem);color:var(--text);margin:14px auto 12px;max-width:680px;line-height:1.1;text-transform:uppercase;}
+  .onerule .big em{color:var(--amber);font-style:normal;}
+
+  /* HOW TO READ */
+  .legend{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px;}
+  .legend div{background:var(--panel);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:14px 16px;}
+  .legend b{color:var(--amber);display:block;margin-bottom:2px;letter-spacing:0.04em;}
+  .legend small{color:var(--muted);}
+
+  /* RECIPE SECTION HEADER */
+  .sec-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px;}
+  .sec-head .ico{font-size:1.6rem;}
+
+  /* RECIPE CARD */
+  .recipe{
+    background:linear-gradient(180deg,var(--panel-2),var(--panel));
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:var(--radius);
+    padding:26px 26px 24px;
+    margin-top:20px;
+    box-shadow:var(--shadow);
+    position:relative;
+    overflow:hidden;
+  }
+  .recipe::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--amber),transparent);}
+  .recipe-head{display:flex;gap:20px;align-items:flex-start;justify-content:space-between;}
+  .recipe-title{font-size:1.45rem;font-weight:800;margin:0;color:var(--text);line-height:1.2;}
+  .tags{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;}
+  .tag{font-size:0.68rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--amber);border:1px solid var(--line);border-radius:999px;padding:3px 10px;}
+  .meta{color:var(--muted);font-weight:600;font-size:0.92rem;margin-top:12px;letter-spacing:0.02em;}
+  .meta b{color:var(--text);}
+
+  .protein-badge{
+    flex:0 0 auto;width:86px;height:86px;border-radius:50%;
+    background:radial-gradient(circle at 35% 28%, #F0CE8C, var(--amber) 58%, #B98B3F 100%);
+    color:#1A1410;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    box-shadow:0 8px 20px rgba(223,183,108,0.28),inset 0 -4px 10px rgba(0,0,0,0.18);
+    border:2px solid rgba(255,255,255,0.2);
+  }
+  .protein-badge .g{font-family:'Anton',sans-serif;font-size:1.7rem;line-height:0.9;}
+  .protein-badge .lbl{font-weight:800;font-size:0.56rem;letter-spacing:0.12em;text-transform:uppercase;margin-top:3px;}
+
+  .recipe-body{display:grid;grid-template-columns:0.9fr 1.4fr;gap:24px;margin-top:20px;}
+  .col-h{color:var(--amber);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;font-size:0.72rem;margin:0 0 10px;}
+  .ing{list-style:none;margin:0;padding:0;}
+  .ing li{padding:6px 0 6px 20px;position:relative;border-bottom:1px dashed rgba(255,255,255,0.06);color:var(--text);font-size:0.96rem;}
+  .ing li::before{content:"";position:absolute;left:0;top:13px;width:7px;height:7px;border-radius:50%;background:var(--amber);}
+  ol.steps{margin:0;padding-left:0;counter-reset:step;list-style:none;}
+  ol.steps li{position:relative;padding:0 0 14px 40px;color:var(--text);font-size:0.97rem;}
+  ol.steps li::before{counter-increment:step;content:counter(step);position:absolute;left:0;top:-2px;width:26px;height:26px;border-radius:50%;background:rgba(223,183,108,0.14);border:1px solid var(--line);color:var(--amber);font-weight:800;font-size:0.82rem;display:flex;align-items:center;justify-content:center;}
+  ol.steps li:last-child{padding-bottom:0;}
+
+  .fueltip{
+    margin-top:20px;
+    background:rgba(223,183,108,0.09);
+    border:1px solid var(--line);
+    border-left:4px solid var(--amber);
+    border-radius:10px;
+    padding:14px 16px;
+    font-size:0.95rem;
+  }
+  .fueltip b{color:var(--amber);}
+
+  /* GRAB & GO note */
+  .gonote{font-size:0.96rem;}
+  .gonote .pill{display:inline-block;color:var(--amber);border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin:3px 4px 3px 0;font-size:0.85rem;font-weight:600;}
+
+  /* PREP CHECKLIST */
+  .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0 26px;}
+  .flow .step{background:var(--panel);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:16px;text-align:center;}
+  .flow .step .n{font-family:'Anton',sans-serif;color:var(--amber);font-size:1.6rem;}
+  .flow .step b{display:block;margin-top:4px;}
+  .flow .step small{color:var(--muted);}
+  .checklist{list-style:none;margin:0;padding:0;}
+  .checklist li{
+    display:flex;align-items:center;gap:16px;
+    padding:15px 16px;margin-bottom:10px;
+    background:var(--panel);border:1px solid rgba(255,255,255,0.06);border-radius:12px;
+    font-weight:500;font-size:1.02rem;
+  }
+  .checklist .box{
+    flex:0 0 auto;width:30px;height:30px;border-radius:8px;
+    border:2px solid var(--amber);background:rgba(223,183,108,0.08);
+  }
+
+  /* 25 IDEAS CHIPS */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;}
+  .chip{
+    background:var(--panel);border:1px solid var(--line);border-radius:999px;
+    padding:9px 16px;font-size:0.92rem;font-weight:500;color:var(--text);
+    transition:background .15s,transform .15s;
+  }
+  .chip:hover{background:rgba(223,183,108,0.12);transform:translateY(-2px);}
+  .chip .num{color:var(--amber);font-weight:800;font-size:0.78rem;margin-right:7px;}
+
+  /* CLOSE */
+  .close{text-align:center;background:radial-gradient(120% 120% at 50% 0%, rgba(223,183,108,0.12), transparent 60%),linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);}
+  .close .big{font-family:'Anton',sans-serif;font-size:clamp(1.6rem,4vw,2.4rem);text-transform:uppercase;line-height:1.1;margin:0 auto 14px;max-width:640px;}
+  .close .big em{color:var(--amber);font-style:normal;}
+
+  footer.site{padding:40px 22px 60px;text-align:center;border-top:1px solid var(--line);color:var(--muted);font-size:0.85rem;}
+  footer.site .mark{font-family:'Anton',sans-serif;color:var(--amber);letter-spacing:0.18em;display:block;margin-bottom:6px;}
+
+  /* RESPONSIVE */
+  @media (max-width:680px){
+    .toc-grid{grid-template-columns:1fr;}
+    .legend{grid-template-columns:1fr;}
+    .recipe-body{grid-template-columns:1fr;}
+    .flow{grid-template-columns:1fr 1fr;}
+    .badge-sticker{width:108px;height:108px;top:7%;right:5%;}
+    .badge-sticker .big{font-size:2rem;}
+    .recipe-head{flex-direction:column-reverse;align-items:flex-start;}
+  }
+
+  /* PRINT */
+  @media print{
+    @page{size:A4 portrait;margin:14mm;}
+    html,body{background:#fff !important;color:#1a1a1a !important;}
+    .topbar{position:static;background:#fff;border-color:#caa85e;}
+    .wordmark,.kicker,.col-h,.protein-badge .lbl,.badge-sticker{color:#9a7322 !important;}
+    .cover{min-height:auto;page-break-after:always;background:#fff !important;padding:30mm 0;}
+    .cover h1,.cover .subtitle,.cover-foot,.eyebrow{color:#1a1a1a !important;}
+    .cover h1 .fuel{color:#9a7322 !important;}
+    .cover-grid{display:none;}
+    .panel,.recipe,.safety,.onerule,.close,.toc-item,.legend div,.flow .step,.checklist li,.chip{
+      background:#fff !important;border:1px solid #d8d8d8 !important;box-shadow:none !important;color:#1a1a1a !important;
+    }
+    .recipe,.safety,.panel{page-break-inside:avoid;}
+    section.block{page-break-inside:avoid;padding:14px 0;border-top:none;}
+    h2.sec,.recipe-title,.lead,.muted,.ing li,ol.steps li,.checklist li{color:#1a1a1a !important;}
+    .protein-badge,.badge-sticker{background:#f3e6c8 !important;color:#7a5a1a !important;border-color:#caa85e !important;}
+    .protein-badge .g{color:#7a5a1a !important;}
+    .fueltip{background:#faf3e2 !important;}
+    a{color:#9a7322 !important;}
+    .chip:hover,.toc-item:hover{transform:none;}
+  }
+</style>
+</head>
+<body>
+
+<!-- WORDMARK BAR -->
+<div class="topbar">
+  <div class="inner">
+    <span class="wordmark">Dad's Code</span>
+    <span class="tagline-top">Present, not perfect.</span>
+  </div>
+</div>
+
+<!-- COVER -->
+<header class="cover">
+  <div class="cover-grid"></div>
+  <div class="badge-sticker" aria-label="30 grams plus protein">
+    <span class="big">30g+</span>
+    <span class="small">Protein</span>
+  </div>
+  <div class="cover-inner">
+    <span class="eyebrow">Dad's Code · High-Protein Meal Guide</span>
+    <h1 class="display">Dad<span class="fuel">Fuel</span></h1>
+    <p class="subtitle">High-protein meals for the tired dad who needs to keep going.</p>
+    <hr class="amber-rule">
+    <p class="cover-foot">Dad's Code by Jamie Wigg &nbsp;·&nbsp; <span>Present, not perfect.</span></p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- TABLE OF CONTENTS -->
+  <section class="block" id="contents">
+    <p class="kicker">Contents</p>
+    <h2 class="sec">What's <span class="em">inside</span></h2>
+    <p class="sec-sub">40 meal options. 15 full recipe cards, a 1-hour prep system, and 25 grab-and-go ideas.</p>
+    <div class="toc-grid">
+      <a class="toc-item" href="#intro"><span class="toc-num">01</span> Intro — Jamie's Voice</a>
+      <a class="toc-item" href="#safety"><span class="toc-num">02</span> Read This First (safety)</a>
+      <a class="toc-item" href="#onerule"><span class="toc-num">03</span> The One Rule</a>
+      <a class="toc-item" href="#how"><span class="toc-num">04</span> How to Read the Cards</a>
+      <a class="toc-item" href="#fast"><span class="toc-num">05</span> 15-Min Fuel</a>
+      <a class="toc-item" href="#prep-heroes"><span class="toc-num">06</span> Meal-Prep Heroes</a>
+      <a class="toc-item" href="#grab"><span class="toc-num">07</span> Grab &amp; Go</a>
+      <a class="toc-item" href="#sunday"><span class="toc-num">08</span> The 1-Hour Sunday Prep</a>
+      <a class="toc-item" href="#ideas"><span class="toc-num">09</span> 25 More High-Protein Ideas</a>
+      <a class="toc-item" href="#close"><span class="toc-num">10</span> Close</a>
+    </div>
+  </section>
+
+  <!-- INTRO -->
+  <section class="block" id="intro">
+    <p class="kicker">01 · Intro</p>
+    <h2 class="sec">Jamie's <span class="em">voice</span></h2>
+    <div class="panel">
+      <p class="lead">I know what running on empty feels like. For years I was overweight, exhausted and anxious — dragging myself through the day on toast and coffee.</p>
+      <p>Rebuilding my health changed everything, and the biggest lever wasn't some miracle. It was simple: <strong style="color:var(--amber)">eat enough protein, keep it easy, and stop running on fumes.</strong></p>
+      <p>These are the meals that fuel a tired dad. No chef skills, no fancy gear, no weighing your food. Just real food that keeps you going so you can show up for the people who need you.</p>
+      <p class="sign">— Present, not perfect.</p>
+    </div>
+  </section>
+
+  <!-- SAFETY -->
+  <section class="block" id="safety">
+    <p class="kicker">02 · Read This First</p>
+    <div class="safety">
+      <span class="flag">⚠ Read this first</span>
+      <h2>This guide is general information only — not medical, dietary or nutrition advice, and not a substitute for care from a qualified professional.</h2>
+      <ul>
+        <li>The protein guidance here is <strong>general and non-prescriptive.</strong> It is not a personalised plan and does not set targets for any individual.</li>
+        <li>If you've had <strong>bariatric or weight-loss surgery</strong>, are managing a <strong>medical condition</strong>, take <strong>medication</strong>, are <strong>pregnant</strong>, or have <strong>food allergies or intolerances</strong>, follow <strong>your own dietitian's or doctor's plan first.</strong> Portion sizes, textures and protein needs after surgery are individual — your care team's advice always overrides anything in this book.</li>
+        <li>Recipes contain common allergens (eggs, dairy, fish, nuts, gluten, soy). <strong>Check every ingredient against your own needs</strong> and adjust or skip as required.</li>
+        <li>If anything here conflicts with professional advice you've been given, <strong>ignore this guide and follow the professional.</strong></li>
+        <li>Eat to feel well. If something doesn't sit right with you, stop and check with your GP or dietitian.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ONE RULE -->
+  <section class="block" id="onerule">
+    <p class="kicker">03 · The One Rule</p>
+    <div class="panel onerule">
+      <span class="tag">The One Rule</span>
+      <p class="big">Aim for a <em>palm-sized serve of protein</em> at every meal — eggs, meat, fish, dairy, beans, tofu.</p>
+      <p class="muted" style="max-width:640px;margin:0 auto;">Protein helps you feel full, keeps your energy steadier, and protects muscle while you move more. That's about 90% of the job. Get that right most days and the rest takes care of itself. <em>(General guide only — see Read This First.)</em></p>
+    </div>
+  </section>
+
+  <!-- HOW TO READ -->
+  <section class="block" id="how">
+    <p class="kicker">04 · How to Read the Cards</p>
+    <h2 class="sec">Every card, <span class="em">built the same</span></h2>
+    <p class="sec-sub">So you can scan it in seconds.</p>
+    <div class="legend">
+      <div><b>⏱️ Time</b><small>How long, start to plate.</small></div>
+      <div><b>🍽️ Serves</b><small>How many it makes.</small></div>
+      <div><b>🔋 Protein Badge</b><small>A rough per-serve protein estimate in grams (amber circle). Estimates only — values vary with brands and portions.</small></div>
+      <div><b>🛒 Ingredients</b><small>Short shopping-style list.</small></div>
+      <div><b>👣 Steps</b><small>Numbered, plain-spoken.</small></div>
+      <div><b>💡 Fuel Tip</b><small>One quick win to make it easier, cheaper or higher-protein.</small></div>
+    </div>
+    <p class="muted" style="margin-top:18px;">Look for the tags: <span class="tag">⚡ high protein</span> <span class="tag">🍱 preps/freezes well</span> <span class="tag">⏱️ under 15 min</span></p>
+  </section>
+
+  <!-- 15-MIN FUEL -->
+  <section class="block" id="fast">
+    <p class="kicker">05 · Section One</p>
+    <div class="sec-head"><span class="ico">⏱️</span><h2 class="sec">15-Min <span class="em">Fuel</span></h2></div>
+    <p class="sec-sub">Fast, minimal cook. For the days you've got minutes, not hours.</p>
+
+    <!-- 1 -->
+    <article class="recipe">
+      <div class="recipe-head">
+        <div>
+          <h3 class="recipe-title">Greek Yogurt Power Bowl</h3>
+          <div class="tags"><span class="tag">⚡ High protein</span><span class="tag">⏱️ Under 15 min</span></div>
+          <p class="meta"><b>5 min</b> · Serves <b>1</b></p>
+        </div>
+        <div class="protein-badge"><span class="g">~25g</span><span class="lbl">Protein</span></div>
+      </div>
+      <div class="recipe-body">
+        <div>
+          <p class="col-h">🛒 Ingredients</p>
+          <ul class="ing">
+            <li>1 big spoon Greek yogurt (about a cup)</li>
+            <li>Handful of berries</li>
+            <li>Handful of nuts</li>
+            <li>Drizzle of honey</li>
+          </ul>
+        </div>
+        <div>
+          <p class="col-h">👣 Steps</p>
+          <ol class="steps">
+            <li>Spoon yogurt into a bowl.</li>
+            <li>Top with berries and nuts.</li>
+            <li>Drizzle honey. Done.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="fueltip"><b>💡 Fuel Tip:</b> Buy plain high-protein Greek yogurt and add your own honey — way more protein, way less sugar than the flavoured tubs.</div>
+    </article>
+
+    <!-- 2 -->
+    <article class="recipe">
+      <div class="recipe-head">
+        <div>
+          <h3 class="recipe-title">Tuna &amp; White Bean Salad</h3>
+          <div class="tags"><span class="tag">⚡ High protein</span><span class="tag">⏱️ Under 15 min</span></div>
+          <p class="meta"><b>10 min</b> · Serves <b>1–2</b></p>
+        </div>
+        <div class="protein-badge"><span class="g">~35g</span><span class="lbl">Protein</span></div>
+      </div>
+      <div class="recipe-body">
+        <div>
+          <p class="col-h">🛒 Ingredients</p>
+          <ul class="ing">
+            <li>1 tin tuna, drained</li>
+            <li>1 tin cannellini beans, drained</li>
+            <li>1 tomato, chopped</li>
+            <li>Olive oil + lemon juice</li>
+            <li>Salt and pepper</li>
+          </ul>
+        </div>
+        <div>
+          <p class="col-h">👣 Steps</p>
+          <ol class="steps">
+            <li>Tip tuna and beans into a bowl.</li>
+            <li>Add tomato.</li>
+            <li>Dress with oil, lemon, salt and pepper. Mix.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="fueltip"><b>💡 Fuel Tip:</b> No cooking, massive protein, keeps in the fridge. Make double for tomorrow's lunch.</div>
+    </article>
+
+    <!-- 3 -->
+    <article class="recipe">
+      <div class="recipe-head">
+        <div>
+          <h3 class="recipe-title">Cottage Cheese Toast, 3 Ways</h3>
+          <div class="tags"><span class="tag">⚡ High protein</span><span class="tag">⏱️ Under 15 min</span></div>
+          <p class="meta"><b>5 min</b> · Serves <b>1</b></p>
+        </div>
+        <div class="protein-badge"><span class="g">~20g</span><span class="lbl">Protein</span></div>
+      </div>
+      <div class="recipe-body">
+        <div>
+          <p class="col-h">🛒 Ingredients</p>
+          <ul class="ing">
+            <li>2 slices wholegrain toast</li>
+            <li>Cottage cheese</li>
+            <li>Pick a topper: (a) tomato + pepper · (b) banana + honey · (c) egg + chilli</li>
+          </ul>
+        </div>
+        <div>
+          <p class="col-h">👣 Steps</p>
+          <ol class="steps">
+            <li>Toast the bread.</li>
+            <li>Spread cottage cheese on thick.</li>
+            <li>Add your topper of choice.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="fueltip"><b>💡 Fuel Tip:</b> Cottage cheese is the most underrated protein hit going — cheap, filling, and it works sweet or savoury.</div>
+    </article>
+
+    <!-- 4 -->
+    <article class="recipe">
+      <div class="recipe-head">
+        <div>
+          <h3 class="recipe-title">Post-Run Protein Smoothie</h3>
+          <div class="tags"><span class="tag">⚡ High protein</span><span class="tag">⏱️ Under 15 min</span></div>
+          <p class="meta"><b>3 min</b> · Serves <b>1</b></p>
+        </div>
+        <div class="protein-badge"><span class="g">~30g</span><span class="lbl">Protein</span></div>
+      </div>
+      <div class="recipe-body">
+        <div>
+          <p class="col-h">🛒 Ingredients</p>
+          <ul class="ing">
+            <li>1 cup milk</li>
+            <li>1 scoop protein powder</li>
+            <li>1 banana</li>
+            <li>1 spoon peanut butter</li>
+            <li>Handful of oats</li>
+          </ul>
+        </div>
+        <div>
+          <p class="col-h">👣 Steps</p>
+          <ol class="steps">
+            <li>Tip everything in a blender.</li>
+            <li>Blend until smooth.</li>
+            <li>Drink. Recovery in a cup.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="fueltip"><b>💡 Fuel Tip:</b> Freeze the banana first for a thick, milkshake-feel smoothie with zero ice needed.</div>
+    </article>
+
+    <!-- 5 -->
+    <article class="recipe">
+      <div class="recipe-head">
+        <div>
+          <h3 class="recipe-title">Steak &amp; Sweet Potato</h3>
+          <div class="tags"><span class="tag">⚡ High protein</span><span class="tag">⏱️ Under 15 min</span></div>
+          <p class="meta"><b>15 min</b> · Serves <b>1</b></p>
+        </div>
+        <div class="protein-badge"><span class="g">~40g</span><span class="lbl">Protein</span></div>
+      </div>
+      <div class="recipe-body">
+        <div>
+          <p class="col-h">🛒 Ingredients</p>
+          <ul class="ing">
+            <li>1 steak</li>
+            <li>1 sweet potato</li>
+            <li>Handful of greens</li>
+            <li>Oil, salt, pepper</li>
+          </ul>
+        </div>
+        <div>
+          <p class="col-h">👣 Steps</p>
+          <ol class="steps">
+            <li>Microwave the sweet potato (8–10 min) while you heat the pan.</li>
+            <li>Pan-sear the steak to your liking; rest it a couple of minutes.</li>
+            <li>Steam or microwave the greens. Plate up.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="fueltip"><b>💡 Fuel Tip:</b> Proper dad fuel, fast. Resting the steak for 2 minutes makes it far juicier — don't skip it.</div>
+    </article>
+
+    <!-- 6 -->
+    <article class="recipe">
+      <div class="recipe-head">
+        <div>
+          <h3 class="recipe-title">Mince &amp; Egg Power Bowl</h3>
+          <div class="tags"><span class="tag">⚡ High protein</span><span class="tag">⏱️ Under 15 min</span></div>
+          <p class="meta"><b>12 min</b> · Serves <b>1</b></p>
+        </div>
+        <div class="protein-badge"><span class="g">~38g</span><span class="lbl">Protein</span></div>
+      </div>
+      <div class="recipe-body">
+        <div>
+          <p class="col-h">🛒 Ingredients</p>
+          <ul class="ing">
+            <li>150g mince</li>
+            <li>Splash of soy sauce + garlic</li>
+            <li>1 egg</li>
+            <li>Cooked rice or greens to serve</li>
+          </ul>
+        </div>
+        <div>
+          <p class="col-h">👣 Steps</p>
+          <ol class="steps">
+            <li>Brown the mince with garlic and a splash of soy.</li>
+            <li>Fry an egg.</li>
+            <li>Serve mince over rice or greens, top with the egg.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="fueltip"><b>💡 Fuel Tip:</b> Huge protein, dead simple. Use leftover rice from your Sunday prep and it's a 5-minute job.</div>
+    </article>
+
+    <!-- 7 -->
+    <article class="recipe">
+      <div class="recipe-head">
+        <div>
+          <h3 class="recipe-title">Egg &amp; Veg Scramble Wrap</h3>
+          <div class="tags"><span class="tag">⚡ High protein</span><span class="tag">⏱️ Under 15 min</span></div>
+          <p class="meta"><b>8 min</b> · Serves <b>1</b></p>
+        </div>
+        <div class="protein-badge"><span class="g">~22g</span><span class="lbl">Protein</span></div>
+      </div>
+      <div class="recipe-body">
+        <div>
+          <p class="col-h">🛒 Ingredients</p>
+          <ul class="ing">
+            <li>3 eggs</li>
+            <li>Handful of spinach</li>
+            <li>Cheese</li>
+            <li>1 wrap</li>
+          </ul>
+        </div>
+        <div>
+          <p class="col-h">👣 Steps</p>
+          <ol class="steps">
+            <li>Scramble the eggs with spinach.</li>
+            <li>Stir in cheese to melt.</li>
+            <li>Roll it all up in the wrap.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="fueltip"><b>💡 Fuel Tip:</b> Works for breakfast or a late-night refuel. Add leftover veg or mince to bulk it out.</div>
+    </article>
+  </section>
+
+  <!-- MEAL-PREP HEROES -->
+  <section class="block" id="prep-heroes">
+    <p class="kicker">06 · Section Two</p>
+    <div class="sec-head"><span class="ico">🍱</span><h2 class="sec">Meal-Prep <span class="em">Heroes</span></h2></div>
+    <p class="sec-sub">Big-batch and freezes well. Cook once, eat all week.</p>
+
+    <!-- 8 -->
+    <article class="recipe">
+      <div class="recipe-head">
+        <div>
+          <h3 class="recipe-title">Big-Batch Beef &amp; Bean Chilli</h3>
+          <div class="tags"><span class="tag">⚡ High protein</span><span class="tag">🍱 Freezes well</span></div>
+          <p class="meta"><b>30 min</b> · Serves <b>5</b></p>
+        </div>
+        <div class="protein-badge"><span class="g">~35g</span><span class="lbl">Protein</span></div>
+      </div>
+      <div class="recipe-body">
+        <div>
+          <p class="col-h">🛒 Ingredients</p>
+          <ul class="ing">
+            <li>500g lean beef mince</li>
+            <li>1 onion</li>
+            <li>1 tin chopped tomatoes</li>
+            <li>1 tin kidney beans</li>
+            <li>Chilli + cumin</li>
+          </ul>
+        </div>
+        <div>
+          <p class="col-h">👣 Steps</p>
+          <ol class="steps">
+            <li>Brown the mince with the onion.</li>
+            <li>Add tomatoes, beans, chilli and cumin.</li>
+            <li>Simmer 20 min.</li>
+            <li>Portion into containers — lunch sorted all week.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="fueltip"><b>💡 Fuel Tip:</b> Freezes brilliantly. Make a double batch and you've got dinners stocked for a fortnight.</div>
+    </article>
+
+    <!-- 9 -->
+    <article class="recipe">
+      <div class="recipe-head">
+        <div>
+          <h3 class="recipe-title">Overnight Protein Oats</h3>
+          <div class="tags"><span class="tag">⚡ High protein</span><span class="tag">🍱 Preps well</span></div>
+          <p class="meta"><b>5 min</b> (night before) · Serves <b>1</b></p>
+        </div>
+        <div class="protein-badge"><span class="g">~30g</span><span class="lbl">Protein</span></div>
+      </div>
+      <div class="recipe-body">
+        <div>
+          <p class="col-h">🛒 Ingredients</p>
+          <ul class="ing">
+            <li>½ cup oats</li>
+            <li>Milk</li>
+            <li>Greek yogurt</li>
+            <li>1 scoop protein</li>
+            <li>1 banana</li>
+          </ul>
+        </div>
+        <div>
+          <p class="col-h">👣 Steps</p>
+          <ol class="steps">
+            <li>Mix everything in a jar.</li>
+            <li>Lid on, fridge overnight.</li>
+            <li>Grab and go in the morning.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="fueltip"><b>💡 Fuel Tip:</b> Steady morning energy, no sugar crash. Make 3 jars at once for a stress-free week of breakfasts.</div>
+    </article>
+
+    <!-- 10 -->
+    <article class="recipe">
+      <div class="recipe-head">
+        <div>
+          <h3 class="recipe-title">Chicken &amp; Rice Prep Boxes</h3>
+          <div class="tags"><span class="tag">⚡ High protein</span><span class="tag">🍱 Preps well</span></div>
+          <p class="meta"><b>30 min</b> · Serves <b>4</b></p>
+        </div>
+        <div class="protein-badge"><span class="g">~38g</span><span class="lbl">Protein</span></div>
+      </div>
+      <div class="recipe-body">
+        <div>
+          <p class="col-h">🛒 Ingredients</p>
+          <ul class="ing">
+            <li>8 chicken thighs, seasoned</li>
+            <li>1½ cups rice</li>
+            <li>1 tray of veg</li>
+          </ul>
+        </div>
+        <div>
+          <p class="col-h">👣 Steps</p>
+          <ol class="steps">
+            <li>Bake the seasoned thighs.</li>
+            <li>Cook the rice.</li>
+            <li>Roast a tray of veg.</li>
+            <li>Box into four — four ready dinners.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="fueltip"><b>💡 Fuel Tip:</b> Thighs stay juicier than breast and cost less. Season three different ways so it doesn't feel like the same meal four nights running.</div>
+    </article>
+
+    <!-- 11 -->
+    <article class="recipe">
+      <div class="recipe-head">
+        <div>
+          <h3 class="recipe-title">Freezer Breakfast Burritos</h3>
+          <div class="tags"><span class="tag">⚡ High protein</span><span class="tag">🍱 Freezes well</span></div>
+          <p class="meta"><b>30 min</b> · Serves <b>6</b></p>
+        </div>
+        <div class="protein-badge"><span class="g">~28g</span><span class="lbl">Protein</span></div>
+      </div>
+      <div class="recipe-body">
+        <div>
+          <p class="col-h">🛒 Ingredients</p>
+          <ul class="ing">
+            <li>6 eggs</li>
+            <li>250g mince</li>
+            <li>Cheese</li>
+            <li>1 capsicum</li>
+            <li>6 tortillas</li>
+          </ul>
+        </div>
+        <div>
+          <p class="col-h">👣 Steps</p>
+          <ol class="steps">
+            <li>Scramble eggs with mince, cheese and capsicum.</li>
+            <li>Roll the filling into the tortillas.</li>
+            <li>Wrap and freeze.</li>
+            <li>Microwave 2 min on a rough morning.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="fueltip"><b>💡 Fuel Tip:</b> Wrap each one in foil or baking paper before freezing so they don't stick together.</div>
+    </article>
+
+    <!-- 12 -->
+    <article class="recipe">
+      <div class="recipe-head">
+        <div>
+          <h3 class="recipe-title">Sheet-Pan Chicken Thighs &amp; Veg</h3>
+          <div class="tags"><span class="tag">⚡ High protein</span><span class="tag">🍱 Preps well</span></div>
+          <p class="meta"><b>30 min</b> · Serves <b>4</b></p>
+        </div>
+        <div class="protein-badge"><span class="g">~36g</span><span class="lbl">Protein</span></div>
+      </div>
+      <div class="recipe-body">
+        <div>
+          <p class="col-h">🛒 Ingredients</p>
+          <ul class="ing">
+            <li>Chicken thighs</li>
+            <li>Chopped veg</li>
+            <li>Oil, salt, pepper</li>
+          </ul>
+        </div>
+        <div>
+          <p class="col-h">👣 Steps</p>
+          <ol class="steps">
+            <li>Spread thighs and veg on one tray.</li>
+            <li>Roast 25 min at 200°C.</li>
+            <li>Serve now; box the rest for lunch.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="fueltip"><b>💡 Fuel Tip:</b> One tray means one wash-up. Line it with baking paper and you've barely got that.</div>
+    </article>
+
+    <!-- 13 -->
+    <article class="recipe">
+      <div class="recipe-head">
+        <div>
+          <h3 class="recipe-title">Lentil &amp; Sausage One-Pot</h3>
+          <div class="tags"><span class="tag">🍱 Freezes well</span></div>
+          <p class="meta"><b>30 min</b> · Serves <b>4</b></p>
+        </div>
+        <div class="protein-badge"><span class="g">~28g</span><span class="lbl">Protein</span></div>
+      </div>
+      <div class="recipe-body">
+        <div>
+          <p class="col-h">🛒 Ingredients</p>
+          <ul class="ing">
+            <li>4 good sausages</li>
+            <li>1 cup lentils</li>
+            <li>1 tin chopped tomatoes</li>
+            <li>Stock</li>
+          </ul>
+        </div>
+        <div>
+          <p class="col-h">👣 Steps</p>
+          <ol class="steps">
+            <li>Brown the sausages in the pot.</li>
+            <li>Add lentils, tomato and stock.</li>
+            <li>Simmer until thick.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="fueltip"><b>💡 Fuel Tip:</b> Hearty, cheap and it freezes well. The lentils bump the protein and keep you full for hours.</div>
+    </article>
+
+    <!-- 14 -->
+    <article class="recipe">
+      <div class="recipe-head">
+        <div>
+          <h3 class="recipe-title">Salmon Traybake</h3>
+          <div class="tags"><span class="tag">⚡ High protein</span></div>
+          <p class="meta"><b>25 min</b> · Serves <b>2</b></p>
+        </div>
+        <div class="protein-badge"><span class="g">~34g</span><span class="lbl">Protein</span></div>
+      </div>
+      <div class="recipe-body">
+        <div>
+          <p class="col-h">🛒 Ingredients</p>
+          <ul class="ing">
+            <li>2 salmon fillets</li>
+            <li>Tray of veg</li>
+            <li>Lemon + olive oil</li>
+          </ul>
+        </div>
+        <div>
+          <p class="col-h">👣 Steps</p>
+          <ol class="steps">
+            <li>Lay salmon and veg on a tray.</li>
+            <li>Drizzle with lemon and oil.</li>
+            <li>Bake 18 min.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="fueltip"><b>💡 Fuel Tip:</b> Omega-3s plus protein for brain and body. Frozen salmon fillets are cheaper and just as good baked.</div>
+    </article>
+
+    <!-- 15 -->
+    <article class="recipe">
+      <div class="recipe-head">
+        <div>
+          <h3 class="recipe-title">Big-Batch Chicken Soup</h3>
+          <div class="tags"><span class="tag">⚡ High protein</span><span class="tag">🍱 Freezes well</span></div>
+          <p class="meta"><b>30 min</b> · Serves <b>6</b></p>
+        </div>
+        <div class="protein-badge"><span class="g">~30g</span><span class="lbl">Protein</span></div>
+      </div>
+      <div class="recipe-body">
+        <div>
+          <p class="col-h">🛒 Ingredients</p>
+          <ul class="ing">
+            <li>Chicken (thighs or a small whole bird)</li>
+            <li>Stock</li>
+            <li>Veg</li>
+            <li>Handful of pasta or rice</li>
+          </ul>
+        </div>
+        <div>
+          <p class="col-h">👣 Steps</p>
+          <ol class="steps">
+            <li>Simmer chicken in stock with the veg.</li>
+            <li>Add pasta or rice near the end.</li>
+            <li>Cool and portion.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="fueltip"><b>💡 Fuel Tip:</b> Freezes for weeks — medicine on a hard day. Shred extra chicken into wraps or salads through the week.</div>
+    </article>
+  </section>
+
+  <!-- GRAB & GO -->
+  <section class="block" id="grab">
+    <p class="kicker">07 · Section Three</p>
+    <div class="sec-head"><span class="ico">🥪</span><h2 class="sec">Grab &amp; <span class="em">Go</span></h2></div>
+    <p class="sec-sub">Near-zero cook — for the days you've got nothing left in the tank.</p>
+    <div class="panel">
+      <p class="gonote"><strong style="color:var(--amber)">Already in 15-Min Fuel:</strong> the <a href="#fast">Greek Yogurt Power Bowl</a>, <a href="#fast">Tuna &amp; White Bean Salad</a> and <a href="#fast">Cottage Cheese Toast</a> all double as grab-and-go.</p>
+      <p class="gonote" style="margin-bottom:6px;"><strong style="color:var(--amber)">The fastest wins</strong> from the 25-idea list below:</p>
+      <div>
+        <span class="pill">Boiled eggs + cheese</span>
+        <span class="pill">Tuna on crackers</span>
+        <span class="pill">A protein shake</span>
+        <span class="pill">Chicken + hummus wrap</span>
+        <span class="pill">Turkey &amp; cheese roll-ups</span>
+        <span class="pill">Cold chicken + avocado</span>
+        <span class="pill">Yogurt + protein granola</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUNDAY PREP -->
+  <section class="block" id="sunday">
+    <p class="kicker">08 · The System</p>
+    <h2 class="sec">The 1-Hour <span class="em">Sunday Prep</span></h2>
+    <p class="sec-sub">In about 60 minutes you can set up your whole week — so tired-you doesn't have to decide anything.</p>
+
+    <p class="col-h" style="margin-top:14px;">The flow</p>
+    <div class="flow">
+      <div class="step"><span class="n">1</span><b>Bake</b><small>A tray of chicken + a tray of veg.</small></div>
+      <div class="step"><span class="n">2</span><b>Cook</b><small>A pot of rice + a batch of chilli or soup.</small></div>
+      <div class="step"><span class="n">3</span><b>Boil</b><small>6 eggs.</small></div>
+      <div class="step"><span class="n">4</span><b>Box</b><small>Into 4–5 lunches / dinners.</small></div>
+    </div>
+
+    <p class="col-h">🗒️ Sunday Prep Checklist</p>
+    <ul class="checklist">
+      <li><span class="box"></span> Chicken tray in the oven</li>
+      <li><span class="box"></span> Veg tray in the oven</li>
+      <li><span class="box"></span> Rice on the stove</li>
+      <li><span class="box"></span> Chilli or soup simmering</li>
+      <li><span class="box"></span> 6 eggs boiling</li>
+      <li><span class="box"></span> Containers out and labelled</li>
+      <li><span class="box"></span> Everything boxed and in the fridge</li>
+    </ul>
+    <div class="fueltip"><b>💡 System Tip:</b> Do it while the kids are busy or the game's on. One hour now buys you a week of "it's already done."</div>
+  </section>
+
+  <!-- 25 IDEAS -->
+  <section class="block" id="ideas">
+    <p class="kicker">09 · The List</p>
+    <h2 class="sec">25 More <span class="em">High-Protein Ideas</span></h2>
+    <p class="sec-sub">15 recipes + these 25 = 40 meal options.</p>
+    <div class="chips">
+      <span class="chip"><span class="num">01</span>Boiled eggs + cheese</span>
+      <span class="chip"><span class="num">02</span>Greek yogurt + nuts</span>
+      <span class="chip"><span class="num">03</span>Tuna on crackers</span>
+      <span class="chip"><span class="num">04</span>Protein shake</span>
+      <span class="chip"><span class="num">05</span>Beef jerky + fruit</span>
+      <span class="chip"><span class="num">06</span>Chicken + hummus wrap</span>
+      <span class="chip"><span class="num">07</span>Cottage cheese + pineapple</span>
+      <span class="chip"><span class="num">08</span>Edamame</span>
+      <span class="chip"><span class="num">09</span>Turkey &amp; cheese roll-ups</span>
+      <span class="chip"><span class="num">10</span>Baked beans + egg</span>
+      <span class="chip"><span class="num">11</span>Prawn stir-fry</span>
+      <span class="chip"><span class="num">12</span>Lentil dahl</span>
+      <span class="chip"><span class="num">13</span>Ham &amp; egg cups</span>
+      <span class="chip"><span class="num">14</span>Salmon &amp; rice</span>
+      <span class="chip"><span class="num">15</span>Chickpea curry</span>
+      <span class="chip"><span class="num">16</span>Steak salad</span>
+      <span class="chip"><span class="num">17</span>Protein pancakes</span>
+      <span class="chip"><span class="num">18</span>Feta &amp; tomato omelette</span>
+      <span class="chip"><span class="num">19</span>Cold chicken + avocado</span>
+      <span class="chip"><span class="num">20</span>Milk + banana</span>
+      <span class="chip"><span class="num">21</span>Sardines on toast</span>
+      <span class="chip"><span class="num">22</span>Bean burrito bowl</span>
+      <span class="chip"><span class="num">23</span>Roast beef wrap</span>
+      <span class="chip"><span class="num">24</span>Scrambled tofu</span>
+      <span class="chip"><span class="num">25</span>Yogurt + protein granola</span>
+    </div>
+  </section>
+
+  <!-- CLOSE -->
+  <section class="block" id="close">
+    <p class="kicker">10 · Close</p>
+    <div class="panel close">
+      <p class="big">You can't pour from an <em>empty cup</em> — and your kids need you running on more than coffee and stress.</p>
+      <p class="lead" style="max-width:560px;margin:0 auto 8px;">Fuel yourself like you matter. Because you do.</p>
+      <p class="sign">👉 Hear the full story on the Dad's Code podcast.</p>
+    </div>
+  </section>
+
+</div>
+
+<footer class="site">
+  <span class="mark">Dad's Code</span>
+  Dad Fuel · High-Protein Meal Guide by Jamie Wigg<br>
+  Present, not perfect. &nbsp;·&nbsp; General information only — see <a href="#safety">Read This First</a>.
+</footer>
+
+</body>
+</html>
