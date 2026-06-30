@@ -17,7 +17,7 @@
     --amber-soft:rgba(223,183,108,0.12);
     --amber-line:rgba(223,183,108,0.28);
     --text:#F4F1EA;
-    --muted:#A39CB0;
+    --muted:#B4AEC0;
     --radius:16px;
     --maxw:720px;
     --serif:"Fraunces", Georgia, "Times New Roman", serif;
@@ -322,33 +322,36 @@
     top:0;left:0;right:0;height:1px;
     background:linear-gradient(90deg, transparent, var(--amber-line), transparent);
   }
+  .tip-head{
+    display:flex;
+    align-items:baseline;
+    gap:clamp(14px,3vw,22px);
+    margin-bottom:14px;
+  }
   .tip-num{
     font-family:var(--serif);
     font-weight:700;
-    font-size:clamp(3.4rem,9vw,4.6rem);
+    font-size:clamp(3.2rem,8vw,4.4rem);
     line-height:0.8;
     color:var(--amber);
-    display:block;
-    margin-bottom:6px;
     letter-spacing:-0.04em;
+    flex:0 0 auto;
   }
-  .tip-num sup{
-    font-size:0.32em;
-    font-family:var(--sans);
-    font-weight:700;
+  .tip-eyebrow{
+    font-size:0.66rem;
     letter-spacing:0.2em;
     text-transform:uppercase;
     color:var(--muted);
-    vertical-align:top;
-    margin-left:10px;
-    top:0.6em;
+    font-weight:700;
+    display:block;
+    margin-bottom:8px;
   }
   .tip h3{
     font-family:var(--serif);
     font-weight:600;
     font-size:clamp(1.5rem,4vw,2rem);
     letter-spacing:-0.01em;
-    margin:0 0 16px;
+    margin:0;
     color:var(--text);
   }
   .tip-body{
@@ -690,8 +693,10 @@
 
       <!-- TIP 1 -->
       <article class="tip">
-        <span class="tip-num">1<sup>The 5-Minute Rule</sup></span>
-        <h3>The 5-Minute Rule</h3>
+        <div class="tip-head">
+          <span class="tip-num" aria-hidden="true">1</span>
+          <div><span class="tip-eyebrow">Tip One</span><h3>The 5-Minute Rule</h3></div>
+        </div>
         <p class="tip-body">
           Give one child <strong>five minutes of your whole attention</strong> — phone away, eyes up, their choice of what you do. Five present minutes beats an hour of half-watching.
         </p>
@@ -707,8 +712,10 @@
 
       <!-- TIP 2 -->
       <article class="tip">
-        <span class="tip-num">2<sup>Catch the Bid</sup></span>
-        <h3>Catch the Bid</h3>
+        <div class="tip-head">
+          <span class="tip-num" aria-hidden="true">2</span>
+          <div><span class="tip-eyebrow">Tip Two</span><h3>Catch the Bid</h3></div>
+        </div>
         <p class="tip-body">
           Kids constantly throw out little "bids" — <em>"Dad, look at this!"</em> Most get half a grunt. <strong>Turn toward one bid fully today.</strong> Stop, look, react like it matters. To them, it does.
         </p>
@@ -724,8 +731,10 @@
 
       <!-- TIP 3 -->
       <article class="tip">
-        <span class="tip-num">3<sup>The 6-Word Reset</sup></span>
-        <h3>The 6-Word Reset</h3>
+        <div class="tip-head">
+          <span class="tip-num" aria-hidden="true">3</span>
+          <div><span class="tip-eyebrow">Tip Three</span><h3>The 6-Word Reset</h3></div>
+        </div>
         <p class="tip-body">
           When you feel the snap coming, don't push through it. Pause and tell yourself: <em>"They're not giving me a hard time — they're having one."</em> Then respond to the feeling under the behaviour.
         </p>
@@ -741,8 +750,10 @@
 
       <!-- TIP 4 -->
       <article class="tip">
-        <span class="tip-num">4<sup>Repair Beats Perfect</sup></span>
-        <h3>Repair Beats Perfect</h3>
+        <div class="tip-head">
+          <span class="tip-num" aria-hidden="true">4</span>
+          <div><span class="tip-eyebrow">Tip Four</span><h3>Repair Beats Perfect</h3></div>
+        </div>
         <p class="tip-body">
           You'll lose it sometimes. Every dad does. What kids remember isn't the slip — it's whether you came back. <strong>Apologise to your kid:</strong> <em>"I got that wrong, I'm sorry."</em> It teaches more than never failing ever could.
         </p>
@@ -758,8 +769,10 @@
 
       <!-- TIP 5 -->
       <article class="tip">
-        <span class="tip-num">5<sup>One Small Ritual</sup></span>
-        <h3>One Small Ritual</h3>
+        <div class="tip-head">
+          <span class="tip-num" aria-hidden="true">5</span>
+          <div><span class="tip-eyebrow">Tip Five</span><h3>One Small Ritual</h3></div>
+        </div>
         <p class="tip-body">
           Presence sticks when it's a habit. Build one tiny ritual that's <em>yours</em> — a handshake, a song, the "air cuddle" my son and I do (ears pressed together, no words). It costs nothing and they'll carry it forever.
         </p>

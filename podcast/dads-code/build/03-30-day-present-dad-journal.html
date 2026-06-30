@@ -126,7 +126,7 @@
   }
   .eyebrow{
     font-weight:700;letter-spacing:.22em;text-transform:uppercase;
-    font-size:.68rem;color:#b08a3e;margin:0 0 10px;
+    font-size:.68rem;color:#8a6418;margin:0 0 10px;
   }
   .amber-rule{height:2px;background:var(--amber);width:100%;border-radius:2px;margin:18px 0 26px;}
 
@@ -214,8 +214,24 @@
   .reflect-label{
     font-weight:700;letter-spacing:.2em;text-transform:uppercase;font-size:.66rem;color:var(--ink-soft);margin-bottom:6px;
   }
-  .reflect-q{font-family:var(--serif);font-style:italic;font-size:1.02rem;color:var(--ink);margin-bottom:14px;}
-  .write-line{display:block;height:0;border-bottom:1.5px solid var(--paper-line);margin-bottom:26px;}
+  .reflect-q{font-family:var(--serif);font-style:italic;font-size:1.05rem;color:var(--ink);margin-bottom:18px;}
+  /* Generous, evenly-spaced writing lines you can actually write on */
+  .write-line{display:block;height:0;border-bottom:1.5px solid var(--paper-line);margin-bottom:34px;}
+  .write-line:last-child{margin-bottom:8px;}
+  /* A multi-line ruled writing area for the daily reflection */
+  .write-lines{
+    display:block;margin:4px 0 6px;
+    background-image:repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 33px,
+      var(--paper-line) 33px,
+      var(--paper-line) 34px
+    );
+    background-size:100% 34px;
+  }
+  .write-lines.lines-3{height:102px;}
+  .write-lines.lines-4{height:136px;}
 
   .day-foot{
     margin-top:auto;padding-top:18px;border-top:1px solid var(--paper-line);

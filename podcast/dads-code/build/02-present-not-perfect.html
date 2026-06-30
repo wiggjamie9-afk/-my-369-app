@@ -16,7 +16,7 @@
     --amber-soft:rgba(223,183,108,0.14);
     --amber-line:rgba(223,183,108,0.32);
     --text:#F4F1EA;
-    --muted:#A39CB0;
+    --muted:#B3ADBE;
     --serif:"Fraunces", Georgia, "Times New Roman", serif;
     --sans:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
     --maxw:720px;
@@ -24,6 +24,11 @@
 
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *,*::before,*::after{animation-duration:0.001ms !important;transition-duration:0.001ms !important;}
+  }
+  :focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:4px;}
   body{
     margin:0;
     background:var(--bg);
@@ -120,6 +125,18 @@
     letter-spacing:0.04em;margin-bottom:10px;
   }
   .cover .author b{color:var(--text);font-weight:600;}
+  .cover-meta{
+    list-style:none;margin:30px auto 0;padding:0;
+    display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
+    gap:10px 18px;
+    font-family:var(--sans);font-size:0.82rem;letter-spacing:0.04em;
+    color:var(--muted);
+  }
+  .cover-meta li{position:relative;padding-left:18px;}
+  .cover-meta li::before{
+    content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);
+    width:5px;height:5px;border-radius:50%;background:var(--amber);opacity:0.85;
+  }
   .cover .cover-tag{
     margin-top:46px;
     font-family:var(--serif);font-style:italic;
@@ -381,9 +398,14 @@
     <p class="subtitle">A Rebuilt Dad's Field Guide to Showing Up</p>
     <p class="author"><b>Jamie Wigg</b></p>
     <p class="author muted">Dad's Code</p>
+    <ul class="cover-meta" aria-label="What's inside">
+      <li>6 chapters</li>
+      <li>6 things to try today</li>
+      <li>≈ 15 min read</li>
+    </ul>
     <p class="cover-tag">Present, not perfect.</p>
   </div>
-  <div class="scroll-hint">Scroll to begin · 6 chapters</div>
+  <div class="scroll-hint" aria-hidden="true">Scroll to begin · 6 chapters</div>
 </section>
 
 <!-- ============ FRONT MATTER ============ -->
@@ -638,16 +660,16 @@
       <p style="text-align:center;color:var(--muted);margin-top:-8px;">You finished. That's a bid toward yourself — turn toward it.</p>
       <ul>
         <li>
-          <span class="marker">♪</span>
-          <span><b>Listen weekly</b><span>Tune into the <em>Dad's Code</em> podcast for the stories behind these chapters.</span></span>
+          <span class="marker" aria-hidden="true">♪</span>
+          <span><b>The podcast — Dad's Code</b><span>The real conversations behind these six chapters. New episode every week. Subscribe wherever you listen.</span></span>
         </li>
         <li>
-          <span class="marker">▣</span>
-          <span><b>Read the full story</b><span>Go deeper in the memoir <em>The Frequency of Being Real</em>.</span></span>
+          <span class="marker" aria-hidden="true">▣</span>
+          <span><b>The memoir — <em>The Frequency of Being Real</em></b><span>The full story: the grief, the late diagnosis, the rebuild. This field guide is the map; the memoir is the journey.</span></span>
         </li>
         <li>
-          <span class="marker">✓</span>
-          <span><b>Try one thing today</b><span>Pick a single “One Thing Today” from this book and do it before you sleep.</span></span>
+          <span class="marker" aria-hidden="true">✓</span>
+          <span><b>Do one thing — tonight</b><span>Pick a single “One Thing Today” from this book and do it before you sleep. Presence starts with one turn toward.</span></span>
         </li>
       </ul>
       <p class="sign-off">Present, not perfect. — Jamie</p>
