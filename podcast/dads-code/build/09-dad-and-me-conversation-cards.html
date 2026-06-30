@@ -16,13 +16,13 @@
     --offwhite: #F4F1EA;
     --muted: #B4AEC0;
 
-    /* Category accents (kept WCAG-friendly against dark panels) */
-    --c-silly: #F2A65A;
-    --c-feelings: #E58FB0;
-    --c-big: #8FC7E5;
-    --c-memories: #9FD8A8;
-    --c-dreams: #C3A0F0;
-    --c-wyr: #E5C95A;
+    /* Category accents — all >= 4.5:1 on dark panels (#1C1A26) for label text */
+    --c-silly: #F5B873;
+    --c-feelings: #F0A6C0;
+    --c-big: #9FD0EC;
+    --c-memories: #A8DFB1;
+    --c-dreams: #CCAEF3;
+    --c-wyr: #ECD377;
 
     --display: "Fredoka", "Poppins", "Segoe UI", system-ui, sans-serif;
     --body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -201,8 +201,16 @@
     color: var(--offwhite);
   }
 
+  .cover .cta-row {
+    margin-top: 34px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+  }
+
   .cover .meta {
-    margin-top: 40px;
+    margin-top: 36px;
     color: var(--muted);
     font-size: 0.95rem;
   }
@@ -534,9 +542,16 @@
     <h1 id="cover-title">Dad <span class="amp">&amp;</span> Me</h1>
     <p class="sub">100 conversation cards to spark real talks with your kids.</p>
 
-    <div class="badge" role="img" aria-label="100 cards">
+    <div class="badge" role="img" aria-label="100 cards across six categories">
       <span class="num" aria-hidden="true">100</span>
       <span class="lbl" aria-hidden="true">Cards</span>
+    </div>
+
+    <div class="cta-row no-print">
+      <button class="btn" type="button" onclick="window.print()">
+        <span aria-hidden="true">⤓</span> Print or save your deck
+      </button>
+      <a class="btn btn-ghost" href="#intro-title">How to use it</a>
     </div>
 
     <p class="meta">A printable card deck by <strong>Jamie Wigg</strong></p>

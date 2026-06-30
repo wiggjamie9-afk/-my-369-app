@@ -44,6 +44,14 @@
     border-radius:4px;
   }
 
+  .skip-link{
+    position:absolute;left:-9999px;top:0;z-index:60;
+    background:var(--amber);color:var(--bg);
+    font-family:var(--body);font-weight:500;font-size:0.9rem;
+    padding:0.7rem 1.1rem;border-radius:0 0 8px 0;
+  }
+  .skip-link:focus{left:0;}
+
   .wrap{max-width:var(--maxw);margin:0 auto;padding:0 1.5rem;}
 
   /* ---------- Top brand bar ---------- */

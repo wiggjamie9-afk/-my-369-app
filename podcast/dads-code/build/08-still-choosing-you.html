@@ -86,6 +86,7 @@
   }
   .btn:hover { background: var(--amber-soft); }
   .btn:active { transform: translateY(1px); }
+  .btn svg { vertical-align: -2px; margin-right: 7px; }
 
   :focus-visible {
     outline: 3px solid var(--amber);
@@ -170,11 +171,19 @@
 
   .glyph {
     font-family: var(--serif);
-    font-size: clamp(3rem, 12vw, 6rem);
+    font-size: clamp(2.6rem, 9vw, 4.4rem);
     color: var(--amber);
     line-height: 1;
-    margin-bottom: 18px;
-    opacity: 0.92;
+    margin: 0 auto 22px;
+    width: clamp(78px, 18vw, 104px);
+    height: clamp(78px, 18vw, 104px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(223, 183, 108, 0.45);
+    border-radius: 50%;
+    background: radial-gradient(120% 120% at 50% 0%, rgba(223,183,108,0.14), transparent 70%);
+    box-shadow: 0 0 0 6px rgba(223,183,108,0.05), inset 0 1px 0 rgba(255,255,255,0.04);
   }
 
   /* ---------- Generic section heads ---------- */
@@ -231,11 +240,27 @@
 
   /* ---------- Idea cards ---------- */
   .idea {
+    position: relative;
     background: var(--panel);
     border: 1px solid var(--line);
     border-radius: 16px;
     padding: clamp(24px, 4vw, 36px);
     margin: 0 0 26px;
+    overflow: hidden;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .idea::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--amber), transparent);
+    opacity: 0.6;
+  }
+  .idea:hover {
+    border-color: rgba(223, 183, 108, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 40px -22px rgba(0, 0, 0, 0.7);
   }
   .idea-num {
     font-family: var(--serif);
@@ -280,6 +305,11 @@
     border-radius: 14px;
     padding: 20px 22px 22px;
     break-inside: avoid;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+  .prompt:hover {
+    border-color: rgba(223, 183, 108, 0.38);
+    transform: translateY(-2px);
   }
   .prompt .pn {
     font-family: var(--serif);

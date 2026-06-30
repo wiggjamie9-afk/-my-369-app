@@ -26,6 +26,28 @@
 
   html { scroll-behavior: smooth; }
 
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { transition: none !important; animation: none !important; }
+  }
+
+  /* Skip link for keyboard / screen-reader users */
+  .skip-link {
+    position: absolute;
+    left: 16px;
+    top: -60px;
+    z-index: 100;
+    background: var(--amber);
+    color: var(--bg);
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: top 0.15s ease;
+  }
+  .skip-link:focus { top: 12px; }
+
   body {
     margin: 0;
     background: var(--bg);
@@ -108,6 +130,25 @@
       radial-gradient(1100px 600px at 50% -10%, rgba(223, 183, 108, 0.10), transparent 60%),
       linear-gradient(180deg, #16141d 0%, var(--bg) 100%);
     border-bottom: 1px solid rgba(244, 241, 234, 0.06);
+  }
+
+  /* Cover crest / monogram */
+  .crest {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 26px;
+    background: var(--amber-soft);
+    border: 1px solid var(--amber-line);
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 1.7rem;
+    color: var(--amber);
+    letter-spacing: -0.02em;
+    box-shadow: inset 0 0 24px rgba(223, 183, 108, 0.08);
   }
 
   .cover-kicker {
@@ -410,6 +451,14 @@
   .cta-btn.primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(223,183,108,0.28); }
   .cta-btn.ghost { border: 1px solid var(--amber-line); color: var(--amber); }
   .cta-btn.ghost:hover { background: var(--amber-soft); transform: translateY(-1px); }
+  .cta-url {
+    display: none;
+    margin: 18px 0 0;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: var(--amber);
+    font-weight: 600;
+  }
 
   /* ---------- Disclaimer / footer ---------- */
   .disclaimer {
@@ -477,6 +526,8 @@
 </head>
 <body>
 
+  <a class="skip-link" href="#intro">Skip to the playbook</a>
+
   <header class="topbar">
     <div class="wordmark">DAD'S CODE <span>· Jamie Wigg</span></div>
     <button class="btn-pdf" onclick="window.print()" aria-label="Save this playbook as a PDF">Save as PDF</button>
@@ -484,10 +535,11 @@
 
   <!-- ===================== COVER ===================== -->
   <section class="cover" aria-label="Cover">
+    <div class="crest" aria-hidden="true">DC</div>
     <p class="cover-kicker">Dad's Code presents</p>
     <h1>The ADHD Dad's <span class="accent">Playbook</span></h1>
-    <p class="cover-sub">A no-fluff toolkit for late-diagnosed dads who are done feeling broken — and ready to actually work <em>with</em> their brain.</p>
-    <span class="badge" aria-label="Seven plays plus toolkit">★ 7 Plays + Toolkit</span>
+    <p class="cover-sub">Seven plays for late-diagnosed dads who are done feeling broken — and ready to stop fighting their brain and start working <em>with</em> it.</p>
+    <span class="badge"><span aria-hidden="true">★</span> 7 Plays + a one-page Toolkit</span>
     <p class="tagline">Present, not perfect.</p>
     <p class="cover-author">By <strong>Jamie Wigg</strong> — diagnosed at 47, dyslexic, dad of four.</p>
   </section>
@@ -828,12 +880,13 @@
       <p>And you don't have to do it on your own. This whole thing — Dad's Code — exists because I got sick of dads suffering in silence, thinking they were the only one. You're not the only one. Not even close.</p>
 
       <div class="cta">
-        <h3>Keep going with Dad's Code</h3>
-        <p>Real talk for dads who are present, not perfect. Come find the podcast, and grab the companion eBook on showing up for your kids without burning yourself out.</p>
+        <h3>You ran one play. Here's your next one.</h3>
+        <p>Dad's Code is real talk for dads who are present, not perfect. Press play on the podcast for the conversations behind these plays — then grab the companion eBook on showing up for your kids without burning yourself out.</p>
         <div class="cta-links">
-          <a class="cta-btn primary" href="#" aria-label="Listen to the Dad's Code podcast">🎧 The Dad's Code Podcast</a>
-          <a class="cta-btn ghost" href="#" aria-label="Get the Present, Not Perfect eBook">📘 "Present, Not Perfect" eBook</a>
+          <a class="cta-btn primary" href="https://dadscode.co/podcast" aria-label="Listen to the Dad's Code podcast"><span aria-hidden="true">🎧</span> Listen to the Podcast</a>
+          <a class="cta-btn ghost" href="https://dadscode.co/present-not-perfect" aria-label="Get the Present, Not Perfect eBook"><span aria-hidden="true">📘</span> Get “Present, Not Perfect”</a>
         </div>
+        <p class="cta-url">dadscode.co/podcast &nbsp;·&nbsp; dadscode.co/present-not-perfect</p>
       </div>
     </div>
   </section>
