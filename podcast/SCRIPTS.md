@@ -152,3 +152,41 @@ Each comes with a ready-to-paste **Description** for the Buzzsprout show-notes b
 - Finale — The Frequency of Being Real
 
 *(Tell Claude "next" to generate these.)*
+
+---
+
+# SECTION D — NEW SHOWS (active lineup)
+
+> **Active 7:** Dad's Code · Frequency Bound · The Old Ways · The Fun Frequency · Sleep & Calm · Stoic Minute · Longevity Brief.
+> Sleep & Calm, Stoic Minute, and Longevity Brief already have 2 scripts each in Sections A & B above.
+> ⚠️ Frequency Bound: read slowly (Stability ~55–60%) + add "for wellbeing, not medical advice" to descriptions.
+
+## Frequency Bound — Ep. 1: "Why Everything Is Vibration"
+> Welcome to Frequency Bound. Here's an idea that changed how I see everything: nothing is truly still. Every cell, every sound, every thought… is vibration. A frequency. Tesla said if you want to understand the universe, think in terms of energy, frequency, and vibration. So what if the way we feel — calm or anxious, heavy or light — is partly a question of which frequency we're tuned to? In this show, we explore sound, resonance, and the tools that help us tune back to ourselves. This is for your wellbeing, not medical advice — just an honest exploration. So take a breath… and let's tune in.
+
+**Description:** Everything is vibration. An honest exploration of sound, resonance, and frequency for calm and wellbeing. (For wellbeing, not medical advice.)
+
+## Frequency Bound — Ep. 2: "528 — The Frequency of Repair"
+> Welcome back to Frequency Bound. Today, one number: 528. Some call it the frequency of love, or repair. Whether you take that literally or simply as a doorway into calm… something happens when you slow down and really listen. Sound has always moved us — a song that gives you chills, a voice that settles your chest. That's resonance. So here's a small practice: tonight, sit quietly, play a 528 tone low in the background, breathe slow, and just notice. Not forcing anything. Simply tuning. Healing often begins the moment we stop fighting ourselves. That's the frequency of being real.
+
+**Description:** Exploring 528Hz — the so-called frequency of repair — and a simple listening practice for calm. (For wellbeing, not medical advice.)
+
+## The Old Ways — Ep. 1: "What the Ancients Knew"
+> Welcome to The Old Ways. We live in a world obsessed with new — new tech, new hacks, new everything. But some of the most powerful tools for a good life are thousands of years old. Our ancestors didn't have science the way we do, but they paid attention. They watched the sun, the seasons, the body, the breath. They built practices that helped them endure, heal, and stay grounded. In this show, we dust off that old wisdom and ask one simple question: what did they know that we've forgotten? Let's walk the old ways together.
+
+**Description:** The most powerful tools for living well are often thousands of years old. Rediscovering the wisdom our ancestors knew — and we forgot.
+
+## The Old Ways — Ep. 2: "The Forgotten Power of Breath"
+> Welcome back to The Old Ways. Long before there were apps for it, every ancient culture knew the breath was a doorway. Yogis called it prana. The Chinese called it qi. They understood what science now confirms: change your breath, and you change your state. Here's one they all knew — the slow exhale. Breathe in for four… and out for six. That longer out-breath tells your body you're safe. Do it a few times and the storm settles. No equipment. No cost. Just the oldest tool you own, working exactly as it did a thousand years ago. Try it now with me… in… and slowly out.
+
+**Description:** Every ancient culture knew the breath was a doorway. The forgotten power of the slow exhale — and a practice to calm your body in seconds.
+
+## The Fun Frequency — Ep. 1: "Why Laughing Is Medicine"
+> Welcome to The Fun Frequency — the show that reminds you life's meant to be enjoyed. Here's a truth we forget as we get older: laughing is medicine. A proper belly laugh drops your stress, floods you with feel-good chemicals, and pulls you straight back into the moment. Kids laugh hundreds of times a day. Adults? Barely a handful. Somewhere along the way we got serious… and a bit grey. This show is the antidote. Silly stories, lightness, and permission to not take it all so seriously. Because joy isn't a reward for getting life right — it's how you get through it. So let's lighten up. Let's have some fun.
+
+**Description:** Laughing is medicine. A feel-good show about joy, lightness, and not taking life so seriously — because fun is how we get through it.
+
+## The Fun Frequency — Ep. 2: "Find the Funny in the Chaos"
+> Welcome back to The Fun Frequency. Life is messy — and that mess is often where the funniest stuff hides. I once flooded my entire bathroom doing the dishes, four kids running riot, water everywhere, me panicking on the phone. At the time? Disaster. Looking back? Hilarious. That's the trick: the same moment that stresses you today becomes the story that makes everyone laugh tomorrow. So why wait? Try finding the funny while it's still happening. Laugh at yourself first — it's the kindest, lightest way to live. Chaos plus time equals comedy. Let's not take so long to get to the laugh.
+
+**Description:** The messiest moments make the best stories. How to find the funny in the chaos — and laugh at yourself along the way.
