@@ -1,0 +1,73 @@
+{
+  "theme": "flat-motion-graphics",
+  "cuts": [
+    {
+      "id": "c1",
+      "source": "",
+      "type": "hero_title",
+      "in_seconds": 0,
+      "out_seconds": 4.5,
+      "text": "Steady",
+      "subtitle": "A dad's mental health workbook",
+      "backgroundColor": "#14121A"
+    },
+    {
+      "id": "c2",
+      "source": "",
+      "type": "text_card",
+      "in_seconds": 4.5,
+      "out_seconds": 9,
+      "text": "If you're running on empty,",
+      "subtitle": "this is for you.",
+      "color": "#F4F1EA",
+      "backgroundColor": "#14121A"
+    },
+    {
+      "id": "c3",
+      "source": "",
+      "type": "stat_card",
+      "in_seconds": 9,
+      "out_seconds": 13.5,
+      "stat": "6",
+      "subtitle": "gentle sections \u2014 name it, ask, build your anchors",
+      "accentColor": "#DFB76C",
+      "backgroundColor": "#14121A"
+    },
+    {
+      "id": "c4",
+      "source": "",
+      "type": "comparison",
+      "in_seconds": 13.5,
+      "out_seconds": 19,
+      "title": "Carrying it",
+      "leftLabel": "Without",
+      "leftValue": "Alone and silent",
+      "rightLabel": "With Dad's Code",
+      "rightValue": "Named, steadier",
+      "backgroundColor": "#14121A"
+    },
+    {
+      "id": "c5",
+      "source": "",
+      "type": "text_card",
+      "in_seconds": 19,
+      "out_seconds": 24,
+      "text": "Present, not perfect.",
+      "subtitle": "Steady \u2014 $14.",
+      "color": "#DFB76C",
+      "backgroundColor": "#14121A"
+    }
+  ],
+  "overlays": [
+    {
+      "type": "section_title",
+      "in_seconds": 9.2,
+      "out_seconds": 12.2,
+      "text": "Dad's Code",
+      "subtitle": "by Jamie Wigg",
+      "accentColor": "#DFB76C"
+    }
+  ],
+  "captions": [],
+  "audio": {}
+}

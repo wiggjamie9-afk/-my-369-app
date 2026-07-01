@@ -1,0 +1,73 @@
+{
+  "theme": "flat-motion-graphics",
+  "cuts": [
+    {
+      "id": "c1",
+      "source": "",
+      "type": "hero_title",
+      "in_seconds": 0,
+      "out_seconds": 4.5,
+      "text": "Letters to You",
+      "subtitle": "Write letters they'll treasure forever",
+      "backgroundColor": "#14121A"
+    },
+    {
+      "id": "c2",
+      "source": "",
+      "type": "text_card",
+      "in_seconds": 4.5,
+      "out_seconds": 9,
+      "text": "Their 18th. Their wedding.",
+      "subtitle": "The day you're gone.",
+      "color": "#F4F1EA",
+      "backgroundColor": "#14121A"
+    },
+    {
+      "id": "c3",
+      "source": "",
+      "type": "stat_card",
+      "in_seconds": 9,
+      "out_seconds": 13.5,
+      "stat": "\u221e",
+      "subtitle": "the most meaningful thing you'll make all year",
+      "accentColor": "#DFB76C",
+      "backgroundColor": "#14121A"
+    },
+    {
+      "id": "c4",
+      "source": "",
+      "type": "comparison",
+      "in_seconds": 13.5,
+      "out_seconds": 19,
+      "title": "Your words",
+      "leftLabel": "Without",
+      "leftValue": "Lost, unsaid",
+      "rightLabel": "With Dad's Code",
+      "rightValue": "Kept, forever",
+      "backgroundColor": "#14121A"
+    },
+    {
+      "id": "c5",
+      "source": "",
+      "type": "text_card",
+      "in_seconds": 19,
+      "out_seconds": 24,
+      "text": "Present, not perfect.",
+      "subtitle": "Letters to You \u2014 $19.",
+      "color": "#DFB76C",
+      "backgroundColor": "#14121A"
+    }
+  ],
+  "overlays": [
+    {
+      "type": "section_title",
+      "in_seconds": 9.2,
+      "out_seconds": 12.2,
+      "text": "Dad's Code",
+      "subtitle": "by Jamie Wigg",
+      "accentColor": "#DFB76C"
+    }
+  ],
+  "captions": [],
+  "audio": {}
+}

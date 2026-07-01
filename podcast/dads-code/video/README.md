@@ -1,8 +1,43 @@
-# 🎬 Dad's Code — Sample Video Clip
+# 🎬 Dad's Code — Promo Video Clips
 
-A real, rendered **30-second promo clip** for the flagship product **"Present, Not Perfect."**
-This is a genuine MP4 (1920×1080, 30fps, H.264), not a storyboard — made entirely
-in-house with open-source tooling, **no paid AI video service and no API keys.**
+Real, rendered promo clips (1920×1080, 30fps, H.264) — genuine MP4s, not storyboards —
+made entirely in-house with open-source tooling, **no paid AI video service and no API keys.**
+
+## The full set — one clip per product (`dc-01` … `dc-18`)
+Every one of the 18 products has a ~24-second on-brand promo clip: hero title →
+hook line → a key number → a "Without / With Dad's Code" comparison → the
+"Present, not perfect." close, with a "Dad's Code · by Jamie Wigg" badge.
+
+| # | File | Product |
+|---|------|---------|
+| 01 | `dc-01-5-minute-present-dad.mp4` | The 5-Minute Present Dad |
+| 02 | `dc-02-present-not-perfect.mp4` | Present, Not Perfect |
+| 03 | `dc-03-30-day-present-dad-journal.mp4` | The 30-Day Present Dad Journal |
+| 04 | `dc-04-dads-code-kitchen.mp4` | Dad's Code Kitchen |
+| 05 | `dc-05-dad-fuel.mp4` | Dad Fuel |
+| 06 | `dc-06-adhd-dads-playbook.mp4` | The ADHD Dad's Playbook |
+| 07 | `dc-07-steady.mp4` | Steady |
+| 08 | `dc-08-still-choosing-you.mp4` | Still Choosing You |
+| 09 | `dc-09-dad-and-me-cards.mp4` | Dad & Me: 100 Conversation Cards |
+| 10 | `dc-10-dads-bedtime-stories.mp4` | Dad's Bedtime Stories |
+| 11 | `dc-11-90-day-rebuilt-dad.mp4` | The 90-Day Rebuilt Dad |
+| 12 | `dc-12-days-left.mp4` | Days Left (free tool) |
+| 13 | `dc-13-the-play-machine.mp4` | The Play Machine |
+| 14 | `dc-14-letters-to-you.mp4` | Letters to You |
+| 15 | `dc-15-the-dad-deck.mp4` | The Dad Deck |
+| 16 | `dc-16-dad-battery.mp4` | Dad Battery |
+| 17 | `dc-17-the-bedtime-engine.mp4` | The Bedtime Engine |
+| 18 | `dc-18-time-capsule.mp4` | Time Capsule |
+
+Each clip's source "script" is the matching `dc-*.json`. To re-word or re-brand any
+clip, edit its JSON and re-render (command below). To regenerate all 18 props at once,
+see `../gen_props.py` in the OpenMontage composer.
+
+---
+
+## Flagship reference clip
+`dadscode-present-not-perfect.mp4` — the original hand-tuned 30-second clip for
+**"Present, Not Perfect"** (slightly longer, with a bar chart), used to dial in the brand look.
 
 ## Files
 - `dadscode-present-not-perfect.mp4` — the finished 30s clip.

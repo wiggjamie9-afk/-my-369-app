@@ -1,0 +1,73 @@
+{
+  "theme": "flat-motion-graphics",
+  "cuts": [
+    {
+      "id": "c1",
+      "source": "",
+      "type": "hero_title",
+      "in_seconds": 0,
+      "out_seconds": 4.5,
+      "text": "The Play Machine",
+      "subtitle": "Never say 'I dunno' again",
+      "backgroundColor": "#14121A"
+    },
+    {
+      "id": "c2",
+      "source": "",
+      "type": "text_card",
+      "in_seconds": 4.5,
+      "out_seconds": 9,
+      "text": "Age, energy, time you've got \u2014",
+      "subtitle": "one tap, a science-backed play idea.",
+      "color": "#F4F1EA",
+      "backgroundColor": "#14121A"
+    },
+    {
+      "id": "c3",
+      "source": "",
+      "type": "stat_card",
+      "in_seconds": 9,
+      "out_seconds": 13.5,
+      "stat": "1 tap",
+      "subtitle": "to a play idea \u2014 deal another, never run out",
+      "accentColor": "#DFB76C",
+      "backgroundColor": "#14121A"
+    },
+    {
+      "id": "c4",
+      "source": "",
+      "type": "comparison",
+      "in_seconds": 13.5,
+      "out_seconds": 19,
+      "title": "'What do you want to do?'",
+      "leftLabel": "Without",
+      "leftValue": "Shrug, screens win",
+      "rightLabel": "With Dad's Code",
+      "rightValue": "Dealt a game, playing",
+      "backgroundColor": "#14121A"
+    },
+    {
+      "id": "c5",
+      "source": "",
+      "type": "text_card",
+      "in_seconds": 19,
+      "out_seconds": 24,
+      "text": "Present, not perfect.",
+      "subtitle": "The Play Machine \u2014 $9.",
+      "color": "#DFB76C",
+      "backgroundColor": "#14121A"
+    }
+  ],
+  "overlays": [
+    {
+      "type": "section_title",
+      "in_seconds": 9.2,
+      "out_seconds": 12.2,
+      "text": "Dad's Code",
+      "subtitle": "by Jamie Wigg",
+      "accentColor": "#DFB76C"
+    }
+  ],
+  "captions": [],
+  "audio": {}
+}
