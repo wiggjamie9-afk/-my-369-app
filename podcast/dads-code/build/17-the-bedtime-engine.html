@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Bedtime Engine — a personalised story in one tap · Dad's Code</title>
+<meta name="description" content="Enter your kid's name, a hero, a setting and a lesson — The Bedtime Engine writes a warm, unique read-aloud bedtime story instantly. From Dad's Code by Jamie Wigg.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#14121A;--panel:#1C1A26;--amber:#DFB76C;--text:#F4F1EA;--muted:#B4AEC0;--radius:16px}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:600;line-height:1.15;margin:0 0 .4em}
+  a{color:var(--amber)}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px}
+  .topbar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 20px;background:rgba(20,18,26,.85);backdrop-filter:blur(10px);border-bottom:1px solid #2a2733}
+  .wordmark{font-weight:700;letter-spacing:.14em;font-size:.78rem;color:var(--amber);text-transform:uppercase}
+  .bar-actions{display:flex;gap:8px}
+  .btn{font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;border-radius:999px;padding:.5em 1.1em;border:1px solid var(--amber);background:transparent;color:var(--amber);transition:.15s}
+  .btn:hover{background:var(--amber);color:var(--bg)}
+  .btn-solid{background:var(--amber);color:var(--bg)}
+  .btn-ghost{border-color:#3a3646;color:var(--muted)}
+  .btn-ghost:hover{background:#26222f;color:var(--text)}
+  :focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:6px}
+  .skip{position:absolute;left:-9999px}.skip:focus{left:12px;top:12px;position:fixed;background:var(--amber);color:var(--bg);padding:.6em 1em;border-radius:8px;z-index:50}
+  .hero{text-align:center;padding:56px 20px 26px;position:relative;overflow:hidden}
+  .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(900px 460px at 50% -10%,rgba(223,183,108,.16),transparent 70%);pointer-events:none}
+  .moon{position:absolute;top:34px;right:calc(50% - 300px);width:70px;height:70px;border-radius:50%;background:radial-gradient(circle at 34% 34%,#fff6e2,#e7cf9a 60%,#caa864);box-shadow:0 0 42px rgba(223,183,108,.5);opacity:.5;pointer-events:none}
+  .kicker{text-transform:uppercase;letter-spacing:.2em;font-size:.72rem;color:var(--amber);margin-bottom:12px}
+  .hero h1{font-size:clamp(2.3rem,7vw,3.8rem)}
+  .hero h1 .accent{color:var(--amber)}
+  .hero p.sub{color:var(--muted);max-width:540px;margin:14px auto 0}
+  .tagline{margin-top:22px;font-family:Fraunces,serif;font-style:italic;color:var(--muted)}
+  section{padding:24px 0 46px}
+  .card{background:var(--panel);border:1px solid #2a2733;border-radius:var(--radius);padding:22px}
+  .field{margin:0 0 16px}
+  label.lbl{display:block;font-weight:600;font-size:.9rem;margin-bottom:7px}
+  input[type=text],select{width:100%;font:inherit;color:var(--text);background:#0f0d14;border:1px solid #33303d;border-radius:12px;padding:.7em .9em;transition:.15s}
+  input[type=text]::placeholder{color:#6f6a7d}
+  input[type=text]:focus,select:focus{border-color:var(--amber);outline:none}
+  select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23DFB76C' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:520px){.grid2{grid-template-columns:1fr}}
+  .go{width:100%;font-size:1.05rem;padding:.85em;border:none;border-radius:12px;background:var(--amber);color:var(--bg);font-weight:700;cursor:pointer;margin-top:6px}
+  .go:hover{filter:brightness(1.08)}
+  .hint{color:var(--muted);font-size:.82rem;margin:.5em 0 0}
+  #out{margin-top:22px;display:none}
+  #out.show{display:block;animation:fade .5s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .story{background:linear-gradient(180deg,#211d2c,#181521);border:1px solid #322d3d;border-radius:var(--radius);padding:30px 30px 26px}
+  .story .meta{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+  .tag{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--amber);border:1px solid #4a3f28;border-radius:999px;padding:.3em .8em}
+  .story h2{font-size:clamp(1.6rem,5vw,2.1rem);text-align:center;margin:.1em 0 .6em}
+  .story .prose{font-family:Fraunces,Georgia,serif;font-size:1.24rem;line-height:1.75;color:#efe9dd}
+  .story .prose p{margin:0 0 1.05em}
+  .story .prose p:first-of-type::first-letter{font-size:3.2rem;line-height:.8;float:left;padding:.05em .12em 0 0;color:var(--amber);font-weight:600}
+  .goodnight{font-style:italic;color:var(--amber)}
+  .src{text-align:right;color:var(--muted);font-size:.76rem;margin-top:8px}
+  .again{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+  details.ai{margin-top:22px;background:#17141f;border:1px solid #2f2b3a;border-radius:var(--radius);padding:4px 22px}
+  details.ai summary{cursor:pointer;font-weight:600;color:var(--amber);padding:16px 0;list-style:none;display:flex;align-items:center;gap:10px}
+  details.ai summary::-webkit-details-marker{display:none}
+  details.ai summary .chev{transition:.2s;color:var(--muted)}
+  details.ai[open] summary .chev{transform:rotate(90deg)}
+  details.ai .aibody{padding:0 0 20px}
+  .safe{background:#0f0d14;border:1px solid #33303d;border-radius:12px;padding:12px 14px;font-size:.86rem;color:var(--muted);margin:4px 0 16px}
+  .aistatus{font-size:.86rem;margin-top:10px;min-height:1.2em}
+  .aistatus.err{color:#e79a9a}.aistatus.ok{color:#9fce9f}
+  .cta{margin-top:34px;background:#17141f;border:1px solid #2f2b3a;border-radius:var(--radius);padding:24px;text-align:center}
+  .cta h3{color:var(--amber)}
+  .cross{margin-top:16px;background:var(--panel);border:1px solid #2a2733;border-radius:var(--radius);padding:20px;display:flex;gap:16px;align-items:center;text-align:left}
+  .cross .glyph{font-size:2rem;flex:none}
+  .cross h4{margin:0 0 3px;font-family:Fraunces,serif;font-size:1.1rem}
+  .cross p{margin:0;color:var(--muted);font-size:.9rem}
+  footer{border-top:1px solid #2a2733;text-align:center;padding:28px 20px;color:var(--muted);font-size:.85rem;margin-top:20px}
+  @media print{
+    .topbar,.btn,.go,.again,.cta,.cross,.skip,details.ai,.hero .kicker,.hero .sub,.hero .tagline,.moon,.hint,.src,#form-card{display:none!important}
+    body{background:#fdfbf5;color:#241f16;font-size:15px}
+    .hero{padding:10px 0 0}
+    .hero h1{color:#241f16;font-size:1.6rem}.hero h1 .accent{color:#8a6a1f}
+    #out{display:block!important;margin:0}
+    .story{background:#fff;border:1px solid #e6ddc7;box-shadow:none;padding:20px}
+    .story h2{color:#241f16}
+    .story .prose{color:#241f16}
+    .story .prose p:first-of-type::first-letter{color:#8a6a1f}
+    .goodnight{color:#8a6a1f}
+    .tag{color:#8a6a1f;border-color:#d8c79a}
+    footer{color:#6b6357;border-color:#e6ddc7}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#tool">Skip to the story maker</a>
+<div class="topbar">
+  <span class="wordmark">Dad's Code</span>
+  <div class="bar-actions">
+    <button class="btn btn-ghost" id="saveBtn" type="button">Save</button>
+    <button class="btn" type="button" onclick="window.print()">Print</button>
+  </div>
+</div>
+
+<header class="hero">
+  <span class="moon" aria-hidden="true"></span>
+  <div class="kicker">A Dad's Code Tool</div>
+  <h1>The Bedtime <span class="accent">Engine</span></h1>
+  <p class="sub">Your kid's name, a hero, a place and a little lesson — and out comes a warm, one-of-a-kind bedtime story to read aloud tonight. No two the same.</p>
+  <div class="tagline">Present, not perfect.</div>
+</header>
+
+<main class="wrap">
+  <section id="tool">
+    <div class="card" id="form-card">
+      <div class="field">
+        <label class="lbl" for="name">Your child's name</label>
+        <input type="text" id="name" placeholder="e.g. Ava, Noah, Priya…" autocomplete="off" maxlength="24">
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label class="lbl" for="hero">A hero for the story</label>
+          <select id="hero">
+            <option value="fox">a brave little fox</option>
+            <option value="bear">a sleepy bear</option>
+            <option value="star">a curious little star</option>
+            <option value="dragon">a kind dragon</option>
+            <option value="robot">a small robot</option>
+            <option value="puppy">a lost puppy</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="lbl" for="theme">Where it happens</label>
+          <select id="theme">
+            <option value="forest">an enchanted forest</option>
+            <option value="space">out in outer space</option>
+            <option value="sea">deep under the sea</option>
+            <option value="village">a cosy little village</option>
+            <option value="mountain">a tall, quiet mountain</option>
+            <option value="meadow">a moonlit meadow</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="lbl" for="lesson">The little lesson to leave them with</label>
+        <select id="lesson">
+          <option value="enough">You are enough, just as you are</option>
+          <option value="brave">It's good to be brave</option>
+          <option value="kind">Kindness matters most</option>
+          <option value="mistakes">It's okay to make mistakes</option>
+          <option value="worries">You can calm your worries</option>
+          <option value="persist">Never give up</option>
+        </select>
+      </div>
+      <button class="go" id="tellBtn" type="button">Tell the story →</button>
+      <p class="hint">Everything happens right here in your browser. Nothing is uploaded.</p>
+    </div>
+
+    <div id="out" aria-live="polite">
+      <article class="story" id="story">
+        <div class="meta" id="s-meta"></div>
+        <h2 id="s-title"></h2>
+        <div class="prose" id="s-body"></div>
+        <p class="src" id="s-src"></p>
+      </article>
+      <div class="again">
+        <button class="btn btn-solid" id="anotherBtn" type="button">Tell another →</button>
+        <button class="btn" type="button" onclick="window.print()">Print this story</button>
+        <button class="btn btn-ghost" id="editBtn" type="button">Change details</button>
+      </div>
+
+      <details class="ai">
+        <summary><span class="chev" aria-hidden="true">▶</span> Want fully unique AI stories? (optional)</summary>
+        <div class="aibody">
+          <p style="color:var(--muted);margin:.2em 0 1em">The tool above works forever, free, with no account. But if you already have your own OpenAI or Anthropic API key, you can paste it here and each story will be freshly written by an AI instead of assembled from the built-in library.</p>
+          <div class="safe">
+            🔒 <strong>Your key stays on your device.</strong> It's saved only in this browser (localStorage) and is sent <em>directly</em> to the AI provider you choose when you press the button — never to Dad's Code or anyone else. Clear it any time.
+          </div>
+          <div class="grid2">
+            <div class="field">
+              <label class="lbl" for="provider">Provider</label>
+              <select id="provider">
+                <option value="anthropic">Anthropic (Claude)</option>
+                <option value="openai">OpenAI (GPT)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="lbl" for="apikey">Your API key</label>
+              <input type="text" id="apikey" placeholder="sk-… (stays in your browser)" autocomplete="off" spellcheck="false">
+            </div>
+          </div>
+          <div class="again" style="margin-top:2px;justify-content:flex-start">
+            <button class="btn btn-ghost" id="saveKeyBtn" type="button">Save key</button>
+            <button class="btn btn-ghost" id="clearKeyBtn" type="button">Clear key</button>
+          </div>
+          <p class="aistatus" id="aistatus"></p>
+          <p class="hint">No key? No problem — leave this closed and the built-in engine handles everything.</p>
+        </div>
+      </details>
+
+      <div class="cta">
+        <h3>Bedtime is where the bond gets built</h3>
+        <p style="color:var(--muted);margin:.3em 0 0">Five slow minutes at the end of the day is one of the most powerful things a dad can give. More on making it a habit over on the Dad's Code podcast.</p>
+        <div style="margin-top:14px"><a class="btn" href="https://dadscode.co/podcast">🎧 Listen to Dad's Code</a></div>
+      </div>
+
+      <a class="cross" href="10-dads-bedtime-stories.html" style="text-decoration:none;color:inherit">
+        <span class="glyph" aria-hidden="true">📖</span>
+        <div>
+          <h4 style="color:var(--amber)">Dad's Bedtime Stories</h4>
+          <p>Prefer stories already written for you? Six warm tales to read aloud, slow and soft — a companion to this tool.</p>
+        </div>
+      </a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wordmark" style="margin-bottom:6px">Dad's Code</div>
+  Present, not perfect. · The Bedtime Engine by Jamie Wigg — a small, warm ritual, made just for your kid.
+</footer>
+
+<script>
+/* ---------- helpers ---------- */
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+var $=function(id){return document.getElementById(id);};
+
+/* ---------- descriptive vocab per hero / theme / lesson ---------- */
+var HERO={
+  fox:{noun:"a little fox",name2:"the fox",pron:"she",poss:"her",obj:"her",label:"a brave little fox",trait:"quick and clever",cosy:"curled her bushy tail around her paws"},
+  bear:{noun:"a sleepy bear",name2:"the bear",pron:"he",poss:"his",obj:"him",label:"a sleepy bear",trait:"soft and slow and kind",cosy:"gave a great, warm yawn"},
+  star:{noun:"a curious little star",name2:"the little star",pron:"it",poss:"its",obj:"it",label:"a curious little star",trait:"bright and full of wonder",cosy:"shone a little softer"},
+  dragon:{noun:"a kind dragon",name2:"the dragon",pron:"he",poss:"his",obj:"him",label:"a kind dragon",trait:"gentle, with a warm and glowing heart",cosy:"let out a puff of cosy, silver smoke"},
+  robot:{noun:"a small robot",name2:"the little robot",pron:"it",poss:"its",obj:"it",label:"a small robot",trait:"careful and endlessly curious",cosy:"blinked its two soft blue lights"},
+  puppy:{noun:"a lost puppy",name2:"the puppy",pron:"she",poss:"her",obj:"her",label:"a lost puppy",trait:"waggy and hopeful",cosy:"tucked her nose under her paw"}
+};
+var THEME={
+  forest:{label:"an enchanted forest",place:"the enchanted forest",where:"deep in an enchanted forest, where the trees whispered old, kind secrets",detail:["silver ferns","glowing toadstools","a river that hummed a lullaby","fireflies drifting like slow sparks"]},
+  space:{label:"outer space",place:"the wide dark sky",where:"far out in outer space, drifting between the sleepy, blinking stars",detail:["a ring of quiet planets","a tail of stardust","a comet the colour of honey","the soft hum of the moon"]},
+  sea:{label:"under the sea",place:"the deep blue sea",where:"deep under the sea, where the water was warm and the light came down in ribbons",detail:["gardens of swaying coral","a shy, glowing jellyfish","pearls scattered like little moons","a school of silver fish"]},
+  village:{label:"a cosy village",place:"the little village",where:"in a cosy little village, where every window glowed amber at night",detail:["a crooked cobbled lane","a baker's warm chimney","a wishing well","lanterns strung between the rooftops"]},
+  mountain:{label:"a tall mountain",place:"the tall mountain",where:"high up a tall, quiet mountain, above the clouds and near the very first stars",detail:["a blanket of soft snow","an eagle asleep on the wind","a cave that echoed gently","the last warm light of the sun"]},
+  meadow:{label:"a moonlit meadow",place:"the moonlit meadow",where:"in a moonlit meadow, where the grass was cool and the crickets sang low",detail:["a carpet of sleepy daisies","a pond like a silver plate","a hollow oak full of dreams","dandelion seeds floating by"]}
+};
+var LESSON={
+  enough:{line:"you are enough, exactly as you are",echo:"You don't have to be bigger, or braver, or anyone but you.",gift:"knowing that being yourself was already, always enough"},
+  brave:{line:"being brave doesn't mean you're not scared — it means you go anyway",echo:"Brave hearts still wobble. That's how you know they're brave.",gift:"a little more courage tucked away for tomorrow"},
+  kind:{line:"a small kindness can change everything",echo:"The kindest thing you do is rarely the biggest one.",gift:"the warm, quiet glow of having helped someone"},
+  mistakes:{line:"it's okay to get things wrong — that's how we learn",echo:"Mistakes aren't the end of the story. They're the middle.",gift:"the calm of knowing mistakes could be mended"},
+  worries:{line:"even the biggest worries grow small when you breathe and go slow",echo:"Worries are like clouds — they always, always drift on.",gift:"a slow, steady breath that made the worry feel far away"},
+  persist:{line:"you keep going, one small step at a time, and you get there",echo:"You don't have to do it all at once. Just the next small step.",gift:"the proud, tired glow of not having given up"}
+};
+
+/* ---------- modular sentence banks (beats) ---------- */
+/* placeholders: {N}=child name {H}=hero noun {H2}=the-hero {P}=pronoun {O}=object-pron {S}=poss {W}=where {D}=random theme detail {L}=lesson line {E}=lesson echo {G}=lesson gift {C}=cosy action */
+
+var OPEN=[
+ "Once upon a quiet night, {W}, there lived {H} named {N}. {NC} was {TR}, and every creature nearby loved {O} dearly.",
+ "Long ago, {W}, {H} called {N} was getting ready for sleep. But {P} still had one small adventure left in {S} day.",
+ "{NC} was {H}, and {NC} lived {W}. On this particular starlit evening, something wonderful was about to happen to {O}.",
+ "In the softest hour of the night, {W}, {H} named {N} peeked out at the world. It was the perfect time for a story about {O}."
+];
+var SETTLE=[
+ "All around, there were {D} and {D2}, and the air smelled of warm dreams.",
+ "Nearby lay {D}, and beyond that, {D2}, shining gently in the dark.",
+ "The whole world was hushed — just {D}, {D2}, and the slow beat of {N}'s sleepy heart.",
+ "There were {D} to the left, and {D2} to the right, and everything felt safe and kind."
+];
+var ADVENTURE=[
+ "That night, {N} set off on a little journey. {PC} wanted to find the place where the moon touched the ground, and {P} felt a happy flutter deep inside.",
+ "A tiny voice on the wind whispered, \"Come and see.\" So {N} tiptoed out to follow it, heart thumping softly like a drum.",
+ "{NC} had heard of a hidden, glimmering thing, somewhere past {D}. And tonight, {P} decided, was the night to go and find it.",
+ "Something bright and curious floated by, and {N} simply had to follow. Off {P} went, small paws and a big, brave heart, into the gentle dark."
+];
+var WOBBLE=[
+ "But halfway there, the path grew dark and twisty, and {N} felt a cold little worry curl up in {S} tummy. \"What if I can't?\" {P} whispered.",
+ "Then, quite suddenly, {N} came to a stop. The way ahead looked ever so big, and {P} felt ever so small. A single tear wobbled in {S} eye.",
+ "But things did not go quite to plan. {NC} slipped, and stumbled, and got it all a bit wrong — and for a moment, {P} wanted to turn straight back home.",
+ "Soon {N} felt tired and unsure. The world seemed too wide and the night too long, and a quiet lump grew in {S} throat."
+];
+var HELPER=[
+ "Just then, a wise old owl blinked down and said softly, \"{EC}\"",
+ "But then {N} remembered something {S} dad had once whispered at bedtime: \"{EC}\"",
+ "A gentle voice — perhaps the moon itself — drifted down and murmured, \"{EC}\"",
+ "And in the hush, {N} heard a kind old friend say, ever so gently, \"{EC}\""
+];
+var RESOLVE=[
+ "So {N} took a slow, deep breath, stood up a little taller, and tried once more. And this time — oh, this time — it worked.",
+ "{NC} wiped {S} eye, held {S} chin up high, and took one small, brave step. Then another. And somehow, the path grew kind again.",
+ "So {N} did the bravest thing of all: {P} kept going, gently, one step at a time. And little by little, the dark turned soft and friendly.",
+ "{NC} thought about it, and smiled a small smile, and decided to try in a brand-new way. And what do you know — everything began to feel possible again."
+];
+var TRIUMPH=[
+ "At the very end of the path, {N} found exactly what {P} had been looking for — and it shimmered, warm and welcoming, just for {O}.",
+ "And there it was: the glimmering thing, waiting quietly. {NC} had done it, all on {S} own, and {S} heart glowed like a little lantern.",
+ "The moon spilled down all silver and gold, and {N} laughed the happiest laugh, because {P} had made it after all.",
+ "And when {N} finally arrived, the whole of {W2} seemed to smile — because {P} had been braver and kinder than {P} ever knew."
+];
+var LESSONBEAT=[
+ "On the way home, {N} understood something important, something to keep forever: that {L}.",
+ "And as {P} wandered sleepily back, {N} carried home a quiet little truth — that {L}.",
+ "The stars leaned in close, as if to remind {N} of the loveliest thing: that {L}.",
+ "{NC} tucked away {G}, and with it, the gentlest lesson of all — that {L}."
+];
+var GOODNIGHT=[
+ "Back home at last, {N} {C}, closed {S} eyes, and drifted into the softest, safest sleep. Goodnight, {N}. You are so loved.",
+ "And so, warm and sleepy and proud, {N} snuggled down as {H2} {C}. The night wrapped around {O} like a blanket. Sweet dreams, little one.",
+ "{NC} gave one last, happy sigh, {C}, and let the dreams roll in like gentle waves. Sleep tight, {N}. Tomorrow is waiting, and it's kind.",
+ "The moon pulled a cloud over like a quilt, {N} {C}, and everything went quiet and lovely. Goodnight, brave {N}. See you in the morning."
+];
+
+/* ---------- assemble ---------- */
+var lastPick={};
+
+function fill(t,ctx){
+  return t
+    .replace(/\{NC\}/g,cap(ctx.N))
+    .replace(/\{N\}/g,ctx.N)
+    .replace(/\{H2\}/g,ctx.H2)
+    .replace(/\{H\}/g,ctx.H)
+    .replace(/\{PC\}/g,cap(ctx.P))
+    .replace(/\{P\}/g,ctx.P)
+    .replace(/\{S\}/g,ctx.S)
+    .replace(/\{O\}/g,ctx.O)
+    .replace(/\{TR\}/g,ctx.TR)
+    .replace(/\{W2\}/g,ctx.W2)
+    .replace(/\{W\}/g,ctx.W)
+    .replace(/\{D2\}/g,ctx.D2)
+    .replace(/\{D\}/g,ctx.D)
+    .replace(/\{EC\}/g,ctx.EC)
+    .replace(/\{L\}/g,ctx.L)
+    .replace(/\{G\}/g,ctx.G)
+    .replace(/\{C\}/g,ctx.C);
+}
+
+function buildStory(name,heroKey,themeKey,lessonKey){
+  var h=HERO[heroKey],t=THEME[themeKey],l=LESSON[lessonKey];
+  var N=name;
+  // two distinct theme details
+  var dpool=t.detail.slice();
+  var d1=pick(dpool); dpool.splice(dpool.indexOf(d1),1); var d2=pick(dpool);
+  var ctx={
+    N:N,H:h.noun,H2:h.name2,P:h.pron,S:h.poss,O:h.obj,TR:h.trait,C:h.cosy,
+    W:t.where,W2:t.place,D:d1,D2:d2,
+    EC:l.echo,L:l.line,G:l.gift
+  };
+  var beats=[
+    pick(OPEN)+" "+pick(SETTLE),
+    pick(ADVENTURE),
+    pick(WOBBLE)+" "+pick(HELPER),
+    pick(RESOLVE)+" "+pick(TRIUMPH),
+    pick(LESSONBEAT),
+    pick(GOODNIGHT)
+  ];
+  var paras=beats.map(function(b){return fill(b,ctx);});
+  // wrap the goodnight closing tail in italic span
+  return paras;
+}
+
+var TITLES=[
+ "{N} and the {ADJ} {NIGHT}",
+ "The Night {N} {VERB}",
+ "{N}, {HERO}",
+ "How {N} Found {POSS} Way"
+];
+function makeTitle(name,heroKey){
+  var h=HERO[heroKey];
+  var adj=pick(["Sleepy","Silver","Glimmering","Whispering","Moonlit","Wandering"]);
+  var night=pick(["Night","Star","Dream","Journey","Adventure"]);
+  var verb=pick(["Was Brave","Followed the Moon","Nearly Turned Back","Found the Light","Learned to Fly"]);
+  var poss=h.pron==="she"?"Her":h.pron==="he"?"His":"Its";
+  var t=pick(TITLES)
+    .replace(/\{N\}/g,cap(name))
+    .replace(/\{ADJ\}/g,adj)
+    .replace(/\{NIGHT\}/g,night)
+    .replace(/\{VERB\}/g,verb)
+    .replace(/\{HERO\}/g,cap(h.noun.replace(/^an? /,'')))
+    .replace(/\{POSS\}/g,poss);
+  return t;
+}
+
+/* ---------- render ---------- */
+function currentName(){
+  var n=$("name").value.trim();
+  return n ? n.replace(/\s+/g,' ') : "Little One";
+}
+function render(paras,name,heroKey,themeKey,lessonKey,source){
+  var meta=[cap(HERO[heroKey].noun),THEME[themeKey].label,{enough:"You are enough",brave:"Be brave",kind:"Kindness matters",mistakes:"Mistakes are okay",worries:"Calm your worries",persist:"Never give up"}[lessonKey]];
+  $("s-meta").innerHTML=meta.map(function(m){return '<span class="tag">'+m+'</span>';}).join('');
+  $("s-title").textContent=makeTitleFor(name,heroKey,source);
+  var html=paras.map(function(p,i){
+    if(i===paras.length-1){
+      // italicise the final goodnight sentence
+      var idx=Math.max(p.lastIndexOf("Goodnight"),p.lastIndexOf("Sweet dreams"),p.lastIndexOf("Sleep tight"),p.lastIndexOf("Sweet dreams"));
+      if(idx>0){return '<p>'+escapeHtml(p.slice(0,idx))+'<span class="goodnight">'+escapeHtml(p.slice(idx))+'</span></p>';}
+    }
+    return '<p>'+escapeHtml(p)+'</p>';
+  }).join('');
+  $("s-body").innerHTML=html;
+  $("s-src").textContent=source==="ai"?"✦ Freshly written by AI":"✦ Assembled by The Bedtime Engine";
+  var out=$("out"); out.classList.add('show');
+  $("form-card").style.display="none";
+  out.scrollIntoView({behavior:'smooth',block:'start'});
+}
+var _titleCache={};
+function makeTitleFor(name,heroKey,source){
+  // keep a title stable within one render; regenerate each new story
+  return _pendingTitle || makeTitle(name,heroKey);
+}
+var _pendingTitle=null;
+function escapeHtml(s){return s.replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+
+function tellOffline(){
+  var name=currentName(),h=$("hero").value,t=$("theme").value,l=$("lesson").value;
+  _pendingTitle=makeTitle(name,h);
+  var paras=buildStory(name,h,t,l);
+  render(paras,name,h,t,l,"offline");
+}
+
+/* ---------- main entry: try AI if key present, else offline ---------- */
+function tell(){
+  var key=(localStorage.getItem("be_apikey")||"").trim();
+  if(!key){ tellOffline(); return; }
+  var name=currentName(),h=$("hero").value,t=$("theme").value,l=$("lesson").value;
+  var provider=localStorage.getItem("be_provider")||"anthropic";
+  setStatus("Writing a fresh story with AI…","");
+  tellAI(key,provider,name,h,t,l).then(function(text){
+    if(!text){ throw new Error("empty"); }
+    var paras=text.split(/\n{2,}/).map(function(p){return p.replace(/\s+/g,' ').trim();}).filter(Boolean);
+    if(paras.length<2){ paras=text.split(/\n/).map(function(p){return p.trim();}).filter(Boolean); }
+    _pendingTitle=paras.length>1 && paras[0].length<60 ? paras.shift() : makeTitle(name,h);
+    render(paras,name,h,t,l,"ai");
+    setStatus("Done — a brand-new story, just for "+cap(name)+".","ok");
+  }).catch(function(err){
+    setStatus("Couldn't reach the AI ("+(err&&err.message||"error")+"). Told a built-in story instead.","err");
+    tellOffline();
+  });
+}
+
+function setStatus(msg,kind){
+  var el=$("aistatus"); el.textContent=msg; el.className="aistatus"+(kind?(" "+kind):"");
+}
+
+function buildPrompt(name,h,t,l){
+  return "Write a warm, original bedtime story for a young child of about 4 to 8 years old, roughly 250 to 320 words. "+
+    "The hero is "+HERO[h].label+". The child listening is named "+name+", and please weave the name "+name+" in naturally as the hero or the hero's dear friend, several times. "+
+    "The setting is "+THEME[t].label+". The gentle lesson to leave the child with is: "+LESSON[l].line+". "+
+    "Use simple, soothing, read-aloud language with short sentences. Include a small adventure, a little wobble or worry, and a comforting resolution. "+
+    "End with a soft goodnight line addressed to "+name+". Start with a short title on its own line, then the story in a few short paragraphs. No preamble, no notes.";
+}
+
+function tellAI(key,provider,name,h,t,l){
+  var prompt=buildPrompt(name,h,t,l);
+  if(provider==="openai"){
+    return fetch("https://api.openai.com/v1/chat/completions",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
+      body:JSON.stringify({model:"gpt-4o-mini",messages:[{role:"user",content:prompt}],max_tokens:700,temperature:0.9})
+    }).then(function(r){return r.json();}).then(function(j){
+      if(j.error) throw new Error(j.error.message||"api error");
+      return j.choices&&j.choices[0]&&j.choices[0].message.content;
+    });
+  }
+  // Anthropic
+  return fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "x-api-key":key,
+      "anthropic-version":"2023-06-01",
+      "anthropic-dangerous-direct-browser-access":"true"
+    },
+    body:JSON.stringify({model:"claude-3-5-haiku-latest",max_tokens:700,messages:[{role:"user",content:prompt}]})
+  }).then(function(r){return r.json();}).then(function(j){
+    if(j.error) throw new Error(j.error.message||"api error");
+    return j.content&&j.content[0]&&j.content[0].text;
+  });
+}
+
+/* ---------- events ---------- */
+$("tellBtn").addEventListener('click',tell);
+$("anotherBtn").addEventListener('click',tell);
+$("editBtn").addEventListener('click',function(){
+  $("out").classList.remove('show');
+  $("form-card").style.display="";
+  window.scrollTo({top:0,behavior:'smooth'});
+  $("name").focus();
+});
+$("name").addEventListener('keydown',function(e){ if(e.key==="Enter"){ tell(); }});
+$("saveBtn").addEventListener('click',function(){
+  // "Save" = persist the child's setup + print-friendly nudge
+  localStorage.setItem("be_setup",JSON.stringify({name:$("name").value,hero:$("hero").value,theme:$("theme").value,lesson:$("lesson").value}));
+  var b=$("saveBtn"); var old=b.textContent; b.textContent="Saved ✓"; setTimeout(function(){b.textContent=old;},1400);
+});
+
+/* ---------- AI key persistence ---------- */
+function loadKeyUI(){
+  var k=localStorage.getItem("be_apikey")||"";
+  var p=localStorage.getItem("be_provider")||"anthropic";
+  $("apikey").value=k; $("provider").value=p;
+  if(k) setStatus("A key is saved in this browser. AI mode is on.","ok");
+}
+$("saveKeyBtn").addEventListener('click',function(){
+  var k=$("apikey").value.trim();
+  if(!k){ setStatus("Paste a key first, then Save.","err"); return; }
+  localStorage.setItem("be_apikey",k);
+  localStorage.setItem("be_provider",$("provider").value);
+  setStatus("Saved. Your next story will be written by AI. (Key stays in this browser only.)","ok");
+});
+$("clearKeyBtn").addEventListener('click',function(){
+  localStorage.removeItem("be_apikey");
+  $("apikey").value="";
+  setStatus("Key cleared. Back to the free built-in engine.","");
+});
+$("provider").addEventListener('change',function(){ localStorage.setItem("be_provider",$("provider").value); });
+
+/* ---------- restore saved setup ---------- */
+(function init(){
+  try{
+    var s=JSON.parse(localStorage.getItem("be_setup")||"null");
+    if(s){ if(s.name)$("name").value=s.name; if(s.hero)$("hero").value=s.hero; if(s.theme)$("theme").value=s.theme; if(s.lesson)$("lesson").value=s.lesson; }
+  }catch(e){}
+  loadKeyUI();
+})();
+</script>
+</body>
+</html>
