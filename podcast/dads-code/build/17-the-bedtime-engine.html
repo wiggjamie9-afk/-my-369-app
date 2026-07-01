@@ -374,7 +374,7 @@ function makeTitle(name,heroKey){
     .replace(/\{ADJ\}/g,adj)
     .replace(/\{NIGHT\}/g,night)
     .replace(/\{VERB\}/g,verb)
-    .replace(/\{HERO\}/g,cap(h.noun.replace(/^an? /,'')))
+    .replace(/\{HERO\}/g,h.noun.replace(/^an? /,'').replace(/\b\w/g,function(c){return c.toUpperCase();}))
     .replace(/\{POSS\}/g,poss);
   return t;
 }
