@@ -25,6 +25,14 @@
 | 09 | Dad & Me: 100 Conversation Cards | $9 | Printable cards |
 | 10 | Dad's Bedtime Stories | $12 | Kids' story eBook |
 | 11 | The 90-Day Rebuilt Dad | $15 | Lifestyle-reset guide |
+| — | **✨ INTERACTIVE TOOLS (new)** | | *web-apps, not PDFs* |
+| 12 | Days Left — Father Time Calculator | Free/$7 | Interactive tool (viral hook) |
+| 13 | The Play Machine | $9 | Play-idea generator |
+| 14 | Letters to You | $19 | Legacy-letter builder |
+| 15 | The Dad Deck | $12 | Hard-conversation script generator |
+| 16 | Dad Battery | $12 | Check-in & trends dashboard |
+| 17 | The Bedtime Engine | $12 | Personalised story generator |
+| 18 | Time Capsule | $14 | Year-in-the-life keepsake |
 
 - *(Dad's Code podcast scripts live in the parent folder: `FULL-EPISODES.md` + `SCRIPTS.md` Section C — the memoir season.)*
 
