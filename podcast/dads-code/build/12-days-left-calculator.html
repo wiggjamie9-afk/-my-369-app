@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Days Left — The Father Time Calculator · Dad's Code</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14121A; --panel:#1C1A26; --amber:#DFB76C; --amber-dim:#5a4b2e;
+    --text:#F4F1EA; --muted:#B4AEC0; --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:Inter,system-ui,-apple-system,sans-serif;font-size:17px;line-height:1.6;
+    -webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:600;line-height:1.15;margin:0 0 .4em}
+  a{color:var(--amber)}
+  .wrap{max-width:820px;margin:0 auto;padding:0 20px}
+
+  /* top bar */
+  .topbar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;
+    padding:12px 20px;background:rgba(20,18,26,.85);backdrop-filter:blur(10px);border-bottom:1px solid #2a2733}
+  .wordmark{font-weight:700;letter-spacing:.14em;font-size:.78rem;color:var(--amber);text-transform:uppercase}
+  .btn{font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;border-radius:999px;padding:.5em 1.1em;border:1px solid var(--amber);
+    background:transparent;color:var(--amber);transition:.15s}
+  .btn:hover{background:var(--amber);color:var(--bg)}
+  .btn-solid{background:var(--amber);color:var(--bg)}
+  .btn-solid:hover{filter:brightness(1.08)}
+  :focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:6px}
+  .skip{position:absolute;left:-9999px}.skip:focus{left:12px;top:12px;position:fixed;background:var(--amber);color:var(--bg);padding:.6em 1em;border-radius:8px;z-index:50}
+
+  /* hero */
+  .hero{min-height:78vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;
+    padding:60px 20px;position:relative;overflow:hidden}
+  .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(1000px 500px at 50% -10%,rgba(223,183,108,.14),transparent 70%);pointer-events:none}
+  .kicker{text-transform:uppercase;letter-spacing:.2em;font-size:.72rem;color:var(--amber);margin-bottom:14px}
+  .hero h1{font-size:clamp(2.6rem,8vw,4.6rem);margin:0}
+  .hero h1 .accent{color:var(--amber)}
+  .hero p.sub{color:var(--muted);max-width:540px;margin:18px auto 0;font-size:1.08rem}
+  .badge{display:inline-block;margin-top:26px;border:1px solid var(--amber);border-radius:999px;padding:.5em 1.2em;
+    font-size:.8rem;color:var(--amber);letter-spacing:.03em}
+  .tagline{margin-top:34px;font-family:Fraunces,serif;font-style:italic;color:var(--muted)}
+
+  section{padding:44px 0}
+  .card{background:var(--panel);border:1px solid #2a2733;border-radius:var(--radius);padding:26px}
+  label{display:block;font-weight:600;margin:0 0 6px;font-size:.95rem}
+  .hint{color:var(--muted);font-size:.85rem;margin:2px 0 14px}
+  input[type=text],input[type=date]{width:100%;font:inherit;background:#0f0d14;border:1px solid #33303d;border-radius:10px;
+    color:var(--text);padding:.7em .8em;margin-bottom:16px}
+  input::-webkit-calendar-picker-indicator{filter:invert(.8) sepia(.4) saturate(4) hue-rotate(5deg)}
+  .go{width:100%;font-size:1.05rem;padding:.85em;border:none;border-radius:12px;background:var(--amber);color:var(--bg);font-weight:700;cursor:pointer}
+  .go:hover{filter:brightness(1.08)}
+
+  /* results */
+  #results{display:none}
+  #results.show{display:block;animation:fade .5s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .result-name{text-align:center;color:var(--muted);margin-bottom:4px}
+  .headline{text-align:center;font-size:clamp(1.5rem,5vw,2.3rem);margin-bottom:8px}
+  .headline b{color:var(--amber)}
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:24px 0}
+  .stat{background:var(--panel);border:1px solid #2a2733;border-radius:14px;padding:18px 10px;text-align:center}
+  .stat .n{font-family:Fraunces,serif;font-size:clamp(1.6rem,5vw,2.4rem);color:var(--amber);font-weight:600;line-height:1}
+  .stat .l{display:block;color:var(--muted);font-size:.74rem;text-transform:uppercase;letter-spacing:.08em;margin-top:8px}
+  @media(max-width:560px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
+
+  .grid-wrap{margin:10px 0 6px}
+  .weeks{display:grid;grid-template-columns:repeat(52,1fr);gap:3px}
+  .wk{width:100%;aspect-ratio:1;border-radius:2px;background:#2a2733}
+  .wk.spent{background:var(--amber-dim)}
+  .wk.left{background:var(--amber);box-shadow:0 0 4px rgba(223,183,108,.5)}
+  .legend{display:flex;gap:18px;justify-content:center;color:var(--muted);font-size:.78rem;margin-top:14px;flex-wrap:wrap}
+  .dot{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:middle;margin-right:5px}
+
+  .reflect{text-align:center;max-width:620px;margin:30px auto 0;font-family:Fraunces,serif;font-size:1.25rem;line-height:1.5}
+  .cta{margin-top:36px;background:linear-gradient(180deg,#1f1c29,#17141f);border:1px solid #2f2b3a;border-radius:var(--radius);padding:26px;text-align:center}
+  .cta h3{color:var(--amber)}
+  .cta .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+  .disclaimer{color:var(--muted);font-size:.8rem;text-align:center;margin:30px auto 0;max-width:640px}
+  footer{border-top:1px solid #2a2733;text-align:center;padding:30px 20px;color:var(--muted);font-size:.85rem}
+
+  @media print{
+    .topbar,.btn,.go,.cta .row,.skip{display:none!important}
+    body{background:#fff;color:#111;font-size:12pt}
+    .hero{min-height:auto;padding:20px 0}
+    .hero::before{display:none}
+    .hero h1 .accent,.headline b,.stat .n,.wordmark,.cta h3,.kicker{color:#000}
+    .card,.stat,.cta{background:#fff;border:1px solid #ccc}
+    .wk{background:#eee}.wk.spent{background:#bbb}.wk.left{background:#333;box-shadow:none}
+    .reflect{color:#000}
+    a{color:#000;text-decoration:underline}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#tool">Skip to the calculator</a>
+<div class="topbar">
+  <span class="wordmark">Dad's Code</span>
+  <button class="btn" onclick="window.print()">Save / Print</button>
+</div>
+
+<header class="hero">
+  <div class="kicker">A Dad's Code Tool</div>
+  <h1>Days <span class="accent">Left</span></h1>
+  <p class="sub">Your child won't be little forever. See exactly how much time you've got left — and let it change how you spend today.</p>
+  <span class="badge">Enter one date · see it in seconds</span>
+  <div class="tagline">Present, not perfect.</div>
+</header>
+
+<main class="wrap">
+  <section id="tool" aria-labelledby="tool-h">
+    <div class="card">
+      <h2 id="tool-h" style="font-size:1.4rem">How much time is left?</h2>
+      <p class="hint">Nothing is saved to any server — this runs entirely on your device.</p>
+      <label for="kidname">Your child's name <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+      <input type="text" id="kidname" placeholder="e.g. Jackson" autocomplete="off">
+      <label for="dob">Their date of birth</label>
+      <input type="date" id="dob">
+      <button class="go" onclick="calc()">Show me the time we have left →</button>
+    </div>
+
+    <div id="results" aria-live="polite">
+      <p class="result-name" id="rname"></p>
+      <p class="headline" id="rhead"></p>
+      <div class="stat-grid">
+        <div class="stat"><span class="n" id="s-days">–</span><span class="l">Days until 18</span></div>
+        <div class="stat"><span class="n" id="s-weekends">–</span><span class="l">Weekends left</span></div>
+        <div class="stat"><span class="n" id="s-summers">–</span><span class="l">Summers left</span></div>
+        <div class="stat"><span class="n" id="s-bedtimes">–</span><span class="l">Bedtimes left*</span></div>
+      </div>
+
+      <div class="card grid-wrap">
+        <h3 style="font-size:1.05rem;text-align:center">Their childhood in weeks</h3>
+        <p class="hint" style="text-align:center">Every square is one week from birth to their 18th birthday — 936 in total.</p>
+        <div class="weeks" id="weeks" role="img" aria-label="Grid of weeks showing time spent and time remaining until age 18"></div>
+        <div class="legend">
+          <span><span class="dot" style="background:var(--amber-dim)"></span>Weeks already lived</span>
+          <span><span class="dot" style="background:var(--amber)"></span>Weeks you still have</span>
+        </div>
+      </div>
+
+      <p class="reflect" id="reflect"></p>
+
+      <div class="cta">
+        <h3>Don't wait for "one day"</h3>
+        <p style="color:var(--muted);margin:.3em 0 0">The squares don't stop. But today is one of the bright ones — so be in it. Fully. Present, not perfect.</p>
+        <div class="row">
+          <a class="btn btn-solid" href="https://dadscode.com.au/podcast">Listen to Dad's Code</a>
+          <a class="btn" href="https://dadscode.com.au">More from Dad's Code</a>
+        </div>
+      </div>
+
+      <p class="disclaimer">*"Bedtimes left" counts nights until their 13th birthday — roughly when kids stop wanting one. All figures are simple estimates for reflection, not exact science. Research on parental time-use suggests we spend the large majority of our lifetime in-person hours with our kids before they hit their teens — which is the whole point: the early years are the main event.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wordmark" style="margin-bottom:6px">Dad's Code</div>
+  Present, not perfect. · Made for tired, lucky dads.
+</footer>
+
+<script>
+(function(){
+  // restore last entry
+  try{
+    var saved=JSON.parse(localStorage.getItem('daysleft')||'null');
+    if(saved){ if(saved.name)document.getElementById('kidname').value=saved.name; if(saved.dob)document.getElementById('dob').value=saved.dob; }
+  }catch(e){}
+})();
+
+function pad(n){return n.toLocaleString('en-US');}
+
+function calc(){
+  var name=document.getElementById('kidname').value.trim();
+  var dobStr=document.getElementById('dob').value;
+  if(!dobStr){ alert("Please enter your child's date of birth."); return; }
+  var dob=new Date(dobStr+'T00:00:00');
+  var now=new Date();
+  if(isNaN(dob)||dob>now){ alert("Please enter a valid past date."); return; }
+
+  try{ localStorage.setItem('daysleft',JSON.stringify({name:name,dob:dobStr})); }catch(e){}
+
+  var MS=86400000;
+  var eighteen=new Date(dob); eighteen.setFullYear(dob.getFullYear()+18);
+  var thirteen=new Date(dob); thirteen.setFullYear(dob.getFullYear()+13);
+
+  var ageYears=Math.floor((now-dob)/(365.25*MS));
+  var daysLeft=Math.max(0,Math.round((eighteen-now)/MS));
+  var weekendsLeft=Math.max(0,Math.floor(daysLeft/7));
+  var summersLeft=Math.max(0,17-ageYears+ (now < new Date(now.getFullYear(),dob.getMonth(),dob.getDate())?1:0));
+  summersLeft=Math.max(0,17-ageYears);
+  var bedtimesLeft=Math.max(0,Math.round((thirteen-now)/MS));
+
+  document.getElementById('s-days').textContent=pad(daysLeft);
+  document.getElementById('s-weekends').textContent=pad(weekendsLeft);
+  document.getElementById('s-summers').textContent=pad(summersLeft);
+  document.getElementById('s-bedtimes').textContent=pad(bedtimesLeft);
+
+  var who = name?name:'your child';
+  document.getElementById('rname').textContent = name ? name : '';
+  var pct=Math.min(100,Math.max(0,Math.round((now-dob)/(eighteen-dob)*100)));
+  document.getElementById('rhead').innerHTML =
+    'You have about <b>'+pad(daysLeft)+'</b> days left with '+who+' under your roof.';
+
+  // weeks grid
+  var totalWeeks=936;
+  var weeksLived=Math.min(totalWeeks,Math.max(0,Math.floor((now-dob)/(7*MS))));
+  var grid=document.getElementById('weeks'); grid.innerHTML='';
+  var frag=document.createDocumentFragment();
+  for(var i=0;i<totalWeeks;i++){
+    var d=document.createElement('div');
+    d.className='wk '+(i<weeksLived?'spent':'left');
+    frag.appendChild(d);
+  }
+  grid.appendChild(frag);
+
+  // reflection line
+  var lines;
+  if(ageYears<2) lines="They're brand new. You have almost all of it ahead of you — the whole bright grid. Don't blink.";
+  else if(ageYears<6) lines="These are the years they'll want you most. "+pct+"% of the squares are already gone. Get on the floor. Play.";
+  else if(ageYears<11) lines="You're in the heart of it. Over "+pct+"% lived — but the best conversations are still coming. Show up for them.";
+  else if(ageYears<15) lines="They're pulling away a little — that's normal. "+pct+"% gone. Keep turning toward them anyway.";
+  else lines="The runway's short now. "+pct+"% of their childhood is behind you. Make these last squares count.";
+  document.getElementById('reflect').textContent=lines;
+
+  document.getElementById('results').classList.add('show');
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+</body>
+</html>
