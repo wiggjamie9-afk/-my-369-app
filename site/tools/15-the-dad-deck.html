@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Dad Deck — scripts for the conversations you dread · Dad's Code</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#14121A;--panel:#1C1A26;--amber:#DFB76C;--text:#F4F1EA;--muted:#B4AEC0;--radius:16px}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:600;line-height:1.15;margin:0 0 .4em}
+  a{color:var(--amber)}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px}
+  .topbar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:rgba(20,18,26,.85);backdrop-filter:blur(10px);border-bottom:1px solid #2a2733}
+  .wordmark{font-weight:700;letter-spacing:.14em;font-size:.78rem;color:var(--amber);text-transform:uppercase}
+  .topbar-actions{display:flex;gap:8px}
+  .btn{font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;border-radius:999px;padding:.5em 1.1em;border:1px solid var(--amber);background:transparent;color:var(--amber);transition:.15s}
+  .btn:hover{background:var(--amber);color:var(--bg)}
+  .btn-solid{background:var(--amber);color:var(--bg)}
+  :focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:6px}
+  .skip{position:absolute;left:-9999px}.skip:focus{left:12px;top:12px;position:fixed;background:var(--amber);color:var(--bg);padding:.6em 1em;border-radius:8px;z-index:50}
+  .hero{text-align:center;padding:56px 20px 26px;position:relative;overflow:hidden}
+  .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(900px 460px at 50% -10%,rgba(223,183,108,.14),transparent 70%);pointer-events:none}
+  .kicker{text-transform:uppercase;letter-spacing:.2em;font-size:.72rem;color:var(--amber);margin-bottom:12px}
+  .hero h1{font-size:clamp(2.3rem,7vw,3.8rem)}
+  .hero h1 .accent{color:var(--amber)}
+  .hero p.sub{color:var(--muted);max-width:540px;margin:14px auto 0}
+  .tagline{margin-top:22px;font-family:Fraunces,serif;font-style:italic;color:var(--muted)}
+  section{padding:24px 0 46px}
+  .card{background:var(--panel);border:1px solid #2a2733;border-radius:var(--radius);padding:22px}
+  fieldset{border:none;margin:0 0 18px;padding:0}
+  fieldset:last-of-type{margin-bottom:6px}
+  legend{font-weight:600;font-size:.9rem;margin-bottom:10px}
+  .legend-note{font-weight:400;color:var(--muted);font-size:.82rem}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{font:inherit;font-size:.88rem;cursor:pointer;border:1px solid #33303d;background:#0f0d14;color:var(--text);padding:.5em 1em;border-radius:999px;transition:.15s}
+  .chip:hover{border-color:var(--amber)}
+  .chip[aria-pressed=true]{background:var(--amber);color:var(--bg);border-color:var(--amber);font-weight:600}
+  #out{margin-top:22px;display:none}
+  #out.show{display:block;animation:fade .4s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .deckcard{background:linear-gradient(180deg,#211d2c,#181521);border:1px solid #322d3d;border-radius:var(--radius);padding:26px}
+  .meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .tag{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--amber);border:1px solid #4a3f28;border-radius:999px;padding:.3em .8em}
+  .deckcard h2{font-size:1.7rem;margin:.1em 0 .5em}
+  .opener{background:#17141f;border-left:3px solid var(--amber);border-radius:8px;padding:14px 16px;margin:0 0 20px;font-family:Fraunces,serif;font-size:1.12rem;font-style:italic}
+  .opener .lbl{display:block;font-family:Inter,sans-serif;font-style:normal;text-transform:uppercase;letter-spacing:.12em;font-size:.66rem;color:var(--amber);margin-bottom:6px;font-weight:700}
+  .block{margin:0 0 20px}
+  .block h3{font-size:1rem;display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .block h3 .ic{font-size:1.05rem}
+  .block ul{margin:0;padding-left:0;list-style:none}
+  .block li{position:relative;padding:6px 0 6px 26px;border-bottom:1px solid #26222f}
+  .block li:last-child{border-bottom:none}
+  .say li::before{content:"→";position:absolute;left:0;color:var(--amber);font-weight:700}
+  .avoid li::before{content:"✕";position:absolute;left:2px;color:#c98b8b;font-weight:700}
+  .followup{background:#17141f;border:1px dashed #4a3f28;border-radius:8px;padding:14px 16px;margin-top:4px}
+  .followup .lbl{display:block;text-transform:uppercase;letter-spacing:.12em;font-size:.66rem;color:var(--amber);margin-bottom:6px;font-weight:700}
+  .followup p{margin:0;font-size:1.05rem}
+  .note{margin-top:18px;font-size:.82rem;color:var(--muted);line-height:1.5;background:#141019;border:1px solid #2a2733;border-radius:10px;padding:12px 14px}
+  .again{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+  .cta{margin-top:34px;background:#17141f;border:1px solid #2f2b3a;border-radius:var(--radius);padding:24px;text-align:center}
+  .cta h3{color:var(--amber)}
+  .cta p{color:var(--muted);margin:.3em 0 0}
+  .hint{color:var(--muted);font-size:.86rem;margin:14px 2px 0}
+  footer{border-top:1px solid #2a2733;text-align:center;padding:28px 20px;color:var(--muted);font-size:.85rem;margin-top:20px}
+  @media print{
+    .topbar,.btn,.again,.chips,.cta .btn,.skip,.hint,.hero .tagline,.hero::before{display:none!important}
+    body{background:#fff;color:#111;font-size:13pt}
+    .hero{padding:0 0 10px}.hero h1{font-size:2rem}.hero h1 .accent,.hero .kicker,.hero p.sub{color:#111}
+    .card{display:none!important}
+    #out{display:block!important;margin:0}
+    .deckcard,.followup,.opener,.note,.cta{background:#fff;border:1px solid #bbb;color:#111}
+    .deckcard h2,.deckcard h3,.opener .lbl,.followup .lbl,.tag,.cta h3,.wordmark{color:#000}
+    .opener{border-left:3px solid #000}
+    .say li::before{color:#000}.avoid li::before{color:#000}
+    .block li{border-bottom:1px solid #ddd}
+    footer{color:#333}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#tool">Skip to the generator</a>
+<div class="topbar">
+  <span class="wordmark">Dad's Code</span>
+  <div class="topbar-actions">
+    <button class="btn" onclick="window.print()">Save / Print</button>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="kicker">A Dad's Code Tool</div>
+  <h1>The Dad <span class="accent">Deck</span></h1>
+  <p class="sub">The hard conversations don't have to blindside you. Pick the topic you're dreading, and get a calm, ready-to-use script — an opener, what to say, what to skip, and a way to keep them talking.</p>
+  <div class="tagline">Present, not perfect.</div>
+</header>
+
+<main class="wrap">
+  <section id="tool">
+    <div class="card">
+      <fieldset>
+        <legend>What's the conversation? <span class="legend-note">Pick one</span></legend>
+        <div class="chips" id="topic" role="group" aria-label="Choose a topic">
+          <button class="chip" aria-pressed="false" data-v="porn">Porn / online content</button>
+          <button class="chip" aria-pressed="false" data-v="drugs">Vaping &amp; drugs</button>
+          <button class="chip" aria-pressed="false" data-v="bullying">Bullying</button>
+          <button class="chip" aria-pressed="false" data-v="consent">Consent &amp; respect</button>
+          <button class="chip" aria-pressed="false" data-v="money">Money</button>
+          <button class="chip" aria-pressed="false" data-v="death">Death &amp; grief</button>
+          <button class="chip" aria-pressed="false" data-v="failure">Failure &amp; disappointment</button>
+          <button class="chip" aria-pressed="false" data-v="screens">Social media &amp; screens</button>
+          <button class="chip" aria-pressed="false" data-v="body">Body changes / puberty</button>
+          <button class="chip" aria-pressed="false" data-v="peer">Peer pressure</button>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Roughly how old? <span class="legend-note">Optional — tunes the wording</span></legend>
+        <div class="chips" id="age" role="group" aria-label="Choose an age band">
+          <button class="chip" aria-pressed="false" data-v="a">8–10</button>
+          <button class="chip" aria-pressed="false" data-v="b">11–13</button>
+          <button class="chip" aria-pressed="false" data-v="c">14+</button>
+        </div>
+      </fieldset>
+      <p class="hint">Tip: you don't need to nail it. Kids remember that you showed up for the awkward stuff far longer than the exact words.</p>
+    </div>
+
+    <div id="out" aria-live="polite">
+      <div class="deckcard">
+        <div class="meta" id="d-meta"></div>
+        <h2 id="d-title"></h2>
+        <div class="opener"><span class="lbl">Break the ice</span><span id="d-opener"></span></div>
+        <div class="block say">
+          <h3><span class="ic" aria-hidden="true">✓</span> What to say</h3>
+          <ul id="d-say"></ul>
+        </div>
+        <div class="block avoid">
+          <h3><span class="ic" aria-hidden="true">⚠</span> What to avoid</h3>
+          <ul id="d-avoid"></ul>
+        </div>
+        <div class="followup"><span class="lbl">Keep them talking</span><p id="d-follow"></p></div>
+        <div class="note" id="d-note"></div>
+      </div>
+      <div class="again">
+        <button class="btn btn-solid" onclick="window.print()">Print this card</button>
+        <button class="btn" onclick="reset()">Pick another topic →</button>
+      </div>
+      <div class="cta">
+        <h3>Braver conversations, one episode at a time</h3>
+        <p>Every hard talk you don't dodge is a deposit in the trust bank. Hear real dads work through the tough ones on the Dad's Code podcast.</p>
+        <div style="margin-top:14px"><a class="btn" href="https://dadscode.com.au/podcast">Listen to Dad's Code</a></div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="wordmark" style="margin-bottom:6px">Dad's Code</div>
+  Present, not perfect. · You know your kid best — these are starting points, not a script to read word-for-word.
+</footer>
+
+<script>
+var TOPIC_LABEL={porn:"Porn & online content",drugs:"Vaping & drugs",bullying:"Bullying",consent:"Consent & respect",money:"Money",death:"Death & grief",failure:"Failure & disappointment",screens:"Social media & screens",body:"Body changes & puberty",peer:"Peer pressure"};
+var AGE_LABEL={a:"Ages 8–10",b:"Ages 11–13",c:"Ages 14+"};
+
+// note shown on heavier topics
+var HEAVY="You know your kid best. Go at their pace, and if something feels bigger than a chat — ongoing distress, risk of harm, or you're just not sure — it's a strength, not a failure, to bring in a GP, school counsellor or a professional.";
+
+var DECK={
+  porn:{
+    title:"Porn & online content",
+    a:{
+      opener:"You know how sometimes you're online and something pops up that feels a bit weird or grown-up? I want you to know you can always tell me about it and you won't be in trouble.",
+      say:[
+        "Frame it as safety, not shame: \"Some things online are made for adults, and they can be confusing or upsetting to see.\"",
+        "Give them the exit line: \"If something makes your tummy feel funny, close it and come find me. That's exactly the right move.\"",
+        "Make yourself the safe port: \"You'll never be in trouble for showing me something. I'd much rather you tell me.\"",
+        "Keep it short and calm — a 90-second chat now, not a lecture."
+      ],
+      avoid:[
+        "Don't interrogate or make them feel dirty for being curious.",
+        "Don't use scary or graphic detail they don't need yet.",
+        "Don't make it a one-off 'big talk' — small, repeated chats work better."
+      ],
+      follow:"What would you do if something popped up that you weren't sure about?"
+    },
+    b:{
+      opener:"I want to talk about something a bit awkward, and I'll be honest — it's a little awkward for me too. Most kids your age come across porn online at some point, often by accident. So I'd rather you hear about it from me than only from a screen.",
+      say:[
+        "Normalise the curiosity, not the content: \"Being curious about bodies and sex is completely normal. That part's fine.\"",
+        "Name the gap: \"Porn is acting — it's not how real relationships, real bodies, or real intimacy actually work.\"",
+        "Talk respect and consent: \"A lot of it shows people being treated in ways that aren't okay in real life.\"",
+        "Keep the door open: \"You won't shock me and you won't be punished for being honest. Come to me with anything.\""
+      ],
+      avoid:[
+        "Don't shame them or imply they're 'bad' for having seen it.",
+        "Don't pretend it doesn't exist or that a filter has it fully handled.",
+        "Don't dump everything in one go — leave room to come back to it."
+      ],
+      follow:"What's something you've wondered about but weren't sure you were allowed to ask me?"
+    },
+    c:{
+      opener:"You're old enough now that I'm not going to pretend porn isn't out there — you've almost certainly seen it. I'm not here to freak out or search your phone. I actually want to talk about it like adults.",
+      say:[
+        "Be direct and non-judgemental: \"Porn is everywhere and it's designed to grab attention — that doesn't make you a bad person for looking.\"",
+        "Challenge the script it teaches: \"It sells a really warped version of sex, consent and what bodies look like. Real intimacy is about communication and respect.\"",
+        "Talk about consent and sharing images: \"Nothing gets shared without an enthusiastic yes — and sending or forwarding nudes of anyone under 18 is a serious offence.\"",
+        "Trust them with your reasoning: \"My worry isn't that you're curious — it's that porn becomes your teacher instead of real life.\""
+      ],
+      avoid:[
+        "Don't moralise or threaten — you'll lose them instantly.",
+        "Don't assume the worst or accuse them of anything.",
+        "Don't make it the last word — signal you're open to talking again."
+      ],
+      follow:"What do you reckon porn gets most wrong about real relationships?"
+    },
+    note:HEAVY
+  },
+
+  drugs:{
+    title:"Vaping & drugs",
+    a:{
+      opener:"Have you heard of vaping or seen anyone doing it? I'm curious what you already know — no wrong answers.",
+      say:[
+        "Start from their world: \"Have you seen the coloured vapes? Companies design them to look fun so kids want them.\"",
+        "Keep it simple and honest: \"Even the fruity ones can have stuff in them that hurts a growing body.\"",
+        "Rehearse a way out: \"If someone ever offers you one, you can just say 'no thanks' and come tell me.\"",
+        "Reassure: \"You can always ask me anything about this stuff.\""
+      ],
+      avoid:[
+        "Don't overload them with scary statistics they can't process.",
+        "Don't make it forbidden-and-fascinating with heavy drama.",
+        "Don't lecture — let it be a two-way chat."
+      ],
+      follow:"Why do you think companies make vapes look so colourful?"
+    },
+    b:{
+      opener:"Vaping's pretty common around your age now — I'd bet you've seen it at school or online. I'm not accusing you of anything. I just want to make sure you've got the real facts, not just what mates say.",
+      say:[
+        "Give straight facts: \"Vapes are marketed as harmless, but most contain nicotine — which hooks a teenage brain really fast.\"",
+        "Respect their intelligence: \"You're smart enough to make good calls. I just want you to have the full picture.\"",
+        "Plan the exit together: \"Let's have a line ready — 'nah, I'm good' — so you're not caught on the spot.\"",
+        "Stay the safe adult: \"If you ever try something or get in over your head, call me. Getting you home safe beats any punishment.\""
+      ],
+      avoid:[
+        "Don't exaggerate — teens spot scare tactics and stop listening.",
+        "Don't assume they're already doing it.",
+        "Don't make honesty feel like a trap they'll be punished for."
+      ],
+      follow:"What do kids at your school actually say about vaping?"
+    },
+    c:{
+      opener:"You're getting to the age where drugs and alcohol will be around at parties — that's just reality. I'd rather talk to you straight about it than pretend it won't happen.",
+      say:[
+        "Lead with safety over abstinence-only: \"My number one rule is you get home safe. Whatever's happened, you can always call me — no lecture in the moment.\"",
+        "Give real info: \"Mixing things, especially with alcohol, is where people get seriously hurt. Never take something when you don't know what's in it.\"",
+        "Talk brains and stakes: \"Your brain's still wiring up till your mid-twenties — regular use hits harder at your age than for an adult.\"",
+        "Trust and equip: \"You'll make your own calls out there. I just want you making them with facts and a way out.\""
+      ],
+      avoid:[
+        "Don't rely on fear or zero-tolerance ultimatums — they push kids underground.",
+        "Don't be naive or preachy; either loses your credibility.",
+        "Don't make the consequence for honesty worse than the risk of silence."
+      ],
+      follow:"If you were at a party and a mate was in a bad way, what would you do?"
+    },
+    note:HEAVY
+  },
+
+  bullying:{
+    title:"Bullying",
+    a:{
+      opener:"How are things with the other kids at school lately? I've been wondering who you've been hanging out with.",
+      say:[
+        "Notice and name feelings: \"It sounds like that really hurt your feelings. That makes sense.\"",
+        "Make it their fault-free zone: \"Nobody deserves to be treated like that — it's not your fault, not even a little.\"",
+        "Team up: \"We'll figure this out together. You don't have to fix it on your own.\"",
+        "Point to safe adults: \"Who's a grown-up at school you could go to if it happens again?\""
+      ],
+      avoid:[
+        "Don't tell them to just 'toughen up' or 'ignore it'.",
+        "Don't jump straight to storming the school — it can make them clam up.",
+        "Don't dismiss it as 'kids being kids'."
+      ],
+      follow:"What's one thing that would make school feel better tomorrow?"
+    },
+    b:{
+      opener:"I want to check in properly — not the 'fine' answer. How are people treating you at school, honestly? And how are you treating others?",
+      say:[
+        "Validate first: \"That sounds genuinely rough. I'm really glad you told me.\"",
+        "Explore, don't rescue: \"What have you tried so far? What do you actually want to happen?\"",
+        "Cover online too: \"Is any of this happening in the group chats or DMs? That counts, and we can screenshot it.\"",
+        "Back them, ask permission: \"I've got your back. Let's decide together what we do — I won't go behind you.\""
+      ],
+      avoid:[
+        "Don't take over and 'fix it' without asking — it can cost them face.",
+        "Don't minimise online stuff as 'not real'.",
+        "Don't only ask if they're a victim — check if they've been part of it too."
+      ],
+      follow:"What would actually help right now — me listening, me stepping in, or a plan we make together?"
+    },
+    c:{
+      opener:"You don't have to give me details you're not ready for, but I've sensed something's been off. I'm here, and I'm not going to overreact.",
+      say:[
+        "Respect their autonomy: \"You're old enough that I won't act without talking it through with you first.\"",
+        "Normalise reaching out: \"Getting help isn't weakness — it's what strong people do when the odds are unfair.\"",
+        "Address the mental toll: \"This stuff can really wear you down. How's it sitting with you — your sleep, your mood?\"",
+        "Offer concrete options: \"We've got choices: the school, blocking and reporting, documenting it. You steer, I'll help.\""
+      ],
+      avoid:[
+        "Don't dismiss it because they 'should be able to handle it now'.",
+        "Don't push for action they're not ready to take.",
+        "Don't ignore warning signs of low mood — take those seriously."
+      ],
+      follow:"On a normal day, how heavy does this feel to carry — one to ten?"
+    },
+    note:HEAVY
+  },
+
+  consent:{
+    title:"Consent & respect",
+    a:{
+      opener:"Quick one — do you remember our rule that your body is yours, and other people's bodies are theirs?",
+      say:[
+        "Keep it about everyday consent: \"You always get to say 'stop' with tickles or hugs — and so does everyone else.\"",
+        "Teach reading a 'no': \"If someone says stop or pulls away, we stop straight away, even if we're playing.\"",
+        "Practise asking: \"It's kind to ask first — 'Do you want a hug?' — instead of just grabbing.\"",
+        "Cover secrets: \"No adult should ask you to keep a secret about your body. You can always tell me.\""
+      ],
+      avoid:[
+        "Don't force hugs or kisses 'to be polite' — it undercuts the lesson.",
+        "Don't make it scary or only about strangers.",
+        "Don't overcomplicate it — 'ask first, stop when they say stop' is plenty."
+      ],
+      follow:"What could you say if a friend was doing something and you wanted them to stop?"
+    },
+    b:{
+      opener:"I want to talk about respect — the kind that matters as you start liking people and hanging out more independently. Not a lecture, just some stuff I wish someone had told me.",
+      say:[
+        "Define it clearly: \"Consent means an actual, enthusiastic yes — not silence, not 'they didn't say no'.\"",
+        "Make it mutual: \"It works both ways. You get to set your own limits, and you respect theirs — every time.\"",
+        "Connect it to being a good person: \"Someone who's genuinely into you will never make you feel pressured. Same goes for how you treat them.\"",
+        "Cover online respect: \"Pressuring someone for photos, or spreading them, is never okay — and it's a big deal legally too.\""
+      ],
+      avoid:[
+        "Don't make it a 'girls need protecting' talk — everyone owns their limits.",
+        "Don't assume their romantic life or make them cringe shut.",
+        "Don't skip the digital side — a lot of this plays out on phones."
+      ],
+      follow:"How do you reckon you'd know if someone was actually comfortable, versus just going along with it?"
+    },
+    c:{
+      opener:"You're at an age where relationships get real, so I want to talk about consent like an adult — because getting this right matters, for you and for anyone you're with.",
+      say:[
+        "Be unambiguous: \"Consent is enthusiastic, ongoing, and can be withdrawn any time. Anything less is a no.\"",
+        "Factor in the reality: \"Someone who's drunk, pressured, or asleep can't consent. Full stop, no grey area.\"",
+        "Frame it as strength: \"Checking in — 'are you good?' — isn't a mood killer. It's what respect looks like.\"",
+        "Own your own limits too: \"This runs both ways. You never owe anyone anything, and no one owes you.\""
+      ],
+      avoid:[
+        "Don't get squeamish and rush it — clarity here is protective.",
+        "Don't assume their gender or partners.",
+        "Don't lecture; make it a conversation you'd want to hear at their age."
+      ],
+      follow:"What do you think gets in the way of people actually checking in with each other?"
+    }
+  },
+
+  money:{
+    title:"Money",
+    a:{
+      opener:"Want to know a grown-up secret about money? It's not really about being rich — it's about choices. Fancy learning a couple?",
+      say:[
+        "Make it concrete: \"Money is what we swap for things we need and want — and there's only so much of it, so we choose.\"",
+        "Introduce saving playfully: \"If you save a bit each week, it grows into something bigger. Want to pick a goal?\"",
+        "Split it simply: \"A good trick — some to spend, some to save, some to share.\"",
+        "Normalise limits: \"When I say 'we can't afford that today', it's a choice, not a disaster.\""
+      ],
+      avoid:[
+        "Don't make money feel like a stress or a taboo subject.",
+        "Don't overwhelm with adult worries like bills and debt.",
+        "Don't just say 'no' — explain the 'we're choosing something else' bit."
+      ],
+      follow:"If you had ten dollars, what would you spend, save, and share?"
+    },
+    b:{
+      opener:"You're getting older and money's going to matter more — phones, going out, all of it. Want me to let you in on how it actually works, the stuff school doesn't really teach?",
+      say:[
+        "Link money to time and choices: \"Money is basically stored effort. Every dollar you spend is a choice about your time.\"",
+        "Teach the wait: \"The trick most adults wish they'd learned young is waiting — saving up beats buying on impulse.\"",
+        "Introduce earning: \"Want to earn some of your own? Let's talk about jobs or ways to make a bit.\"",
+        "Be honest about your own learning: \"I've made money mistakes too — that's how you learn. Ask me anything.\""
+      ],
+      avoid:[
+        "Don't shame them for wanting things — desire is normal.",
+        "Don't hide all financial reality; a little honesty builds understanding.",
+        "Don't turn every purchase into a heavy lecture."
+      ],
+      follow:"What's something you're saving for — and what's the plan to get there?"
+    },
+    c:{
+      opener:"You're not far off managing your own money for real, so let's talk about it properly — the stuff that quietly makes or breaks people's twenties.",
+      say:[
+        "Get real about the traps: \"Buy-now-pay-later and credit feel free, but they're borrowing your future money. That's the trap.\"",
+        "Explain compounding: \"Saving early is almost a cheat code — small amounts grow massively over time. Let me show you the maths.\"",
+        "Talk budgeting without preaching: \"Knowing what comes in and what goes out gives you freedom, not restriction.\"",
+        "Set them up: \"Want to sort a savings account, or talk through a first job or payslip? I'll help you get it right.\""
+      ],
+      avoid:[
+        "Don't be secretive — vague 'we can't afford it' teaches nothing.",
+        "Don't judge their spending harshly; guide instead.",
+        "Don't assume they know how tax, super or interest work — most don't."
+      ],
+      follow:"If you got a surprise $500 tomorrow, what would you actually do with it?"
+    }
+  },
+
+  death:{
+    title:"Death & grief",
+    a:{
+      opener:"I need to tell you something sad, and I want to tell you the truth because you deserve that. Come sit with me for a minute.",
+      say:[
+        "Use clear, honest words: \"[Name] has died. That means their body stopped working and they won't come back. It's not like sleep.\"",
+        "Make room for feelings: \"You might feel sad, or angry, or nothing at all right now — every one of those is okay.\"",
+        "Reassure their world is safe: \"I'm here, and I'm not going anywhere. You're safe with me.\"",
+        "Invite the questions: \"You can ask me anything about it, even the same thing lots of times. That's fine.\""
+      ],
+      avoid:[
+        "Don't use 'gone to sleep', 'lost', or 'passed away' — they confuse young kids.",
+        "Don't hide your own tears; showing sadness makes it safe for them.",
+        "Don't force them to be sad on cue — grief in kids comes in bursts."
+      ],
+      follow:"What's one thing you'd like to remember about them?"
+    },
+    b:{
+      opener:"I've got some hard news, and I'd rather you hear it gently from me. Let's talk properly — take whatever time you need.",
+      say:[
+        "Be honest and direct: \"[Name] has died. I'm so sorry. It's okay for this to hit hard.\"",
+        "Normalise messy grief: \"There's no right way to feel. You might be upset, numb, or even laughing sometimes — all normal.\"",
+        "Share your own feeling: \"I'm sad too. We can be sad together, and that's okay.\"",
+        "Offer control and options: \"You get a say in things — the funeral, how we remember them. Tell me what feels right for you.\""
+      ],
+      avoid:[
+        "Don't rush them 'back to normal' or set a timeline on grief.",
+        "Don't hide your grief entirely — it teaches them to bottle it.",
+        "Don't dodge honest questions about death; vague answers breed fear."
+      ],
+      follow:"Is there anything you're wondering or worrying about that you haven't said out loud yet?"
+    },
+    c:{
+      opener:"I want to talk to you about this the way I'd want to be talked to — honestly, and without pretending I've got it all together either.",
+      say:[
+        "Respect them as near-adult: \"I'm not going to sugar-coat it. This is a real loss and it's okay for it to knock you sideways.\"",
+        "Validate any reaction: \"Grief can look like anger, guilt, numbness, wanting to be alone or wanting distraction. None of it means you're doing it wrong.\"",
+        "Model healthy coping: \"I'm leaning on people and letting myself feel it. You don't have to carry this solo.\"",
+        "Keep checking back: \"This isn't a one-time chat. Weeks from now, if it's sitting heavy, come find me.\""
+      ],
+      avoid:[
+        "Don't assume they're 'coping fine' because they seem quiet or busy.",
+        "Don't compare grief or say 'at least...'.",
+        "Don't ignore signs of deeper struggle — withdrawal, hopelessness, not sleeping."
+      ],
+      follow:"How are you actually doing with it, underneath the everyday stuff?"
+    },
+    note:"You know your kid best. Children grieve in bursts and revisit it as they grow. If grief turns into lasting withdrawal, hopelessness or trouble functioning, please reach out to a GP, grief counsellor or your child's school — asking for support is a sign of strength."
+  },
+
+  failure:{
+    title:"Failure & disappointment",
+    a:{
+      opener:"Rough one today, huh? Come here. Want to tell me what happened?",
+      say:[
+        "Sit with the feeling first: \"That's really disappointing. It's okay to feel gutted about it.\"",
+        "Separate the try from the outcome: \"You didn't fail — you tried something hard. That's the brave part.\"",
+        "Add the magic word 'yet': \"You can't do it yet. Getting good at stuff takes lots of tries.\"",
+        "Share your own misses: \"You know I mess things up all the time? That's just how learning looks.\""
+      ],
+      avoid:[
+        "Don't rush to fix it or say 'it doesn't matter' — to them it does.",
+        "Don't over-praise to paper over the sting.",
+        "Don't compare them to siblings or other kids."
+      ],
+      follow:"What's one small thing you could try differently next time?"
+    },
+    b:{
+      opener:"Sounds like today didn't go how you hoped. I'm not here to give you a pep talk you didn't ask for — I just want to hear about it.",
+      say:[
+        "Acknowledge before advising: \"That genuinely sucks. You put yourself out there and it didn't land — that's hard.\"",
+        "Reframe failure as data: \"Every person who's good at anything has a pile of flops behind them. This is one of yours in the making.\"",
+        "Protect their identity: \"You didn't do badly — one thing went badly. Those aren't the same.\"",
+        "Offer, don't impose: \"Want to just vent, or do you want to figure out a next step together?\""
+      ],
+      avoid:[
+        "Don't minimise it or immediately look for the silver lining.",
+        "Don't lecture about effort in the raw moment.",
+        "Don't tie your approval to their performance."
+      ],
+      follow:"What do you think you'd tell a mate if this had happened to them?"
+    },
+    c:{
+      opener:"I heard it didn't go your way. I'm not going to pretend I know exactly how that feels for you — but I'm around if you want to talk it through.",
+      say:[
+        "Respect the weight: \"That's a real disappointment and you're allowed to sit with it before bouncing back.\"",
+        "Normalise it as part of the path: \"Setbacks aren't the opposite of success — they're usually part of the route to it.\"",
+        "Reinforce unconditional backing: \"Nothing about a grade, a result or a knockback changes how I see you.\"",
+        "Point toward agency: \"When you're ready, we can look at what you'd tweak. No rush.\""
+      ],
+      avoid:[
+        "Don't project your own disappointment onto them.",
+        "Don't jump to 'what went wrong' before they've processed it.",
+        "Don't make future success the condition for your pride in them."
+      ],
+      follow:"When you've had a bit of space, what's the version of this you'd want to try again?"
+    }
+  },
+
+  screens:{
+    title:"Social media & screens",
+    a:{
+      opener:"Can you show me your favourite thing to do on the iPad? I actually want to see what you love about it.",
+      say:[
+        "Get curious before you police: \"Show me your favourite game — what makes it so good?\"",
+        "Set limits kindly and clearly: \"Screens are great, and our bodies and brains need other stuff too. That's why we have a stop time.\"",
+        "Name the design: \"These apps are made to be really hard to put down — that's a trick, not you being naughty.\"",
+        "Protect them online: \"If anyone you don't know tries to chat to you, come tell me straight away.\""
+      ],
+      avoid:[
+        "Don't make screens the enemy — it just makes them forbidden fruit.",
+        "Don't use screens only as the reward/punishment lever.",
+        "Don't set limits you don't model yourself."
+      ],
+      follow:"What could we do together for a bit once the screen goes off?"
+    },
+    b:{
+      opener:"You're getting more into your phone and social stuff, so I want to talk about it as a team, not as the phone police. Deal?",
+      say:[
+        "Show interest, not surveillance: \"What are you actually into online? I genuinely want to get it.\"",
+        "Explain the highlight-reel effect: \"Remember everyone posts their best 5 seconds. Comparing your normal life to that isn't fair on you.\"",
+        "Make a plan together: \"Let's agree on some ground rules together — like phones out of the bedroom at night — so sleep doesn't take the hit.\"",
+        "Keep it safe: \"If anything online makes you uncomfortable — a stranger, a photo, anything — you can always come to me, no trouble.\""
+      ],
+      avoid:[
+        "Don't snoop secretly — it destroys trust when found out.",
+        "Don't dismiss their online world as 'not real life'.",
+        "Don't preach about screen time while scrolling your own."
+      ],
+      follow:"How do you feel after an hour of scrolling — better, worse, or just kind of flat?"
+    },
+    c:{
+      opener:"I'm not going to try to control your phone — that ship's sailed and you're old enough. But I do want an honest chat about how it's actually affecting you.",
+      say:[
+        "Treat them as capable: \"You're smart about this stuff. I just want you thinking about it, not running on autopilot.\"",
+        "Talk about the attention economy: \"These platforms make money from your attention. It's worth knowing you're the product.\"",
+        "Connect it to wellbeing: \"Notice how you feel after a long scroll. If it's leaving you flat or comparing yourself, that's useful info.\"",
+        "Cover the permanent stuff: \"Anything you post can outlive the moment. A good rule — would you be fine with me, a teacher, or a boss seeing it?\""
+      ],
+      avoid:[
+        "Don't demand access to everything — respect some privacy at this age.",
+        "Don't catastrophise or blame 'phones' for everything.",
+        "Don't be a hypocrite about your own screen habits."
+      ],
+      follow:"If you could design your ideal relationship with your phone, what would it look like?"
+    }
+  },
+
+  body:{
+    title:"Body changes & puberty",
+    a:{
+      opener:"Your body's going to start changing over the next few years as you grow up — totally normal stuff. Want me to give you a heads-up so nothing catches you by surprise?",
+      say:[
+        "Frame it as normal and expected: \"Everyone goes through it, at their own pace. There's no 'behind' or 'ahead'.\"",
+        "Use correct, calm words: \"I'll use the proper names for body parts because it's just how bodies work — nothing to be embarrassed about.\"",
+        "Preview a few changes: \"You'll get taller, might get hairier, and feelings can get bigger too. All normal.\"",
+        "Open the door: \"You can ask me anything, anytime, and I won't laugh or make it weird.\""
+      ],
+      avoid:[
+        "Don't make it one scary 'big talk' — little chats over time work best.",
+        "Don't use vague nicknames that make bodies seem shameful.",
+        "Don't act embarrassed — your calm sets their calm."
+      ],
+      follow:"Is there anything you've already wondered about but felt a bit shy to ask?"
+    },
+    b:{
+      opener:"Puberty's either started or on its way, and I remember how confusing it all felt at your age. I'd rather you get straight answers from me than dodgy info from mates or the internet.",
+      say:[
+        "Normalise the awkward: \"This stage is weird for everyone — spots, growth spurts, moods, new smells. You're not broken, you're changing.\"",
+        "Be practical: \"Let's make sure you've got what you need — deodorant, whatever it is. No big deal, just being ready.\"",
+        "Validate the emotional side: \"Your feelings might swing more than usual. That's hormones doing their thing, not you failing.\"",
+        "Stay askable: \"Nothing's off-limits or too gross to ask me. Better you ask than guess.\""
+      ],
+      avoid:[
+        "Don't tease or joke about the changes — it shuts them down fast.",
+        "Don't assume mum/school 'has that covered'.",
+        "Don't skip the emotional and mood side — it matters as much as the physical."
+      ],
+      follow:"What's something about growing up that you're either curious or a bit unsure about?"
+    },
+    c:{
+      opener:"You're pretty far through the puberty stuff now, so this is less a 'talk' and more a check-in — anything you've been wondering about that you'd rather ask me than Google?",
+      say:[
+        "Treat them as nearly-grown: \"You're basically past the confusing bit. If anything's still on your mind, I'm an easier source than the internet.\"",
+        "Cover health honestly: \"Stuff like sexual health, protection, and looking after your body — I'd rather you had the real facts.\"",
+        "Reassure about variation: \"Bodies come in every shape and develop at every pace. What you see online is filtered and fake.\"",
+        "Keep the channel open: \"Even the awkward questions — I'll give you a straight answer, no judgement.\""
+      ],
+      avoid:[
+        "Don't assume they know it all just because they act like it.",
+        "Don't make it awkward by over-explaining basics they've got.",
+        "Don't shy away from real health topics they genuinely need."
+      ],
+      follow:"Is there anything about health or your body you'd want a straight answer on?"
+    }
+  },
+
+  peer:{
+    title:"Peer pressure",
+    a:{
+      opener:"Has a friend ever wanted you to do something you didn't really want to do? What happened?",
+      say:[
+        "Name it simply: \"Sometimes friends push us to do stuff. It's okay to say 'no thanks' even to people we like.\"",
+        "Give them a script: \"You can say 'nah, I don't want to' — or blame me: 'my dad would go spare'.\"",
+        "Separate friend from behaviour: \"A real friend won't stop liking you just because you said no.\"",
+        "Be the safety net: \"You can always ring me to come get you, no questions, no trouble.\""
+      ],
+      avoid:[
+        "Don't shame them for going along with something once.",
+        "Don't badmouth their friends — they'll defend them and tune out.",
+        "Don't make 'no' sound easy — acknowledge it's genuinely hard."
+      ],
+      follow:"What could you say if a friend wanted you to do something you weren't sure about?"
+    },
+    b:{
+      opener:"Fitting in matters heaps at your age — I get that, I was there too. I want to talk about the pressure that comes with it, without pretending it's simple.",
+      say:[
+        "Validate the pull: \"Wanting to fit in is completely human. It's not a weakness — it's how we're wired.\"",
+        "Arm them with an exit: \"Let's agree a code — text me a certain word and I'll 'need' you home, no explanation needed.\"",
+        "Build the inner voice: \"That gut feeling that says 'this doesn't feel right'? Trust it. It's usually correct.\"",
+        "Guarantee the safe landing: \"No matter what's happened, calling me for a lift beats staying somewhere you don't want to be.\""
+      ],
+      avoid:[
+        "Don't dismiss how huge belonging feels right now.",
+        "Don't attack their friend group — pick the behaviour, not the people.",
+        "Don't make honesty carry a punishment that keeps them quiet next time."
+      ],
+      follow:"What's a situation where it'd be hard to say no — and what could your exit plan be?"
+    },
+    c:{
+      opener:"You're making more of your own calls now, often without me around. I'm not going to hover — but I want you to have some tools for the moments where the easy choice isn't the right one.",
+      say:[
+        "Respect their independence: \"You're going to face these calls on your own. I trust you — I just want you prepared.\"",
+        "Reframe courage: \"Real confidence is being okay standing apart when it matters. That's rarer, and stronger, than following.\"",
+        "Keep the no-questions rescue: \"The 'call me and I'll come, no lecture tonight' deal stands, always. Getting you safe wins.\"",
+        "Talk about influence both ways: \"You've got sway over your mates too. Being the one who says 'let's not' can change a whole night.\""
+      ],
+      avoid:[
+        "Don't lecture about 'bad influences' — it lands as controlling.",
+        "Don't underestimate how much they still weigh what you think.",
+        "Don't make the price of an honest call so high they'd rather hide it."
+      ],
+      follow:"When have you seen someone your age make a genuinely tough call — and what did you think of it?"
+    }
+  }
+};
+
+var sel={topic:null,age:null};
+
+document.querySelectorAll('.chips').forEach(function(group){
+  group.addEventListener('click',function(e){
+    var b=e.target.closest('.chip'); if(!b) return;
+    var already = b.getAttribute('aria-pressed')==='true';
+    group.querySelectorAll('.chip').forEach(function(c){c.setAttribute('aria-pressed','false');});
+    if(group.id==='age' && already){ sel.age=null; render(); return; }
+    b.setAttribute('aria-pressed','true');
+    sel[group.id]=b.dataset.v;
+    render();
+  });
+});
+
+function render(){
+  if(!sel.topic){ return; }
+  var age = sel.age || 'b'; // default to the middle band if none chosen
+  var t = DECK[sel.topic];
+  var d = t[age];
+
+  var meta=['<span class="tag">'+TOPIC_LABEL[sel.topic]+'</span>'];
+  meta.push('<span class="tag">'+ (sel.age ? AGE_LABEL[sel.age] : 'General (tap an age to tune)') +'</span>');
+  document.getElementById('d-meta').innerHTML=meta.join('');
+
+  document.getElementById('d-title').textContent=t.title;
+  document.getElementById('d-opener').textContent='“'+d.opener+'”';
+  document.getElementById('d-say').innerHTML=d.say.map(function(s){return '<li>'+s+'</li>';}).join('');
+  document.getElementById('d-avoid').innerHTML=d.avoid.map(function(s){return '<li>'+s+'</li>';}).join('');
+  document.getElementById('d-follow').textContent='“'+d.follow+'”';
+
+  var noteEl=document.getElementById('d-note');
+  if(t.note){ noteEl.textContent=t.note; noteEl.style.display='block'; }
+  else{ noteEl.style.display='none'; }
+
+  var out=document.getElementById('out');
+  out.classList.add('show');
+  out.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function reset(){
+  sel={topic:null,age:null};
+  document.querySelectorAll('.chip').forEach(function(c){c.setAttribute('aria-pressed','false');});
+  document.getElementById('out').classList.remove('show');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

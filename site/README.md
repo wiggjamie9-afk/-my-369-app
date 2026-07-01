@@ -15,5 +15,6 @@ A self-contained landing page for Dad's Code (`index.html`). No build step, no d
 - **Custom domain:** buy `dadscode.com.au` (~$15/yr) and point it at whichever host above.
 
 ## Notes
-- The "Try it" tool links point to the interactive tools in `../podcast/dads-code/build/`. If you host only the `site` folder, either copy those `.html` tools alongside it or host the whole repo.
+- ✅ **Self-contained:** the interactive tools are bundled in `site/tools/`, so every "Try it" link works when you host **just the `site` folder** (drag-and-drop the whole `site` folder to Cloudflare Pages / Netlify).
+- To add or update a tool later, copy the new `.html` from `../podcast/dads-code/build/` into `site/tools/` and link to `tools/<file>.html`.
 - Everything is brand-consistent (charcoal + amber, "Present, not perfect."), responsive, and accessible.
