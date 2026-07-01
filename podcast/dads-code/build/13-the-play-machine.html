@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Play Machine — never run out of dad-and-kid ideas · Dad's Code</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#14121A;--panel:#1C1A26;--amber:#DFB76C;--text:#F4F1EA;--muted:#B4AEC0;--radius:16px}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:600;line-height:1.15;margin:0 0 .4em}
+  a{color:var(--amber)}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px}
+  .topbar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:rgba(20,18,26,.85);backdrop-filter:blur(10px);border-bottom:1px solid #2a2733}
+  .wordmark{font-weight:700;letter-spacing:.14em;font-size:.78rem;color:var(--amber);text-transform:uppercase}
+  .btn{font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;border-radius:999px;padding:.5em 1.1em;border:1px solid var(--amber);background:transparent;color:var(--amber);transition:.15s}
+  .btn:hover{background:var(--amber);color:var(--bg)}
+  .btn-solid{background:var(--amber);color:var(--bg)}
+  :focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:6px}
+  .skip{position:absolute;left:-9999px}.skip:focus{left:12px;top:12px;position:fixed;background:var(--amber);color:var(--bg);padding:.6em 1em;border-radius:8px;z-index:50}
+  .hero{text-align:center;padding:56px 20px 26px;position:relative;overflow:hidden}
+  .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(900px 460px at 50% -10%,rgba(223,183,108,.14),transparent 70%);pointer-events:none}
+  .kicker{text-transform:uppercase;letter-spacing:.2em;font-size:.72rem;color:var(--amber);margin-bottom:12px}
+  .hero h1{font-size:clamp(2.3rem,7vw,3.8rem)}
+  .hero h1 .accent{color:var(--amber)}
+  .hero p.sub{color:var(--muted);max-width:520px;margin:14px auto 0}
+  .tagline{margin-top:22px;font-family:Fraunces,serif;font-style:italic;color:var(--muted)}
+  section{padding:24px 0 46px}
+  .card{background:var(--panel);border:1px solid #2a2733;border-radius:var(--radius);padding:22px}
+  fieldset{border:none;margin:0 0 14px;padding:0}
+  legend{font-weight:600;font-size:.9rem;margin-bottom:8px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{font:inherit;font-size:.88rem;cursor:pointer;border:1px solid #33303d;background:#0f0d14;color:var(--text);padding:.5em 1em;border-radius:999px;transition:.15s}
+  .chip[aria-pressed=true]{background:var(--amber);color:var(--bg);border-color:var(--amber);font-weight:600}
+  .go{width:100%;font-size:1.05rem;padding:.85em;border:none;border-radius:12px;background:var(--amber);color:var(--bg);font-weight:700;cursor:pointer;margin-top:6px}
+  .go:hover{filter:brightness(1.08)}
+  #out{margin-top:22px;display:none}
+  #out.show{display:block;animation:fade .4s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .play{background:linear-gradient(180deg,#211d2c,#181521);border:1px solid #322d3d;border-radius:var(--radius);padding:26px;text-align:center}
+  .play .meta{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+  .tag{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--amber);border:1px solid #4a3f28;border-radius:999px;padding:.3em .8em}
+  .play h2{font-size:1.7rem;margin:.1em 0 .3em}
+  .play .how{color:var(--text);margin:.5em auto;max-width:520px}
+  .why{color:var(--muted);font-size:.9rem;margin-top:14px;font-style:italic}
+  .again{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+  .cta{margin-top:34px;background:#17141f;border:1px solid #2f2b3a;border-radius:var(--radius);padding:24px;text-align:center}
+  .cta h3{color:var(--amber)}
+  footer{border-top:1px solid #2a2733;text-align:center;padding:28px 20px;color:var(--muted);font-size:.85rem;margin-top:20px}
+  @media print{.topbar,.btn,.go,.again,.chips,.cta .btn,.skip{display:none!important}body{background:#fff;color:#111}.play,.card,.cta{background:#fff;border:1px solid #ccc}.hero h1 .accent,.tag,.wordmark,.cta h3{color:#000}}
+</style>
+</head>
+<body>
+<a class="skip" href="#tool">Skip to the generator</a>
+<div class="topbar"><span class="wordmark">Dad's Code</span><button class="btn" onclick="window.print()">Save / Print</button></div>
+
+<header class="hero">
+  <div class="kicker">A Dad's Code Tool</div>
+  <h1>The Play <span class="accent">Machine</span></h1>
+  <p class="sub">Never say "I dunno, what do you want to do?" again. Tell it your situation — it deals you a play idea in one tap.</p>
+  <div class="tagline">Present, not perfect.</div>
+</header>
+
+<main class="wrap">
+  <section id="tool">
+    <div class="card">
+      <fieldset><legend>How old is your kid?</legend>
+        <div class="chips" id="age">
+          <button class="chip" aria-pressed="false" data-v="toddler">1–3</button>
+          <button class="chip" aria-pressed="false" data-v="little">4–6</button>
+          <button class="chip" aria-pressed="false" data-v="kid">7–9</button>
+          <button class="chip" aria-pressed="false" data-v="big">10–12</button>
+        </div>
+      </fieldset>
+      <fieldset><legend>Energy right now?</legend>
+        <div class="chips" id="energy">
+          <button class="chip" aria-pressed="false" data-v="chill">Chill</button>
+          <button class="chip" aria-pressed="false" data-v="medium">Medium</button>
+          <button class="chip" aria-pressed="false" data-v="wild">Wild</button>
+        </div>
+      </fieldset>
+      <fieldset><legend>Where are you?</legend>
+        <div class="chips" id="place">
+          <button class="chip" aria-pressed="false" data-v="in">Inside</button>
+          <button class="chip" aria-pressed="false" data-v="out">Outside</button>
+        </div>
+      </fieldset>
+      <fieldset><legend>How long have you got?</legend>
+        <div class="chips" id="time">
+          <button class="chip" aria-pressed="false" data-v="5">5 min</button>
+          <button class="chip" aria-pressed="false" data-v="15">15 min</button>
+          <button class="chip" aria-pressed="false" data-v="30">30 min+</button>
+        </div>
+      </fieldset>
+      <button class="go" onclick="deal()">Deal me a play idea →</button>
+    </div>
+
+    <div id="out" aria-live="polite">
+      <div class="play">
+        <div class="meta" id="p-meta"></div>
+        <h2 id="p-title"></h2>
+        <p class="how" id="p-how"></p>
+        <p class="why" id="p-why"></p>
+        <div class="again">
+          <button class="btn btn-solid" onclick="deal()">Deal another →</button>
+          <button class="btn" onclick="deal(true)">Reset filters</button>
+        </div>
+      </div>
+      <div class="cta">
+        <h3>Turn it into a habit</h3>
+        <p style="color:var(--muted);margin:.3em 0 0">One deliberate bit of play a day is how the bond gets built. More on the Dad's Code podcast.</p>
+        <div style="margin-top:12px"><a class="btn" href="https://dadscode.com.au/podcast">Listen to Dad's Code</a></div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer><div class="wordmark" style="margin-bottom:6px">Dad's Code</div>Present, not perfect. · Rough-and-tumble builds resilience — the science backs the fun.</footer>
+
+<script>
+var sel={age:null,energy:null,place:null,time:null};
+document.querySelectorAll('.chips').forEach(function(group){
+  group.addEventListener('click',function(e){
+    var b=e.target.closest('.chip'); if(!b)return;
+    group.querySelectorAll('.chip').forEach(function(c){c.setAttribute('aria-pressed','false')});
+    b.setAttribute('aria-pressed','true'); sel[group.id]=b.dataset.v;
+  });
+});
+
+// activity bank: age[toddler,little,kid,big], energy[chill,medium,wild], place[in,out,any], time(min needed)
+var A=[
+ {t:"Floor is Lava",a:["little","kid","big"],e:"wild",p:"in",m:5,how:"Cushions and couches are safe islands. The floor will melt you. Chase, leap, rescue each other.",w:"Wild movement + shared silliness spikes connection hormones fast."},
+ {t:"Sock Snowball Fight",a:["toddler","little","kid"],e:"wild",p:"in",m:5,how:"Roll up every sock in the house. Two teams. No mercy. Cleanup is the cooldown.",w:"Rough-and-tumble play teaches kids to handle excitement and stop on cue."},
+ {t:"Torch Shadow Puppets",a:["toddler","little","kid"],e:"chill",p:"in",m:15,how:"Lights off, one torch, blank wall. Make animals with your hands and give them silly voices.",w:"Low-arousal, face-to-face play is prime bonding before bed."},
+ {t:"Kitchen Disco",a:["toddler","little","kid","big"],e:"wild",p:"in",m:5,how:"Pick one loud song. Dance like idiots until it ends. Worst dancer wins.",w:"Shared laughter is one of the fastest routes to feeling close."},
+ {t:"Build a Fort",a:["toddler","little","kid"],e:"medium",p:"in",m:30,how:"Every blanket, every chair, every peg. Then read or tell stories inside your new HQ.",w:"Building a 'safe base' together deepens attachment and imagination."},
+ {t:"Puddle Expedition",a:["toddler","little","kid"],e:"medium",p:"out",m:15,how:"Boots on. Find the biggest puddle. Jump in it. Rate each splash out of ten.",w:"Messy outdoor play lowers stress and builds sensory confidence."},
+ {t:"Backyard Obstacle Course",a:["little","kid","big"],e:"wild",p:"out",m:30,how:"Under the table, around the tree, hop the pavers, three star-jumps. Time each other.",w:"Physical challenge with a cheering dad builds resilience and self-belief."},
+ {t:"Cloud Stories",a:["toddler","little","kid"],e:"chill",p:"out",m:15,how:"Lie on the grass. Take turns spotting shapes and inventing what they're up to.",w:"Slow, unhurried attention tells a kid: you matter more than my to-do list."},
+ {t:"The Yes Game",a:["little","kid","big"],e:"medium",p:"any",m:15,how:"For 15 minutes, you say yes to whatever (reasonable) game they pick. They lead, you follow.",w:"Child-led play gives kids agency — a huge confidence builder."},
+ {t:"Bug Safari",a:["toddler","little","kid"],e:"medium",p:"out",m:15,how:"Grab a jar. Hunt for the coolest bug in the yard. Name it. Set it free.",w:"Curiosity shared with a parent wires a love of learning."},
+ {t:"Tell Me a Story With…",a:["little","kid","big"],e:"chill",p:"any",m:5,how:"They give you three random words. You make up a story on the spot using all three. Swap.",w:"Improvised storytelling boosts language and shows them your playful side."},
+ {t:"Balloon Keepy-Uppy",a:["toddler","little","kid"],e:"medium",p:"in",m:5,how:"One balloon. It must not touch the floor. Count your record and beat it.",w:"Simple co-op goals build teamwork without competition stress."},
+ {t:"Wheelbarrow Race",a:["little","kid","big"],e:"wild",p:"any",m:5,how:"They walk on their hands, you hold their legs. Race to the wall and back.",w:"Big-body play develops coordination and pure joy."},
+ {t:"Draw Me Wrong",a:["little","kid","big"],e:"chill",p:"in",m:15,how:"Take turns drawing each other — but you're only allowed to make it hilariously bad.",w:"Laughing at yourself teaches kids it's safe to be imperfect."},
+ {t:"Secret Handshake Lab",a:["little","kid","big"],e:"medium",p:"any",m:15,how:"Invent a ridiculous handshake together, one move at a time, until neither of you can remember it.",w:"A shared ritual becomes a private bond you both carry for years."},
+ {t:"Freeze Dance",a:["toddler","little","kid"],e:"wild",p:"in",m:5,how:"Music on = dance. Music off = freeze. Last to freeze does a silly forfeit.",w:"Start-stop games build the brakes kids need for self-control."},
+ {t:"Stone Skipping / Throwing",a:["kid","big"],e:"medium",p:"out",m:15,how:"Find the flattest stones and a bit of water — or just see who throws furthest. Coach their technique.",w:"Being taught a skill by dad is a classic confidence and bonding win."},
+ {t:"Blanket Sleigh Ride",a:["toddler","little"],e:"wild",p:"in",m:5,how:"They sit on a blanket, you drag them around the smooth floors. 'Faster!' is guaranteed.",w:"Safe thrills with dad build trust and delight."},
+ {t:"Two-Minute Talk",a:["kid","big"],e:"chill",p:"any",m:5,how:"Ask one real question ('best and worst bit of today?') and just listen. No fixing, no lecture.",w:"Micro-conversations are where big-kid trust is quietly built."},
+ {t:"Paper Plane Champs",a:["little","kid","big"],e:"medium",p:"any",m:15,how:"Fold three designs each. Fly-off for distance and for style. Award silly trophies.",w:"Making then testing together blends creativity with connection."},
+ {t:"Pillow Sumo",a:["little","kid","big"],e:"wild",p:"in",m:5,how:"Cushion in each hand, knees on the bed, gently bump each other off balance. Big laughs, soft landings.",w:"Controlled rough play lets kids test strength safely with a trusted adult."},
+ {t:"Nature Treasure Hunt",a:["toddler","little","kid"],e:"medium",p:"out",m:30,how:"Find something round, something rough, something red, something that smells nice. Collect and compare.",w:"Open-ended outdoor missions build focus and wonder."},
+ {t:"Would You Rather: Silly Edition",a:["little","kid","big"],e:"chill",p:"any",m:5,how:"Trade daft dilemmas — nose for a trunk or ears for wings? Best reasoning wins.",w:"Playful debate strengthens thinking and shows you enjoy their mind."},
+ {t:"Car Wash (Bikes/Toys)",a:["toddler","little","kid"],e:"medium",p:"out",m:30,how:"Bucket, sponge, hose. 'Detail' the bikes and scooters together. Get soaked.",w:"Working on a shared task side-by-side is how a lot of dads bond best."}
+];
+
+function deal(reset){
+  if(reset){ sel={age:null,energy:null,place:null,time:null}; document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false')); document.getElementById('out').classList.remove('show'); window.scrollTo({top:0,behavior:'smooth'}); return; }
+  var pool=A.filter(function(x){
+    if(sel.age && x.a.indexOf(sel.age)<0) return false;
+    if(sel.energy && x.e!==sel.energy) return false;
+    if(sel.place && x.p!=='any' && x.p!==sel.place) return false;
+    if(sel.time && x.m>parseInt(sel.time)) return false;
+    return true;
+  });
+  if(!pool.length) pool=A.filter(x=> !sel.age || x.a.indexOf(sel.age)>=0);
+  if(!pool.length) pool=A.slice();
+  var pick=pool[Math.floor(Math.random()*pool.length)];
+  var meta=[];
+  if(sel.age) meta.push({toddler:'Ages 1–3',little:'Ages 4–6',kid:'Ages 7–9',big:'Ages 10–12'}[sel.age]);
+  meta.push({chill:'Chill',medium:'Medium',wild:'Wild'}[pick.e]);
+  meta.push(pick.p==='in'?'Inside':pick.p==='out'?'Outside':'Anywhere');
+  meta.push(pick.m+'+ min');
+  document.getElementById('p-meta').innerHTML=meta.map(m=>'<span class="tag">'+m+'</span>').join('');
+  document.getElementById('p-title').textContent=pick.t;
+  document.getElementById('p-how').textContent=pick.how;
+  document.getElementById('p-why').textContent="Why it works: "+pick.w;
+  var out=document.getElementById('out'); out.classList.add('show');
+  out.scrollIntoView({behavior:'smooth',block:'center'});
+}
+</script>
+</body>
+</html>
