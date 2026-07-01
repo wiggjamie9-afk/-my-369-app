@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dad's Code — Present, not perfect. | Jamie Wigg</title>
+<meta name="description" content="Honest fatherhood from a rebuilt dad. Podcast, books, and genuinely useful tools for dads who want to be present, not perfect. By Jamie Wigg.">
+<meta property="og:title" content="Dad's Code — Present, not perfect.">
+<meta property="og:description" content="Honest fatherhood from a rebuilt dad. Podcast, books & tools for dads.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#14121A;--panel:#1C1A26;--panel2:#211d2c;--amber:#DFB76C;--text:#F4F1EA;--muted:#B4AEC0;--line:#2a2733;--radius:16px}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,sans-serif;font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:600;line-height:1.12;margin:0 0 .4em}
+  a{color:var(--amber);text-decoration:none}
+  img{max-width:100%}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+  .btn{display:inline-block;font-weight:600;font-size:.95rem;cursor:pointer;border-radius:999px;padding:.7em 1.4em;border:1px solid var(--amber);background:transparent;color:var(--amber);transition:.15s}
+  .btn:hover{background:var(--amber);color:var(--bg)}
+  .btn-solid{background:var(--amber);color:var(--bg);border-color:var(--amber)}
+  .btn-solid:hover{filter:brightness(1.08)}
+  :focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:6px}
+  .eyebrow{text-transform:uppercase;letter-spacing:.2em;font-size:.72rem;color:var(--amber)}
+
+  /* nav */
+  header.nav{position:sticky;top:0;z-index:40;background:rgba(20,18,26,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 22px;max-width:1080px;margin:0 auto}
+  .brand{font-weight:700;letter-spacing:.14em;font-size:.82rem;color:var(--amber);text-transform:uppercase}
+  .nav-links{display:flex;gap:22px;align-items:center}
+  .nav-links a{color:var(--muted);font-size:.9rem;font-weight:500}
+  .nav-links a:hover{color:var(--text)}
+  @media(max-width:760px){.nav-links a:not(.btn){display:none}}
+
+  /* hero */
+  .hero{text-align:center;padding:76px 22px 40px;position:relative;overflow:hidden}
+  .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(1100px 560px at 50% -10%,rgba(223,183,108,.16),transparent 68%);pointer-events:none}
+  .hero h1{font-size:clamp(2.8rem,8vw,5rem);margin:14px 0 0}
+  .hero h1 .a{color:var(--amber)}
+  .hero .lead{color:var(--muted);max-width:620px;margin:20px auto 0;font-size:1.15rem}
+  .hero .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:30px}
+  .trust{color:var(--muted);font-size:.85rem;margin-top:20px}
+
+  section{padding:56px 0}
+  .section-head{text-align:center;max-width:620px;margin:0 auto 34px}
+  .section-head h2{font-size:clamp(1.8rem,5vw,2.6rem)}
+  .section-head p{color:var(--muted)}
+
+  /* feature (free tool) */
+  .feature{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:24px;padding:40px;text-align:center;position:relative;overflow:hidden}
+  .feature::before{content:"";position:absolute;inset:0;background:radial-gradient(700px 300px at 50% 0,rgba(223,183,108,.12),transparent 70%)}
+  .feature .badge{display:inline-block;border:1px solid var(--amber);border-radius:999px;padding:.35em 1em;font-size:.75rem;color:var(--amber);margin-bottom:16px}
+  .feature h2{font-size:clamp(1.6rem,5vw,2.4rem)}
+  .feature p{color:var(--muted);max-width:520px;margin:12px auto 22px}
+
+  /* story */
+  .story{display:grid;grid-template-columns:1fr;gap:26px;align-items:center}
+  @media(min-width:800px){.story{grid-template-columns:1fr 1.2fr}}
+  .story .portrait{background:linear-gradient(160deg,#2a2436,#17141f);border:1px solid var(--line);border-radius:20px;aspect-ratio:4/5;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.9rem;text-align:center;padding:20px}
+  .story blockquote{margin:0;font-family:Fraunces,serif;font-size:1.3rem;line-height:1.5;color:var(--text)}
+
+  /* product grid */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;transition:.15s}
+  .card:hover{border-color:#3a3547;transform:translateY(-2px)}
+  .card .cat{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--amber)}
+  .card h3{font-size:1.12rem;margin:.35em 0 .3em}
+  .card p{color:var(--muted);font-size:.9rem;flex:1;margin:0 0 14px}
+  .card .foot{display:flex;align-items:center;justify-content:space-between}
+  .card .price{font-family:Fraunces,serif;color:var(--amber);font-weight:600}
+  .pill{font-size:.72rem;color:var(--amber);border:1px solid #4a3f28;border-radius:999px;padding:.25em .7em}
+
+  /* podcast */
+  .pod{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:40px;text-align:center}
+  .shows{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:18px}
+  .show{font-size:.85rem;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:.4em 1em}
+
+  /* email band */
+  .signup{background:linear-gradient(180deg,#211d2c,#17141f);border:1px solid var(--line);border-radius:24px;padding:40px;text-align:center}
+  .signup form{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+  .signup input{font:inherit;background:#0f0d14;border:1px solid #33303d;border-radius:999px;color:var(--text);padding:.7em 1.1em;min-width:260px}
+
+  footer{border-top:1px solid var(--line);padding:40px 22px;text-align:center;color:var(--muted);font-size:.88rem}
+  footer .brand{display:block;margin-bottom:8px}
+  footer .links{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin:14px 0}
+  footer .links a{color:var(--muted)}
+  .resources{font-size:.8rem;color:var(--muted);max-width:640px;margin:16px auto 0;opacity:.85}
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-inner">
+    <a href="#top" class="brand">Dad's Code</a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#story">Story</a>
+      <a href="#tools">Tools</a>
+      <a href="#shop">Shop</a>
+      <a href="#podcast">Podcast</a>
+      <a class="btn btn-solid" href="#free">Free guide</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Honest fatherhood · by Jamie Wigg</div>
+      <h1>Present, <span class="a">not perfect.</span></h1>
+      <p class="lead">A rebuilt dad's toolkit for showing up — a podcast, honest books, and genuinely useful tools for the dad who's trying his best on not much sleep.</p>
+      <div class="cta-row">
+        <a class="btn btn-solid" href="#free">Get the free guide</a>
+        <a class="btn" href="#tools">Try the free tool →</a>
+      </div>
+      <p class="trust">Dad of four · late-diagnosed ADHD &amp; dyslexia · rebuilt from the floor up.</p>
+    </div>
+  </section>
+
+  <!-- FREE TOOL FEATURE -->
+  <section id="tools" class="wrap">
+    <div class="feature">
+      <span class="badge">Free · try it now</span>
+      <h2>How much time have you got left?</h2>
+      <p>Enter your child's birthday and see — live — how many weekends, summers and bedtimes you have left before they're grown. It'll change how you spend today.</p>
+      <a class="btn btn-solid" href="../podcast/dads-code/build/12-days-left-calculator.html">Open "Days Left" →</a>
+      <p style="margin-top:26px" class="eyebrow">More tools nobody else has built</p>
+      <div class="grid" style="margin-top:14px;text-align:left">
+        <div class="card"><span class="cat">Tool</span><h3>The Play Machine</h3><p>Deals you a science-backed play idea for your kid's exact age, energy and time.</p><div class="foot"><span class="price">$9</span><a class="btn" href="../podcast/dads-code/build/13-the-play-machine.html">Try it</a></div></div>
+        <div class="card"><span class="cat">Tool</span><h3>The Bedtime Engine</h3><p>A brand-new bedtime story every night — starring your kid, never the same twice.</p><div class="foot"><span class="price">$12</span><a class="btn" href="../podcast/dads-code/build/17-the-bedtime-engine.html">Try it</a></div></div>
+        <div class="card"><span class="cat">Tool</span><h3>Letters to You</h3><p>Write letters to your kid's future — their 18th, their wedding day — into a printable keepsake.</p><div class="foot"><span class="price">$19</span><a class="btn" href="../podcast/dads-code/build/14-letters-to-you.html">Try it</a></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STORY -->
+  <section id="story" class="wrap">
+    <div class="story">
+      <div class="portrait">[ Add a warm photo of Jamie + kids here ]</div>
+      <div>
+        <div class="eyebrow">The story</div>
+        <h2 style="font-size:clamp(1.8rem,5vw,2.6rem)">I made a vow at ten. It took me 38 years to keep it.</h2>
+        <blockquote>"I grew up with a dad whose love arrived as money, not presence. So I promised myself I'd be different. Late-diagnosed with ADHD and dyslexia, I lost my way, rebuilt my health, and learned the only thing that matters: being there. Not perfect. Present."</blockquote>
+        <p style="color:var(--muted)">Dad's Code is everything I wish someone had handed me — for the dads still figuring it out.</p>
+        <a class="btn" href="#shop">See what I've made →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SHOP -->
+  <section id="shop" style="background:linear-gradient(180deg,transparent,rgba(28,26,38,.5),transparent)">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">The shop</div>
+        <h2>Books, guides &amp; tools for real dads</h2>
+        <p>Honest, practical, and built from experience. Start free, go deeper when you're ready.</p>
+      </div>
+      <div class="grid">
+        <div class="card"><span class="cat">Free</span><h3>The 5-Minute Present Dad</h3><p>Five tiny ways to show up when you're running on empty.</p><div class="foot"><span class="pill">Free</span><a class="btn" href="#free">Get it</a></div></div>
+        <div class="card"><span class="cat">eBook</span><h3>Present, Not Perfect</h3><p>A rebuilt dad's field guide to showing up. Six honest chapters.</p><div class="foot"><span class="price">$9</span><a class="btn" data-buy="present-not-perfect" href="#">Get it</a></div></div>
+        <div class="card"><span class="cat">Cookbook</span><h3>Dad's Code Kitchen</h3><p>40 fast, fun, kid-approved meals — even when Mum's working.</p><div class="foot"><span class="price">$14</span><a class="btn" data-buy="kitchen" href="#">Get it</a></div></div>
+        <div class="card"><span class="cat">Guide</span><h3>The ADHD Dad's Playbook</h3><p>Seven plays for dads whose brains work differently.</p><div class="foot"><span class="price">$14</span><a class="btn" data-buy="adhd" href="#">Get it</a></div></div>
+        <div class="card"><span class="cat">Workbook</span><h3>Steady</h3><p>Simple mental-health tools for dads running on empty.</p><div class="foot"><span class="price">$14</span><a class="btn" data-buy="steady" href="#">Get it</a></div></div>
+        <div class="card"><span class="cat">Kids</span><h3>Dad's Bedtime Stories</h3><p>Six cosy read-aloud tales, each with a gentle lesson.</p><div class="foot"><span class="price">$12</span><a class="btn" data-buy="bedtime" href="#">Get it</a></div></div>
+        <div class="card"><span class="cat">Bundle</span><h3>The Present Dad Toolkit</h3><p>All seven interactive tools in one — your whole fatherhood, in your pocket.</p><div class="foot"><span class="price">$39</span><a class="btn btn-solid" data-buy="toolkit" href="#">Get the bundle</a></div></div>
+        <div class="card"><span class="cat">Bundle</span><h3>The Everything Bundle</h3><p>All 18 products — every guide, book, and tool.</p><div class="foot"><span class="price">$79</span><a class="btn btn-solid" data-buy="everything" href="#">Get everything</a></div></div>
+      </div>
+      <p style="text-align:center;color:var(--muted);font-size:.85rem;margin-top:22px">More titles: 30-Day Present Dad Journal · Dad Fuel · Still Choosing You · Dad &amp; Me Conversation Cards · The 90-Day Rebuilt Dad · The Dad Deck · Dad Battery · Time Capsule.</p>
+    </div>
+  </section>
+
+  <!-- PODCAST -->
+  <section id="podcast" class="wrap">
+    <div class="pod">
+      <div class="eyebrow">The podcast</div>
+      <h2 style="font-size:clamp(1.8rem,5vw,2.6rem)">Dad's Code</h2>
+      <p style="color:var(--muted);max-width:560px;margin:10px auto 0">Real, honest fatherhood — including my own story, straight from the memoir. New episodes weekly.</p>
+      <div class="shows">
+        <span class="show">🎙️ The memoir season</span>
+        <span class="show">Present over perfect</span>
+        <span class="show">The late-diagnosed brain</span>
+        <span class="show">Still here</span>
+      </div>
+      <div style="margin-top:22px"><a class="btn btn-solid" href="#" data-link="podcast">Listen on Apple, Spotify &amp; YouTube</a></div>
+    </div>
+  </section>
+
+  <!-- EMAIL SIGNUP -->
+  <section id="free" class="wrap">
+    <div class="signup">
+      <div class="eyebrow">Start here — free</div>
+      <h2 style="font-size:clamp(1.8rem,5vw,2.4rem)">The 5-Minute Present Dad</h2>
+      <p style="color:var(--muted);max-width:520px;margin:10px auto 0">Five small ways to show up for your kids tonight. Free — straight to your inbox.</p>
+      <!-- Replace the form action with your MailerLite / email-provider form URL -->
+      <form action="#" method="post" onsubmit="alert('Connect this form to your email tool (e.g. MailerLite) — see the note in the code.');return false;">
+        <input type="email" name="email" placeholder="your@email.com" aria-label="Email address" required>
+        <button class="btn btn-solid" type="submit">Send me the free guide</button>
+      </form>
+      <p style="color:var(--muted);font-size:.78rem;margin-top:12px">No spam. Just honest dad stuff. Unsubscribe anytime.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span class="brand">Dad's Code</span>
+  <div>Present, not perfect. · by Jamie Wigg</div>
+  <div class="links">
+    <a href="#story">Story</a><a href="#shop">Shop</a><a href="#podcast">Podcast</a>
+    <a href="#" data-link="instagram">Instagram</a><a href="#" data-link="tiktok">TikTok</a>
+  </div>
+  <p class="resources">If you're struggling, you're not alone. In Australia: Lifeline 13 11 14 · Beyond Blue 1300 22 4636 · MensLine 1300 78 99 78. This site shares one dad's experience — not medical advice.</p>
+  <p style="opacity:.6;font-size:.78rem">© Dad's Code. All rights reserved.</p>
+</footer>
+
+<!-- HOW TO FINISH THIS SITE:
+  1. Replace href="#" data-buy="..." links with your Gumroad product URLs.
+  2. Replace data-link="podcast/instagram/tiktok" with your real links.
+  3. Connect the email form: paste your MailerLite (or similar) form action URL into the <form action> above and remove the onsubmit alert.
+  4. Add a real photo where the [portrait] placeholder is.
+  5. Host it free (see /site/README).
+-->
+</body>
+</html>
