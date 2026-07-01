@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Letters to You — a legacy-letter builder for dads · Dad's Code</title>
+<meta name="description" content="Letters to You — a guided legacy-letter builder. Write letters your child can open at life's big milestones, then print a beautiful keepsake. By Jamie Wigg, Dad's Code.">
+<meta name="author" content="Jamie Wigg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14121A;--panel:#1C1A26;--panel-2:#211D2C;--amber:#DFB76C;--amber-soft:#e8c98c;
+    --text:#F4F1EA;--muted:#B4AEC0;--line:#2a2733;--line-2:#33303d;--radius:16px;
+    --serif:"Fraunces",Georgia,"Times New Roman",serif;
+    --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:17px;line-height:1.7;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.16;margin:0 0 .4em;letter-spacing:-.01em}
+  a{color:var(--amber)}
+  p{margin:0 0 1.1em}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px}
+
+  .topbar{position:sticky;top:0;z-index:40;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px clamp(16px,4vw,40px);background:rgba(20,18,26,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .wordmark{font-family:var(--serif);font-weight:700;letter-spacing:.16em;font-size:.82rem;color:var(--amber);text-transform:uppercase}
+  .btn{font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;border-radius:999px;padding:.55em 1.15em;border:1px solid var(--amber);background:transparent;color:var(--amber);transition:.15s}
+  .btn:hover{background:var(--amber);color:var(--bg)}
+  .btn-solid{background:var(--amber);color:var(--bg)}
+  .btn-solid:hover{filter:brightness(1.07)}
+  :focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:6px}
+  .skip{position:absolute;left:-9999px}
+  .skip:focus{left:12px;top:12px;position:fixed;background:var(--amber);color:var(--bg);padding:.6em 1em;border-radius:8px;z-index:60}
+
+  .hero{text-align:center;padding:60px 20px 30px;position:relative;overflow:hidden}
+  .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(900px 480px at 50% -10%,rgba(223,183,108,.15),transparent 70%);pointer-events:none}
+  .kicker{text-transform:uppercase;letter-spacing:.2em;font-size:.72rem;color:var(--amber);margin-bottom:14px}
+  .hero h1{font-size:clamp(2.4rem,7.5vw,4rem)}
+  .hero h1 .accent{color:var(--amber);font-style:italic;font-weight:500}
+  .hero p.sub{color:var(--muted);max-width:540px;margin:16px auto 0}
+  .tagline{margin-top:22px;font-family:var(--serif);font-style:italic;color:var(--muted)}
+  .glyph{font-family:var(--serif);color:var(--amber);opacity:.5;font-size:1.6rem;display:block;margin:0 auto 10px}
+
+  section{padding:22px 0 44px}
+  .intro{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:26px 26px 8px;margin-top:8px}
+  .intro h2{font-size:1.5rem;color:var(--text)}
+  .intro .signoff{font-family:var(--serif);font-style:italic;color:var(--amber-soft)}
+
+  .namecard{background:linear-gradient(180deg,#211d2c,#191521);border:1px solid var(--line-2);border-radius:var(--radius);padding:22px;margin:22px 0 10px}
+  .namecard label{display:block;font-weight:600;margin-bottom:8px;font-size:.95rem}
+  .namecard input{width:100%;font:inherit;font-size:1.15rem;color:var(--text);background:#0f0d14;border:1px solid var(--line-2);border-radius:12px;padding:.7em .9em}
+  .namecard input::placeholder{color:#6f6a7e}
+  .namecard .hint{color:var(--muted);font-size:.85rem;margin:.7em 0 0}
+
+  .progress-bar{position:sticky;top:57px;z-index:30;background:rgba(20,18,26,.9);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:999px;padding:.55em 1.1em;display:flex;align-items:center;gap:12px;margin:0 0 22px;font-size:.9rem}
+  .progress-bar .count{font-weight:700;color:var(--amber);white-space:nowrap}
+  .track{flex:1;height:8px;background:#0f0d14;border-radius:999px;overflow:hidden}
+  .fill{height:100%;width:0;background:linear-gradient(90deg,var(--amber),var(--amber-soft));border-radius:999px;transition:width .35s ease}
+
+  .letter{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:14px;overflow:hidden}
+  .letter.done{border-color:#4a3f28}
+  .letter-head{display:flex;align-items:center;gap:14px;width:100%;text-align:left;font:inherit;cursor:pointer;background:transparent;border:none;color:var(--text);padding:18px 20px}
+  .letter-head:hover{background:var(--panel-2)}
+  .num{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--line-2);display:grid;place-items:center;font-family:var(--serif);font-weight:600;color:var(--amber);font-size:.95rem}
+  .letter.done .num{background:var(--amber);color:var(--bg);border-color:var(--amber)}
+  .letter-head .t{flex:1}
+  .letter-head .t .title{font-family:var(--serif);font-weight:600;font-size:1.15rem;line-height:1.2}
+  .letter-head .t .state{font-size:.78rem;color:var(--muted);margin-top:3px}
+  .letter.done .state{color:var(--amber-soft)}
+  .chev{flex:none;color:var(--muted);transition:transform .25s;font-size:1.1rem}
+  .panel{display:none;padding:0 20px 20px}
+  .letter.open .panel{display:block}
+  .letter.open .chev{transform:rotate(180deg)}
+  .prompt{color:var(--muted);font-style:italic;font-family:var(--serif);margin:2px 0 14px;border-left:2px solid var(--line-2);padding-left:14px}
+  textarea{width:100%;min-height:180px;font-family:var(--serif);font-size:1.05rem;line-height:1.7;color:var(--text);background:#0f0d14;border:1px solid var(--line-2);border-radius:12px;padding:16px;resize:vertical}
+  textarea::placeholder{color:#6f6a7e;font-style:italic}
+  .row{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:.8rem;color:var(--muted)}
+  .saved{color:var(--amber-soft);opacity:0;transition:opacity .3s}
+  .saved.show{opacity:1}
+
+  .actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:30px 0 6px}
+  .big{font-size:1.05rem;padding:.9em 1.6em;border-radius:999px}
+
+  .cta{margin-top:34px;background:#17141f;border:1px solid var(--line);border-radius:var(--radius);padding:26px;text-align:center}
+  .cta h3{color:var(--amber)}
+  .cta p{color:var(--muted);margin:.3em auto 0;max-width:480px}
+  .privacy{text-align:center;color:var(--muted);font-size:.82rem;margin-top:18px}
+
+  footer{border-top:1px solid var(--line);text-align:center;padding:30px 20px;color:var(--muted);font-size:.85rem;margin-top:20px}
+
+  /* ---------- Keepsake (screen preview + print) ---------- */
+  #keepsake{display:none}
+  #keepsake.show{display:block}
+  body.previewing .topbar,body.previewing .hero,body.previewing main{display:none}
+  body.previewing #keepsake.show{display:block}
+  .keepsake-bar{position:sticky;top:0;z-index:40;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px clamp(16px,4vw,40px);background:rgba(20,18,26,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .ks-page{max-width:640px;margin:0 auto;padding:40px 24px}
+  .ks-title-page{text-align:center;padding:90px 24px 60px}
+  .ks-title-page .over{text-transform:uppercase;letter-spacing:.24em;font-size:.72rem;color:var(--amber);margin-bottom:20px}
+  .ks-title-page h1{font-size:clamp(2.2rem,7vw,3.4rem);margin:0 0 .2em}
+  .ks-title-page h1 .nm{color:var(--amber);font-style:italic;font-weight:500}
+  .ks-title-page .by{color:var(--muted);margin-top:24px;font-style:italic;font-family:var(--serif)}
+  .ks-rule{width:60px;height:2px;background:var(--amber);margin:26px auto;opacity:.6}
+  .ks-letter{padding:24px 0 40px;border-top:1px solid var(--line)}
+  .ks-letter .milestone{text-transform:uppercase;letter-spacing:.16em;font-size:.7rem;color:var(--amber);margin-bottom:6px}
+  .ks-letter h2{font-size:1.7rem;margin:0 0 18px}
+  .ks-letter .body{font-family:var(--serif);font-size:1.08rem;line-height:1.8;white-space:pre-wrap}
+  .ks-letter .close{font-family:var(--serif);font-style:italic;color:var(--amber-soft);margin-top:22px}
+  .ks-empty{text-align:center;color:var(--muted);padding:60px 20px}
+
+  @media print{
+    @page{margin:22mm 18mm}
+    .topbar,.hero,main,footer,.keepsake-bar,.btn,.actions,.progress-bar{display:none!important}
+    body{background:#fff;color:#1a1a1a;font-size:12pt}
+    #keepsake,#keepsake.show{display:block!important}
+    .ks-page{max-width:none;margin:0;padding:0}
+    .ks-title-page{padding:120px 0 0;page-break-after:always;color:#1a1a1a}
+    .ks-title-page .over,.ks-title-page h1 .nm,.ks-letter .milestone{color:#8a6d2f}
+    .ks-title-page h1,.ks-letter h2{color:#111}
+    .ks-title-page .by{color:#555}
+    .ks-rule{background:#8a6d2f}
+    .ks-letter{page-break-before:always;border-top:none;padding:0}
+    .ks-letter .body{color:#1a1a1a}
+    .ks-letter .close{color:#6b5a2e}
+  }
+  @media (max-width:520px){
+    .actions .btn{flex:1 1 100%}
+    .progress-bar{flex-wrap:wrap}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#builder">Skip to the letter builder</a>
+
+<div class="topbar">
+  <span class="wordmark">Dad's Code</span>
+  <button class="btn btn-solid" onclick="openKeepsake()">Preview / Print keepsake</button>
+</div>
+
+<header class="hero">
+  <div class="kicker">A Dad's Code Tool</div>
+  <span class="glyph" aria-hidden="true">✎</span>
+  <h1>Letters <span class="accent">to You</span></h1>
+  <p class="sub">Write the letters your child will need before you'll be there to say the words. One quiet keepsake they can open at each turn of their life.</p>
+  <div class="tagline">Present, not perfect.</div>
+</header>
+
+<main class="wrap" id="builder">
+
+  <section aria-labelledby="intro-h" style="padding-top:8px">
+    <div class="intro">
+      <h2 id="intro-h">A word from Jamie</h2>
+      <p>Here's the thing nobody tells you: your kid is going to face the biggest days of their life on days you can't script. Their first heartbreak. The night before their wedding. The moment they hold their own baby and suddenly understand you. A hard morning, years from now, when they need someone in their corner.</p>
+      <p>You can't be everywhere. But your <em>words</em> can. A letter written today and opened years from now is a strange kind of time travel — it lets you sit beside them when it counts, even if you're busy, even if you're far away, even if you're gone.</p>
+      <p>Don't overthink the writing. You're not trying to be profound. You're trying to be <strong>present</strong> — honest, specific, yours. Say the ordinary true things. Those are the ones they'll read a hundred times.</p>
+      <p>Write one now. Then another when it comes to you. When you're ready, print the lot into a keepsake you can tuck away for the right day.</p>
+      <p class="signoff">— Jamie</p>
+    </div>
+  </section>
+
+  <section aria-label="Your child's name and progress" style="padding-top:0">
+    <div class="namecard">
+      <label for="child">Who are these letters for?</label>
+      <input id="child" type="text" autocomplete="off" placeholder="Your child's name" aria-describedby="name-hint">
+      <p class="hint" id="name-hint">This becomes the name on the cover of the keepsake.</p>
+    </div>
+
+    <div class="progress-bar" role="status" aria-live="polite">
+      <span class="count"><span id="written">0</span> / 10 written</span>
+      <span class="track" aria-hidden="true"><span class="fill" id="fill"></span></span>
+    </div>
+
+    <div id="letters"></div>
+
+    <div class="actions">
+      <button class="btn btn-solid big" onclick="openKeepsake()">Preview / Print keepsake →</button>
+      <button class="btn big" onclick="clearAll()">Start fresh</button>
+    </div>
+
+    <p class="privacy">Everything you write is saved only on this device, in this browser. Nothing is uploaded. Clear your browser data and it's gone — so print your keepsake to keep it safe.</p>
+
+    <div class="cta">
+      <h3>Keep going, one present day at a time</h3>
+      <p>Letters are one way to leave your mark. The Dad's Code podcast is about all the others — the daily, unglamorous, deeply worthwhile work of showing up.</p>
+      <div style="margin-top:14px"><a class="btn" href="https://dadscode.com.au/podcast">Listen to Dad's Code</a></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wordmark" style="margin-bottom:6px">Dad's Code</div>
+  Present, not perfect. · The letters you write today are the company you'll keep on the days you can't be there.
+</footer>
+
+<!-- ---------- Keepsake view ---------- -->
+<div id="keepsake" aria-hidden="true">
+  <div class="keepsake-bar">
+    <button class="btn" onclick="closeKeepsake()">← Back to editing</button>
+    <button class="btn btn-solid" onclick="window.print()">Save as PDF / Print</button>
+  </div>
+  <div id="keepsake-body"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var NS="dadscode.lettersToYou.";
+  var PROMPTS=[
+    {k:"18th",title:"On your 18th birthday",prompt:"You're an adult today — legally, at least. What do you most want them to carry into the rest of their life? What did being 18 teach you?"},
+    {k:"wedding",title:"On your wedding day",prompt:"Whoever they've chosen, whatever love looks like for them — what do you know about building a life with someone that you'd want them to hear on this day?"},
+    {k:"heartbreak",title:"The first time your heart breaks",prompt:"It's going to hurt in a way that feels like it'll never stop. What would you say to them in that first, awful week — from someone who has survived it?"},
+    {k:"doubt",title:"When you doubt yourself",prompt:"On the days they feel like a fraud, or not enough — remind them who they are. Tell them the things about them that you've always been sure of."},
+    {k:"lost",title:"If you're ever lost",prompt:"If they ever wake up not knowing which way is up — no map, no plan — what's your voice in their ear? Where do you tell them to start?"},
+    {k:"parent",title:"When you become a parent",prompt:"The day they hold their own child, they'll understand you in a way words never could. What do you want them to know about being a parent — and about being loved by one?"},
+    {k:"hardday",title:"On a hard day",prompt:"For no big reason — just a heavy, grey, nothing-is-working day. What would you say to get them through to tomorrow?"},
+    {k:"aboutme",title:"What I want you to know about me",prompt:"Not the dad they knew — the whole person. Your fears, your mistakes, what you were like before them, what you learned the hard way. Let them meet you."},
+    {k:"gone",title:"When I'm gone",prompt:"The one they'll open when you're no longer here. What do you need them to know — about how much they were loved, and how to carry on?"},
+    {k:"justbecause",title:"Just because",prompt:"No milestone. No reason. A letter for an ordinary Tuesday when they stumble across it. What do you want to say to them, simply because it's true?"}
+  ];
+
+  var childEl=document.getElementById('child');
+  var lettersEl=document.getElementById('letters');
+  var writtenEl=document.getElementById('written');
+  var fillEl=document.getElementById('fill');
+
+  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+  // ----- child name -----
+  try{ childEl.value=localStorage.getItem(NS+"child")||""; }catch(e){}
+  childEl.addEventListener('input',function(){
+    try{ localStorage.setItem(NS+"child",childEl.value); }catch(e){}
+  });
+
+  // ----- build letter cards -----
+  PROMPTS.forEach(function(p,i){
+    var wrap=document.createElement('article');
+    wrap.className='letter';
+    wrap.id='letter-'+p.k;
+
+    var head=document.createElement('button');
+    head.className='letter-head';
+    head.type='button';
+    head.setAttribute('aria-expanded','false');
+    head.setAttribute('aria-controls','panel-'+p.k);
+    head.innerHTML='<span class="num" aria-hidden="true">'+(i+1)+'</span>'+
+      '<span class="t"><span class="title">'+esc(p.title)+'</span>'+
+      '<span class="state" data-state>Not written yet — tap to begin</span></span>'+
+      '<span class="chev" aria-hidden="true">▾</span>';
+
+    var panel=document.createElement('div');
+    panel.className='panel';
+    panel.id='panel-'+p.k;
+    panel.innerHTML='<p class="prompt">'+esc(p.prompt)+'</p>';
+
+    var ta=document.createElement('textarea');
+    ta.setAttribute('aria-label','Letter: '+p.title);
+    ta.placeholder='Dear '+ (localStorage_get(NS+"child") || "…") +',\n\nWrite from the heart. It doesn’t have to be perfect — it has to be yours.';
+    try{ ta.value=localStorage.getItem(NS+"letter."+p.k)||""; }catch(e){}
+
+    var row=document.createElement('div');
+    row.className='row';
+    row.innerHTML='<span class="chars" data-chars></span><span class="saved" data-saved>Saved ✓</span>';
+
+    panel.appendChild(ta);
+    panel.appendChild(row);
+    wrap.appendChild(head);
+    wrap.appendChild(panel);
+    lettersEl.appendChild(wrap);
+
+    head.addEventListener('click',function(){
+      var open=wrap.classList.toggle('open');
+      head.setAttribute('aria-expanded',open?'true':'false');
+      if(open) setTimeout(function(){ta.focus();},120);
+    });
+
+    var savedTimer;
+    ta.addEventListener('input',function(){
+      try{ localStorage.setItem(NS+"letter."+p.k,ta.value); }catch(e){}
+      var s=row.querySelector('[data-saved]');
+      s.classList.add('show');
+      clearTimeout(savedTimer);
+      savedTimer=setTimeout(function(){s.classList.remove('show');},1100);
+      refresh();
+    });
+
+    // store refs for refresh
+    wrap._ta=ta; wrap._state=head.querySelector('[data-state]'); wrap._chars=row.querySelector('[data-chars]');
+  });
+
+  function localStorage_get(k){ try{return localStorage.getItem(k)||"";}catch(e){return "";} }
+
+  function refresh(){
+    var count=0;
+    document.querySelectorAll('.letter').forEach(function(w){
+      var v=(w._ta.value||"").trim();
+      var has=v.length>0;
+      if(has)count++;
+      w.classList.toggle('done',has);
+      w._state.textContent=has?('Written — '+wordCount(v)+' words'):'Not written yet — tap to begin';
+      w._chars.textContent=has?(wordCount(v)+' words'):'';
+    });
+    writtenEl.textContent=count;
+    fillEl.style.width=(count/PROMPTS.length*100)+'%';
+  }
+  function wordCount(s){var m=s.trim().match(/\S+/g);return m?m.length:0;}
+
+  refresh();
+
+  // ----- keepsake -----
+  function buildKeepsake(){
+    var name=(childEl.value||"").trim();
+    var body=document.getElementById('keepsake-body');
+    var written=PROMPTS.filter(function(p){return (localStorage_get(NS+"letter."+p.k)||"").trim().length>0;});
+
+    var html='<div class="ks-page ks-title-page">'+
+      '<div class="over">Dad’s Code · Letters to You</div>'+
+      '<h1>Letters to You'+(name?',<br><span class="nm">'+esc(name)+'</span>':'')+'</h1>'+
+      '<div class="ks-rule"></div>'+
+      '<div class="by">Written for you, to open when the moment comes.</div>'+
+      '</div>';
+
+    if(!written.length){
+      html+='<div class="ks-empty">No letters written yet. Head back and write one — even a few lines. Empty letters are left out of the keepsake.</div>';
+    } else {
+      written.forEach(function(p){
+        var text=localStorage_get(NS+"letter."+p.k).trim();
+        html+='<div class="ks-letter"><div class="milestone">'+esc(p.title)+'</div>'+
+          '<h2>'+(name?esc(name):'My child')+',</h2>'+
+          '<div class="body">'+esc(text)+'</div>'+
+          '<div class="close">With all my love,<br>Dad</div></div>';
+      });
+    }
+    body.innerHTML=html;
+  }
+
+  window.openKeepsake=function(){
+    buildKeepsake();
+    var k=document.getElementById('keepsake');
+    k.classList.add('show');
+    k.setAttribute('aria-hidden','false');
+    document.body.classList.add('previewing');
+    window.scrollTo(0,0);
+  };
+  window.closeKeepsake=function(){
+    var k=document.getElementById('keepsake');
+    k.classList.remove('show');
+    k.setAttribute('aria-hidden','true');
+    document.body.classList.remove('previewing');
+  };
+  window.clearAll=function(){
+    if(!confirm('This clears the name and every letter saved on this device. This cannot be undone. Continue?')) return;
+    try{
+      localStorage.removeItem(NS+"child");
+      PROMPTS.forEach(function(p){localStorage.removeItem(NS+"letter."+p.k);});
+    }catch(e){}
+    childEl.value="";
+    document.querySelectorAll('.letter').forEach(function(w){w._ta.value="";w.classList.remove('open');});
+    refresh();
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+})();
+</script>
+</body>
+</html>
