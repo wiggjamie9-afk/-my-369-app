@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dad Battery — a 60-second weekly check-in · Dad's Code</title>
+<meta name="description" content="A private, on-device 60-second weekly check-in for dads. Track energy, mood and connection to your kids over time. Nothing leaves your phone.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,500;9..144,0,600;9..144,1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#14121A;--panel:#1C1A26;--amber:#DFB76C;--amber-dim:#5a4a2c;--text:#F4F1EA;--muted:#B4AEC0;--radius:16px}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:600;line-height:1.15;margin:0 0 .4em}
+  a{color:var(--amber)}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px}
+  .topbar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:rgba(20,18,26,.85);backdrop-filter:blur(10px);border-bottom:1px solid #2a2733}
+  .wordmark{font-weight:700;letter-spacing:.14em;font-size:.78rem;color:var(--amber);text-transform:uppercase}
+  .topbar .row{display:flex;gap:8px}
+  .btn{font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;border-radius:999px;padding:.5em 1.1em;border:1px solid var(--amber);background:transparent;color:var(--amber);transition:.15s}
+  .btn:hover{background:var(--amber);color:var(--bg)}
+  .btn-solid{background:var(--amber);color:var(--bg)}
+  .btn-ghost{border-color:#3a3646;color:var(--muted)}
+  .btn-ghost:hover{background:#26222f;color:var(--text);border-color:#4a4556}
+  :focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:6px}
+  .skip{position:absolute;left:-9999px}.skip:focus{left:12px;top:12px;position:fixed;background:var(--amber);color:var(--bg);padding:.6em 1em;border-radius:8px;z-index:50}
+  .hero{text-align:center;padding:56px 20px 26px;position:relative;overflow:hidden}
+  .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(900px 460px at 50% -10%,rgba(223,183,108,.14),transparent 70%);pointer-events:none}
+  .kicker{text-transform:uppercase;letter-spacing:.2em;font-size:.72rem;color:var(--amber);margin-bottom:12px}
+  .hero h1{font-size:clamp(2.3rem,7vw,3.8rem)}
+  .hero h1 .accent{color:var(--amber)}
+  .hero p.sub{color:var(--muted);max-width:540px;margin:14px auto 0}
+  .battery{width:96px;height:46px;margin:22px auto 0;position:relative}
+  .battery .shell{position:absolute;inset:0;border:2px solid var(--amber);border-radius:8px}
+  .battery .cap{position:absolute;right:-8px;top:12px;width:6px;height:22px;background:var(--amber);border-radius:0 3px 3px 0}
+  .battery .fill{position:absolute;left:4px;top:4px;bottom:4px;width:56%;background:linear-gradient(90deg,#c9963f,var(--amber));border-radius:4px}
+  .tagline{margin-top:22px;font-family:Fraunces,serif;font-style:italic;color:var(--muted)}
+  section{padding:24px 0 30px}
+  .card{background:var(--panel);border:1px solid #2a2733;border-radius:var(--radius);padding:24px}
+  .card + .card{margin-top:20px}
+  h2.sec{font-size:1.5rem;margin-bottom:4px}
+  .lead{color:var(--muted);margin:0 0 18px;font-size:.95rem}
+  fieldset{border:none;margin:0 0 20px;padding:0}
+  legend{font-weight:600;font-size:1rem;margin-bottom:2px;font-family:Fraunces,serif}
+  .hint{color:var(--muted);font-size:.82rem;margin:0 0 10px}
+  .slide-row{display:flex;align-items:center;gap:14px}
+  input[type=range]{flex:1;-webkit-appearance:none;appearance:none;height:8px;border-radius:999px;background:linear-gradient(90deg,var(--amber) 0%,var(--amber) 50%,#2a2733 50%);outline-offset:4px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--amber);border:3px solid #14121A;box-shadow:0 0 0 1px var(--amber);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--amber);border:3px solid #14121A;box-shadow:0 0 0 1px var(--amber);cursor:pointer}
+  .valbadge{min-width:2.4em;text-align:center;font-family:Fraunces,serif;font-size:1.5rem;color:var(--amber);font-weight:600}
+  .scale{display:flex;justify-content:space-between;color:var(--muted);font-size:.72rem;margin-top:6px}
+  label.field{display:block;font-weight:600;margin-bottom:6px;font-size:.95rem}
+  input[type=text],textarea{width:100%;font:inherit;background:#0f0d14;color:var(--text);border:1px solid #33303d;border-radius:12px;padding:.7em .9em}
+  input[type=text]:focus,textarea:focus{border-color:var(--amber)}
+  textarea{resize:vertical;min-height:52px}
+  .kids{margin-top:4px}
+  .kid-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+  .kid-row input[type=text]{flex:1;min-width:130px}
+  .kid-rate{display:flex;gap:5px;align-items:center}
+  .star{font:inherit;cursor:pointer;background:none;border:none;color:#4a4556;font-size:1.35rem;line-height:1;padding:0 1px}
+  .star.on{color:var(--amber)}
+  .kid-x{background:none;border:1px solid #3a3646;color:var(--muted);border-radius:8px;cursor:pointer;font-size:.8rem;padding:.3em .6em}
+  .kid-x:hover{border-color:#8a4a4a;color:#e5a3a3}
+  .addkid{margin-top:2px}
+  .go{width:100%;font-size:1.05rem;padding:.9em;border:none;border-radius:12px;background:var(--amber);color:var(--bg);font-weight:700;cursor:pointer;margin-top:6px}
+  .go:hover{filter:brightness(1.08)}
+  .week-line{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+  .week-line label{font-weight:600;font-size:.9rem}
+
+  /* nudge */
+  #nudge{display:none;margin-top:20px}
+  #nudge.show{display:block;animation:fade .4s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .nudge-box{background:linear-gradient(180deg,#211d2c,#181521);border:1px solid #322d3d;border-radius:var(--radius);padding:22px;text-align:center}
+  .nudge-box .tag{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--amber)}
+  .nudge-box h3{font-size:1.4rem;margin:.3em 0 .2em}
+  .nudge-box p{color:var(--muted);margin:.3em auto 0;max-width:480px}
+
+  /* dashboard */
+  .empty{color:var(--muted);text-align:center;padding:14px 0;font-style:italic;font-family:Fraunces,serif}
+  .latest-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:6px 0 22px}
+  .stat{background:#0f0d14;border:1px solid #2a2733;border-radius:14px;padding:16px 8px;text-align:center}
+  .stat .n{font-family:Fraunces,serif;font-size:clamp(1.5rem,5vw,2.1rem);color:var(--amber);font-weight:600;line-height:1}
+  .stat .l{display:block;color:var(--muted);font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;margin-top:8px}
+  @media(max-width:560px){.latest-grid{grid-template-columns:repeat(2,1fr)}}
+  .charts{display:grid;gap:20px}
+  .chart{background:#0f0d14;border:1px solid #2a2733;border-radius:14px;padding:16px}
+  .chart h4{margin:0 0 2px;font-family:Inter,sans-serif;font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+  .chart .cur{font-family:Fraunces,serif;color:var(--amber);font-size:1.1rem}
+  .bars{display:flex;align-items:flex-end;gap:6px;height:90px;margin-top:12px}
+  .bar-col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;min-width:0}
+  .bar{width:100%;max-width:34px;background:linear-gradient(180deg,var(--amber),#a97f38);border-radius:4px 4px 2px 2px;min-height:4px;transition:height .3s}
+  .bar-lbl{color:var(--muted);font-size:.62rem;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .streak{display:flex;align-items:center;gap:12px;background:#0f0d14;border:1px solid #2a2733;border-radius:14px;padding:16px 18px;margin-top:20px}
+  .streak .big{font-family:Fraunces,serif;font-size:2.2rem;color:var(--amber);line-height:1}
+  .streak .txt{color:var(--muted);font-size:.9rem}
+  .streak .txt b{color:var(--text)}
+  .data-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+
+  .cta{margin-top:24px;background:linear-gradient(180deg,#1f1c29,#17141f);border:1px solid #2f2b3a;border-radius:var(--radius);padding:26px;text-align:center}
+  .cta h3{color:var(--amber)}
+  .cta .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+  .wellbeing{background:#17141f;border:1px solid #2f2b3a;border-left:3px solid var(--amber);border-radius:12px;padding:16px 18px;margin-top:24px;color:var(--muted);font-size:.86rem}
+  .wellbeing b{color:var(--text)}
+  .privacy{color:var(--muted);font-size:.82rem;text-align:center;margin:20px auto 0;max-width:560px}
+  footer{border-top:1px solid #2a2733;text-align:center;padding:30px 20px;color:var(--muted);font-size:.85rem;margin-top:24px}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--amber);color:var(--bg);font-weight:600;padding:.7em 1.3em;border-radius:999px;opacity:0;pointer-events:none;transition:.3s;z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  @media print{.topbar,.btn,.go,.data-row,.cta .row,.skip,.addkid,.kid-x,.star,.toast{display:none!important}body{background:#fff;color:#111}.card,.chart,.stat,.streak,.cta,.nudge-box{background:#fff;border:1px solid #ccc}.hero h1 .accent,.wordmark,.cta h3,.stat .n,.chart .cur,.streak .big{color:#000}.bar{background:#888}}
+</style>
+</head>
+<body>
+<a class="skip" href="#checkin">Skip to the check-in</a>
+<div class="topbar">
+  <span class="wordmark">Dad's Code</span>
+  <div class="row">
+    <button class="btn btn-ghost" onclick="scrollToDash()">My trends</button>
+    <button class="btn" onclick="window.print()">Save / Print</button>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="kicker">A Dad's Code Tool</div>
+  <h1>Dad <span class="accent">Battery</span></h1>
+  <p class="sub">A 60-second weekly check-in. Rate your energy, mood and connection — then watch the trend over time. Private and on your device. Nothing leaves your phone.</p>
+  <div class="battery" aria-hidden="true"><span class="shell"></span><span class="cap"></span><span class="fill"></span></div>
+  <div class="tagline">Present, not perfect.</div>
+</header>
+
+<main class="wrap">
+  <!-- CHECK-IN -->
+  <section id="checkin">
+    <div class="card">
+      <h2 class="sec">This week's check-in</h2>
+      <p class="lead">Be honest, not aspirational. Sixty seconds. There are no wrong answers.</p>
+
+      <div class="week-line">
+        <label for="week">Week:</label>
+        <input type="text" id="week" style="max-width:220px" aria-describedby="weekhint">
+        <span class="hint" id="weekhint" style="margin:0">defaults to this week</span>
+      </div>
+
+      <fieldset>
+        <legend>My energy this week</legend>
+        <p class="hint">Running on empty, or charged up?</p>
+        <div class="slide-row">
+          <input type="range" id="energy" min="1" max="5" step="1" value="3" aria-label="My energy this week, 1 to 5" oninput="onSlide(this)">
+          <span class="valbadge" id="energy-v">3</span>
+        </div>
+        <div class="scale"><span>1 · Flat</span><span>5 · Charged</span></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>My mood this week</legend>
+        <p class="hint">Overall, how have you felt in yourself?</p>
+        <div class="slide-row">
+          <input type="range" id="mood" min="1" max="5" step="1" value="3" aria-label="My mood this week, 1 to 5" oninput="onSlide(this)">
+          <span class="valbadge" id="mood-v">3</span>
+        </div>
+        <div class="scale"><span>1 · Low</span><span>5 · Good</span></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>How connected I felt to my kids</legend>
+        <p class="hint">Present and close, or ships in the night?</p>
+        <div class="slide-row">
+          <input type="range" id="connection" min="1" max="5" step="1" value="3" aria-label="How connected I felt to my kids, 1 to 5" oninput="onSlide(this)">
+          <span class="valbadge" id="connection-v">3</span>
+        </div>
+        <div class="scale"><span>1 · Distant</span><span>5 · Close</span></div>
+      </fieldset>
+
+      <fieldset>
+        <label class="field" for="note">One line for the week <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+        <textarea id="note" maxlength="160" placeholder="e.g. Big work week, but nailed bedtime stories three nights running."></textarea>
+      </fieldset>
+
+      <fieldset>
+        <legend>Connection, kid by kid <span style="font-weight:400;color:var(--muted);font-size:.9rem">(optional)</span></legend>
+        <p class="hint">Add each kid by first name and rate how connected you felt this week.</p>
+        <div class="kids" id="kids"></div>
+        <button class="btn btn-ghost addkid" type="button" onclick="addKid()">+ Add a kid</button>
+      </fieldset>
+
+      <button class="go" type="button" onclick="saveWeek()">Save this week's check-in →</button>
+
+      <div id="nudge" aria-live="polite">
+        <div class="nudge-box">
+          <div class="tag">One small thing</div>
+          <h3 id="nudge-title"></h3>
+          <p id="nudge-body"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard">
+    <div class="card">
+      <h2 class="sec">Your trends</h2>
+      <p class="lead">Your recent check-ins. This is a picture of a season, not a scorecard.</p>
+
+      <div id="dash-empty" class="empty">No check-ins yet — save your first one above and your trend will appear here.</div>
+
+      <div id="dash-content" style="display:none">
+        <div class="latest-grid">
+          <div class="stat"><span class="n" id="lat-energy">–</span><span class="l">Energy</span></div>
+          <div class="stat"><span class="n" id="lat-mood">–</span><span class="l">Mood</span></div>
+          <div class="stat"><span class="n" id="lat-conn">–</span><span class="l">Connection</span></div>
+          <div class="stat"><span class="n" id="lat-count">–</span><span class="l">Check-ins</span></div>
+        </div>
+
+        <div class="charts">
+          <div class="chart">
+            <h4>Energy <span class="cur" id="c-energy"></span></h4>
+            <div class="bars" id="bars-energy"></div>
+          </div>
+          <div class="chart">
+            <h4>Mood <span class="cur" id="c-mood"></span></h4>
+            <div class="bars" id="bars-mood"></div>
+          </div>
+          <div class="chart">
+            <h4>Connection <span class="cur" id="c-connection"></span></h4>
+            <div class="bars" id="bars-connection"></div>
+          </div>
+        </div>
+
+        <div class="streak">
+          <span class="big" id="streak-n" aria-hidden="true">0</span>
+          <span class="txt" id="streak-txt"></span>
+        </div>
+      </div>
+
+      <div class="data-row">
+        <button class="btn" type="button" onclick="exportData()">Export my data (JSON)</button>
+        <button class="btn btn-ghost" type="button" onclick="clearData()">Clear all data</button>
+      </div>
+    </div>
+
+    <div class="wellbeing">
+      <b>A gentle note.</b> Dad Battery is a self-reflection tool — not medical advice or a diagnosis.
+      Low scores for a week are normal; a long low run is worth talking about. If you're really struggling,
+      please reach out — you don't have to white-knuckle it. In Australia: <b>Lifeline 13&nbsp;11&nbsp;14</b>
+      or <b>Beyond Blue 1300&nbsp;22&nbsp;4636</b>, any time.
+    </div>
+
+    <div class="cta">
+      <h3>Keep the momentum</h3>
+      <p style="color:var(--muted);margin:.3em auto 0;max-width:480px">A check-in a week keeps the small stuff from becoming the big stuff. More real talk for dads on the Dad's Code podcast.</p>
+      <div class="row"><a class="btn btn-solid" href="https://dadscode.com.au/podcast">Listen to Dad's Code</a></div>
+    </div>
+
+    <p class="privacy">Everything you enter is stored only in this browser (localStorage) on this device. It never gets uploaded. Clear your browser data or hit "Clear all data" and it's gone.</p>
+  </section>
+</main>
+
+<footer><div class="wordmark" style="margin-bottom:6px">Dad's Code</div>Present, not perfect. · You can't pour from an empty cup — check your battery.</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  "use strict";
+  var KEY = "dadscode.dadbattery.v1";
+  var kidSeq = 0;
+
+  // ---------- storage ----------
+  function load(){
+    try{
+      var raw = localStorage.getItem(KEY);
+      if(!raw) return [];
+      var arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr : [];
+    }catch(e){ return []; }
+  }
+  function save(arr){
+    try{ localStorage.setItem(KEY, JSON.stringify(arr)); return true; }
+    catch(e){ toast("Couldn't save — storage may be full or blocked."); return false; }
+  }
+
+  // ---------- week label ----------
+  function isoWeekLabel(d){
+    // ISO week number
+    var date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    var day = date.getUTCDay() || 7;
+    date.setUTCDate(date.getUTCDate() + 4 - day);
+    var yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
+    var week = Math.ceil((((date - yearStart)/86400000)+1)/7);
+    return date.getUTCFullYear() + " · Wk " + (week<10?"0"+week:week);
+  }
+  function defaultWeek(){ return isoWeekLabel(new Date()); }
+
+  // ---------- sliders ----------
+  function paintSlider(el){
+    var min = +el.min, max = +el.max, v = +el.value;
+    var pct = ((v-min)/(max-min))*100;
+    el.style.background = "linear-gradient(90deg,var(--amber) 0%,var(--amber) "+pct+"%,#2a2733 "+pct+"%)";
+    var badge = document.getElementById(el.id+"-v");
+    if(badge) badge.textContent = v;
+  }
+  window.onSlide = function(el){ paintSlider(el); };
+
+  // ---------- kids ----------
+  window.addKid = function(name, rating){
+    var id = "kid"+(kidSeq++);
+    var wrap = document.getElementById("kids");
+    var row = document.createElement("div");
+    row.className = "kid-row";
+    row.dataset.rating = rating ? String(rating) : "0";
+    var input = document.createElement("input");
+    input.type = "text"; input.maxLength = 24; input.placeholder = "First name";
+    input.setAttribute("aria-label","Kid's first name");
+    if(name) input.value = name;
+    row.appendChild(input);
+
+    var rate = document.createElement("div");
+    rate.className = "kid-rate"; rate.setAttribute("role","group"); rate.setAttribute("aria-label","Connection rating 1 to 5");
+    for(var i=1;i<=5;i++){
+      (function(n){
+        var s = document.createElement("button");
+        s.type="button"; s.className="star"; s.textContent="★";
+        s.setAttribute("aria-label", n+" out of 5");
+        s.onclick = function(){ row.dataset.rating = String(n); paintStars(rate, n); };
+        rate.appendChild(s);
+      })(i);
+    }
+    row.appendChild(rate);
+
+    var x = document.createElement("button");
+    x.type="button"; x.className="kid-x"; x.textContent="Remove";
+    x.setAttribute("aria-label","Remove this kid");
+    x.onclick = function(){ row.parentNode.removeChild(row); };
+    row.appendChild(x);
+
+    wrap.appendChild(row);
+    paintStars(rate, rating || 0);
+  };
+  function paintStars(rateEl, n){
+    var stars = rateEl.querySelectorAll(".star");
+    for(var i=0;i<stars.length;i++){
+      if(i < n) stars[i].classList.add("on"); else stars[i].classList.remove("on");
+    }
+  }
+  function readKids(){
+    var out = [];
+    document.querySelectorAll("#kids .kid-row").forEach(function(row){
+      var name = row.querySelector("input").value.trim();
+      var rating = parseInt(row.dataset.rating,10) || 0;
+      if(name) out.push({name:name, rating:rating});
+    });
+    return out;
+  }
+
+  // ---------- save a week ----------
+  window.saveWeek = function(){
+    var week = document.getElementById("week").value.trim() || defaultWeek();
+    var entry = {
+      week: week,
+      ts: Date.now(),
+      energy: +document.getElementById("energy").value,
+      mood: +document.getElementById("mood").value,
+      connection: +document.getElementById("connection").value,
+      note: document.getElementById("note").value.trim(),
+      kids: readKids()
+    };
+    var data = load();
+    // upsert by week label (re-saving same week overwrites)
+    var idx = -1;
+    for(var i=0;i<data.length;i++){ if(data[i].week === entry.week){ idx = i; break; } }
+    if(idx >= 0) data[idx] = entry; else data.push(entry);
+    // keep chronological by timestamp
+    data.sort(function(a,b){ return a.ts - b.ts; });
+    if(!save(data)) return;
+
+    renderDashboard();
+    showNudge(entry);
+    toast(idx>=0 ? "Week updated." : "Check-in saved.");
+    document.getElementById("dashboard").scrollIntoView({behavior:"smooth", block:"start"});
+  };
+
+  // ---------- nudge ----------
+  function showNudge(entry){
+    var scores = [
+      {k:"connection", v:entry.connection},
+      {k:"energy", v:entry.energy},
+      {k:"mood", v:entry.mood}
+    ];
+    scores.sort(function(a,b){ return a.v - b.v; }); // lowest first; ties favour connection then energy
+    var low = scores[0];
+
+    var lib = {
+      connection: {
+        title: "Pick one kid for 10 phone-free minutes tomorrow.",
+        body: "Connection was your lowest this week. No agenda, no lecture — just ten minutes with the phone in another room. Small and repeatable beats big and rare."
+      },
+      energy: {
+        title: "Guard 30 minutes for you before Sunday.",
+        body: "Your battery's low. A walk, an early night, a workout — one deliberate recharge. You can't pour from an empty cup, and the kids feel it when it's empty."
+      },
+      mood: {
+        title: "Name it to one person this week.",
+        body: "Mood was your lowest. Say the honest version out loud to a mate or your partner — 'I've been a bit flat.' Naming it takes the weight off carrying it alone."
+      }
+    };
+    // If everything is high, celebrate instead.
+    var msg;
+    if(low.v >= 4){
+      msg = {title:"Good week — protect what's working.", body:"Solid across the board. Notice what made it good this week and try to run it back. Momentum is a thing."};
+    } else {
+      msg = lib[low.k];
+    }
+    document.getElementById("nudge-title").textContent = msg.title;
+    document.getElementById("nudge-body").textContent = msg.body;
+    var n = document.getElementById("nudge");
+    n.classList.add("show");
+  }
+
+  // ---------- streak ----------
+  function computeStreak(data){
+    // consecutive ISO weeks ending at the most recent entry
+    if(!data.length) return 0;
+    // parse "YYYY · Wk NN" into a comparable week index
+    function idxOf(label){
+      var m = /^(\d{4}).*?(\d{1,2})$/.exec(label);
+      if(!m) return null;
+      return parseInt(m[1],10)*53 + parseInt(m[2],10);
+    }
+    var idxs = [];
+    for(var i=0;i<data.length;i++){
+      var v = idxOf(data[i].week);
+      if(v!==null) idxs.push(v);
+    }
+    if(!idxs.length) return data.length; // fallback: count entries
+    idxs.sort(function(a,b){return a-b;});
+    // dedupe
+    var uniq = idxs.filter(function(v,i){ return i===0 || v!==idxs[i-1]; });
+    var streak = 1;
+    for(var j=uniq.length-1;j>0;j--){
+      if(uniq[j] - uniq[j-1] === 1) streak++;
+      else break;
+    }
+    return streak;
+  }
+
+  // ---------- dashboard ----------
+  function renderDashboard(){
+    var data = load();
+    var empty = document.getElementById("dash-empty");
+    var content = document.getElementById("dash-content");
+    if(!data.length){ empty.style.display="block"; content.style.display="none"; return; }
+    empty.style.display="none"; content.style.display="block";
+
+    var latest = data[data.length-1];
+    document.getElementById("lat-energy").textContent = latest.energy;
+    document.getElementById("lat-mood").textContent = latest.mood;
+    document.getElementById("lat-conn").textContent = latest.connection;
+    document.getElementById("lat-count").textContent = data.length;
+
+    var recent = data.slice(-8); // last 8 check-ins
+    buildBars("bars-energy", recent, "energy");
+    buildBars("bars-mood", recent, "mood");
+    buildBars("bars-connection", recent, "connection");
+    document.getElementById("c-energy").textContent = "now " + latest.energy + "/5";
+    document.getElementById("c-mood").textContent = "now " + latest.mood + "/5";
+    document.getElementById("c-connection").textContent = "now " + latest.connection + "/5";
+
+    var streak = computeStreak(data);
+    document.getElementById("streak-n").textContent = streak;
+    var word = streak===1 ? "week" : "weeks";
+    var txt = "<b>"+streak+" "+word+" in a row.</b> ";
+    txt += streak>=4 ? "That's a real habit forming. Nice work." :
+           streak>=2 ? "You're building the habit — keep it rolling." :
+           "First one down. Come back next week to start a streak.";
+    document.getElementById("streak-txt").innerHTML = txt;
+  }
+
+  function buildBars(containerId, entries, field){
+    var c = document.getElementById(containerId);
+    c.innerHTML = "";
+    entries.forEach(function(e){
+      var col = document.createElement("div"); col.className = "bar-col";
+      var bar = document.createElement("div"); bar.className = "bar";
+      var pct = (e[field] / 5) * 100;
+      bar.style.height = pct + "%";
+      bar.title = e.week + ": " + e[field] + "/5";
+      var lbl = document.createElement("span"); lbl.className = "bar-lbl";
+      // short label: last token of week (week number)
+      var short = e.week.replace(/^\d{4}\s*·?\s*/,"");
+      lbl.textContent = short;
+      col.appendChild(bar); col.appendChild(lbl);
+      c.appendChild(col);
+    });
+  }
+
+  // ---------- data management ----------
+  window.exportData = function(){
+    var data = load();
+    if(!data.length){ toast("Nothing to export yet."); return; }
+    var blob = new Blob([JSON.stringify({tool:"Dad Battery", exported:new Date().toISOString(), checkins:data}, null, 2)], {type:"application/json"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = "dad-battery-export.json";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    toast("Downloaded your data.");
+  };
+  window.clearData = function(){
+    if(!load().length){ toast("Nothing to clear."); return; }
+    if(!window.confirm("Delete ALL your Dad Battery check-ins from this device? This can't be undone.")) return;
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    document.getElementById("nudge").classList.remove("show");
+    renderDashboard();
+    toast("All data cleared.");
+  };
+
+  // ---------- toast ----------
+  var toastTimer;
+  function toast(msg){
+    var t = document.getElementById("toast");
+    t.textContent = msg; t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 2600);
+  }
+
+  window.scrollToDash = function(){
+    document.getElementById("dashboard").scrollIntoView({behavior:"smooth", block:"start"});
+  };
+
+  // ---------- init ----------
+  document.getElementById("week").value = defaultWeek();
+  document.getElementById("week").placeholder = defaultWeek();
+  ["energy","mood","connection"].forEach(function(id){ paintSlider(document.getElementById(id)); });
+  addKid(); // start with one blank kid row
+  renderDashboard();
+})();
+</script>
+</body>
+</html>
