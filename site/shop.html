@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shop — Dad's Code | Books, guides &amp; tools for real dads</title>
+<meta name="description" content="The full Dad's Code shop — 18 honest, practical books, guides and interactive tools for dads. Present, not perfect.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#14121A;--panel:#1C1A26;--panel2:#211d2c;--amber:#DFB76C;--text:#F4F1EA;--muted:#B4AEC0;--line:#2a2733;--radius:16px}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:600;line-height:1.14;margin:0 0 .4em}
+  a{color:var(--amber);text-decoration:none}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+  .btn{display:inline-block;font-weight:600;font-size:.9rem;cursor:pointer;border-radius:999px;padding:.6em 1.2em;border:1px solid var(--amber);background:transparent;color:var(--amber);transition:.15s;text-align:center}
+  .btn:hover{background:var(--amber);color:var(--bg)}
+  .btn-solid{background:var(--amber);color:var(--bg)}
+  .btn-solid:hover{filter:brightness(1.08)}
+  .btn-sm{font-size:.8rem;padding:.45em 1em}
+  :focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:6px}
+  .eyebrow{text-transform:uppercase;letter-spacing:.2em;font-size:.72rem;color:var(--amber)}
+  header.nav{position:sticky;top:0;z-index:40;background:rgba(20,18,26,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 22px;max-width:1080px;margin:0 auto}
+  .brand{font-weight:700;letter-spacing:.14em;font-size:.82rem;color:var(--amber);text-transform:uppercase}
+  .nav-links{display:flex;gap:22px;align-items:center}
+  .nav-links a{color:var(--muted);font-size:.9rem;font-weight:500}
+  .nav-links a:hover{color:var(--text)}
+  @media(max-width:640px){.nav-links a:not(.btn){display:none}}
+  .head{text-align:center;padding:56px 22px 20px;position:relative;overflow:hidden}
+  .head::before{content:"";position:absolute;inset:0;background:radial-gradient(1000px 480px at 50% -10%,rgba(223,183,108,.14),transparent 68%);pointer-events:none}
+  .head h1{font-size:clamp(2.4rem,7vw,4rem)}
+  .head p{color:var(--muted);max-width:560px;margin:14px auto 0}
+  .note{max-width:760px;margin:20px auto 0;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px;color:var(--muted);font-size:.82rem;text-align:center}
+  section{padding:34px 0}
+  .cat-head{display:flex;align-items:baseline;gap:12px;margin:0 0 18px}
+  .cat-head h2{font-size:1.5rem;margin:0}
+  .cat-head span{color:var(--muted);font-size:.85rem}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;transition:.15s}
+  .card:hover{border-color:#3a3547;transform:translateY(-2px)}
+  .card .tag{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--amber)}
+  .card h3{font-size:1.1rem;margin:.35em 0 .3em}
+  .card p{color:var(--muted);font-size:.88rem;flex:1;margin:0 0 14px}
+  .card .foot{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .price{font-family:Fraunces,serif;color:var(--amber);font-weight:600;font-size:1.05rem}
+  .free{font-family:Fraunces,serif;color:#8fd18f;font-weight:600}
+  .actions{display:flex;gap:8px}
+  .bundle{background:linear-gradient(180deg,var(--panel2),var(--panel));border-color:#3a3145}
+  footer{border-top:1px solid var(--line);padding:36px 22px;text-align:center;color:var(--muted);font-size:.88rem;margin-top:20px}
+  .resources{font-size:.8rem;max-width:640px;margin:14px auto 0;opacity:.85}
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="brand">Dad's Code</a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="index.html#story">Story</a>
+      <a href="index.html#podcast">Podcast</a>
+      <a href="shop.html">Shop</a>
+      <a class="btn btn-solid" href="index.html#free">Free guide</a>
+    </nav>
+  </div>
+</header>
+
+<div class="head">
+  <div class="eyebrow">The shop</div>
+  <h1>Everything for the present dad</h1>
+  <p>18 honest, practical products — books, guides, printables and tools nobody else has built. Start free, go deeper when you're ready.</p>
+  <div class="note">🛠️ <strong>To go live:</strong> replace each button's <code>href="#"</code> with your Gumroad product link (see <code>SALES-LISTINGS.md</code>). Free items already link to the tool / sign-up.</div>
+</div>
+
+<main class="wrap">
+
+  <!-- FREE -->
+  <section>
+    <div class="cat-head"><h2>🎣 Start free</h2><span>build the habit, no risk</span></div>
+    <div class="grid">
+      <div class="card"><span class="tag">Free · Guide</span><h3>The 5-Minute Present Dad</h3><p>Five tiny ways to show up for your kids when you're running on empty.</p><div class="foot"><span class="free">Free</span><a class="btn btn-sm btn-solid" href="index.html#free">Get it</a></div></div>
+      <div class="card"><span class="tag">Free · Tool</span><h3>Days Left</h3><p>Enter one birthday, see how many weekends and bedtimes you have left. The gut-punch.</p><div class="foot"><span class="free">Free</span><a class="btn btn-sm btn-solid" href="tools/12-days-left-calculator.html">Open tool</a></div></div>
+    </div>
+  </section>
+
+  <!-- BOOKS & GUIDES -->
+  <section>
+    <div class="cat-head"><h2>📘 Books &amp; guides</h2><span>honest, from experience</span></div>
+    <div class="grid">
+      <div class="card"><span class="tag">eBook</span><h3>Present, Not Perfect</h3><p>A rebuilt dad's field guide to showing up. Six blunt, honest chapters.</p><div class="foot"><span class="price">$9</span><a class="btn btn-sm" data-buy="present-not-perfect" href="#">Buy</a></div></div>
+      <div class="card"><span class="tag">Guide</span><h3>The ADHD Dad's Playbook</h3><p>Seven practical plays for dads whose brains work differently — plus a toolkit.</p><div class="foot"><span class="price">$14</span><a class="btn btn-sm" data-buy="adhd-playbook" href="#">Buy</a></div></div>
+      <div class="card"><span class="tag">Workbook</span><h3>Steady</h3><p>Gentle, hopeful mental-health tools for dads running on empty.</p><div class="foot"><span class="price">$14</span><a class="btn btn-sm" data-buy="steady" href="#">Buy</a></div></div>
+      <div class="card"><span class="tag">Guide</span><h3>The 90-Day Rebuilt Dad</h3><p>Get your energy, body and momentum back in three simple phases.</p><div class="foot"><span class="price">$15</span><a class="btn btn-sm" data-buy="90-day" href="#">Buy</a></div></div>
+      <div class="card"><span class="tag">Journal</span><h3>The 30-Day Present Dad Journal</h3><p>Two minutes a day. Thirty days to a closer kid. Printable.</p><div class="foot"><span class="price">$14</span><a class="btn btn-sm" data-buy="journal" href="#">Buy</a></div></div>
+      <div class="card"><span class="tag">Journal</span><h3>Still Choosing You</h3><p>A couples connection guide + journal for parents raising kids through the hard stuff.</p><div class="foot"><span class="price">$12</span><a class="btn btn-sm" data-buy="still-choosing-you" href="#">Buy</a></div></div>
+    </div>
+  </section>
+
+  <!-- FOOD -->
+  <section>
+    <div class="cat-head"><h2>🍳 Food</h2><span>feed the kids, fuel yourself</span></div>
+    <div class="grid">
+      <div class="card"><span class="tag">Cookbook</span><h3>Dad's Code Kitchen</h3><p>40 fast, fun, kid-approved meals — even when Mum's working.</p><div class="foot"><span class="price">$14</span><a class="btn btn-sm" data-buy="kitchen" href="#">Buy</a></div></div>
+      <div class="card"><span class="tag">Guide</span><h3>Dad Fuel</h3><p>40 high-protein, no-fuss meals to get a tired dad's energy back.</p><div class="foot"><span class="price">$14</span><a class="btn btn-sm" data-buy="dad-fuel" href="#">Buy</a></div></div>
+    </div>
+  </section>
+
+  <!-- KIDS -->
+  <section>
+    <div class="cat-head"><h2>🧒 For the kids</h2><span>connect &amp; treasure</span></div>
+    <div class="grid">
+      <div class="card"><span class="tag">Kids eBook</span><h3>Dad's Bedtime Stories</h3><p>Six cosy, original read-aloud tales, each with a gentle lesson.</p><div class="foot"><span class="price">$12</span><a class="btn btn-sm" data-buy="bedtime-stories" href="#">Buy</a></div></div>
+      <div class="card"><span class="tag">Printable</span><h3>Dad &amp; Me: 100 Conversation Cards</h3><p>100 questions to spark real talks with your kids. Print the deck.</p><div class="foot"><span class="price">$9</span><a class="btn btn-sm" data-buy="conversation-cards" href="#">Buy</a></div></div>
+    </div>
+  </section>
+
+  <!-- INTERACTIVE TOOLS -->
+  <section>
+    <div class="cat-head"><h2>✨ Interactive tools</h2><span>web-apps nobody else has built · preview any of them</span></div>
+    <div class="grid">
+      <div class="card"><span class="tag">Tool</span><h3>The Play Machine</h3><p>Deals a science-backed play idea for your kid's exact age, energy and time.</p><div class="foot"><span class="price">$9</span><div class="actions"><a class="btn btn-sm" href="tools/13-the-play-machine.html">Preview</a><a class="btn btn-sm btn-solid" data-buy="play-machine" href="#">Buy</a></div></div></div>
+      <div class="card"><span class="tag">Tool</span><h3>Letters to You</h3><p>Write letters to your kid's future → a printable keepsake.</p><div class="foot"><span class="price">$19</span><div class="actions"><a class="btn btn-sm" href="tools/14-letters-to-you.html">Preview</a><a class="btn btn-sm btn-solid" data-buy="letters-to-you" href="#">Buy</a></div></div></div>
+      <div class="card"><span class="tag">Tool</span><h3>The Dad Deck</h3><p>Calm, age-tuned scripts for the hard talks — vaping, consent, grief.</p><div class="foot"><span class="price">$12</span><div class="actions"><a class="btn btn-sm" href="tools/15-the-dad-deck.html">Preview</a><a class="btn btn-sm btn-solid" data-buy="dad-deck" href="#">Buy</a></div></div></div>
+      <div class="card"><span class="tag">Tool</span><h3>Dad Battery</h3><p>A private weekly check-in that tracks your energy, mood and connection.</p><div class="foot"><span class="price">$12</span><div class="actions"><a class="btn btn-sm" href="tools/16-dad-battery.html">Preview</a><a class="btn btn-sm btn-solid" data-buy="dad-battery" href="#">Buy</a></div></div></div>
+      <div class="card"><span class="tag">Tool</span><h3>The Bedtime Engine</h3><p>A brand-new bedtime story every night — starring your kid.</p><div class="foot"><span class="price">$12</span><div class="actions"><a class="btn btn-sm" href="tools/17-the-bedtime-engine.html">Preview</a><a class="btn btn-sm btn-solid" data-buy="bedtime-engine" href="#">Buy</a></div></div></div>
+      <div class="card"><span class="tag">Tool</span><h3>Time Capsule</h3><p>Capture your kid's year → prints a keepsake yearbook.</p><div class="foot"><span class="price">$14</span><div class="actions"><a class="btn btn-sm" href="tools/18-time-capsule.html">Preview</a><a class="btn btn-sm btn-solid" data-buy="time-capsule" href="#">Buy</a></div></div></div>
+    </div>
+  </section>
+
+  <!-- BUNDLES -->
+  <section>
+    <div class="cat-head"><h2>📦 Bundles</h2><span>best value — save vs buying separately</span></div>
+    <div class="grid">
+      <div class="card bundle"><span class="tag">Bundle</span><h3>Dad's Kitchen Bundle</h3><p>Dad's Code Kitchen + Dad Fuel. 80 meals — feed the kids and fuel yourself.</p><div class="foot"><span class="price">$22</span><a class="btn btn-sm btn-solid" data-buy="bundle-kitchen" href="#">Get bundle</a></div></div>
+      <div class="card bundle"><span class="tag">Bundle</span><h3>Mind &amp; Body Bundle</h3><p>ADHD Playbook + Steady + The 90-Day Rebuilt Dad. The full rebuild kit.</p><div class="foot"><span class="price">$29</span><a class="btn btn-sm btn-solid" data-buy="bundle-mindbody" href="#">Get bundle</a></div></div>
+      <div class="card bundle"><span class="tag">Bundle</span><h3>The Present Dad Toolkit</h3><p>All 7 interactive tools in one — your whole fatherhood, in your pocket.</p><div class="foot"><span class="price">$39</span><a class="btn btn-sm btn-solid" data-buy="bundle-toolkit" href="#">Get bundle</a></div></div>
+      <div class="card bundle"><span class="tag">Bundle</span><h3>The Everything Bundle</h3><p>All 18 products — every guide, book, printable and tool. Once, forever.</p><div class="foot"><span class="price">$79</span><a class="btn btn-sm btn-solid" data-buy="bundle-everything" href="#">Get everything</a></div></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="brand" style="margin-bottom:8px">Dad's Code</div>
+  Present, not perfect. · by Jamie Wigg
+  <p class="resources">If you're struggling, you're not alone. In Australia: Lifeline 13 11 14 · Beyond Blue 1300 22 4636 · MensLine 1300 78 99 78. This site shares one dad's experience — not medical advice.</p>
+  <p style="opacity:.6;font-size:.78rem">© Dad's Code. All rights reserved.</p>
+</footer>
+</body>
+</html>
