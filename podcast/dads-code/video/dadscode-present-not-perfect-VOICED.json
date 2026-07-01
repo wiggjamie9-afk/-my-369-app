@@ -1,0 +1,27 @@
+{
+  "theme": "flat-motion-graphics",
+  "cuts": [
+    { "id": "dc-hook", "source": "", "type": "hero_title", "in_seconds": 0, "out_seconds": 5.5,
+      "text": "Present, Not Perfect", "subtitle": "A rebuilt dad's field guide to showing up", "backgroundColor": "#14121A" },
+    { "id": "dc-promise", "source": "", "type": "text_card", "in_seconds": 5.5, "out_seconds": 11,
+      "text": "You don't have to be the perfect dad.", "subtitle": "You just have to be a present one.", "color": "#F4F1EA", "backgroundColor": "#14121A" },
+    { "id": "dc-stat", "source": "", "type": "stat_card", "in_seconds": 11, "out_seconds": 16,
+      "stat": "5 min", "subtitle": "A bedtime chapter your kids remember forever", "accentColor": "#DFB76C", "backgroundColor": "#14121A" },
+    { "id": "dc-bars", "source": "", "type": "bar_chart", "in_seconds": 16, "out_seconds": 22,
+      "title": "Minutes of real, phone-down attention a day",
+      "chartData": [ { "label": "Before", "value": 6 }, { "label": "After", "value": 30 } ],
+      "chartColors": ["#B4AEC0", "#DFB76C"], "showGrid": true, "showValues": true, "backgroundColor": "#14121A",
+      "textColor": "#F4F1EA", "gridColor": "rgba(180,174,192,0.25)" },
+    { "id": "dc-compare", "source": "", "type": "comparison", "in_seconds": 22, "out_seconds": 28.5,
+      "title": "What your kids actually remember", "leftLabel": "Perfect", "leftValue": "The tidy house",
+      "rightLabel": "Present", "rightValue": "You, on the floor, playing", "backgroundColor": "#14121A" },
+    { "id": "dc-close", "source": "", "type": "text_card", "in_seconds": 28.5, "out_seconds": 35.5,
+      "text": "Present, not perfect.", "subtitle": "Dad's Code — the book, out now.", "color": "#DFB76C", "backgroundColor": "#14121A" }
+  ],
+  "overlays": [
+    { "type": "section_title", "in_seconds": 11.2, "out_seconds": 14.5, "text": "The 5-minute rule", "subtitle": "From the Dad's Code toolkit", "accentColor": "#DFB76C" },
+    { "type": "stat_reveal", "in_seconds": 17, "out_seconds": 21, "text": "5x", "subtitle": "more time that actually lands", "accentColor": "#DFB76C", "position": "bottom-right" }
+  ],
+  "captions": [],
+  "audio": { "narration": { "src": "jamie-voice-sample.mp3", "volume": 1 } }
+}
