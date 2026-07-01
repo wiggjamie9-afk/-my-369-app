@@ -139,7 +139,10 @@
   <!-- STORY -->
   <section id="story" class="wrap">
     <div class="story">
-      <div class="portrait">[ Add a warm photo of Jamie + kids here ]</div>
+      <div class="portrait">
+        <img src="images/jamie.jpg" alt="Jamie Wigg with his kids" style="width:100%;height:100%;object-fit:cover;border-radius:20px;display:block" onerror="this.style.display='none';document.getElementById('portrait-fallback').style.display='flex'">
+        <span id="portrait-fallback" style="display:none;align-items:center;justify-content:center;height:100%;width:100%">Add your photo → save it as <code style="color:var(--amber)">site/images/jamie.jpg</code></span>
+      </div>
       <div>
         <div class="eyebrow">The story</div>
         <h2 style="font-size:clamp(1.8rem,5vw,2.6rem)">I made a vow at ten. It took me 38 years to keep it.</h2>
