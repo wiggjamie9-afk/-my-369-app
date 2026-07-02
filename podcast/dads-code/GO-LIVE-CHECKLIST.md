@@ -7,9 +7,9 @@ Work top to bottom. ~2–3 hours total, spread over a few sittings. Tick as you 
 ## STEP 1 — Set up the money (Gumroad) · ~30 min
 - [ ] Create a free account at **gumroad.com**.
 - [ ] Add your **payout details** (PayPal or bank) + do the quick tax form.
-- [ ] Create your first **3 products** (launch set): **Present, Not Perfect** ($9), **Dad's Code Kitchen** ($14), and the **Present Dad Toolkit** bundle ($39).
-  - Upload the file from `podcast/dads-code/pdf/` (books) or `build/` (tools).
-  - Paste the description from **`SALES-LISTINGS.md`**.
+- [ ] Create your **launch set**: the two free list-builders (**Days Left**, **5-Minute Present Dad**) plus two paid — **Present, Not Perfect** ($9) and **Dad's Code Kitchen** ($14, intro $9). *(Bundles come later — see the first-week plan.)*
+  - Upload the file from `podcast/dads-code/pdf/` (books) or `podcast/dads-code/build/` (tools).
+  - Paste the description from **`podcast/dads-code/SALES-LISTINGS.md`**.
   - Make a cover in **Canva** (brief is in each product's `.md`).
 - [ ] Set the free ones (5-Minute Present Dad, Days Left) to **$0 / "name your price."**
 - [ ] Copy each product's **Gumroad link.**
@@ -30,17 +30,17 @@ Work top to bottom. ~2–3 hours total, spread over a few sittings. Tick as you 
 - [ ] *(Later)* buy **dadscode.com.au** (~$15/yr) and point it here.
 
 ## STEP 5 — Podcast on the directories · ~20 min
+- [ ] 🔐 **Do this first: reset your Buzzsprout API token** (it was shown in a screenshot).
 - [ ] **Upgrade Buzzsprout** off the free plan (stops the 90-day episode deletion).
 - [ ] Buzzsprout → **Directories** → submit to **Apple Podcasts, Spotify, YouTube Music.**
 - [ ] Add your website link to the show notes.
-- [ ] 🔐 Reset your Buzzsprout **API token** (it was shown in a screenshot).
 
 ## STEP 6 — Amazon KDP (optional, later) · ~1 hr
-- [ ] Follow **`KDP-SETUP.md`** — publish **Present, Not Perfect** first (eBook + paperback).
+- [ ] Follow **`podcast/dads-code/KDP-SETUP.md`** — publish **Present, Not Perfect** first (eBook + paperback).
 
 ## STEP 7 — Launch! · ~30 min
-- [ ] Post the **3 launch clips** (in `SOCIAL.md`) → "link in bio" = your website.
-- [ ] Send the **launch email** (in `SALES-LISTINGS.md`) to your list.
+- [ ] Post the **3 launch clips** (in `podcast/SOCIAL.md`) → "link in bio" = your website.
+- [ ] Send the **launch email** (in `podcast/dads-code/SALES-LISTINGS.md`) to your list.
 - [ ] Ask 10 friends/family to grab the free tool + leave a review.
 
 ---
