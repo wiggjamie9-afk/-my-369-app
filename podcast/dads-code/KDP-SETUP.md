@@ -78,6 +78,15 @@ For each: Title, Subtitle, 7 keyword slots, 3 categories, and a KDP-formatted de
 - **Keywords:** conversation starters; family questions; kids activity book; connection cards; parenting games; dinner questions; road trip
 - **Categories:** Games & Activities > Questions & Answers · Parenting > Fatherhood · Family & Relationships
 
+## Still Choosing You
+- **Title:** Still Choosing You
+- **Subtitle:** A Connection Guide & Journal for Parents Keeping Their Relationship Alive
+- **Series:** Dad's Code
+- **Keywords:** couples journal; marriage after kids; relationship workbook; date night; couples connection; parents relationship; love map
+- **Categories:** Family & Relationships > Marriage & Long-Term Relationships · Self-Help > Relationships · Family & Relationships > Parenting
+- **Description:** paste from SALES-LISTINGS #08.
+- **Format:** best as **8.5×11 paperback** (write-in journal) + Kindle for the reading sections.
+
 ---
 
 ## Recommended KDP launch order
