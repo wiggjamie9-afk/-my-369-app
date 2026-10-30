@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vitruvian 369 Forge</title>
+    <style>
+        :root {
+            --bg-main: #0c0a0e;
+            --panel-bg: #14121a;
+            --accent-gold: #dfb76c;
+            --accent-purple: #7045af;
+            --text-light: #e6dfd5;
+            --text-muted: #827b87;
+            --border-color: #2b2533;
+            --input-bg: #070609;
+            --danger: #ff5555;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-light);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .hub-container {
+            width: 100%;
+            max-width: 950px;
+            padding: 20px 16px;
+            box-sizing: border-box;
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            margin: 0;
+            font-weight: 300;
+            letter-spacing: 4px;
+            color: var(--accent-gold);
+        }
+
+        .subtitle {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+
+        @media (min-width: 768px) {
+            .layout-grid { grid-template-columns: 1fr 1.2fr; }
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            box-sizing: border-box;
+            min-width: 0;
+        }
+
+        .panel-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            color: var(--accent-gold);
+        }
+
+        label {
+            display: block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        textarea, input, select {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: #fff;
+            padding: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+
+        textarea { height: 110px; resize: vertical; }
+
+        textarea:focus, input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+        }
+
+        .mode-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .node-btn {
+            background: #17130e;
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            padding: 14px 5px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .node-btn.active, .forge-btn {
+            background: var(--accent-gold);
+            color: var(--bg-main);
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 20px rgba(223, 183, 108, 0.4);
+        }
+
+        .forge-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            cursor: pointer;
+            border: 1px solid var(--accent-gold);
+        }
+
+        .forge-btn:disabled { opacity: 0.5; cursor: wait; }
+
+        .status {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 12px;
+            min-height: 1.2em;
+            word-break: break-word;
+        }
+
+        .status.error { color: var(--danger); }
+
+        details {
+            border-top: 1px dashed var(--border-color);
+            padding-top: 12px;
+            margin-top: 15px;
+        }
+
+        summary {
+            cursor: pointer;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin: -8px 0 15px;
+        }
+
+        .hint a { color: var(--accent-gold); }
+
+        .gallery {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 720px;
+            overflow-y: auto;
+        }
+
+        .result-card {
+            background: var(--input-bg);
+            border-left: 3px solid var(--accent-gold);
+            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            border-radius: 0 10px 10px 0;
+            padding: 12px;
+        }
+
+        .result-card img, .result-card video {
+            width: 100%;
+            border-radius: 8px;
+            display: block;
+            margin-bottom: 10px;
+            background: #000;
+        }
+
+        .card-body {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 10px;
+            white-space: pre-wrap;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            border-top: 1px dashed rgba(255,255,255,0.05);
+            padding-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .card-actions { display: flex; gap: 12px; }
+
+        .card-actions a, .card-actions button {
+            background: transparent;
+            border: none;
+            color: var(--accent-gold);
+            cursor: pointer;
+            font-size: 0.75rem;
+            text-decoration: none;
+            padding: 0;
+        }
+
+        .card-actions button { color: var(--danger); }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            font-style: italic;
+            padding: 40px 0;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hub-container">
+        <header>
+            <h1>VITRUVIAN 369 FORGE</h1>
+            <div class="subtitle">Image &amp; Video Generation</div>
+        </header>
+
+        <div class="layout-grid">
+            <div class="panel">
+                <div class="panel-title">Workbench</div>
+
+                <div class="mode-grid">
+                    <button class="node-btn active" id="mode-image" onclick="setMode('image')">IMAGE</button>
+                    <button class="node-btn" id="mode-video" onclick="setMode('video')">VIDEO</button>
+                </div>
+
+                <label for="promptInput">Prompt</label>
+                <textarea id="promptInput" placeholder="Describe the scene: subject, setting, lighting, camera movement..."></textarea>
+
+                <label for="modelSelect">Model</label>
+                <select id="modelSelect" onchange="onModelChange()"></select>
+                <input id="customModel" placeholder="owner/model-name from huggingface.co" style="display:none">
+
+                <button class="forge-btn" id="forgeBtn" onclick="forge()">GENERATE</button>
+                <div class="status" id="statusLine"></div>
+
+                <details id="settingsPanel">
+                    <summary>Settings</summary>
+                    <label for="tokenInput">Hugging Face access token</label>
+                    <input id="tokenInput" type="password" placeholder="hf_..." autocomplete="off" onchange="saveToken()">
+                    <p class="hint">
+                        Create one at <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener">huggingface.co/settings/tokens</a>
+                        with the "Make calls to Inference Providers" permission. It is stored only in this browser.
+                        Free accounts get a small monthly allowance; video uses it up quickly.
+                    </p>
+                    <label for="providerSelect">Provider</label>
+                    <select id="providerSelect" onchange="saveSettings()">
+                        <option value="auto">Auto (first available)</option>
+                        <option value="fal-ai">fal</option>
+                        <option value="replicate">Replicate</option>
+                        <option value="together">Together</option>
+                        <option value="novita">Novita</option>
+                        <option value="hf-inference">HF Inference</option>
+                    </select>
+                </details>
+
+                <a class="back-link" href="README.md">&larr; Back to 369 Core</a>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">Gallery</div>
+                <div class="gallery" id="galleryDisplay"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        const CLIENT_URL = "https://cdn.jsdelivr.net/npm/@huggingface/inference@4.13.32/+esm";
+
+        // Loaded on first use so the page still works if the CDN is unreachable.
+        let clientModule = null;
+        async function loadClient() {
+            if (!clientModule) clientModule = await import(CLIENT_URL);
+            return clientModule.InferenceClient;
+        }
+
+        const MODELS = {
+            image: [
+                { id: "Qwen/Qwen-Image-2.1", label: "Qwen-Image 2.1" },
+                { id: "black-forest-labs/FLUX.1-dev", label: "FLUX.1 dev" },
+                { id: "black-forest-labs/FLUX.1-schnell", label: "FLUX.1 schnell (fast)" },
+                { id: "stabilityai/stable-diffusion-3.5-large", label: "Stable Diffusion 3.5 Large" },
+            ],
+            video: [
+                { id: "Lightricks/LTX-2.5", label: "LTX-2.5" },
+                { id: "MiniMaxAI/MiniMax-H3", label: "MiniMax-H3" },
+                { id: "Wan-AI/Wan2.2-T2V-A14B", label: "Wan 2.2 (14B)" },
+                { id: "Wan-AI/Wan2.2-TI2V-5B", label: "Wan 2.2 (5B, faster)" },
+            ],
+        };
+
+        const STORE_KEY = "forge_settings";
+        const DB_NAME = "forge_gallery";
+
+        let currentMode = "image";
+        let galleryItems = [];
+        let db = null;
+
+        // Results are blobs (often several MB), so they go in IndexedDB rather than localStorage.
+        function openGalleryDb() {
+            return new Promise((resolve) => {
+                try {
+                    const req = indexedDB.open(DB_NAME, 1);
+                    req.onupgradeneeded = () => req.result.createObjectStore("items", { keyPath: "uid" });
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => resolve(null);
+                } catch (e) {
+                    resolve(null);
+                }
+            });
+        }
+
+        function dbTx(mode, fn) {
+            if (!db) return Promise.resolve(null);
+            return new Promise((resolve) => {
+                try {
+                    const tx = db.transaction("items", mode);
+                    const req = fn(tx.objectStore("items"));
+                    tx.oncomplete = () => resolve(req ? req.result : null);
+                    tx.onerror = () => resolve(null);
+                } catch (e) {
+                    resolve(null);
+                }
+            });
+        }
+
+        function readSettings() {
+            try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { return {}; }
+        }
+
+        function writeSettings(patch) {
+            try { localStorage.setItem(STORE_KEY, JSON.stringify({ ...readSettings(), ...patch })); } catch (e) {}
+        }
+
+        window.saveToken = function() {
+            writeSettings({ token: document.getElementById("tokenInput").value.trim() });
+        };
+
+        window.saveSettings = function() {
+            writeSettings({ provider: document.getElementById("providerSelect").value });
+        };
+
+        window.setMode = function(mode) {
+            currentMode = mode;
+            document.getElementById("mode-image").classList.toggle("active", mode === "image");
+            document.getElementById("mode-video").classList.toggle("active", mode === "video");
+            const select = document.getElementById("modelSelect");
+            select.innerHTML = MODELS[mode]
+                .map(m => `<option value="${m.id}">${m.label}</option>`)
+                .join("") + `<option value="__custom">Other model...</option>`;
+            window.onModelChange();
+        };
+
+        window.onModelChange = function() {
+            const custom = document.getElementById("modelSelect").value === "__custom";
+            document.getElementById("customModel").style.display = custom ? "block" : "none";
+        };
+
+        function setStatus(text, isError = false) {
+            const line = document.getElementById("statusLine");
+            line.textContent = text;
+            line.classList.toggle("error", isError);
+        }
+
+        window.forge = async function() {
+            const prompt = document.getElementById("promptInput").value.trim();
+            const token = document.getElementById("tokenInput").value.trim();
+            const provider = document.getElementById("providerSelect").value;
+            const selected = document.getElementById("modelSelect").value;
+            const model = selected === "__custom"
+                ? document.getElementById("customModel").value.trim()
+                : selected;
+
+            if (!prompt) return setStatus("Write a prompt first.", true);
+            if (!model) return setStatus("Enter a model name.", true);
+            if (!token) {
+                document.getElementById("settingsPanel").open = true;
+                return setStatus("Add your Hugging Face token in Settings.", true);
+            }
+
+            const btn = document.getElementById("forgeBtn");
+            btn.disabled = true;
+            const started = Date.now();
+            const timer = setInterval(() => {
+                const secs = Math.round((Date.now() - started) / 1000);
+                setStatus(`Generating ${currentMode} with ${model}... ${secs}s`);
+            }, 1000);
+
+            try {
+                let InferenceClient;
+                try {
+                    InferenceClient = await loadClient();
+                } catch (e) {
+                    throw new Error("Could not load the Hugging Face library. Check your internet connection.");
+                }
+                const client = new InferenceClient(token);
+                const args = { provider, model, inputs: prompt };
+                const blob = currentMode === "video"
+                    ? await client.textToVideo(args)
+                    : await client.textToImage(args, { outputType: "blob" });
+
+                const item = {
+                    uid: Date.now(),
+                    mode: currentMode,
+                    model,
+                    prompt,
+                    blob,
+                    timestamp: new Date().toLocaleString([], { dateStyle: "short", timeStyle: "short" }),
+                };
+                galleryItems.unshift(item);
+                await dbTx("readwrite", store => store.put(item));
+                renderGallery();
+                setStatus(`Done in ${Math.round((Date.now() - started) / 1000)}s.`);
+            } catch (err) {
+                setStatus(describeError(err), true);
+            } finally {
+                clearInterval(timer);
+                btn.disabled = false;
+            }
+        };
+
+        function describeError(err) {
+            const msg = String(err && err.message || err);
+            if (/401|unauthori[sz]ed|invalid.*token/i.test(msg)) return "Token rejected. Check it has the Inference Providers permission.";
+            if (/402|payment|credits|quota|exceeded/i.test(msg)) return "Out of free credits for this month. Add billing on Hugging Face or try a smaller model.";
+            if (/not supported|no provider|not available|mapping/i.test(msg)) return "No provider serves that model right now. Pick another model or provider.";
+            return "Failed: " + msg;
+        }
+
+        window.clearItem = async function(uid) {
+            galleryItems = galleryItems.filter(item => item.uid !== uid);
+            await dbTx("readwrite", store => store.delete(uid));
+            renderGallery();
+        };
+
+        function escapeHtml(text) {
+            return text.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+        }
+
+        let activeUrls = [];
+
+        function renderGallery() {
+            activeUrls.forEach(url => URL.revokeObjectURL(url));
+            activeUrls = [];
+
+            const display = document.getElementById("galleryDisplay");
+            if (galleryItems.length === 0) {
+                display.innerHTML = `<div class="empty-state">Nothing generated yet. Write a prompt on the workbench and press Generate.</div>`;
+                return;
+            }
+
+            display.innerHTML = galleryItems.map(item => {
+                const url = URL.createObjectURL(item.blob);
+                activeUrls.push(url);
+                const ext = item.mode === "video" ? "mp4" : (item.blob.type.split("/")[1] || "png");
+                const media = item.mode === "video"
+                    ? `<video src="${url}" controls loop playsinline></video>`
+                    : `<img src="${url}" alt="">`;
+                return `
+                    <div class="result-card">
+                        ${media}
+                        <div class="card-body">"${escapeHtml(item.prompt)}"</div>
+                        <div class="card-footer">
+                            <div>${escapeHtml(item.model)} | ${item.timestamp}</div>
+                            <div class="card-actions">
+                                <a href="${url}" download="369-forge-${item.uid}.${ext}">Download</a>
+                                <button onclick="clearItem(${item.uid})">Clear</button>
+                            </div>
+                        </div>
+                    </div>`;
+            }).join("");
+        }
+
+        async function init() {
+            const settings = readSettings();
+            if (settings.token) document.getElementById("tokenInput").value = settings.token;
+            if (settings.provider) document.getElementById("providerSelect").value = settings.provider;
+            window.setMode("image");
+
+            db = await openGalleryDb();
+            const stored = await dbTx("readonly", store => store.getAll());
+            galleryItems = (stored || []).sort((a, b) => b.uid - a.uid);
+            renderGallery();
+        }
+
+        init();
+    </script>
+</body>
+</html>
