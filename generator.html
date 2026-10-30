@@ -15,7 +15,10 @@
             --border-color: #2b2533;
             --input-bg: #070609;
             --danger: #ff5555;
+            --good: #6ccf8e;
         }
+
+        * { box-sizing: border-box; }
 
         body {
             background-color: var(--bg-main);
@@ -30,16 +33,15 @@
 
         .hub-container {
             width: 100%;
-            max-width: 950px;
-            padding: 20px 16px;
-            box-sizing: border-box;
+            max-width: 1100px;
+            padding: 20px 16px 60px;
         }
 
         header {
             text-align: center;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 15px;
-            margin-bottom: 25px;
+            margin-bottom: 18px;
         }
 
         h1 {
@@ -58,37 +60,67 @@
             margin-top: 6px;
         }
 
+        .tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            margin-bottom: 18px;
+            padding-bottom: 4px;
+        }
+
+        .tab {
+            flex: 0 0 auto;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 9px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            color: var(--bg-main);
+            background: var(--accent-gold);
+            border-color: var(--accent-gold);
+        }
+
+        .view { display: none; }
+        .view.active { display: block; }
+
         .layout-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 25px;
+            gap: 20px;
         }
 
-        @media (min-width: 768px) {
-            .layout-grid { grid-template-columns: 1fr 1.2fr; }
+        @media (min-width: 900px) {
+            .layout-grid { grid-template-columns: 360px 1fr; }
         }
 
         .panel {
             background-color: var(--panel-bg);
             border: 1px solid var(--border-color);
             border-radius: 14px;
-            padding: 20px;
+            padding: 18px;
             box-shadow: 0 15px 40px rgba(0,0,0,0.6);
-            box-sizing: border-box;
             min-width: 0;
+            margin-bottom: 20px;
         }
 
         .panel-title {
             font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 15px;
+            margin-bottom: 14px;
             color: var(--accent-gold);
         }
 
         label {
             display: block;
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: var(--text-muted);
@@ -101,36 +133,48 @@
             border: 1px solid var(--border-color);
             border-radius: 8px;
             color: #fff;
-            padding: 12px;
+            padding: 10px 12px;
             font-family: inherit;
-            font-size: 0.95rem;
-            box-sizing: border-box;
-            margin-bottom: 15px;
+            font-size: 0.9rem;
+            margin-bottom: 14px;
         }
 
-        textarea { height: 110px; resize: vertical; }
+        input[type="checkbox"] { width: auto; margin: 0 8px 0 0; }
+        input[type="file"] { font-size: 0.8rem; }
+        textarea { height: 100px; resize: vertical; }
 
         textarea:focus, input:focus, select:focus {
             outline: none;
             border-color: var(--accent-gold);
         }
 
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        .check {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            text-transform: none;
+            letter-spacing: 0;
+            margin-bottom: 12px;
+        }
+
         .mode-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 15px;
+            gap: 10px;
+            margin-bottom: 14px;
         }
 
         .node-btn {
             background: #17130e;
             border: 1px solid var(--border-color);
             color: var(--text-light);
-            padding: 14px 5px;
+            padding: 13px 5px;
             border-radius: 12px;
             font-size: 0.85rem;
             cursor: pointer;
-            transition: all 0.2s ease;
             font-weight: 600;
             letter-spacing: 1px;
         }
@@ -139,12 +183,12 @@
             background: var(--accent-gold);
             color: var(--bg-main);
             border-color: var(--accent-gold);
-            box-shadow: 0 0 20px rgba(223, 183, 108, 0.4);
+            box-shadow: 0 0 20px rgba(223, 183, 108, 0.35);
         }
 
         .forge-btn {
             width: 100%;
-            padding: 16px;
+            padding: 15px;
             border-radius: 12px;
             font-size: 1rem;
             font-weight: 700;
@@ -154,6 +198,26 @@
         }
 
         .forge-btn:disabled { opacity: 0.5; cursor: wait; }
+
+        .ghost-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        .ghost-btn:hover { border-color: var(--accent-gold); }
+        .ghost-btn.danger { color: var(--danger); }
+
+        .stop-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            display: none;
+        }
 
         .status {
             font-size: 0.8rem;
@@ -165,88 +229,145 @@
 
         .status.error { color: var(--danger); }
 
-        details {
-            border-top: 1px dashed var(--border-color);
-            padding-top: 12px;
-            margin-top: 15px;
-        }
-
-        summary {
-            cursor: pointer;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-        }
-
         .hint {
             font-size: 0.75rem;
             color: var(--text-muted);
             line-height: 1.5;
-            margin: -8px 0 15px;
+            margin: -6px 0 14px;
         }
 
         .hint a { color: var(--accent-gold); }
 
-        .gallery {
+        .ref-preview {
             display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-height: 720px;
-            overflow-y: auto;
-        }
-
-        .result-card {
-            background: var(--input-bg);
-            border-left: 3px solid var(--accent-gold);
-            border-top: 1px solid var(--border-color);
-            border-right: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
-            border-radius: 0 10px 10px 0;
-            padding: 12px;
-        }
-
-        .result-card img, .result-card video {
-            width: 100%;
-            border-radius: 8px;
-            display: block;
-            margin-bottom: 10px;
-            background: #000;
-        }
-
-        .card-body {
-            font-size: 0.9rem;
-            line-height: 1.5;
-            margin-bottom: 10px;
-            white-space: pre-wrap;
-        }
-
-        .card-footer {
-            display: flex;
-            justify-content: space-between;
             align-items: center;
             gap: 10px;
+            margin: -6px 0 14px;
+        }
+
+        .ref-preview img {
+            width: 56px;
+            height: 56px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--accent-gold);
+        }
+
+        .round {
+            margin-bottom: 18px;
+        }
+
+        .round-head {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+        .round-head b { color: var(--accent-gold); font-weight: 600; }
+
+        .cand-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+            gap: 12px;
+        }
+
+        .cand {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px;
+            min-width: 0;
+        }
+
+        .cand.winner {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 18px rgba(223, 183, 108, 0.3);
+        }
+
+        .cand-media {
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 8px;
             font-size: 0.75rem;
             color: var(--text-muted);
-            border-top: 1px dashed rgba(255,255,255,0.05);
-            padding-top: 8px;
-            flex-wrap: wrap;
+            text-align: center;
+            padding: 6px;
         }
 
-        .card-actions { display: flex; gap: 12px; }
+        .cand-media img, .cand-media video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
 
-        .card-actions a, .card-actions button {
-            background: transparent;
-            border: none;
+        .cand-media.has-media { padding: 0; }
+
+        .cand-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .cand-meta .model {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .score {
+            flex: 0 0 auto;
             color: var(--accent-gold);
-            cursor: pointer;
-            font-size: 0.75rem;
-            text-decoration: none;
-            padding: 0;
+            font-weight: 700;
         }
 
-        .card-actions button { color: var(--danger); }
+        .score.low { color: var(--danger); }
+        .score.high { color: var(--good); }
+
+        .issues {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .cand-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .spinner {
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--accent-gold);
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+            margin: 0 auto 6px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .winner-banner {
+            border: 1px solid var(--accent-gold);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 18px;
+            background: rgba(223, 183, 108, 0.06);
+        }
+
+        .winner-banner .panel-title { margin-bottom: 8px; }
 
         .empty-state {
             text-align: center;
@@ -255,9 +376,144 @@
             padding: 40px 0;
         }
 
+        .shot {
+            border-left: 3px solid var(--accent-gold);
+            background: var(--input-bg);
+            border-radius: 0 10px 10px 0;
+            padding: 12px;
+            margin-bottom: 14px;
+        }
+
+        .shot-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 0.75rem;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .shot textarea { height: 70px; }
+
+        .shot video {
+            width: 100%;
+            border-radius: 8px;
+            background: #000;
+            margin-bottom: 8px;
+        }
+
+        .scene-player video {
+            width: 100%;
+            border-radius: 10px;
+            background: #000;
+        }
+
+        .lib-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+            gap: 14px;
+        }
+
+        .lib-card {
+            background: var(--input-bg);
+            border-left: 3px solid var(--accent-gold);
+            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            border-radius: 0 10px 10px 0;
+            padding: 10px;
+            min-width: 0;
+        }
+
+        .lib-card img, .lib-card video {
+            width: 100%;
+            border-radius: 8px;
+            display: block;
+            margin-bottom: 8px;
+            background: #000;
+        }
+
+        .lib-prompt {
+            font-size: 0.82rem;
+            line-height: 1.45;
+            margin-bottom: 8px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .lib-foot {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            border-top: 1px dashed rgba(255,255,255,0.05);
+            padding-top: 8px;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .stat {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .stat .num {
+            font-size: 1.5rem;
+            color: var(--accent-gold);
+            font-weight: 300;
+        }
+
+        .stat .lbl {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 8px 6px;
+            border-bottom: 1px solid var(--border-color);
+            word-break: break-word;
+        }
+
+        th { color: var(--text-muted); font-weight: 500; }
+
+        .leaf-row {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 6px 10px;
+            align-items: center;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .leaf-row input, .leaf-row select { margin-bottom: 0; }
+        .leaf-row .full { grid-column: 1 / -1; }
+        .leaf-row .tag { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
+
         .back-link {
             display: inline-block;
-            margin-top: 8px;
+            margin-top: 6px;
             font-size: 0.7rem;
             color: var(--text-muted);
         }
@@ -268,95 +524,300 @@
     <div class="hub-container">
         <header>
             <h1>VITRUVIAN 369 FORGE</h1>
-            <div class="subtitle">Image &amp; Video Generation</div>
+            <div class="subtitle">Clover Studio · Image &amp; Video Generation</div>
         </header>
 
-        <div class="layout-grid">
-            <div class="panel">
-                <div class="panel-title">Workbench</div>
+        <nav class="tabs">
+            <button class="tab active" data-view="create">Create</button>
+            <button class="tab" data-view="storyboard">Storyboard</button>
+            <button class="tab" data-view="library">Library</button>
+            <button class="tab" data-view="stats">Stats</button>
+            <button class="tab" data-view="settings">Settings</button>
+        </nav>
 
-                <div class="mode-grid">
-                    <button class="node-btn active" id="mode-image" onclick="setMode('image')">IMAGE</button>
-                    <button class="node-btn" id="mode-video" onclick="setMode('video')">VIDEO</button>
+        <!-- CREATE -->
+        <section class="view active" id="view-create">
+            <div class="layout-grid">
+                <div>
+                    <div class="panel">
+                        <div class="panel-title">Workbench</div>
+
+                        <div class="mode-grid">
+                            <button class="node-btn active" id="mode-image">IMAGE</button>
+                            <button class="node-btn" id="mode-video">VIDEO</button>
+                        </div>
+
+                        <label for="promptInput">Prompt</label>
+                        <textarea id="promptInput" placeholder="Describe the scene: subject, setting, lighting, action..."></textarea>
+
+                        <div class="row">
+                            <div>
+                                <label for="styleSelect">Style</label>
+                                <select id="styleSelect"></select>
+                            </div>
+                            <div>
+                                <label for="aspectSelect">Shape</label>
+                                <select id="aspectSelect"></select>
+                            </div>
+                        </div>
+
+                        <div id="cameraWrap">
+                            <label for="cameraSelect">Camera move</label>
+                            <select id="cameraSelect"></select>
+                        </div>
+
+                        <label for="refInput">Character / start image (optional)</label>
+                        <input id="refInput" type="file" accept="image/*">
+                        <div class="ref-preview" id="refPreview" style="display:none">
+                            <img id="refThumb" alt="">
+                            <button class="ghost-btn danger" id="refClear">Remove</button>
+                        </div>
+
+                        <label for="charInput">Character description (kept in every prompt)</label>
+                        <input id="charInput" placeholder="e.g. a woman with short silver hair, red coat">
+
+                        <div class="row">
+                            <div>
+                                <label for="targetInput">Target score</label>
+                                <select id="targetInput">
+                                    <option value="6">6 / 10</option>
+                                    <option value="7">7 / 10</option>
+                                    <option value="8" selected>8 / 10</option>
+                                    <option value="9">9 / 10</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="roundsInput">Max rounds</label>
+                                <select id="roundsInput">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3" selected>3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <label class="check"><input type="checkbox" id="enhanceToggle" checked>Director rewrite (expand my prompt first)</label>
+
+                        <div class="hint" id="costHint"></div>
+
+                        <button class="forge-btn" id="forgeBtn">GENERATE</button>
+                        <button class="ghost-btn danger stop-btn" id="stopBtn">Stop</button>
+                        <div class="status" id="statusLine"></div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-title">Director notes</div>
+                        <textarea id="notesInput" style="height:70px" placeholder="Tell the judge what you want fixed, e.g. 'make her coat red', 'less busy background'. Used in the next round."></textarea>
+                        <div class="hint" style="margin:0">Notes count more than the judge's own opinion.</div>
+                    </div>
                 </div>
 
-                <label for="promptInput">Prompt</label>
-                <textarea id="promptInput" placeholder="Describe the scene: subject, setting, lighting, camera movement..."></textarea>
+                <div class="panel">
+                    <div class="panel-title">Clover rounds</div>
+                    <div id="runArea"><div class="empty-state">Each round runs all your leaves at once. The judge scores them, fixes the prompt and tries again until one hits your target score.</div></div>
+                </div>
+            </div>
+        </section>
 
-                <label for="modelSelect">Model</label>
-                <select id="modelSelect" onchange="onModelChange()"></select>
-                <input id="customModel" placeholder="owner/model-name from huggingface.co" style="display:none">
+        <!-- STORYBOARD -->
+        <section class="view" id="view-storyboard">
+            <div class="layout-grid">
+                <div class="panel">
+                    <div class="panel-title">Scene</div>
+                    <label for="sceneLength">Target length</label>
+                    <select id="sceneLength">
+                        <option value="15">15 seconds</option>
+                        <option value="32">32 seconds</option>
+                        <option value="60">60 seconds</option>
+                        <option value="92">92 seconds</option>
+                    </select>
+                    <label for="clipSeconds">Seconds per clip (depends on model)</label>
+                    <select id="clipSeconds">
+                        <option value="5">about 5 s (Wan, most models)</option>
+                        <option value="10">about 10 s</option>
+                        <option value="15">about 15 s (MiniMax-H3)</option>
+                    </select>
+                    <button class="ghost-btn" id="planShots" style="width:100%;margin-bottom:12px">Make shot list</button>
+                    <label class="check"><input type="checkbox" id="continueToggle" checked>Start each clip from the last frame of the one before</label>
+                    <div class="hint">The Create tab's style, shape, camera, character and score settings are used for every shot.</div>
+                    <button class="forge-btn" id="runAllShots">GENERATE ALL SHOTS</button>
+                    <div class="status" id="sceneStatus"></div>
+                </div>
+                <div>
+                    <div class="panel scene-player">
+                        <div class="panel-title">Scene preview <span id="sceneDuration" style="color:var(--text-muted)"></span></div>
+                        <video id="scenePlayer" controls playsinline></video>
+                        <div class="cand-actions" style="margin-top:10px">
+                            <button class="ghost-btn" id="playScene">Play whole scene</button>
+                            <button class="ghost-btn" id="downloadScene">Download all clips</button>
+                        </div>
+                        <div class="hint" style="margin:10px 0 0">Clips play back to back here. To make one file, drop the downloaded clips (numbered in order) into CapCut or DaVinci Resolve.</div>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-title">Shots</div>
+                        <div id="shotList"></div>
+                        <button class="ghost-btn" id="addShot">+ Add shot</button>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                <button class="forge-btn" id="forgeBtn" onclick="forge()">GENERATE</button>
-                <div class="status" id="statusLine"></div>
+        <!-- LIBRARY -->
+        <section class="view" id="view-library">
+            <div class="panel">
+                <div class="panel-title">Library</div>
+                <div class="lib-grid" id="libraryGrid"></div>
+            </div>
+        </section>
 
-                <details id="settingsPanel">
-                    <summary>Settings</summary>
+        <!-- STATS -->
+        <section class="view" id="view-stats">
+            <div class="panel">
+                <div class="panel-title">Performance</div>
+                <div class="stat-grid" id="statGrid"></div>
+                <div class="panel-title">Leaf wins</div>
+                <div id="winTable"></div>
+                <button class="ghost-btn danger" id="resetStats" style="margin-top:14px">Reset stats</button>
+            </div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section class="view" id="view-settings">
+            <div class="layout-grid">
+                <div class="panel">
+                    <div class="panel-title">Access</div>
                     <label for="tokenInput">Hugging Face access token</label>
-                    <input id="tokenInput" type="password" placeholder="hf_..." autocomplete="off" onchange="saveToken()">
+                    <input id="tokenInput" type="password" placeholder="hf_..." autocomplete="off">
                     <p class="hint">
                         Create one at <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener">huggingface.co/settings/tokens</a>
-                        with the "Make calls to Inference Providers" permission. It is stored only in this browser.
-                        Free accounts get a small monthly allowance; video uses it up quickly.
+                        with the "Make calls to Inference Providers" permission. Stored only in this browser.
                     </p>
-                    <label for="providerSelect">Provider</label>
-                    <select id="providerSelect" onchange="saveSettings()">
-                        <option value="auto">Auto (first available)</option>
-                        <option value="fal-ai">fal</option>
-                        <option value="replicate">Replicate</option>
-                        <option value="together">Together</option>
-                        <option value="novita">Novita</option>
-                        <option value="hf-inference">HF Inference</option>
-                    </select>
-                </details>
-
-                <a class="back-link" href="README.md">&larr; Back to 369 Core</a>
+                    <div class="panel-title">Judge</div>
+                    <label for="judgeModel">Judge model (must understand images)</label>
+                    <input id="judgeModel">
+                    <label for="judgeProvider">Judge provider</label>
+                    <select id="judgeProvider" class="provider-select"></select>
+                    <label class="check"><input type="checkbox" id="routingToggle">Smart routing (after 5 runs, only use the 2 leaves that win most)</label>
+                    <button class="ghost-btn" id="resetLeaves">Restore default leaves</button>
+                    <a class="back-link" href="README.md" style="display:block;margin-top:14px">&larr; Back to 369 Core</a>
+                </div>
+                <div>
+                    <div class="panel">
+                        <div class="panel-title">Image leaves</div>
+                        <div id="leavesImage"></div>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-title">Video leaves</div>
+                        <div id="leavesVideo"></div>
+                    </div>
+                </div>
             </div>
-
-            <div class="panel">
-                <div class="panel-title">Gallery</div>
-                <div class="gallery" id="galleryDisplay"></div>
-            </div>
-        </div>
+        </section>
     </div>
 
     <script type="module">
         const CLIENT_URL = "https://cdn.jsdelivr.net/npm/@huggingface/inference@4.13.32/+esm";
 
-        // Loaded on first use so the page still works if the CDN is unreachable.
-        let clientModule = null;
-        async function loadClient() {
-            if (!clientModule) clientModule = await import(CLIENT_URL);
-            return clientModule.InferenceClient;
-        }
+        const PROVIDERS = [
+            ["auto", "Auto"], ["fal-ai", "fal"], ["replicate", "Replicate"], ["together", "Together"],
+            ["novita", "Novita"], ["nebius", "Nebius"], ["hyperbolic", "Hyperbolic"], ["hf-inference", "HF Inference"],
+        ];
 
-        const MODELS = {
+        // Each leaf: model for prompt-only runs, refModel for runs that start from an image.
+        const DEFAULT_LEAVES = {
             image: [
-                { id: "Qwen/Qwen-Image-2.1", label: "Qwen-Image 2.1" },
-                { id: "black-forest-labs/FLUX.1-dev", label: "FLUX.1 dev" },
-                { id: "black-forest-labs/FLUX.1-schnell", label: "FLUX.1 schnell (fast)" },
-                { id: "stabilityai/stable-diffusion-3.5-large", label: "Stable Diffusion 3.5 Large" },
+                { on: true, model: "Qwen/Qwen-Image-2.1", refModel: "black-forest-labs/FLUX.1-Kontext-dev", provider: "auto" },
+                { on: true, model: "black-forest-labs/FLUX.1-dev", refModel: "black-forest-labs/FLUX.1-Kontext-dev", provider: "auto" },
+                { on: true, model: "black-forest-labs/FLUX.1-schnell", refModel: "black-forest-labs/FLUX.1-Kontext-dev", provider: "auto" },
+                { on: true, model: "stabilityai/stable-diffusion-3.5-large", refModel: "black-forest-labs/FLUX.1-Kontext-dev", provider: "auto" },
             ],
             video: [
-                { id: "Lightricks/LTX-2.5", label: "LTX-2.5" },
-                { id: "MiniMaxAI/MiniMax-H3", label: "MiniMax-H3" },
-                { id: "Wan-AI/Wan2.2-T2V-A14B", label: "Wan 2.2 (14B)" },
-                { id: "Wan-AI/Wan2.2-TI2V-5B", label: "Wan 2.2 (5B, faster)" },
+                { on: true, model: "Lightricks/LTX-2.5", refModel: "Lightricks/LTX-2.5", provider: "auto" },
+                { on: true, model: "MiniMaxAI/MiniMax-H3", refModel: "MiniMaxAI/MiniMax-H3", provider: "auto" },
+                { on: true, model: "Wan-AI/Wan2.2-T2V-A14B", refModel: "Wan-AI/Wan2.2-I2V-A14B", provider: "auto" },
+                { on: true, model: "Wan-AI/Wan2.2-TI2V-5B", refModel: "Wan-AI/Wan2.2-TI2V-5B", provider: "auto" },
             ],
         };
 
-        const STORE_KEY = "forge_settings";
-        const DB_NAME = "forge_gallery";
+        const STYLES = {
+            none: ["None", ""],
+            cinematic: ["Cinematic", "cinematic film still, 35mm film, shallow depth of field, dramatic lighting, rich color grading"],
+            anime: ["Anime", "anime style, clean line art, cel shading, vibrant colors, detailed background"],
+            animated3d: ["3D animated", "3D animated feature film style, soft global illumination, expressive stylized characters"],
+            cartoon2d: ["2D cartoon", "classic 2D cartoon style, bold outlines, flat bright colors, playful"],
+            clay: ["Claymation", "claymation stop-motion style, handmade clay textures, miniature set"],
+            documentary: ["Documentary", "documentary footage, natural light, realistic, handheld feel"],
+            dreamlike: ["Dreamlike", "surreal dreamlike atmosphere, soft glow, ethereal haze, floating particles"],
+            comic: ["Comic book", "comic book art, ink outlines, halftone shading, dynamic composition"],
+        };
 
-        let currentMode = "image";
-        let galleryItems = [];
+        const CAMERAS = {
+            none: ["None", ""],
+            dollyIn: ["Slow dolly in", "slow dolly-in camera move"],
+            dollyOut: ["Dolly out", "slow dolly-out camera move revealing the scene"],
+            orbit: ["Orbit", "camera orbits smoothly around the subject"],
+            crane: ["Crane up", "crane shot rising upward"],
+            tracking: ["Tracking", "tracking shot following the subject"],
+            handheld: ["Handheld", "handheld camera, subtle natural shake"],
+            static: ["Static", "static locked-off tripod shot"],
+            drone: ["Drone flyover", "aerial drone flyover"],
+            lowPush: ["Low-angle push", "low-angle push-in, heroic framing"],
+        };
+
+        const ASPECTS = {
+            "16:9": { label: "Wide 16:9", w: 1344, h: 768, hint: "widescreen 16:9 composition" },
+            "9:16": { label: "Vertical 9:16", w: 768, h: 1344, hint: "vertical 9:16 composition" },
+            "1:1": { label: "Square 1:1", w: 1024, h: 1024, hint: "square composition" },
+            "21:9": { label: "Cinema 21:9", w: 1536, h: 640, hint: "ultra-wide 21:9 cinematic composition" },
+        };
+
+        const SETTINGS_KEY = "forge_settings";
+        const STATS_KEY = "forge_stats";
+        const BOARD_KEY = "forge_storyboard";
+
+        const $ = id => document.getElementById(id);
+
+        // ---------- persistence ----------
+
+        function readJson(key, fallback) {
+            try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch (e) { return fallback; }
+        }
+
+        function writeJson(key, value) {
+            try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+        }
+
+        let settings = {
+            token: "",
+            judgeModel: "Qwen/Qwen3.8-27B",
+            judgeProvider: "auto",
+            routing: false,
+            mode: "image",
+            style: "cinematic",
+            aspect: "16:9",
+            camera: "dollyIn",
+            character: "",
+            target: "8",
+            rounds: "3",
+            enhance: true,
+            leaves: structuredClone(DEFAULT_LEAVES),
+            ...readJson(SETTINGS_KEY, {}),
+        };
+
+        const saveSettings = () => writeJson(SETTINGS_KEY, settings);
+
+        let stats = readJson(STATS_KEY, null) || { runs: 0, generations: 0, seconds: 0, rounds: 0, wins: {} };
+        const saveStats = () => writeJson(STATS_KEY, stats);
+
         let db = null;
 
         // Results are blobs (often several MB), so they go in IndexedDB rather than localStorage.
-        function openGalleryDb() {
-            return new Promise((resolve) => {
+        function openDb() {
+            return new Promise(resolve => {
                 try {
-                    const req = indexedDB.open(DB_NAME, 1);
+                    const req = indexedDB.open("forge_gallery", 1);
                     req.onupgradeneeded = () => req.result.createObjectStore("items", { keyPath: "uid" });
                     req.onsuccess = () => resolve(req.result);
                     req.onerror = () => resolve(null);
@@ -368,7 +829,7 @@
 
         function dbTx(mode, fn) {
             if (!db) return Promise.resolve(null);
-            return new Promise((resolve) => {
+            return new Promise(resolve => {
                 try {
                     const tx = db.transaction("items", mode);
                     const req = fn(tx.objectStore("items"));
@@ -380,163 +841,772 @@
             });
         }
 
-        function readSettings() {
-            try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { return {}; }
+        let library = [];
+
+        async function addToLibrary(item) {
+            library.unshift(item);
+            await dbTx("readwrite", store => store.put(item));
+            renderLibrary();
         }
 
-        function writeSettings(patch) {
-            try { localStorage.setItem(STORE_KEY, JSON.stringify({ ...readSettings(), ...patch })); } catch (e) {}
+        // ---------- helpers ----------
+
+        function escapeHtml(text) {
+            return String(text ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
         }
 
-        window.saveToken = function() {
-            writeSettings({ token: document.getElementById("tokenInput").value.trim() });
-        };
+        const shortModel = id => String(id).split("/").pop();
+        const nowLabel = () => new Date().toLocaleString([], { dateStyle: "short", timeStyle: "short" });
+        const extFor = item => item.mode === "video" ? "mp4" : ((item.blob.type || "").split("/")[1] || "png");
 
-        window.saveSettings = function() {
-            writeSettings({ provider: document.getElementById("providerSelect").value });
-        };
+        let clientModule = null;
 
-        window.setMode = function(mode) {
-            currentMode = mode;
-            document.getElementById("mode-image").classList.toggle("active", mode === "image");
-            document.getElementById("mode-video").classList.toggle("active", mode === "video");
-            const select = document.getElementById("modelSelect");
-            select.innerHTML = MODELS[mode]
-                .map(m => `<option value="${m.id}">${m.label}</option>`)
-                .join("") + `<option value="__custom">Other model...</option>`;
-            window.onModelChange();
-        };
-
-        window.onModelChange = function() {
-            const custom = document.getElementById("modelSelect").value === "__custom";
-            document.getElementById("customModel").style.display = custom ? "block" : "none";
-        };
-
-        function setStatus(text, isError = false) {
-            const line = document.getElementById("statusLine");
-            line.textContent = text;
-            line.classList.toggle("error", isError);
-        }
-
-        window.forge = async function() {
-            const prompt = document.getElementById("promptInput").value.trim();
-            const token = document.getElementById("tokenInput").value.trim();
-            const provider = document.getElementById("providerSelect").value;
-            const selected = document.getElementById("modelSelect").value;
-            const model = selected === "__custom"
-                ? document.getElementById("customModel").value.trim()
-                : selected;
-
-            if (!prompt) return setStatus("Write a prompt first.", true);
-            if (!model) return setStatus("Enter a model name.", true);
-            if (!token) {
-                document.getElementById("settingsPanel").open = true;
-                return setStatus("Add your Hugging Face token in Settings.", true);
-            }
-
-            const btn = document.getElementById("forgeBtn");
-            btn.disabled = true;
-            const started = Date.now();
-            const timer = setInterval(() => {
-                const secs = Math.round((Date.now() - started) / 1000);
-                setStatus(`Generating ${currentMode} with ${model}... ${secs}s`);
-            }, 1000);
-
-            try {
-                let InferenceClient;
+        // Loaded on first use so the page still works if the CDN is unreachable.
+        async function getClient() {
+            if (!settings.token) throw new Error("Add your Hugging Face token in Settings.");
+            if (!clientModule) {
                 try {
-                    InferenceClient = await loadClient();
+                    clientModule = await import(CLIENT_URL);
                 } catch (e) {
                     throw new Error("Could not load the Hugging Face library. Check your internet connection.");
                 }
-                const client = new InferenceClient(token);
-                const args = { provider, model, inputs: prompt };
-                const blob = currentMode === "video"
-                    ? await client.textToVideo(args)
-                    : await client.textToImage(args, { outputType: "blob" });
-
-                const item = {
-                    uid: Date.now(),
-                    mode: currentMode,
-                    model,
-                    prompt,
-                    blob,
-                    timestamp: new Date().toLocaleString([], { dateStyle: "short", timeStyle: "short" }),
-                };
-                galleryItems.unshift(item);
-                await dbTx("readwrite", store => store.put(item));
-                renderGallery();
-                setStatus(`Done in ${Math.round((Date.now() - started) / 1000)}s.`);
-            } catch (err) {
-                setStatus(describeError(err), true);
-            } finally {
-                clearInterval(timer);
-                btn.disabled = false;
             }
-        };
+            return new clientModule.InferenceClient(settings.token);
+        }
 
         function describeError(err) {
             const msg = String(err && err.message || err);
+            if (err && err.name === "AbortError") return "Stopped.";
             if (/401|unauthori[sz]ed|invalid.*token/i.test(msg)) return "Token rejected. Check it has the Inference Providers permission.";
-            if (/402|payment|credits|quota|exceeded/i.test(msg)) return "Out of free credits for this month. Add billing on Hugging Face or try a smaller model.";
-            if (/not supported|no provider|not available|mapping/i.test(msg)) return "No provider serves that model right now. Pick another model or provider.";
-            return "Failed: " + msg;
+            if (/402|payment|credits|quota|exceeded/i.test(msg)) return "Out of credits. Add billing on Hugging Face or use cheaper leaves.";
+            if (/not supported|no provider|not available|mapping|not found/i.test(msg)) return "No provider serves this model right now.";
+            return msg.slice(0, 160);
         }
 
-        window.clearItem = async function(uid) {
-            galleryItems = galleryItems.filter(item => item.uid !== uid);
-            await dbTx("readwrite", store => store.delete(uid));
-            renderGallery();
-        };
-
-        function escapeHtml(text) {
-            return text.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+        function once(el, event) {
+            return new Promise((resolve, reject) => {
+                el.addEventListener(event, resolve, { once: true });
+                el.addEventListener("error", () => reject(new Error("This browser cannot decode the result.")), { once: true });
+            });
         }
 
-        let activeUrls = [];
+        function canvasFrom(source, width, height, maxSide) {
+            const scale = Math.min(1, maxSide / Math.max(width, height));
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.round(width * scale);
+            canvas.height = Math.round(height * scale);
+            canvas.getContext("2d").drawImage(source, 0, 0, canvas.width, canvas.height);
+            return canvas;
+        }
 
-        function renderGallery() {
-            activeUrls.forEach(url => URL.revokeObjectURL(url));
-            activeUrls = [];
+        async function imageToDataUrl(blob, maxSide = 768) {
+            const bitmap = await createImageBitmap(blob);
+            return canvasFrom(bitmap, bitmap.width, bitmap.height, maxSide).toDataURL("image/jpeg", 0.85);
+        }
 
-            const display = document.getElementById("galleryDisplay");
-            if (galleryItems.length === 0) {
-                display.innerHTML = `<div class="empty-state">Nothing generated yet. Write a prompt on the workbench and press Generate.</div>`;
-                return;
+        async function loadVideo(blob) {
+            const video = document.createElement("video");
+            video.muted = true;
+            video.playsInline = true;
+            video.preload = "auto";
+            video.src = URL.createObjectURL(blob);
+            await once(video, "loadeddata");
+            return video;
+        }
+
+        async function seek(video, time) {
+            video.currentTime = Math.max(0, Math.min(time, video.duration - 0.05));
+            await once(video, "seeked");
+        }
+
+        // The judge sees a video as a handful of frames spread across the clip.
+        async function videoFrames(blob, count = 4) {
+            const video = await loadVideo(blob);
+            const frames = [];
+            for (let i = 0; i < count; i++) {
+                await seek(video, video.duration * (i + 0.5) / count);
+                frames.push(canvasFrom(video, video.videoWidth, video.videoHeight, 512).toDataURL("image/jpeg", 0.8));
+            }
+            URL.revokeObjectURL(video.src);
+            return frames;
+        }
+
+        async function lastFrame(blob) {
+            const video = await loadVideo(blob);
+            await seek(video, video.duration);
+            const canvas = canvasFrom(video, video.videoWidth, video.videoHeight, 1344);
+            URL.revokeObjectURL(video.src);
+            return await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+        }
+
+        async function videoDuration(blob) {
+            const video = await loadVideo(blob);
+            const duration = video.duration;
+            URL.revokeObjectURL(video.src);
+            return duration;
+        }
+
+        function parseJudgeReply(text) {
+            const match = String(text).match(/\{[\s\S]*\}/);
+            if (!match) throw new Error("Judge reply was not JSON");
+            const data = JSON.parse(match[0]);
+            const score = Math.max(0, Math.min(10, Number(data.score)));
+            if (Number.isNaN(score)) throw new Error("Judge gave no score");
+            return {
+                score,
+                issues: Array.isArray(data.issues) ? data.issues.map(String).slice(0, 5) : [],
+                improved: typeof data.improved_prompt === "string" ? data.improved_prompt.trim() : "",
+            };
+        }
+
+        // ---------- prompt building ----------
+
+        function composePrompt(base, mode) {
+            const parts = [base.trim()];
+            if (settings.character.trim()) parts.push(settings.character.trim());
+            if (mode === "video" && CAMERAS[settings.camera][1]) parts.push(CAMERAS[settings.camera][1]);
+            if (STYLES[settings.style][1]) parts.push(STYLES[settings.style][1]);
+            parts.push(ASPECTS[settings.aspect].hint);
+            return parts.join(", ");
+        }
+
+        async function directorRewrite(client, prompt, mode, signal) {
+            const reply = await client.chatCompletion({
+                provider: settings.judgeProvider,
+                model: settings.judgeModel,
+                messages: [{
+                    role: "user",
+                    content: `Rewrite this as one detailed ${mode === "video" ? "video shot" : "image"} prompt for an AI generator. ` +
+                        `Describe subject, setting, lighting, composition${mode === "video" ? ", action and camera movement" : ""}. ` +
+                        `Keep every detail the user asked for, add nothing that contradicts it, stay under 90 words. ` +
+                        `Reply with the prompt only.\n\nUser prompt: """${prompt}"""`,
+                }],
+                max_tokens: 220,
+                temperature: 0.5,
+            }, { signal });
+            const text = reply.choices?.[0]?.message?.content?.trim();
+            return text ? text.replace(/^["']|["']$/g, "") : prompt;
+        }
+
+        async function judgeCandidate(client, cand, goal, notes, mode, signal) {
+            const frames = mode === "video" ? await videoFrames(cand.blob, 4) : [await imageToDataUrl(cand.blob)];
+            const instruction =
+                `You are a strict film director reviewing an AI-generated ${mode === "video" ? "video, shown as frames in time order" : "image"}.\n` +
+                `Target: """${goal}"""\n` +
+                (notes ? `The creator's notes, which matter most: """${notes}"""\n` : "") +
+                `Score 0-10 for how well it matches the target and how good it looks (10 = flawless and publishable). ` +
+                `Penalise wrong subjects or counts, distorted faces, hands or bodies, artifacts, wrong style or lighting` +
+                (mode === "video" ? ", and objects or characters changing between frames" : "") + `.\n` +
+                `Reply with JSON only: {"score": number, "issues": ["short issue", ...], "improved_prompt": "a rewritten prompt that would fix the issues"}`;
+            const reply = await client.chatCompletion({
+                provider: settings.judgeProvider,
+                model: settings.judgeModel,
+                messages: [{
+                    role: "user",
+                    content: [
+                        { type: "text", text: instruction },
+                        ...frames.map(url => ({ type: "image_url", image_url: { url } })),
+                    ],
+                }],
+                max_tokens: 400,
+                temperature: 0.2,
+            }, { signal });
+            return parseJudgeReply(reply.choices?.[0]?.message?.content || "");
+        }
+
+        async function generateLeaf(client, leaf, mode, prompt, ref, signal) {
+            const provider = leaf.provider || "auto";
+            const model = ref ? (leaf.refModel || leaf.model) : leaf.model;
+            const seed = Math.floor(Math.random() * 2 ** 31);
+            const aspect = ASPECTS[settings.aspect];
+            let blob;
+            if (mode === "image") {
+                blob = ref
+                    ? await client.imageToImage({ provider, model, inputs: ref, parameters: { prompt } }, { signal })
+                    : await client.textToImage({ provider, model, inputs: prompt, parameters: { seed, width: aspect.w, height: aspect.h } }, { outputType: "blob", signal });
+            } else {
+                blob = ref
+                    ? await client.imageToVideo({ provider, model, inputs: ref, parameters: { prompt, seed } }, { signal })
+                    : await client.textToVideo({ provider, model, inputs: prompt, parameters: { seed } }, { signal });
+            }
+            return { blob, model };
+        }
+
+        // ---------- clover engine ----------
+
+        function activeLeaves(mode) {
+            const leaves = settings.leaves[mode].filter(leaf => leaf.on && leaf.model.trim());
+            const wins = stats.wins[mode] || {};
+            const runs = Object.values(wins).reduce((a, b) => a + b, 0);
+            if (!settings.routing || runs < 5 || leaves.length <= 2) return leaves;
+            return [...leaves].sort((a, b) => (wins[b.model] || 0) - (wins[a.model] || 0)).slice(0, 2);
+        }
+
+        let currentRun = null;
+
+        function scoreClass(score) {
+            if (score == null) return "";
+            return score >= Number(settings.target) ? "high" : score < 5 ? "low" : "";
+        }
+
+        function renderCand(el, cand, mode) {
+            const media = el.querySelector(".cand-media");
+            if (cand.state === "working") {
+                media.className = "cand-media";
+                media.innerHTML = `<div><div class="spinner"></div>${cand.label}</div>`;
+            } else if (cand.state === "failed") {
+                media.className = "cand-media";
+                media.innerHTML = `<div style="color:var(--danger)">${escapeHtml(cand.error)}</div>`;
+            } else if (!media.classList.contains("has-media")) {
+                media.className = "cand-media has-media";
+                cand.url = URL.createObjectURL(cand.blob);
+                media.innerHTML = mode === "video"
+                    ? `<video src="${cand.url}" controls loop muted playsinline></video>`
+                    : `<img src="${cand.url}" alt="">`;
             }
 
-            display.innerHTML = galleryItems.map(item => {
+            const score = el.querySelector(".score");
+            score.className = "score " + scoreClass(cand.score);
+            score.textContent = cand.state === "judging" ? "judging…" : cand.score != null ? `${cand.score}/10` : cand.judgeError ? "no score" : "";
+
+            el.querySelector(".issues").innerHTML = cand.issues?.length
+                ? cand.issues.map(escapeHtml).join(" · ")
+                : cand.judgeError ? escapeHtml(cand.judgeError) : "";
+
+            const actions = el.querySelector(".cand-actions");
+            const ready = cand.state === "done" || cand.state === "judging";
+            actions.style.display = ready ? "flex" : "none";
+        }
+
+        async function runClover({ mode, prompt, ref, area, statusEl }) {
+            const client = await getClient();
+            const leaves = activeLeaves(mode);
+            if (!leaves.length) throw new Error(`No ${mode} leaves are switched on. Check Settings.`);
+
+            const controller = new AbortController();
+            const run = { controller, accepted: null, best: null, generations: 0, rounds: 0 };
+            currentRun = run;
+
+            const target = Number(settings.target);
+            const maxRounds = Number(settings.rounds);
+            const started = Date.now();
+            const setStatus = text => { statusEl.textContent = text; statusEl.classList.remove("error"); };
+
+            area.innerHTML = "";
+            let goal = composePrompt(prompt, mode);
+
+            if (settings.enhance) {
+                setStatus("Director is rewriting your prompt…");
+                try {
+                    goal = composePrompt(await directorRewrite(client, prompt, mode, controller.signal), mode);
+                } catch (e) {
+                    if (controller.signal.aborted) throw e;
+                    setStatus("Director rewrite unavailable, using your prompt as written.");
+                }
+            }
+
+            let judgeWorked = false;
+
+            for (let round = 1; round <= maxRounds && !run.accepted && !controller.signal.aborted; round++) {
+                run.rounds = round;
+                const roundEl = document.createElement("div");
+                roundEl.className = "round";
+                roundEl.innerHTML = `<div class="round-head"><b>Round ${round}</b> · ${escapeHtml(goal)}</div><div class="cand-grid"></div>`;
+                area.prepend(roundEl);
+                const grid = roundEl.querySelector(".cand-grid");
+
+                const notes = $("notesInput").value.trim();
+                const roundCtl = new AbortController();
+                run.roundCtl = roundCtl;
+                const onAbort = () => roundCtl.abort();
+                controller.signal.addEventListener("abort", onAbort);
+
+                const cands = leaves.map(leaf => {
+                    const cand = { leaf, state: "working", label: shortModel(ref ? (leaf.refModel || leaf.model) : leaf.model), score: null, issues: [], improved: "" };
+                    cand.el = document.createElement("div");
+                    cand.el.className = "cand";
+                    cand.el.innerHTML = `
+                        <div class="cand-media"></div>
+                        <div class="cand-meta"><span class="model">${escapeHtml(cand.label)}</span><span class="score"></span></div>
+                        <div class="issues"></div>
+                        <div class="cand-actions">
+                            <button class="ghost-btn" data-act="pick">👍 Use this</button>
+                            <a class="ghost-btn" data-act="dl" download>Download</a>
+                        </div>`;
+                    grid.appendChild(cand.el);
+                    cand.el.querySelector('[data-act="pick"]').onclick = async () => {
+                        if (!run.finished) {
+                            run.accepted = cand;
+                            run.roundCtl.abort();
+                            return;
+                        }
+                        // The run is over: keep this one as well as the judge's pick.
+                        await addToLibrary({ uid: Date.now(), mode, model: cand.model, prompt: goal, score: cand.score, blob: cand.blob, timestamp: nowLabel() });
+                        cand.el.classList.add("winner");
+                        statusEl.textContent = `Saved ${shortModel(cand.model)} to Library.`;
+                    };
+                    renderCand(cand.el, cand, mode);
+                    return cand;
+                });
+
+                const tick = setInterval(() => {
+                    const done = cands.filter(c => c.state !== "working").length;
+                    setStatus(`Round ${round} of ${maxRounds}: ${done}/${cands.length} leaves finished · ${Math.round((Date.now() - started) / 1000)}s`);
+                }, 1000);
+
+                await Promise.allSettled(cands.map(async cand => {
+                    try {
+                        const out = await generateLeaf(client, cand.leaf, mode, goal, ref, roundCtl.signal);
+                        run.generations++;
+                        Object.assign(cand, out, { state: "judging" });
+                        renderCand(cand.el, cand, mode);
+                        cand.el.querySelector('[data-act="dl"]').href = cand.url;
+                        cand.el.querySelector('[data-act="dl"]').download = `369-forge-${Date.now()}.${mode === "video" ? "mp4" : "png"}`;
+                    } catch (e) {
+                        cand.state = "failed";
+                        cand.error = roundCtl.signal.aborted ? "Skipped" : describeError(e);
+                        renderCand(cand.el, cand, mode);
+                        return;
+                    }
+                    try {
+                        Object.assign(cand, await judgeCandidate(client, cand, goal, notes, mode, roundCtl.signal));
+                        judgeWorked = true;
+                    } catch (e) {
+                        cand.judgeError = roundCtl.signal.aborted ? "" : "Judge unavailable: " + describeError(e);
+                    }
+                    cand.state = "done";
+                    renderCand(cand.el, cand, mode);
+                    if (cand.score != null && (!run.best || cand.score > run.best.score)) run.best = cand;
+                    // Stop early: the other leaves are no longer worth paying for.
+                    if (cand.score != null && cand.score >= target) roundCtl.abort();
+                }));
+
+                clearInterval(tick);
+                controller.signal.removeEventListener("abort", onAbort);
+
+                if (run.accepted || (run.best && run.best.score >= target)) break;
+                if (!judgeWorked) break;
+                if (run.best?.improved) goal = composePrompt(run.best.improved, mode);
+            }
+
+            run.finished = true;
+            const winner = run.accepted || run.best || null;
+            const seconds = Math.round((Date.now() - started) / 1000);
+            stats.runs++;
+            stats.generations += run.generations;
+            stats.seconds += seconds;
+            stats.rounds += run.rounds;
+
+            if (!winner) {
+                saveStats();
+                renderStats();
+                if (controller.signal.aborted) throw Object.assign(new Error("Stopped."), { name: "AbortError" });
+                const anyDone = area.querySelector(".has-media");
+                throw new Error(anyDone
+                    ? "The judge could not score these. Pick the one you like with 👍 Use this, or check the judge model in Settings."
+                    : "Every leaf failed. See the messages on each card.");
+            }
+
+            winner.el.classList.add("winner");
+            stats.wins[mode] = stats.wins[mode] || {};
+            stats.wins[mode][winner.model] = (stats.wins[mode][winner.model] || 0) + 1;
+            saveStats();
+            renderStats();
+
+            const item = {
+                uid: Date.now(),
+                mode,
+                model: winner.model,
+                prompt: goal,
+                score: winner.score,
+                blob: winner.blob,
+                timestamp: nowLabel(),
+            };
+            await addToLibrary(item);
+            setStatus(`Winner: ${shortModel(winner.model)}${winner.score != null ? ` (${winner.score}/10)` : ""} after ${run.rounds} round${run.rounds > 1 ? "s" : ""}, ${seconds}s. Saved to Library.`);
+            return item;
+        }
+
+        // ---------- create view ----------
+
+        let refBlob = null;
+
+        function setRef(blob) {
+            refBlob = blob;
+            $("refPreview").style.display = blob ? "flex" : "none";
+            if (blob) $("refThumb").src = URL.createObjectURL(blob);
+            else $("refInput").value = "";
+            updateCostHint();
+        }
+
+        function setMode(mode) {
+            settings.mode = mode;
+            saveSettings();
+            $("mode-image").classList.toggle("active", mode === "image");
+            $("mode-video").classList.toggle("active", mode === "video");
+            $("cameraWrap").style.display = mode === "video" ? "block" : "none";
+            updateCostHint();
+        }
+
+        function updateCostHint() {
+            const leaves = activeLeaves(settings.mode).length;
+            const max = leaves * Number(settings.rounds);
+            $("costHint").textContent = `${leaves} leaves × up to ${settings.rounds} rounds = at most ${max} ${settings.mode} generations` +
+                (refBlob ? ", starting from your image." : ".") +
+                (settings.mode === "video" ? " Tip: perfect the first frame in Image mode, then press Animate." : "");
+        }
+
+        function fillSelect(el, entries, value) {
+            el.innerHTML = entries.map(([key, label]) => `<option value="${key}">${escapeHtml(label)}</option>`).join("");
+            el.value = value;
+        }
+
+        function addWinnerBanner(item) {
+            const banner = document.createElement("div");
+            banner.className = "winner-banner";
+            banner.innerHTML = `
+                <div class="panel-title">Winner</div>
+                <div class="cand-actions">
+                    ${item.mode === "image" ? `<button class="ghost-btn" data-act="animate">Animate this →</button>` : `<button class="ghost-btn" data-act="board">Add to storyboard</button>`}
+                    <button class="ghost-btn" data-act="ref">Use as reference</button>
+                </div>`;
+            banner.querySelector('[data-act="ref"]').onclick = () => useAsReference(item);
+            const animate = banner.querySelector('[data-act="animate"]');
+            if (animate) animate.onclick = () => { useAsReference(item); setMode("video"); window.scrollTo({ top: 0, behavior: "smooth" }); };
+            const board = banner.querySelector('[data-act="board"]');
+            if (board) board.onclick = () => addClipToBoard(item);
+            $("runArea").prepend(banner);
+        }
+
+        async function forge() {
+            const prompt = $("promptInput").value.trim();
+            const status = $("statusLine");
+            if (!prompt) { status.textContent = "Write a prompt first."; status.classList.add("error"); return; }
+
+            $("forgeBtn").disabled = true;
+            $("stopBtn").style.display = "block";
+            try {
+                const item = await runClover({ mode: settings.mode, prompt, ref: refBlob, area: $("runArea"), statusEl: status });
+                addWinnerBanner(item);
+            } catch (e) {
+                status.textContent = describeError(e);
+                status.classList.add("error");
+                if (/token/i.test(e.message)) showView("settings");
+            } finally {
+                $("forgeBtn").disabled = false;
+                $("stopBtn").style.display = "none";
+                currentRun = null;
+            }
+        }
+
+        function useAsReference(item) {
+            if (item.mode === "image") {
+                setRef(item.blob);
+            } else {
+                lastFrame(item.blob).then(setRef).catch(() => {});
+            }
+            showView("create");
+        }
+
+        // ---------- storyboard ----------
+
+        let board = readJson(BOARD_KEY, null) || { shots: [{ id: 1, prompt: "", clipUid: null }], length: "15", clipSeconds: "5", continueFrames: true };
+        const saveBoard = () => writeJson(BOARD_KEY, board);
+        const clipFor = shot => library.find(item => item.uid === shot.clipUid);
+
+        function planShots() {
+            const count = Math.max(1, Math.ceil(Number(board.length) / Number(board.clipSeconds)));
+            const shots = [];
+            for (let i = 0; i < count; i++) shots.push(board.shots[i] || { id: Date.now() + i, prompt: "", clipUid: null });
+            board.shots = shots;
+            saveBoard();
+            renderBoard();
+        }
+
+        function addClipToBoard(item) {
+            const empty = board.shots.find(shot => !shot.clipUid);
+            if (empty) Object.assign(empty, { clipUid: item.uid, prompt: empty.prompt || item.prompt });
+            else board.shots.push({ id: Date.now(), prompt: item.prompt, clipUid: item.uid });
+            saveBoard();
+            renderBoard();
+            showView("storyboard");
+        }
+
+        function renderBoard() {
+            const list = $("shotList");
+            list.innerHTML = "";
+            board.shots.forEach((shot, index) => {
+                const clip = clipFor(shot);
+                const el = document.createElement("div");
+                el.className = "shot";
+                el.innerHTML = `
+                    <div class="shot-head"><span>Shot ${index + 1}</span><button class="ghost-btn danger" data-act="del">Remove</button></div>
+                    <textarea placeholder="What happens in this shot?">${escapeHtml(shot.prompt)}</textarea>
+                    ${clip ? `<video src="${URL.createObjectURL(clip.blob)}" controls playsinline></video>` : ""}
+                    <div class="cand-actions"><button class="ghost-btn" data-act="gen">${clip ? "Regenerate this shot" : "Generate this shot"}</button></div>
+                    <div class="round-area"></div>
+                    <div class="status"></div>`;
+                el.querySelector("textarea").oninput = e => { shot.prompt = e.target.value; saveBoard(); };
+                el.querySelector('[data-act="del"]').onclick = () => {
+                    board.shots = board.shots.filter(s => s !== shot);
+                    saveBoard();
+                    renderBoard();
+                };
+                el.querySelector('[data-act="gen"]').onclick = () => runShot(index).catch(() => {});
+                list.appendChild(el);
+            });
+            updateSceneDuration();
+        }
+
+        async function runShot(index) {
+            const shot = board.shots[index];
+            const el = $("shotList").children[index];
+            const status = el.querySelector(".status");
+            if (!shot.prompt.trim()) { status.textContent = "Describe this shot first."; status.classList.add("error"); throw new Error("empty"); }
+
+            // Chain clips: start from the previous shot's last frame, else from the character image.
+            let ref = refBlob;
+            const previous = index > 0 ? clipFor(board.shots[index - 1]) : null;
+            if (board.continueFrames && previous) ref = await lastFrame(previous.blob).catch(() => refBlob);
+
+            try {
+                const item = await runClover({ mode: "video", prompt: shot.prompt, ref, area: el.querySelector(".round-area"), statusEl: status });
+                shot.clipUid = item.uid;
+                saveBoard();
+                renderBoard();
+            } catch (e) {
+                status.textContent = describeError(e);
+                status.classList.add("error");
+                throw e;
+            }
+        }
+
+        async function runAllShots() {
+            const status = $("sceneStatus");
+            $("runAllShots").disabled = true;
+            try {
+                for (let i = 0; i < board.shots.length; i++) {
+                    if (board.shots[i].clipUid && clipFor(board.shots[i])) continue;
+                    status.textContent = `Working on shot ${i + 1} of ${board.shots.length}…`;
+                    await runShot(i);
+                }
+                status.textContent = "All shots done. Press Play whole scene.";
+            } catch (e) {
+                status.textContent = "Stopped at a shot that needs attention.";
+            } finally {
+                $("runAllShots").disabled = false;
+            }
+        }
+
+        let durationRequest = 0;
+
+        async function updateSceneDuration() {
+            const request = ++durationRequest;
+            const clips = board.shots.map(clipFor).filter(Boolean);
+            let total = 0;
+            for (const clip of clips) {
+                const seconds = await videoDuration(clip.blob).catch(() => 0);
+                if (Number.isFinite(seconds)) total += seconds;
+            }
+            // A newer render may have started while durations were loading.
+            if (request !== durationRequest) return;
+            $("sceneDuration").textContent = clips.length ? `· ${clips.length} clip${clips.length > 1 ? "s" : ""}, ${Math.round(total)}s` : "";
+        }
+
+        function playScene() {
+            const clips = board.shots.map(clipFor).filter(Boolean);
+            const player = $("scenePlayer");
+            if (!clips.length) return;
+            let i = 0;
+            const playNext = () => {
+                if (i >= clips.length) { player.onended = null; return; }
+                player.src = URL.createObjectURL(clips[i++].blob);
+                player.play().catch(() => {});
+            };
+            player.onended = playNext;
+            playNext();
+        }
+
+        function downloadScene() {
+            board.shots.map(clipFor).filter(Boolean).forEach((clip, i) => {
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(clip.blob);
+                a.download = `scene-shot-${String(i + 1).padStart(2, "0")}.mp4`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            });
+        }
+
+        // ---------- library ----------
+
+        let libraryUrls = [];
+
+        function renderLibrary() {
+            libraryUrls.forEach(url => URL.revokeObjectURL(url));
+            libraryUrls = [];
+            const grid = $("libraryGrid");
+            if (!library.length) {
+                grid.innerHTML = `<div class="empty-state">Winners from the Create tab are saved here.</div>`;
+                return;
+            }
+            grid.innerHTML = "";
+            for (const item of library) {
                 const url = URL.createObjectURL(item.blob);
-                activeUrls.push(url);
-                const ext = item.mode === "video" ? "mp4" : (item.blob.type.split("/")[1] || "png");
-                const media = item.mode === "video"
-                    ? `<video src="${url}" controls loop playsinline></video>`
-                    : `<img src="${url}" alt="">`;
-                return `
-                    <div class="result-card">
-                        ${media}
-                        <div class="card-body">"${escapeHtml(item.prompt)}"</div>
-                        <div class="card-footer">
-                            <div>${escapeHtml(item.model)} | ${item.timestamp}</div>
-                            <div class="card-actions">
-                                <a href="${url}" download="369-forge-${item.uid}.${ext}">Download</a>
-                                <button onclick="clearItem(${item.uid})">Clear</button>
-                            </div>
-                        </div>
+                libraryUrls.push(url);
+                const card = document.createElement("div");
+                card.className = "lib-card";
+                card.innerHTML = `
+                    ${item.mode === "video" ? `<video src="${url}" controls loop playsinline></video>` : `<img src="${url}" alt="">`}
+                    <div class="lib-prompt">${escapeHtml(item.prompt)}</div>
+                    <div class="lib-foot">${escapeHtml(shortModel(item.model))}${item.score != null ? ` · ${item.score}/10` : ""} · ${escapeHtml(item.timestamp)}</div>
+                    <div class="cand-actions">
+                        <a class="ghost-btn" href="${url}" download="369-forge-${item.uid}.${extFor(item)}">Download</a>
+                        <button class="ghost-btn" data-act="ref">Use as reference</button>
+                        ${item.mode === "video" ? `<button class="ghost-btn" data-act="board">To storyboard</button>` : ""}
+                        <button class="ghost-btn danger" data-act="del">Delete</button>
                     </div>`;
-            }).join("");
+                card.querySelector('[data-act="ref"]').onclick = () => useAsReference(item);
+                const toBoard = card.querySelector('[data-act="board"]');
+                if (toBoard) toBoard.onclick = () => addClipToBoard(item);
+                card.querySelector('[data-act="del"]').onclick = async () => {
+                    library = library.filter(i => i.uid !== item.uid);
+                    await dbTx("readwrite", store => store.delete(item.uid));
+                    renderLibrary();
+                    renderBoard();
+                };
+                grid.appendChild(card);
+            }
+        }
+
+        // ---------- stats ----------
+
+        function renderStats() {
+            const avgRounds = stats.runs ? (stats.rounds / stats.runs).toFixed(1) : "–";
+            const avgGens = stats.runs ? (stats.generations / stats.runs).toFixed(1) : "–";
+            const avgSecs = stats.runs ? Math.round(stats.seconds / stats.runs) + "s" : "–";
+            $("statGrid").innerHTML = [
+                [stats.runs, "Runs"],
+                [stats.generations, "Generations"],
+                [avgRounds, "Rounds per run"],
+                [avgGens, "Generations per winner"],
+                [avgSecs, "Time per winner"],
+            ].map(([num, lbl]) => `<div class="stat"><div class="num">${num}</div><div class="lbl">${lbl}</div></div>`).join("");
+
+            const rows = [];
+            for (const mode of ["image", "video"]) {
+                for (const [model, wins] of Object.entries(stats.wins[mode] || {}).sort((a, b) => b[1] - a[1])) {
+                    rows.push(`<tr><td>${mode}</td><td>${escapeHtml(model)}</td><td>${wins}</td></tr>`);
+                }
+            }
+            $("winTable").innerHTML = rows.length
+                ? `<table><tr><th>Mode</th><th>Model</th><th>Wins</th></tr>${rows.join("")}</table>`
+                : `<div class="empty-state">No winners yet.</div>`;
+        }
+
+        // ---------- settings ----------
+
+        function renderLeaves() {
+            for (const mode of ["image", "video"]) {
+                const box = $(mode === "image" ? "leavesImage" : "leavesVideo");
+                box.innerHTML = "";
+                settings.leaves[mode].forEach((leaf, i) => {
+                    const row = document.createElement("div");
+                    row.className = "leaf-row";
+                    row.innerHTML = `
+                        <input type="checkbox" ${leaf.on ? "checked" : ""} data-k="on" aria-label="Leaf ${i + 1} on">
+                        <input data-k="model" value="${escapeHtml(leaf.model)}" placeholder="owner/model" aria-label="Leaf ${i + 1} model">
+                        <span class="tag full">From an image (${mode === "image" ? "edit" : "animate"}) model</span>
+                        <input class="full" data-k="refModel" value="${escapeHtml(leaf.refModel || "")}" placeholder="owner/model" aria-label="Leaf ${i + 1} image model">
+                        <select class="full" data-k="provider" aria-label="Leaf ${i + 1} provider"></select>`;
+                    fillSelect(row.querySelector("select"), PROVIDERS, leaf.provider || "auto");
+                    row.querySelectorAll("[data-k]").forEach(input => {
+                        input.onchange = () => {
+                            leaf[input.dataset.k] = input.type === "checkbox" ? input.checked : input.value.trim();
+                            saveSettings();
+                            updateCostHint();
+                        };
+                    });
+                    box.appendChild(row);
+                });
+            }
+        }
+
+        function showView(name) {
+            document.querySelectorAll(".tab").forEach(tab => tab.classList.toggle("active", tab.dataset.view === name));
+            document.querySelectorAll(".view").forEach(view => view.classList.toggle("active", view.id === "view-" + name));
+            if (name === "settings" && !settings.token) $("tokenInput").focus();
+        }
+
+        function bindSetting(id, key, after) {
+            const el = $(id);
+            const isCheck = el.type === "checkbox";
+            if (isCheck) el.checked = !!settings[key]; else el.value = settings[key];
+            el.onchange = () => {
+                settings[key] = isCheck ? el.checked : el.value.trim();
+                saveSettings();
+                if (after) after();
+            };
         }
 
         async function init() {
-            const settings = readSettings();
-            if (settings.token) document.getElementById("tokenInput").value = settings.token;
-            if (settings.provider) document.getElementById("providerSelect").value = settings.provider;
-            window.setMode("image");
+            fillSelect($("styleSelect"), Object.entries(STYLES).map(([k, v]) => [k, v[0]]), settings.style);
+            fillSelect($("cameraSelect"), Object.entries(CAMERAS).map(([k, v]) => [k, v[0]]), settings.camera);
+            fillSelect($("aspectSelect"), Object.entries(ASPECTS).map(([k, v]) => [k, v.label]), settings.aspect);
+            fillSelect($("judgeProvider"), PROVIDERS, settings.judgeProvider);
 
-            db = await openGalleryDb();
+            bindSetting("styleSelect", "style");
+            bindSetting("cameraSelect", "camera");
+            bindSetting("aspectSelect", "aspect");
+            bindSetting("charInput", "character");
+            bindSetting("targetInput", "target");
+            bindSetting("roundsInput", "rounds", updateCostHint);
+            bindSetting("enhanceToggle", "enhance");
+            bindSetting("tokenInput", "token");
+            bindSetting("judgeModel", "judgeModel");
+            bindSetting("judgeProvider", "judgeProvider");
+            bindSetting("routingToggle", "routing", updateCostHint);
+
+            document.querySelectorAll(".tab").forEach(tab => tab.onclick = () => showView(tab.dataset.view));
+            $("mode-image").onclick = () => setMode("image");
+            $("mode-video").onclick = () => setMode("video");
+            $("forgeBtn").onclick = forge;
+            $("stopBtn").onclick = () => currentRun?.controller.abort();
+            $("refInput").onchange = e => setRef(e.target.files[0] || null);
+            $("refClear").onclick = () => setRef(null);
+            $("resetLeaves").onclick = () => {
+                settings.leaves = structuredClone(DEFAULT_LEAVES);
+                saveSettings();
+                renderLeaves();
+                updateCostHint();
+            };
+            $("resetStats").onclick = () => {
+                stats = { runs: 0, generations: 0, seconds: 0, rounds: 0, wins: {} };
+                saveStats();
+                renderStats();
+            };
+
+            $("sceneLength").value = board.length;
+            $("clipSeconds").value = board.clipSeconds;
+            $("continueToggle").checked = board.continueFrames;
+            $("sceneLength").onchange = e => { board.length = e.target.value; saveBoard(); };
+            $("clipSeconds").onchange = e => { board.clipSeconds = e.target.value; saveBoard(); };
+            $("continueToggle").onchange = e => { board.continueFrames = e.target.checked; saveBoard(); };
+            $("planShots").onclick = planShots;
+            $("addShot").onclick = () => { board.shots.push({ id: Date.now(), prompt: "", clipUid: null }); saveBoard(); renderBoard(); };
+            $("runAllShots").onclick = runAllShots;
+            $("playScene").onclick = playScene;
+            $("downloadScene").onclick = downloadScene;
+
+            setMode(settings.mode);
+            renderLeaves();
+            renderStats();
+
+            db = await openDb();
             const stored = await dbTx("readonly", store => store.getAll());
-            galleryItems = (stored || []).sort((a, b) => b.uid - a.uid);
-            renderGallery();
+            library = (stored || []).sort((a, b) => b.uid - a.uid);
+            renderLibrary();
+            renderBoard();
         }
 
         init();
