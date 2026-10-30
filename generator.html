@@ -490,7 +490,6 @@
             text-align: left;
             padding: 8px 6px;
             border-bottom: 1px solid var(--border-color);
-            word-break: break-word;
         }
 
         th { color: var(--text-muted); font-weight: 500; }
@@ -510,6 +509,29 @@
         .leaf-row input, .leaf-row select { margin-bottom: 0; }
         .leaf-row .full { grid-column: 1 / -1; }
         .leaf-row .tag { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
+
+        .rule {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border-color);
+            word-break: break-word;
+        }
+
+        .rule button {
+            background: transparent;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 0.75rem;
+            flex: 0 0 auto;
+        }
+
+        .benched { color: var(--danger); }
 
         .back-link {
             display: inline-block;
@@ -610,7 +632,14 @@
                     <div class="panel">
                         <div class="panel-title">Director notes</div>
                         <textarea id="notesInput" style="height:70px" placeholder="Tell the judge what you want fixed, e.g. 'make her coat red', 'less busy background'. Used in the next round."></textarea>
-                        <div class="hint" style="margin:0">Notes count more than the judge's own opinion.</div>
+                        <div class="hint" style="margin:0 0 12px">Notes count more than the judge's own opinion. They last for this run only.</div>
+                        <button class="ghost-btn" id="saveRule">Keep as a standing rule</button>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-title">Standing rules</div>
+                        <div class="hint" style="margin:0 0 12px">Applied to every run from now on, by the director and the judge.</div>
+                        <div id="rulesList"></div>
                     </div>
                 </div>
 
@@ -680,6 +709,12 @@
                 <div class="panel-title">Leaf wins</div>
                 <div id="winTable"></div>
                 <button class="ghost-btn danger" id="resetStats" style="margin-top:14px">Reset stats</button>
+            </div>
+            <div class="panel">
+                <div class="panel-title">Failure ledger</div>
+                <div class="hint" style="margin:0 0 12px">What failed and why. A model that no provider served twice in a row in the last 24 hours is benched until one of its runs succeeds or you clear the ledger. Recent problems are passed to the director so it avoids them.</div>
+                <div id="ledgerTable"></div>
+                <button class="ghost-btn danger" id="resetLedger" style="margin-top:14px">Clear ledger</button>
             </div>
         </section>
 
@@ -803,6 +838,7 @@
             rounds: "3",
             enhance: true,
             leaves: structuredClone(DEFAULT_LEAVES),
+            rules: [],
             ...readJson(SETTINGS_KEY, {}),
         };
 
@@ -810,6 +846,46 @@
 
         let stats = readJson(STATS_KEY, null) || { runs: 0, generations: 0, seconds: 0, rounds: 0, wins: {} };
         const saveStats = () => writeJson(STATS_KEY, stats);
+
+        // ---------- failure ledger ----------
+
+        const LEDGER_KEY = "forge_ledger";
+        const DAY_MS = 24 * 60 * 60 * 1000;
+        const UNAVAILABLE = /not supported|no provider|not available|mapping|not found/i;
+
+        let ledger = readJson(LEDGER_KEY, []);
+        const saveLedger = () => writeJson(LEDGER_KEY, ledger);
+
+        function logFailure(entry) {
+            ledger.unshift({ ts: Date.now(), ...entry });
+            ledger = ledger.slice(0, 300);
+            saveLedger();
+        }
+
+        // A success proves the model is served again, so its "unavailable" streak ends.
+        function clearUnavailable(model) {
+            const before = ledger.length;
+            ledger = ledger.filter(e => !(e.model === model && e.kind === "unavailable"));
+            if (ledger.length !== before) saveLedger();
+        }
+
+        function isBenched(model) {
+            const recent = ledger.filter(e => e.model === model && Date.now() - e.ts < DAY_MS).slice(0, 2);
+            return recent.length === 2 && recent.every(e => e.kind === "unavailable");
+        }
+
+        function recentProblems(mode, limit = 3) {
+            const counts = {};
+            for (const entry of ledger.filter(e => e.mode === mode && e.kind === "low").slice(0, 30)) {
+                for (const issue of entry.issues || []) {
+                    const key = issue.toLowerCase().trim();
+                    if (key) counts[key] = (counts[key] || 0) + 1;
+                }
+            }
+            return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, limit).map(([issue]) => issue);
+        }
+
+        const rulesText = () => settings.rules.map(rule => `- ${rule}`).join("\n");
 
         let db = null;
 
@@ -856,6 +932,8 @@
         }
 
         const shortModel = id => String(id).split("/").pop();
+        // Long model ids may wrap after "/" or "-" instead of mid-word on narrow screens.
+        const wrapModel = id => escapeHtml(id).replace(/([\/-])/g, "$1<wbr>");
         const nowLabel = () => new Date().toLocaleString([], { dateStyle: "short", timeStyle: "short" });
         const extFor = item => item.mode === "video" ? "mp4" : ((item.blob.type || "").split("/")[1] || "png");
 
@@ -971,6 +1049,7 @@
         }
 
         async function directorRewrite(client, prompt, mode, signal) {
+            const problems = recentProblems(mode);
             const reply = await client.chatCompletion({
                 provider: settings.judgeProvider,
                 model: settings.judgeModel,
@@ -979,7 +1058,10 @@
                     content: `Rewrite this as one detailed ${mode === "video" ? "video shot" : "image"} prompt for an AI generator. ` +
                         `Describe subject, setting, lighting, composition${mode === "video" ? ", action and camera movement" : ""}. ` +
                         `Keep every detail the user asked for, add nothing that contradicts it, stay under 90 words. ` +
-                        `Reply with the prompt only.\n\nUser prompt: """${prompt}"""`,
+                        `Reply with the prompt only.\n\n` +
+                        (settings.rules.length ? `The creator's standing rules, always follow them:\n${rulesText()}\n\n` : "") +
+                        (problems.length ? `Recent results often had these problems, word the prompt to avoid them: ${problems.join("; ")}\n\n` : "") +
+                        `User prompt: """${prompt}"""`,
                 }],
                 max_tokens: 220,
                 temperature: 0.5,
@@ -993,6 +1075,7 @@
             const instruction =
                 `You are a strict film director reviewing an AI-generated ${mode === "video" ? "video, shown as frames in time order" : "image"}.\n` +
                 `Target: """${goal}"""\n` +
+                (settings.rules.length ? `The creator's standing rules (a result that breaks one scores 5 or less):\n${rulesText()}\n` : "") +
                 (notes ? `The creator's notes, which matter most: """${notes}"""\n` : "") +
                 `Score 0-10 for how well it matches the target and how good it looks (10 = flawless and publishable). ` +
                 `Penalise wrong subjects or counts, distorted faces, hands or bodies, artifacts, wrong style or lighting` +
@@ -1034,8 +1117,13 @@
 
         // ---------- clover engine ----------
 
-        function activeLeaves(mode) {
-            const leaves = settings.leaves[mode].filter(leaf => leaf.on && leaf.model.trim());
+        const leafModel = (leaf, hasRef) => hasRef ? (leaf.refModel || leaf.model) : leaf.model;
+
+        function activeLeaves(mode, hasRef = false) {
+            const enabled = settings.leaves[mode].filter(leaf => leaf.on && leaf.model.trim());
+            const available = enabled.filter(leaf => !isBenched(leafModel(leaf, hasRef)));
+            // Never bench every leaf: if all are benched, try them all again.
+            const leaves = available.length ? available : enabled;
             const wins = stats.wins[mode] || {};
             const runs = Object.values(wins).reduce((a, b) => a + b, 0);
             if (!settings.routing || runs < 5 || leaves.length <= 2) return leaves;
@@ -1080,7 +1168,7 @@
 
         async function runClover({ mode, prompt, ref, area, statusEl }) {
             const client = await getClient();
-            const leaves = activeLeaves(mode);
+            const leaves = activeLeaves(mode, !!ref);
             if (!leaves.length) throw new Error(`No ${mode} leaves are switched on. Check Settings.`);
 
             const controller = new AbortController();
@@ -1122,7 +1210,7 @@
                 controller.signal.addEventListener("abort", onAbort);
 
                 const cands = leaves.map(leaf => {
-                    const cand = { leaf, state: "working", label: shortModel(ref ? (leaf.refModel || leaf.model) : leaf.model), score: null, issues: [], improved: "" };
+                    const cand = { leaf, state: "working", label: shortModel(leafModel(leaf, !!ref)), score: null, issues: [], improved: "" };
                     cand.el = document.createElement("div");
                     cand.el.className = "cand";
                     cand.el.innerHTML = `
@@ -1158,6 +1246,7 @@
                     try {
                         const out = await generateLeaf(client, cand.leaf, mode, goal, ref, roundCtl.signal);
                         run.generations++;
+                        clearUnavailable(out.model);
                         Object.assign(cand, out, { state: "judging" });
                         renderCand(cand.el, cand, mode);
                         cand.el.querySelector('[data-act="dl"]').href = cand.url;
@@ -1165,12 +1254,17 @@
                     } catch (e) {
                         cand.state = "failed";
                         cand.error = roundCtl.signal.aborted ? "Skipped" : describeError(e);
+                        if (!roundCtl.signal.aborted) {
+                            const message = String(e && e.message || e);
+                            logFailure({ mode, model: leafModel(cand.leaf, !!ref), kind: UNAVAILABLE.test(message) ? "unavailable" : "error", reason: cand.error });
+                        }
                         renderCand(cand.el, cand, mode);
                         return;
                     }
                     try {
                         Object.assign(cand, await judgeCandidate(client, cand, goal, notes, mode, roundCtl.signal));
                         judgeWorked = true;
+                        if (cand.score < 5) logFailure({ mode, model: cand.model, kind: "low", reason: `${cand.score}/10`, issues: cand.issues });
                     } catch (e) {
                         cand.judgeError = roundCtl.signal.aborted ? "" : "Judge unavailable: " + describeError(e);
                     }
@@ -1249,10 +1343,13 @@
         }
 
         function updateCostHint() {
-            const leaves = activeLeaves(settings.mode).length;
+            const leaves = activeLeaves(settings.mode, !!refBlob).length;
+            const enabled = settings.leaves[settings.mode].filter(leaf => leaf.on && leaf.model.trim()).length;
+            const benched = settings.routing ? 0 : enabled - leaves;
             const max = leaves * Number(settings.rounds);
             $("costHint").textContent = `${leaves} leaves × up to ${settings.rounds} rounds = at most ${max} ${settings.mode} generations` +
                 (refBlob ? ", starting from your image." : ".") +
+                (benched > 0 ? ` ${benched} benched by the failure ledger.` : "") +
                 (settings.mode === "video" ? " Tip: perfect the first frame in Image mode, then press Animate." : "");
         }
 
@@ -1296,6 +1393,7 @@
                 $("forgeBtn").disabled = false;
                 $("stopBtn").style.display = "none";
                 currentRun = null;
+                updateCostHint();
             }
         }
 
@@ -1496,12 +1594,46 @@
             const rows = [];
             for (const mode of ["image", "video"]) {
                 for (const [model, wins] of Object.entries(stats.wins[mode] || {}).sort((a, b) => b[1] - a[1])) {
-                    rows.push(`<tr><td>${mode}</td><td>${escapeHtml(model)}</td><td>${wins}</td></tr>`);
+                    rows.push(`<tr><td>${mode}</td><td>${wrapModel(model)}</td><td>${wins}</td></tr>`);
                 }
             }
             $("winTable").innerHTML = rows.length
                 ? `<table><tr><th>Mode</th><th>Model</th><th>Wins</th></tr>${rows.join("")}</table>`
                 : `<div class="empty-state">No winners yet.</div>`;
+
+            renderLedger();
+        }
+
+        function renderLedger() {
+            const byModel = {};
+            for (const entry of ledger) {
+                const row = byModel[entry.model] = byModel[entry.model] || { unavailable: 0, error: 0, low: 0, last: entry.reason };
+                row[entry.kind]++;
+            }
+            const rows = Object.entries(byModel).map(([model, row]) => `
+                <tr>
+                    <td>${wrapModel(model)}${isBenched(model) ? ` <span class="benched">benched</span>` : ""}</td>
+                    <td>${row.unavailable}</td><td>${row.error}</td><td>${row.low}</td>
+                    <td>${escapeHtml(row.last)}</td>
+                </tr>`);
+            const problems = [...new Set([...recentProblems("image"), ...recentProblems("video")])];
+            $("ledgerTable").innerHTML = rows.length
+                ? `<table><tr><th>Model</th><th>Not served</th><th>Errors</th><th>Low</th><th>Last</th></tr>${rows.join("")}</table>` +
+                  (problems.length ? `<div class="hint" style="margin:12px 0 0">Passed to the director: ${problems.map(escapeHtml).join("; ")}</div>` : "")
+                : `<div class="empty-state">Nothing has failed yet.</div>`;
+        }
+
+        function renderRules() {
+            $("rulesList").innerHTML = settings.rules.length
+                ? settings.rules.map((rule, i) => `<div class="rule"><span>${escapeHtml(rule)}</span><button data-i="${i}">Remove</button></div>`).join("")
+                : `<div class="hint" style="margin:0">No rules yet. Write a note above and press "Keep as a standing rule".</div>`;
+            $("rulesList").querySelectorAll("button").forEach(button => {
+                button.onclick = () => {
+                    settings.rules.splice(Number(button.dataset.i), 1);
+                    saveSettings();
+                    renderRules();
+                };
+            });
         }
 
         // ---------- settings ----------
@@ -1585,6 +1717,20 @@
                 saveStats();
                 renderStats();
             };
+            $("resetLedger").onclick = () => {
+                ledger = [];
+                saveLedger();
+                renderLedger();
+                updateCostHint();
+            };
+            $("saveRule").onclick = () => {
+                const rule = $("notesInput").value.trim();
+                if (!rule || settings.rules.includes(rule)) return;
+                settings.rules.push(rule);
+                saveSettings();
+                $("notesInput").value = "";
+                renderRules();
+            };
 
             $("sceneLength").value = board.length;
             $("clipSeconds").value = board.clipSeconds;
@@ -1601,6 +1747,7 @@
             setMode(settings.mode);
             renderLeaves();
             renderStats();
+            renderRules();
 
             db = await openDb();
             const stored = await dbTx("readonly", store => store.getAll());

@@ -1,5 +1,7 @@
 # 369 Forge: Clover Studio, build brief
 
+Read `CLAUDE.md` in the repo root first; its rules apply to all work here.
+
 You are continuing development of **Vitruvian 369 Forge: Clover Studio**, an AI image and video studio for making social media clips (TikTok, YouTube Shorts, Instagram Reels, YouTube long-form). The current working app is `generator.html` (a single HTML file, about 1,600 lines). Read it fully before changing anything, and keep its style, structure and naming.
 
 ---
@@ -65,6 +67,10 @@ The core idea is the **clover system**: every generation runs on up to four AI m
 - Target length (15 / 32 / 60 / 92 s) ÷ seconds per clip (5 / 10 / 15) gives the shot count; "Make shot list" creates the shots.
 - Each shot has its own prompt and runs the clover engine in video mode. With "continue" on, each shot starts from the previous clip's last frame (image-to-video); otherwise it starts from the character image.
 - Generate one shot or all shots; play the whole scene back to back; download all clips numbered in order; show total duration.
+
+**Standing rules:** "Keep as a standing rule" saves the Director notes text into `settings.rules`. Rules are sent to the director rewrite and to the judge on every run; the judge scores a result that breaks a rule 5 or less. Rules are listed under Create and can be removed.
+
+**Failure ledger:** `localStorage["forge_ledger"]` (newest first, max 300) logs `{ ts, mode, model, kind: "unavailable" | "error" | "low", reason, issues? }` for failed generations and scores under 5. A model whose two most recent entries in the last 24 hours are both "unavailable" is benched (left out of runs, shown in the cost hint) until it succeeds or the ledger is cleared; if every leaf is benched, all are tried again. The 3 most common recent low-score issues are passed to the director rewrite. The Stats tab shows the ledger per model.
 
 **Library:** all winners with Download, Use as reference, To storyboard, Delete.
 
