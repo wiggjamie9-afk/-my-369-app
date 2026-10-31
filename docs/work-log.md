@@ -12,3 +12,4 @@ One entry per stage: date, what was built, checks run and results, what was not 
 - Repo scan: no Kimi commits found on any branch; `main` has never received a merge (7 branches of work outstanding).
 - Pointed the Scout at The 48 AI Crew's market (tradie pain, AI receptionist competitors and pricing, channels to reach tradies); side projects get one or two searches per run.
 - Brain: added The 48 AI Crew, Dad's Code and AI receptionist market pages; saved the website screenshot as a source. Not checked: the live website (blocked by network settings).
+- Wrote docs/48ai-website-improvement-brief.md for Kimi from the homepage screenshot (live site not reachable from this session).
