@@ -15,3 +15,4 @@ One entry per stage: date, what was built, checks run and results, what was not 
 - Wrote docs/48ai-website-improvement-brief.md for Kimi from the homepage screenshot (live site not reachable from this session).
 - Wrote docs/organism-automation-brief.md for Kimi: data model, owner Command Center screens, nine automations with approvals and tests, Jane improvements, security checklist, build order.
 - Wrote docs/embryo-organism-design.md: developmental-biology principles mapped to the organism design (genome, specialisation, signals, events, checkpoints, pruning, limits, immune system, target shape, learned layer).
+- Wrote docs/jarvis-build-brief.md for Kimi: Jarvis interface, server, tools, memory, approvals, proactive jobs, voice, security, tests and 8 build stages. Repo found to be PUBLIC; owner told to make it private.
