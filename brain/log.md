@@ -5,3 +5,4 @@
 - 2026-10-31 · setup · inbox, assets, sources, questions, overview and reports folders; brain-scout and librarian agents; ingest, curate and ask skills; edit lock on raw/ · owner approved the brain upgrade
 - 2026-10-31 · ingest · Buzzoni second brain guide · wiki/sources summary, ideas: Tradie knowledge base for Jane, Done-for-you research vault, index · raw notes not saved: the raw/ lock also blocks new files until the owner widens it
 - 2026-10-31 · upgrade · applied ideas from Karpathy's LLM Wiki idea file and open-source implementations: index with one-line summaries, Dataview front matter on all pages, evals.md (12 known-answer questions scored nightly), gap-finding in curate, quick capture in ingest · owner asked to improve the brain from GitHub sources
+- 2026-10-31 · fix · new sources now land in inbox/ (outside the locked raw/); saved the Buzzoni guide notes there and pointed its summary and idea page at them · raw/ lock kept as is

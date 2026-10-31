@@ -1,6 +1,6 @@
 ---
 name: brain-scout
-description: Reads new sources in brain/raw/inbox, writes one summary page per source in brain/wiki/sources/, lists candidate pages to update, and runs the brain lint. Use for every new brain source and for the nightly lint. Cheap and fast; never writes other wiki pages.
+description: Reads new sources in brain/inbox, writes one summary page per source in brain/wiki/sources/, lists candidate pages to update, and runs the brain lint. Use for every new brain source and for the nightly lint. Cheap and fast; never writes other wiki pages.
 tools: Read, Grep, Glob, Write
 model: haiku
 ---

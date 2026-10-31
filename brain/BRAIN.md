@@ -4,9 +4,9 @@ This folder is an Obsidian vault and a plain-Markdown wiki. Open `brain/` in Obs
 
 ## Layout
 
-- `raw/`: sources exactly as they arrived (articles, transcripts, notes, chat exports, screenshots). **Read-only:** never edit or delete a file here; add new ones only. Editing is also blocked in `.claude/settings.json`.
-  - `raw/inbox/`: new sources waiting to be ingested (point the Obsidian Web Clipper here).
-  - `raw/assets/`: images and attachments (set Obsidian's attachment folder here).
+- `inbox/`: where every **new** source lands (articles, notes, screenshots, quick captures). Point the Obsidian Web Clipper here. Treat files here as read-only once saved: never edit or delete them; the night shift files them into the wiki and leaves them in place.
+- `assets/`: images and attachments for new sources (set Obsidian's attachment folder here).
+- `raw/`: the original sources from before 2026-10-31. Fully locked: editing or adding files here is blocked in `.claude/settings.json`. (`raw/inbox/` and `raw/assets/` are unused leftovers.)
 - `wiki/`: linked pages, one idea per page, grouped in folders:
   - `wiki/sources/`: one summary page per source, written by the brain scout.
   - `wiki/questions/`: answers worth keeping, saved by the `ask` skill.
@@ -51,7 +51,7 @@ Updated: YYYY-MM-DD
 
 ## Rules
 
-1. **Every fact needs a source:** a file in `raw/`, a web link, or a file in this repo. A claim with no source goes to `rejected.md` instead, with the reason.
+1. **Every fact needs a source:** a file in `inbox/` or `raw/`, a web link, or a file in this repo. A claim with no source goes to `rejected.md` instead, with the reason.
 2. **Link generously.** Use `[[page name]]` links to connect related pages; create a short page rather than leave a link dangling.
 3. **Keep opinions separate.** Write guesses, plans and opinions under a `## Thinking` heading, never under `## Facts`.
 4. **Propose, then apply.** When ingesting, list the pages you plan to create or change and wait for the user's go-ahead, unless the user said to apply directly.
@@ -68,7 +68,7 @@ Updated: YYYY-MM-DD
 These are also skills in `.claude/skills/` (`ingest`, `curate`, `ask`); one skill per job, never install a second skill for the same job.
 
 
-- **"ingest this"** (with a file, link or pasted text): save it untouched in `raw/` as `YYYY-MM-DD-short-name.md`, then propose wiki changes that cite it.
+- **"ingest this"** (with a file, link or pasted text): save it untouched in `inbox/` as `YYYY-MM-DD-short-name.md`, then propose wiki changes that cite it.
 - **"what do I know about X?"**: answer only from the wiki and raw files, citing each page used; say clearly what is not known.
 - **"tidy the brain"**: report broken links, pages with facts that have no source, pages not linked from anywhere, and pages not updated in 90 days; propose fixes.
 - **"file the scout run"**: turn the latest `scout/list.md` winners and steal sheet into idea pages that cite them.
