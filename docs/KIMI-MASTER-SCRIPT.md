@@ -72,6 +72,12 @@ Owner: Jamie (Perth, WA). Main business: The 48 AI Crew, https://48ai.jamiewigga
 
 > Build Jarvis from jarvis-build-brief.md, stage by stage (section 10). Start with stage 1, the prototype interface with demo data, and send screenshots before connecting anything real.
 
+## Step 12: second brain (brain kit)
+
+Attach the `brain-kit` folder from the zip (BRAIN.md, evals.md, the three skills and the two agents).
+
+> Read BRAIN.md, evals.md and the skills and agents in brain-kit. This is the owner's second brain: an Obsidian vault where new sources land in brain/inbox/, a cheap scout model summarises them, a strong librarian model writes linked wiki pages with a source for every fact, and a night shift tidies, scores the evals and writes a report. Do not change the rules. Wire Jarvis's memory_search and memory_save tools (Jarvis brief) to this vault, and show me Jarvis answering an eval question with its source.
+
 ## Optional: 369 Forge (Forge brief)
 
 > Read 369-forge-build-brief.md and generator.html. First run one real image and one real video generation with my Hugging Face token and fix what fails, then build Stage 1 (script writer and hook lab) only.
