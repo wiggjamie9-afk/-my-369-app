@@ -11,6 +11,7 @@ Read this file before changing anything. It applies to Claude, Kimi and any othe
 - `brain/`: the second brain, an Obsidian-compatible vault of linked notes. Rules in `brain/BRAIN.md`.
 - `organism/`: the daily briefing and other business routines. Rules in `organism/BRIEFING.md`.
 - `.claude/agents/`: the agent team (researcher, planner, builder, tester, reviewer). Log each piece of work in `docs/work-log.md`.
+- `demo/index.html`: personalised prospect demo page for The 48 AI Crew (Demo Hunter). Tests: `node tests/demo-e2e.js`. Brief: `docs/demo-hunter-brief.md`.
 - `tests/`: browser tests for Forge. Run `node tests/forge-e2e.js` before committing any change to `generator.html`.
 
 ## How to work

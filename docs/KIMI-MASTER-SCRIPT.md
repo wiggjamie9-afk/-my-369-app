@@ -72,6 +72,12 @@ Owner: Jamie (Perth, WA). Main business: The 48 AI Crew, https://48ai.jamiewigga
 
 > Build Jarvis from jarvis-build-brief.md, stage by stage (section 10). Start with stage 1, the prototype interface with demo data, and send screenshots before connecting anything real.
 
+## Step 11b: Demo Hunter (after Steps 5 and 6)
+
+Attach `demo-hunter-brief.md`, `demo/index.html` and `tests/demo-e2e.js`.
+
+> Read demo-hunter-brief.md, especially section 0 (Spam Act, Do Not Call, no scraping, approvals, daily cap of 20). Keep demo/index.html as the template and keep tests/demo-e2e.js passing. Build section 7 one step at a time, starting with the data tables and suppression list. Show me a test prospect's demo link and the approval card for its email before anything can be sent.
+
 ## Step 12: second brain (brain kit)
 
 Attach the `brain-kit` folder from the zip (BRAIN.md, evals.md, the three skills and the two agents).
