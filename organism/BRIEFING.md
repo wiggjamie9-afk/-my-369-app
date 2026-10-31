@@ -6,7 +6,7 @@ The chief of staff's daily job. Read the repo's `CLAUDE.md` first. The owner is 
 
 1. **Gmail:** unread and important messages from the last 24 hours.
 2. **Google Calendar:** today's and tomorrow's events.
-3. **The repo:** `scout/list.md` (newest winners), `scout/runs.md`, `docs/work-log.md` (last entries), `brain/log.md`.
+3. **The repo:** `scout/list.md` (newest winners), `scout/runs.md`, `docs/work-log.md` (last entries), `brain/log.md`, and the newest night shift report in `brain/reports/` (mention conflicts and proposed fixes awaiting approval).
 
 ## Output
 

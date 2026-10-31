@@ -1,6 +1,6 @@
 # Brain home
 
-The second brain for the 369 projects and business. Rules: [[BRAIN]].
+The second brain for the 369 projects and business. Rules: [[BRAIN]]. Big picture: [[overview]].
 
 ## Projects
 - [[The 48 AI Crew]]: the main business, AI receptionists for trades (Perth)
@@ -11,6 +11,8 @@ The second brain for the 369 projects and business. Rules: [[BRAIN]].
 - [[Business Organism]]: how the AI parts of the business fit together
 
 ## Ideas
+- [[Tradie knowledge base for Jane]]
+- [[Done-for-you research vault]]
 - [[Recurring AI character series]]
 - [[Consistent AI characters]]
 - [[369 manifestation app]]
@@ -27,4 +29,4 @@ The second brain for the 369 projects and business. Rules: [[BRAIN]].
 - [[Social media publishing]]
 - [[AI content rules]]
 
-Other: [[rejected]] claims · [[log]] of changes
+Other: [[rejected]] claims · [[log]] of changes · source summaries in `wiki/sources/` · saved answers in `wiki/questions/` · night shift reports in `reports/`

@@ -18,3 +18,4 @@ One entry per stage: date, what was built, checks run and results, what was not 
 - Wrote docs/jarvis-build-brief.md for Kimi: Jarvis interface, server, tools, memory, approvals, proactive jobs, voice, security, tests and 8 build stages. Repo found to be PUBLIC; owner told to make it private.
 - Wrote docs/command-center-modules-brief.md: AI usage and cost panel, Perth jobs map, marketing helper for tradie customers, optional GitHub Replica prototyping.
 - Wrote docs/KIMI-MASTER-SCRIPT.md: build order and paste-ready prompts for every brief.
+- Brain upgrade: inbox/assets/sources/questions/overview/reports, brain-scout (Haiku) and librarian (Opus) agents, ingest/curate/ask skills, edit lock on brain/raw/, nightly night shift; ingested the Buzzoni guide as a source summary and two ideas. Lock currently also blocks new raw files (owner to widen).
