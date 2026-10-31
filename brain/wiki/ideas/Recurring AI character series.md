@@ -1,3 +1,9 @@
+---
+type: idea
+status: active
+updated: 2026-10-31
+sources: 3
+---
 # Recurring AI character series
 
 Short episodes with the same original cast, made with Forge's character lock and storyboard.

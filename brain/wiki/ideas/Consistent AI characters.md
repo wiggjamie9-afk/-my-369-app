@@ -1,3 +1,9 @@
+---
+type: idea
+status: active
+updated: 2026-10-31
+sources: 3
+---
 # Consistent AI characters
 
 Keeping a character looking the same across AI video shots: the most repeated complaint found by the Scout.

@@ -1,3 +1,9 @@
+---
+type: idea
+status: active
+updated: 2026-10-31
+sources: 2
+---
 # Tradie knowledge base for Jane
 
 Give each customer of [[The 48 AI Crew]] a small, self-maintaining knowledge base (prices, services, service areas, policies, FAQs) that Jane answers from, kept tidy by a librarian agent.

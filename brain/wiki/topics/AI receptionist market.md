@@ -1,3 +1,9 @@
+---
+type: topic
+status: active
+updated: 2026-10-31
+sources: 1
+---
 # AI receptionist market
 
 Competitors, prices and customer pain around AI answering services for trades. To be filled by the [[Scout]] from its Monday runs.

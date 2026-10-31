@@ -1,3 +1,9 @@
+---
+type: topic
+status: active
+updated: 2026-10-31
+sources: 2
+---
 # Harness engineering
 
 Building the environment, rules, checks and memory that make AI agents work reliably, instead of relying on one long chat.

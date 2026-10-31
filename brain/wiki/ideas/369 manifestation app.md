@@ -1,3 +1,9 @@
+---
+type: idea
+status: active
+updated: 2026-10-31
+sources: 2
+---
 # 369 manifestation app
 
 A paid version of the 369 app in a field of mostly small, weak competitors.

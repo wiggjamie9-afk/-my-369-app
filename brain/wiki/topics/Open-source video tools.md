@@ -1,3 +1,9 @@
+---
+type: topic
+status: active
+updated: 2026-10-31
+sources: 4
+---
 # Open-source video tools
 
 Open-source projects that do parts of what Forge plans to do.

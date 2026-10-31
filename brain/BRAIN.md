@@ -18,12 +18,21 @@ This folder is an Obsidian vault and a plain-Markdown wiki. Open `brain/` in Obs
 - `index.md`: the home page, linking every wiki folder and the most important pages.
 - `overview.md`: the current big picture in one page: what the business is, what's working, open questions. The librarian keeps it current.
 - `reports/`: one report per night shift: what changed, conflicts, proposed fixes.
+- `evals.md`: questions with known answers; the night shift scores the brain against them.
 - `rejected.md`: claims that were refused because they had no source, with the reason.
 - `log.md`: one line per change to the brain.
 
 ## Page format
 
+Every wiki page starts with front matter, so Obsidian's Dataview plugin can list pages by type, status or age and the lint can find stale pages:
+
 ```
+---
+type: project | idea | content | topic | person | source | question
+status: active | retired
+updated: YYYY-MM-DD
+sources: number of [source: …] citations on the page
+---
 # Page title
 
 Short summary in 2–3 lines.

@@ -1,3 +1,9 @@
+---
+type: project
+status: active
+updated: 2026-10-31
+sources: 6
+---
 # 369 Forge
 
 The Vitruvian 369 Forge Clover Studio: a single-page AI image and video studio where several models compete on each prompt and a judge picks the winner.

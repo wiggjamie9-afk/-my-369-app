@@ -1,3 +1,9 @@
+---
+type: topic
+status: active
+updated: 2026-10-31
+sources: 2
+---
 # Social media publishing
 
 How finished clips get onto each platform.

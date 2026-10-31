@@ -1,3 +1,9 @@
+---
+type: content
+status: active
+updated: 2026-10-31
+sources: 2
+---
 # Channel plan
 
 How the YouTube and TikTok channel should run.

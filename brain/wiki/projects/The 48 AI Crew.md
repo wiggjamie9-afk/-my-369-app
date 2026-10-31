@@ -1,3 +1,9 @@
+---
+type: project
+status: active
+updated: 2026-10-31
+sources: 6
+---
 # The 48 AI Crew
 
 The main business: AI workers that answer calls, texts and email for trade businesses, 24/7, from Perth, Western Australia.

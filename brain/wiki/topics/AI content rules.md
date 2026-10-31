@@ -1,3 +1,9 @@
+---
+type: topic
+status: active
+updated: 2026-10-31
+sources: 4
+---
 # AI content rules
 
 Rules that keep the channels and the business safe.

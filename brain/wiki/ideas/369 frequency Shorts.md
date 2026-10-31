@@ -1,3 +1,9 @@
+---
+type: idea
+status: active
+updated: 2026-10-31
+sources: 3
+---
 # 369 frequency Shorts
 
 Meditation and frequency visuals for Shorts and long sleep videos, made from the 369 app's tones and spirals.

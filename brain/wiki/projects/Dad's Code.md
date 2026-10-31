@@ -1,3 +1,9 @@
+---
+type: project
+status: active
+updated: 2026-10-31
+sources: 4
+---
 # Dad's Code
 
 A brand of books, interactive tools, promo videos and a podcast for dads, built in July 2026. Motto: "Present, not perfect."

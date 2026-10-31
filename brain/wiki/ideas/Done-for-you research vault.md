@@ -1,3 +1,9 @@
+---
+type: idea
+status: active
+updated: 2026-10-31
+sources: 2
+---
 # Done-for-you research vault
 
 Set up a self-maintaining Claude + Obsidian second brain for consultants, analysts or founders, then charge for setup and upkeep.

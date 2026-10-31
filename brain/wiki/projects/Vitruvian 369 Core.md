@@ -1,3 +1,9 @@
+---
+type: project
+status: active
+updated: 2026-10-31
+sources: 2
+---
 # Vitruvian 369 Core
 
 The original 369 app: frequency nodes, a spiral visual and a vision log.

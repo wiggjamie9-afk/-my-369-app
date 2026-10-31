@@ -1,3 +1,9 @@
+---
+type: project
+status: active
+updated: 2026-10-31
+sources: 3
+---
 # Business Organism
 
 The plan for running the business with specialised AI parts that each do one job, with the owner approving anything that posts, sends or spends.

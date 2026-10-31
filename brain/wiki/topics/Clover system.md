@@ -1,3 +1,9 @@
+---
+type: topic
+status: active
+updated: 2026-10-31
+sources: 1
+---
 # Clover system
 
 Running several AI models on the same prompt at once, having a judge score each result, improving the prompt and retrying.
