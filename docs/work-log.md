@@ -23,3 +23,4 @@ One entry per stage: date, what was built, checks run and results, what was not 
 - Moved the brain inbox to brain/inbox/ so new sources can be saved while brain/raw/ stays fully locked; updated rules, skills, scout agent and the night shift.
 - Built demo/index.html (personalised prospect demo, 24 checks passing in tests/demo-e2e.js) and docs/demo-hunter-brief.md for Kimi; added Step 11b to the master script.
 - Wrote docs/install-safety-checklist.md: defensive 'before you install' checklist for plugins, MCP servers, npm packages and 'paste this' skills, from the REA MCP-audit idea. Declined the trading, 'leaked hacking vault', reverse-engineer-paid-apps and giveaway-scam screenshots.
+- Wrote docs/mobile-app-brief.md: Expo/React Native app for the owner's Command Center + Jarvis, reusing the existing server; recommends building the PWA first. Added as an optional step in the master script.

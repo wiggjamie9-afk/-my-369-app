@@ -84,6 +84,12 @@ Attach the `brain-kit` folder from the zip (BRAIN.md, evals.md, the three skills
 
 > Read BRAIN.md, evals.md and the skills and agents in brain-kit. This is the owner's second brain: an Obsidian vault where new sources land in brain/inbox/, a cheap scout model summarises them, a strong librarian model writes linked wiki pages with a source for every fact, and a night shift tidies, scores the evals and writes a report. Do not change the rules. Wire Jarvis's memory_search and memory_save tools (Jarvis brief) to this vault, and show me Jarvis answering an eval question with its source.
 
+## Optional: mobile app (mobile brief)
+
+Attach `mobile-app-brief.md`. Only after the server and Jarvis PWA exist.
+
+> Read mobile-app-brief.md. First tell me honestly whether I need a native app or whether the PWA from the Jarvis brief is enough. If native: build step 1 (create-expo-app + a fake-data Today screen) and tell me exactly how to run it on my iPhone with Expo Go. Reuse the existing server; build no new backend.
+
 ## Optional: 369 Forge (Forge brief)
 
 > Read 369-forge-build-brief.md and generator.html. First run one real image and one real video generation with my Hugging Face token and fix what fails, then build Stage 1 (script writer and hook lab) only.
