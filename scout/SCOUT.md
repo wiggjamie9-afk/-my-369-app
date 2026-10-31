@@ -4,18 +4,17 @@ The Scout finds proven demand: things people already pay for, watch or ask for. 
 
 ## Who it scouts for
 
-A solo creator and builder in Sydney, Australia, with:
-- **369 Forge**, an AI image and video studio (clover system: several models compete, a judge picks the best);
-- the **Vitruvian 369 Core** app (369 frequencies, meditation visuals, a vision log);
-- plans for a YouTube / TikTok channel made with AI video, and an AI business "organism".
+**Main business: The 48 AI Crew** (https://48ai.jamiewiggautomation.au/), based in Perth, Western Australia: AI workers that answer calls, texts and email for trade businesses 24/7, in the owner's name, with a 7-day free trial. Demo assistant: "Jane". See `brain/wiki/projects/The 48 AI Crew.md`.
 
-A winner is something this person could realistically make, sell or post within a month with these tools.
+Side projects, one or two searches per run at most: **Dad's Code** (books, tools and a podcast for dads; see `brain/wiki/projects/Dad's Code.md`), and the **369 app and 369 Forge** (AI image and video studio used to make marketing content).
+
+A winner is something that helps The 48 AI Crew win or keep customers within a month: a pain to sell against, a gap in competitors' offers, a channel where tradies can be reached, or a format that gets their attention.
 
 ## The three lanes
 
-1. **Content:** niches, formats and series that are growing on TikTok, YouTube Shorts and YouTube right now, especially AI-made, animated, faceless, meditation, 369, manifestation and storytelling content.
-2. **Apps and tools:** small online businesses with revenue checked by their payment provider (TrustMRR, Starter Story, Flippa with the Data Verified badge) that sell to creators, wellness or AI users.
-3. **Problems people pay to solve:** posts and reviews where people say "I'd pay for", "is there a tool that", "why is there no", "I'm so tired of", or describe hacky workarounds, in the same audiences.
+1. **Customer pain:** what Australian tradies (plumbers, electricians, builders, HVAC, landscapers, cleaners and similar), especially in Perth and WA, complain about: missed calls while on the tools, slow quotes, after-hours enquiries, admin, no-shows, chasing payments. Look for "I'd pay for", "is there a tool that", "sick of missing calls", hacky workarounds, and numbers on how many calls go unanswered.
+2. **Competitors and pricing:** AI receptionist and answering services for trades, in Australia first and then overseas: what they offer, prices, trial terms, reviews, and what their customers complain about. Revenue only when checked (TrustMRR, Starter Story, verified listings).
+3. **Channels and content:** where tradies spend attention and how similar services reach them: Facebook groups, TikTok and YouTube trade content, trade associations, suppliers, local directories, events in Perth; plus formats that work (missed-call cost calculators, before and after stories, call recordings with consent).
 
 ## Rules
 
@@ -34,7 +33,7 @@ When asked to "run the scout":
 
 1. Read this file, `list.md` and the no-list.
 2. Search each lane (about 3–5 searches per lane). Open pages where the network allows it.
-3. Score each candidate 1–5 on: **demand** (how many people, how strongly), **proof** (checked revenue, view counts, repeated complaints), **fit** (can 369 Forge or the 369 app make it), **speed** (could ship or post a first version within 2 weeks), **competition** (5 = few good options; 1 = crowded with strong players). Total out of 25.
+3. Score each candidate 1–5 on: **demand** (how many people, how strongly), **proof** (checked revenue, view counts, repeated complaints), **fit** (does it help The 48 AI Crew sell, deliver or reach customers), **speed** (could ship or post a first version within 2 weeks), **competition** (5 = few good options; 1 = crowded with strong players). Total out of 25.
 4. Add every candidate scoring 15 or more to the top of `list.md` under today's date, one line each:
    `lane · name or idea · score/25 · one-line why · source link(s) · revenue or "revenue not checked" · date found`
 5. Write a steal sheet for the single best new winner at `sheets/YYYY-MM-DD-name.md` using the template below.
@@ -58,7 +57,7 @@ Where the customers or viewers come from. Mark each "from source" or "my guess".
 ## My angle (three options)
 1. Same demand, different audience.
 2. Same demand, different channel.
-3. Same demand, one twist that 369 Forge or the 369 app makes easy.
+3. Same demand, one twist that The 48 AI Crew (or 369 Forge for content) makes easy.
 
 ## First step this week
 One concrete thing to make or test within 7 days, and how to tell if it worked.
