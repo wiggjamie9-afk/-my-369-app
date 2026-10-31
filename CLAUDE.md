@@ -7,6 +7,11 @@ Read this file before changing anything. It applies to Claude, Kimi and any othe
 - `README.md`: the Vitruvian 369 Core page (an HTML app, despite the file name).
 - `generator.html`: Vitruvian 369 Forge, the clover image and video studio. One file, inline CSS and an ES module script, no build step.
 - `docs/369-forge-build-brief.md`: what Forge already does, its storage and judge contracts, and the stages still to build. Read it before working on Forge.
+- `scout/`: the weekly research job. Rules in `scout/SCOUT.md`.
+- `brain/`: the second brain, an Obsidian-compatible vault of linked notes. Rules in `brain/BRAIN.md`.
+- `organism/`: the daily briefing and other business routines. Rules in `organism/BRIEFING.md`.
+- `.claude/agents/`: the agent team (researcher, planner, builder, tester, reviewer). Log each piece of work in `docs/work-log.md`.
+- `tests/`: browser tests for Forge. Run `node tests/forge-e2e.js` before committing any change to `generator.html`.
 
 ## How to work
 
@@ -18,7 +23,8 @@ Read this file before changing anything. It applies to Claude, Kimi and any othe
 
 ## Hard rules
 
-- Original code only. Features may be inspired by other products; code, branding, text and assets are never copied from them.
+- Never copy closed-source code, branding, text or assets. Features may be inspired by other products.
+- Open-source code may be used or adapted when its licence allows it (for example MIT or Apache 2.0): keep the licence notice and credit the project in the file or in `docs/credits.md`. Check before using AGPL code: running it as an online service means publishing our own code too.
 - AI models only through official APIs or open-source releases.
 - No API keys or secrets in browser code or in the repo. The user's Hugging Face token stays in their browser's localStorage. Other keys go on a server in environment variables.
 - Face, voice and lip-sync features: the user's own likeness or recorded consent only.
