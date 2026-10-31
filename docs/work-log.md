@@ -13,3 +13,4 @@ One entry per stage: date, what was built, checks run and results, what was not 
 - Pointed the Scout at The 48 AI Crew's market (tradie pain, AI receptionist competitors and pricing, channels to reach tradies); side projects get one or two searches per run.
 - Brain: added The 48 AI Crew, Dad's Code and AI receptionist market pages; saved the website screenshot as a source. Not checked: the live website (blocked by network settings).
 - Wrote docs/48ai-website-improvement-brief.md for Kimi from the homepage screenshot (live site not reachable from this session).
+- Wrote docs/organism-automation-brief.md for Kimi: data model, owner Command Center screens, nine automations with approvals and tests, Jane improvements, security checklist, build order.
