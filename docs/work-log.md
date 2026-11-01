@@ -30,3 +30,4 @@ One entry per stage: date, what was built, checks run and results, what was not 
 - Added n8n as the recommended automation runner in the organism brief (with secret/approval/licence rules and a warning against leaked workflow packs); noted licences in credits.
 - Wrote docs/KIMI-STEP1-GO.md: the paste-ready message to start Kimi on Step 1 (website Part 1 fixes), plus what to send back and how to get Claude to audit it.
 - Wrote docs/organism-upgrades-brief.md: target state + gap check, signals, event log, homeostasis limits + auto-pause, learning loop, CAC/LTV guardrail. Added as Step 10b in the master script.
+- Wrote docs/forge-first-run.md: step-by-step for Forge's first real image and video generation with a Hugging Face token.
