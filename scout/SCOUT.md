@@ -16,6 +16,16 @@ A winner is something that helps The 48 AI Crew win or keep customers within a m
 2. **Competitors and pricing:** AI receptionist and answering services for trades, in Australia first and then overseas: what they offer, prices, trial terms, reviews, and what their customers complain about. Revenue only when checked (TrustMRR, Starter Story, verified listings).
 3. **Channels and content:** where tradies spend attention and how similar services reach them: Facebook groups, TikTok and YouTube trade content, trade associations, suppliers, local directories, events in Perth; plus formats that work (missed-call cost calculators, before and after stories, call recordings with consent).
 
+## Monthly wide scan (first Monday of the month)
+
+When asked to "run the wide scan", also cover, beyond the three lanes above:
+
+4. **Verified-revenue small businesses (any niche):** the fastest-growing small online businesses whose revenue is checked by a payment provider (TrustMRR reads straight from Stripe; also Starter Story, Flippa "Data Verified"). Keep ones making **$1,000–$20,000 in the last 30 days** — small enough to run solo. For each, note: what it sells, its price, how people pay, and where its customers come from (from reviews, Reddit, X, YouTube when the business leaves that blank). Ignore self-reported numbers (Indie Hackers and similar) unless clearly marked verified.
+
+Score these on the same 25-point scale, but for **fit** judge whether the owner could realistically build and run it alongside, or instead of, The 48 AI Crew within a month. Add winners to `list.md` tagged `wide`. Write the steal sheet for the single best one. Note honestly in the run log when a winner would compete with The 48 AI Crew for the owner's time.
+
+This wide scan is a watch-list, not a recommendation to switch businesses. The weekly run stays focused on The 48 AI Crew.
+
 ## Rules
 
 - **Evidence only.** Every winner needs at least one real link that was returned by a search or opened page in this run. Never invent a link, quote, number or trend.
