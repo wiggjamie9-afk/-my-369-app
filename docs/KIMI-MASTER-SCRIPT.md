@@ -72,6 +72,12 @@ Owner: Jamie (Perth, WA). Main business: The 48 AI Crew, https://48ai.jamiewigga
 
 > Build Jarvis from jarvis-build-brief.md, stage by stage (section 10). Start with stage 1, the prototype interface with demo data, and send screenshots before connecting anything real.
 
+## Step 10b: organism upgrades (organism-upgrades-brief.md)
+
+Attach `organism-upgrades-brief.md` and `embryo-organism-design.md`.
+
+> Read organism-upgrades-brief.md. Build after steps 5–6, in its build order, one upgrade at a time starting with organism/TARGET.md + the nightly gap check. Each upgrade needs its test passing, and nothing sends/posts/charges/changes Jane without the approvals queue. Show me the upgraded morning briefing after the first upgrade.
+
 ## Step 11b: Demo Hunter (after Steps 5 and 6)
 
 Attach `demo-hunter-brief.md`, `demo/index.html` and `tests/demo-e2e.js`.
