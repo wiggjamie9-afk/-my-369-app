@@ -48,9 +48,9 @@ Owner: Jamie (Perth, WA). Main business: The 48 AI Crew, https://48ai.jamiewigga
 
 > Using organism-automation-brief.md, build the data model in section 2 with Row Level Security, then the watchdog (4.1) and lead capture with instant owner alerts (4.2). Include the tests listed for each. Show me an alert arriving on my phone.
 
-## Step 6: approvals and dashboard (organism brief, section 3)
+## Step 6: approvals and dashboard (organism brief, section 3 + command-center/index.html)
 
-> Build the owner Command Center screens from section 3 of organism-automation-brief.md: dashboard, approvals queue, automation runs, Jane quality, customers. Nothing that sends, posts, charges or changes Jane may happen without going through the approvals queue. Screenshots on phone and desktop.
+> Build the owner Command Center from section 3 of organism-automation-brief.md: dashboard, approvals queue, automation runs, Jane quality, customers. Use command-center-example.html as the visual starting point (same 48 AI Crew dark-navy style, departments, orchestrator, approvals queue), but replace its demo data with real values from the server APIs. Nothing that sends, posts, charges or changes Jane may happen without going through the approvals queue. Keep the example's tests passing style (add tests/command-center-e2e.js equivalents). Screenshots on phone and desktop.
 
 ## Step 7: trial onboarding and Jane improvements (organism brief, 4.3 and section 5)
 
