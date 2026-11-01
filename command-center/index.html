@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Command Center · The 48 AI Crew</title>
+    <style>
+        :root {
+            --bg: #070b14;
+            --panel: #0e1524;
+            --panel-2: #121b2e;
+            --border: #1e2a42;
+            --text: #e8eef8;
+            --muted: #8a97ad;
+            --blue: #6cb8f2;
+            --yellow: #f2c94c;
+            --green: #6fdc9b;
+            --red: #ff7b7b;
+            --mono: "SFMono-Regular", Menlo, Consolas, monospace;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; background: var(--bg); color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height: 1.5; overflow-x: hidden;
+        }
+        .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px 60px; }
+        header {
+            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+            padding: 18px 0; border-bottom: 1px solid var(--border);
+            font-family: var(--mono); letter-spacing: 2px; font-size: 0.85rem;
+        }
+        .live { color: var(--green); font-size: 0.7rem; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 1.6s infinite; }
+        @keyframes pulse { 50% { opacity: 0.3; } }
+        @media (prefers-reduced-motion: reduce) { .dot { animation: none; } }
+        .banner {
+            background: #1a1508; border: 1px solid #5a4a12; color: var(--yellow);
+            border-radius: 10px; padding: 10px 14px; margin: 18px 0; font-size: 0.85rem;
+        }
+        h2 {
+            font-family: var(--mono); font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+            font-size: 0.9rem; color: var(--blue); margin: 28px 0 14px;
+        }
+        .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        @media (min-width: 720px) { .stats { grid-template-columns: repeat(4, 1fr); } }
+        .stat { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+        .stat .num { font-family: var(--mono); font-size: 1.7rem; color: var(--yellow); }
+        .stat .lbl { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+        .orch {
+            background: linear-gradient(160deg, #101a2e, #0e1524); border: 1px solid var(--blue);
+            border-radius: 14px; padding: 18px; margin-top: 14px;
+        }
+        .orch .steps { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px; }
+        @media (min-width: 720px) { .orch .steps { grid-template-columns: repeat(6, 1fr); } }
+        .ostep { background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px; text-align: center; }
+        .ostep .t { font-size: 0.85rem; font-weight: 600; }
+        .ostep .s { font-size: 0.65rem; color: var(--muted); margin-top: 2px; }
+        .ostep.on { border-color: var(--green); }
+        .ostep.on .t { color: var(--green); }
+        .depts { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        @media (min-width: 620px) { .depts { grid-template-columns: 1fr 1fr; } }
+        @media (min-width: 920px) { .depts { grid-template-columns: 1fr 1fr 1fr; } }
+        .dept { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+        .dept .head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .dept .name { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 1px; }
+        .pill { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 1px; padding: 3px 8px; border-radius: 20px; border: 1px solid var(--border); color: var(--muted); }
+        .pill.running { color: var(--green); border-color: #2b5338; }
+        .dept .doing { font-size: 0.8rem; color: var(--muted); margin-top: 10px; min-height: 1.1em; }
+        .bar { height: 4px; background: var(--border); border-radius: 4px; margin-top: 8px; overflow: hidden; }
+        .bar > span { display: block; height: 100%; background: var(--blue); width: 0; transition: width 0.6s ease; }
+        .tools { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+        .tool { font-size: 0.62rem; color: var(--muted); border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px; }
+        .approvals { display: flex; flex-direction: column; gap: 10px; }
+        .appr { background: var(--panel); border: 1px solid var(--border); border-left: 3px solid var(--yellow); border-radius: 0 10px 10px 0; padding: 12px; }
+        .appr.done { border-left-color: var(--green); opacity: 0.6; }
+        .appr.rejected { border-left-color: var(--red); opacity: 0.6; }
+        .appr .k { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; }
+        .appr .body { font-size: 0.9rem; margin: 6px 0 10px; white-space: pre-wrap; word-break: break-word; }
+        .appr .btns { display: flex; gap: 8px; }
+        .btn { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 1px; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; }
+        .btn-ok { background: var(--green); color: #05140b; }
+        .btn-no { background: transparent; border: 1px solid var(--border); color: var(--red); }
+        .appr .result { font-size: 0.78rem; color: var(--muted); font-family: var(--mono); }
+        .feed { background: #050a12; border: 1px solid var(--border); border-radius: 12px; padding: 12px; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); height: 150px; overflow: hidden; }
+        .feed div { padding: 2px 0; }
+        .feed .ts { color: var(--blue); }
+        footer { color: var(--muted); font-size: 0.75rem; border-top: 1px solid var(--border); padding: 20px 0; margin-top: 32px; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <header>
+            <span>THE 48 AI CREW · COMMAND CENTER</span>
+            <span class="live"><span class="dot"></span>LIVE</span>
+        </header>
+
+        <div class="banner" id="banner">
+            ⚠ Preview with sample data. Nothing here is real yet and nothing posts on its own — when connected to the live
+            system, every post, text and reply waits in <b>Approvals</b> for your tap.
+        </div>
+
+        <h2>Today</h2>
+        <div class="stats" id="stats"></div>
+
+        <h2>Orchestrator</h2>
+        <div class="orch">
+            <div style="font-size:0.85rem;color:var(--muted)">Every signal enters here first. It collects, decides what matters, briefs the right department, drafts in your voice, schedules — then waits for you. <b>Nothing publishes on its own.</b></div>
+            <div class="steps" id="orchSteps"></div>
+        </div>
+
+        <h2>Departments</h2>
+        <div class="depts" id="depts"></div>
+
+        <h2>Approvals <span style="color:var(--muted);font-size:0.75rem" id="apprCount"></span></h2>
+        <div class="approvals" id="approvals"></div>
+
+        <h2>Activity</h2>
+        <div class="feed" id="feed" aria-live="polite"></div>
+
+        <footer>
+            The 48 AI Crew · Perth WA. This is the owner dashboard. In the live version its numbers come from your own
+            server (calls, leads, bookings), and no secrets or keys are ever stored in this page.
+        </footer>
+    </div>
+
+    <script>
+        const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+
+        const stats = [
+            ["7", "New leads (wk)"], ["3", "Trials ending"],
+            ["41", "Calls answered"], ["12", "Jobs booked"],
+        ];
+        document.getElementById("stats").innerHTML = stats.map(([n,l]) =>
+            `<div class="stat"><div class="num">${esc(n)}</div><div class="lbl">${esc(l)}</div></div>`).join("");
+
+        const orch = [["Collects","every signal"],["Scores","what matters"],["Briefs","the right team"],["Drafts","in your voice"],["Schedules","every channel"],["Approves","or asks you"]];
+        document.getElementById("orchSteps").innerHTML = orch.map(([t,s],i) =>
+            `<div class="ostep${i<4?' on':''}"><div class="t">${esc(t)}</div><div class="s">${esc(s)}</div></div>`).join("");
+
+        const departments = [
+            { name: "Market Radar", doing: "tracking a 20% off rival promo", tools: ["Trends","Mentions","Alerts"], pct: 70 },
+            { name: "Search Visibility", doing: "checking local rankings", tools: ["GSC","Ranks","Backlinks"], pct: 55 },
+            { name: "Content Engine", doing: "writing a Shorts brief", tools: ["Drafts","Briefs","Calendar"], pct: 40 },
+            { name: "Creative Studio", doing: "generating a demo clip", tools: ["369 Forge","Thumbnails","Voice"], pct: 62 },
+            { name: "Reviews & Reputation", doing: "drafting a review reply", tools: ["GBP","Reply","Watch"], pct: 48 },
+            { name: "Publishing & Social", doing: "queuing a Reel (awaiting approval)", tools: ["YouTube","TikTok","Instagram"], pct: 30 },
+            { name: "Leads & Conversations", doing: "capturing a new enquiry", tools: ["Jane","SMS","Calendar"], pct: 80 },
+            { name: "Results & ROI", doing: "updating the dashboard", tools: ["Metrics","Cost","Margin"], pct: 90 },
+        ];
+        document.getElementById("depts").innerHTML = departments.map(d => `
+            <div class="dept">
+                <div class="head"><span class="name">${esc(d.name)}</span><span class="pill running">RUNNING</span></div>
+                <div class="doing">${esc(d.doing)}</div>
+                <div class="bar"><span style="width:${d.pct}%"></span></div>
+                <div class="tools">${d.tools.map(t => `<span class="tool">${esc(t)}</span>`).join("")}</div>
+            </div>`).join("");
+
+        const approvals = [
+            { k: "SMS to lead", body: 'To Dave (Joondalup): "Hi Dave, Jane here from The 48 AI Crew — you asked about after-hours cover. Here\'s a 60-second demo: [link]. Reply STOP to opt out."' },
+            { k: "Shorts post", body: 'Reel: "The $400 missed call" — 30s, vertical, AI-labelled. Schedule for Thu 6pm?' },
+            { k: "Review reply", body: 'Reply to a 5-star Google review for a plumber customer: "Thanks so much! Glad Jane could book you in fast."' },
+        ];
+        let pending = approvals.length;
+        const apprBox = document.getElementById("approvals");
+        const countEl = document.getElementById("apprCount");
+        function renderCount() { countEl.textContent = pending ? `· ${pending} waiting for you` : "· all clear"; }
+        apprBox.innerHTML = approvals.map((a,i) => `
+            <div class="appr" id="appr-${i}">
+                <div class="k">${esc(a.k)}</div>
+                <div class="body">${esc(a.body)}</div>
+                <div class="btns">
+                    <button class="btn btn-ok" data-i="${i}" data-act="ok">Approve</button>
+                    <button class="btn btn-no" data-i="${i}" data-act="no">Reject</button>
+                </div>
+            </div>`).join("");
+        apprBox.querySelectorAll("button").forEach(btn => btn.onclick = () => {
+            const card = document.getElementById("appr-" + btn.dataset.i);
+            const ok = btn.dataset.act === "ok";
+            card.className = "appr " + (ok ? "done" : "rejected");
+            card.querySelector(".btns").outerHTML = `<div class="result">${ok ? "✓ Approved — it would send now (demo)" : "✕ Rejected — nothing sent"}</div>`;
+            pending--; renderCount();
+        });
+        renderCount();
+
+        // Demo activity ticker. No network calls; illustrative only.
+        const lines = [
+            "Leads & Conversations → Jane booked a job in Wanneroo",
+            "Market Radar → rival promo flagged, briefed Content Engine",
+            "Content Engine → draft reel_043 ready, sent to Approvals",
+            "Results & ROI → MRR +$180 this week",
+            "Publishing & Social → post held, waiting for your OK",
+            "Creative Studio → demo clip rendered in 369 Forge",
+            "Search Visibility → ranking up 2 spots for 'plumber joondalup'",
+        ];
+        const feed = document.getElementById("feed");
+        const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        let n = 0;
+        function tick() {
+            const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+            const row = document.createElement("div");
+            row.innerHTML = `<span class="ts">${now}</span> ${esc(lines[n % lines.length])}`;
+            feed.prepend(row);
+            while (feed.children.length > 7) feed.lastChild.remove();
+            n++;
+        }
+        tick(); tick(); tick();
+        if (!reduced) setInterval(tick, 2600);
+    </script>
+</body>
+</html>
