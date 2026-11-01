@@ -27,3 +27,4 @@ One entry per stage: date, what was built, checks run and results, what was not 
 - Built command-center/index.html: owner dashboard shell (8 departments, orchestrator, approvals queue, stats, activity feed) on demo data, 20 checks passing. Front-end only; live data comes from the server per the organism brief.
 - Added a monthly 'wide scan' lane to the Scout (any-niche verified-revenue small businesses) and scheduled it for the first Monday of each month. Weekly run stays focused on The 48 AI Crew.
 - Wrote docs/sales-playbook.md: how AI-receptionist and SaaS companies sell, and a funnel for The 48 AI Crew built around the personalised Demo Hunter demo.
+- Added n8n as the recommended automation runner in the organism brief (with secret/approval/licence rules and a warning against leaked workflow packs); noted licences in credits.

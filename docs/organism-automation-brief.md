@@ -28,7 +28,10 @@ The current stack is not known to Claude. If different, map each piece to the eq
 | Need | Assumed | Alternatives |
 |---|---|---|
 | Database + auth | Supabase (Postgres, Auth, Row Level Security) | Firebase, Neon + Clerk |
-| Server jobs | Supabase Edge Functions + `pg_cron`, or a small Node server | Vercel cron, Cloudflare Workers |
+| Server jobs | Supabase Edge Functions + `pg_cron`, or a small Node server | Vercel cron, Cloudflare Workers, **n8n** (see below) |
+
+**n8n option (recommended to evaluate first).** n8n (n8n.io) is an open-source, fair-code workflow automation tool with 400+ integrations (Gmail, Twilio, Stripe, Google Sheets, webhooks) and built-in AI nodes. Many of the automations in section 4 — lead capture → owner alert, trial-email sequence, "new Stripe payment → update customer", "missed call → text back" — can be built as n8n workflows instead of hand-coded, which is faster and easier for the owner to see and change. Use it where it fits; keep custom code only for what n8n can't do (the approvals queue, Jane's call logic, the dashboard).
+Rules that still apply to n8n workflows: secrets live in n8n's own credential store (never in the browser or repo); anything that sends, posts or charges routes through the approvals queue (an n8n workflow can create an approval row and wait, it must not send on its own); self-host n8n or use n8n Cloud, and prefer data hosted in or near Australia. Note n8n's licence (Sustainable Use / fair-code) in `docs/credits.md`; it's fine for running your own business, but don't resell n8n itself as a product. **Do not import "leaked" or random n8n workflow packs** from social media — they can contain hidden credential-stealing or data-exfiltration steps; build workflows yourself or use templates from n8n's official library, and audit any template with `docs/install-safety-checklist.md` before connecting real accounts.
 | Phone + SMS | Twilio (Jane's number, call webhooks, SMS) | Vonage, Telnyx |
 | Payments | Stripe (subscriptions, trials, webhooks) | — |
 | Email | Resend or SendGrid | Postmark |
