@@ -32,3 +32,4 @@ One entry per stage: date, what was built, checks run and results, what was not 
 - Wrote docs/organism-upgrades-brief.md: target state + gap check, signals, event log, homeostasis limits + auto-pause, learning loop, CAC/LTV guardrail. Added as Step 10b in the master script.
 - Wrote docs/forge-first-run.md: step-by-step for Forge's first real image and video generation with a Hugging Face token.
 - Wrote organism/GENOME.md: the organism's DNA — one canonical file every part inherits (identity, values, hard rules, genes per part, homeostasis, immunity, reproduction, epigenome). Consolidates the scattered rules.
+- Wrote docs/RECAP-latest.md: summary of recent decisions (Craft Anything, Forge, agent capabilities, organism anatomy/genome) and the ordered next actions.
