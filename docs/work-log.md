@@ -35,3 +35,4 @@ One entry per stage: date, what was built, checks run and results, what was not 
 - Wrote docs/RECAP-latest.md: summary of recent decisions (Craft Anything, Forge, agent capabilities, organism anatomy/genome) and the ordered next actions.
 
 - 2026-11-02 — Added `organism/SPEED-AUDIT.md`: weekly measure-first speed/tune-up routine for the organism's own bots and routines (adapted from a "speed engineer" prompt). Measures and proposes only; changes nothing without owner approval.
+- 2026-11-02 — Added `.claude/agents/speed-auditor.md`: runnable read-only agent that performs the SPEED-AUDIT routine (inventory, bloat, model-fit, handoffs, schedule, approvals). Ran it once; first findings in work log below.
