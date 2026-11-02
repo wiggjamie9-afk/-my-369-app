@@ -250,3 +250,60 @@ export async function runClover(learner, choiceName, score, options = {}) {
     hitTarget: best.score >= target,
   };
 }
+
+// Quadruple clover, spinning like clockwork in one brain.
+// Several clovers (gears) turn together on ONE shared learner. Each tick,
+// every gear that isn't finished blooms its four leaves once — so all the
+// clovers advance in lockstep, like meshed gears, and every leaf of every
+// gear feeds the same brain. A gear stops when its best leaf hits target;
+// the mesh stops when all gears are done or the ticks run out.
+//
+//   learner : one shared learner (one brain)
+//   gears   : [{ name, score, target?, leaves? }]  — each is one clover
+//   options : { ticks }  — max rounds per gear (default 3)
+//
+// Returns { gears: [{choice,winner,score,hitTarget,rounds}], ticksRun, allHitTarget }.
+export async function runCloverMesh(learner, gears, options = {}) {
+  const ticks = options.ticks == null ? 3 : options.ticks;
+  const state = gears.map((g) => {
+    const stats = learner.stats(g.name);
+    return {
+      name: g.name,
+      score: g.score,
+      target: g.target == null ? 0.8 : g.target,
+      leaves: g.leaves || Object.keys(stats).filter((v) => !stats[v].banned),
+      best: { variant: null, score: -1 },
+      rounds: 0,
+      done: false,
+    };
+  });
+
+  let ticksRun = 0;
+  for (let t = 0; t < ticks; t++) {
+    const anyActive = state.some((g) => !g.done && g.leaves.length > 0);
+    if (!anyActive) break;
+    ticksRun = t + 1;
+    for (const g of state) {
+      if (g.done || g.leaves.length === 0) continue;
+      for (const leaf of g.leaves) {
+        const reward = Math.max(0, Math.min(1, Number(await g.score(leaf)) || 0));
+        learner.record(g.name, leaf, reward); // one shared brain learns from every gear's every leaf
+        if (reward > g.best.score) g.best = { variant: leaf, score: reward };
+      }
+      g.rounds += 1;
+      if (g.best.score >= g.target) g.done = true;
+    }
+  }
+
+  return {
+    gears: state.map((g) => ({
+      choice: g.name,
+      winner: g.best.variant,
+      score: g.best.score,
+      hitTarget: g.best.score >= g.target,
+      rounds: g.rounds,
+    })),
+    ticksRun,
+    allHitTarget: state.every((g) => g.leaves.length === 0 || g.best.score >= g.target),
+  };
+}

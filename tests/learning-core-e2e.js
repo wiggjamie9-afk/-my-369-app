@@ -1,6 +1,6 @@
 // Proves the organism's learning core actually learns from outcomes.
 // Run: node tests/learning-core-e2e.js
-import { createLearner, runClover } from "../organism/learning-core.js";
+import { createLearner, runClover, runCloverMesh } from "../organism/learning-core.js";
 
 let failures = 0;
 function check(name, ok, detail = "") {
@@ -111,6 +111,35 @@ await (async () => {
   L3.ban("c3", "bad");
   const res3 = await runClover(L3, "c3", (v) => (v === "bad" ? 1 : 0.5), { rounds: 2, target: 0.9 });
   check("clover never blooms a banned leaf", res3.winner === "ok", "winner=" + res3.winner);
+})();
+
+// 7. Quadruple clover spinning like clockwork: four gears, one brain.
+await (async () => {
+  const L = createLearner({ seed: 21 });
+  // four decisions, four leaves each
+  L.defineChoice("opener", ["o1", "o2", "o3", "o4"]);
+  L.defineChoice("hook", ["h1", "h2", "h3", "h4"]);
+  L.defineChoice("send-time", ["t1", "t2", "t3", "t4"]);
+  L.defineChoice("headline", ["d1", "d2", "d3", "d4"]);
+  // each gear has one clear best leaf
+  const best = { opener: "o3", hook: "h1", "send-time": "t4", headline: "d2" };
+  const judge = (choice) => (leaf) => (leaf === best[choice] ? 0.9 : 0.3);
+
+  const res = await runCloverMesh(L, [
+    { name: "opener", score: judge("opener") },
+    { name: "hook", score: judge("hook") },
+    { name: "send-time", score: judge("send-time") },
+    { name: "headline", score: judge("headline") },
+  ], { ticks: 3 });
+
+  check("mesh spins four gears", res.gears.length === 4, "gears=" + res.gears.length);
+  check("every gear found its best leaf", res.gears.every((g) => g.winner === best[g.choice]),
+    res.gears.map((g) => g.choice + ":" + g.winner).join(" "));
+  check("all four gears hit target", res.allHitTarget === true);
+  check("clockwork stopped early once all done (1 tick)", res.ticksRun === 1, "ticks=" + res.ticksRun);
+  check("one shared brain learned all four choices", (() => {
+    return ["opener", "hook", "send-time", "headline"].every((c) => L.best(c) === best[c]);
+  })());
 })();
 
 console.log(failures ? `\n${failures} check(s) failed` : "\nAll checks passed");
