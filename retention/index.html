@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Your Jane report · The 48 AI Crew</title>
+    <style>
+        :root {
+            --bg: #070b14;
+            --panel: #0e1524;
+            --panel-2: #121b2e;
+            --border: #1e2a42;
+            --text: #e8eef8;
+            --muted: #8a97ad;
+            --blue: #6cb8f2;
+            --yellow: #f2c94c;
+            --green: #6fdc9b;
+            --mono: "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height: 1.5;
+            overflow-x: hidden;
+            padding-bottom: 40px;
+        }
+
+        .wrap { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 0;
+            border-bottom: 1px solid var(--border);
+            font-family: var(--mono);
+            letter-spacing: 3px;
+            font-size: 0.8rem;
+        }
+
+        .tag {
+            color: var(--muted);
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            border: 1px solid var(--border);
+            padding: 4px 10px;
+            white-space: nowrap;
+        }
+
+        .sample {
+            background: #1f1a08;
+            border: 1px solid #4a3d10;
+            color: var(--yellow);
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+            text-align: center;
+            padding: 8px;
+            border-radius: 8px;
+            margin: 16px 0 0;
+        }
+
+        .eyebrow {
+            font-family: var(--mono);
+            color: var(--blue);
+            letter-spacing: 3px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            margin: 30px 0 10px;
+            border-left: 2px solid var(--blue);
+            padding-left: 10px;
+        }
+
+        h1 {
+            font-family: var(--mono);
+            font-weight: 500;
+            font-size: clamp(1.8rem, 7vw, 2.8rem);
+            line-height: 1.12;
+            margin: 0 0 16px;
+            word-break: break-word;
+        }
+
+        h1 .hl { color: var(--yellow); }
+
+        h2 {
+            font-family: var(--mono);
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-size: 1rem;
+            color: var(--blue);
+            margin: 0 0 14px;
+        }
+
+        .lead { color: #c9d3e3; font-size: 1.05rem; margin: 0 0 22px; }
+
+        section {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            margin: 22px 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (min-width: 640px) {
+            .grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        .stat {
+            background: var(--panel-2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .stat .n {
+            font-family: var(--mono);
+            font-size: 1.7rem;
+            color: var(--text);
+        }
+
+        .stat .l {
+            color: var(--muted);
+            font-size: 0.78rem;
+            margin-top: 4px;
+        }
+
+        .hero {
+            background: #1f1a08;
+            border: 1px solid #4a3d10;
+            border-radius: 14px;
+            padding: 22px;
+            margin: 10px 0 4px;
+        }
+
+        .hero .big {
+            font-family: var(--mono);
+            font-size: clamp(2.4rem, 12vw, 3.6rem);
+            color: var(--yellow);
+            line-height: 1;
+        }
+
+        .hero .cap { color: #c9d3e3; margin-top: 8px; }
+
+        .jobs { display: grid; gap: 10px; }
+
+        .job {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px;
+            background: var(--panel-2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        .job .d { min-width: 0; }
+        .job .who { font-weight: 600; }
+        .job .meta { color: var(--muted); font-size: 0.82rem; word-break: break-word; }
+        .job .v { font-family: var(--mono); color: var(--green); white-space: nowrap; }
+
+        details { border-top: 1px dashed var(--border); padding: 12px 0; }
+        details:first-of-type { border-top: none; padding-top: 0; }
+        summary { cursor: pointer; font-weight: 600; }
+        details p { color: #c9d3e3; margin: 8px 0 0; }
+
+        .compare {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+        .compare .up { color: var(--green); }
+        .compare .down { color: #f28b82; }
+
+        .btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            text-decoration: none;
+            font-family: var(--mono);
+            letter-spacing: 2px;
+            font-weight: 700;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn-keep { background: var(--green); color: #05140b; }
+        .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+        .btn-row { display: grid; gap: 10px; }
+
+        @media (min-width: 640px) {
+            .btn-row { grid-template-columns: 1fr 1fr; }
+        }
+
+        .small { color: var(--muted); font-size: 0.8rem; margin-top: 10px; }
+
+        footer {
+            color: var(--muted);
+            font-size: 0.75rem;
+            border-top: 1px solid var(--border);
+            padding: 20px 0;
+            margin-top: 28px;
+        }
+
+        footer a { color: var(--blue); }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <header>
+            <span>THE 48 AI CREW</span>
+            <span class="tag">REPORT FOR <span id="tagName">YOUR BUSINESS</span></span>
+        </header>
+
+        <p class="sample" id="sampleBanner" hidden>SAMPLE REPORT — EXAMPLE NUMBERS, NOT REAL RESULTS</p>
+
+        <div class="eyebrow">Your Jane report · <span data-field="month"></span></div>
+        <h1>Jane booked you <span class="hl" id="heroValue">$0</span> this month, <span data-field="business"></span>.</h1>
+        <p class="lead">
+            Here's what Jane did for <span data-field="business"></span> while you were on the tools —
+            every call answered, every job captured, in your business name.
+        </p>
+
+        <div class="hero">
+            <div class="big" id="heroValue2">$0</div>
+            <div class="cap">
+                estimated value of the <span id="jobsCount">0</span> jobs Jane booked for you this month.
+                <span class="compare" id="compare"></span>
+            </div>
+        </div>
+
+        <section>
+            <h2>What Jane handled</h2>
+            <div class="grid">
+                <div class="stat"><div class="n" id="sCalls">0</div><div class="l">calls answered</div></div>
+                <div class="stat"><div class="n" id="sAfter">0</div><div class="l">after hours &amp; weekends</div></div>
+                <div class="stat"><div class="n" id="sJobs">0</div><div class="l">jobs booked</div></div>
+                <div class="stat"><div class="n" id="sEmerg">0</div><div class="l">emergencies sent to you</div></div>
+            </div>
+            <p class="small">
+                Jane texted you a summary of every call within a minute. These are the calls you didn't have to stop work to take.
+            </p>
+        </section>
+
+        <section>
+            <h2>The jobs she booked</h2>
+            <div class="jobs" id="jobsList"></div>
+            <p class="small" id="jobsNote">Your bookings this month. Shown to you only — never shared.</p>
+        </section>
+
+        <section>
+            <h2>How we work out the dollars</h2>
+            <details open>
+                <summary>Where the number comes from</summary>
+                <p>
+                    It's an <strong>estimate</strong>, worked out simply: the <span id="mJobs">0</span> jobs Jane booked this month,
+                    times your average job value of <span id="mValue">$0</span> that you gave us. Nothing is invented — change your
+                    average and the number changes.
+                </p>
+            </details>
+            <details>
+                <summary>What it does and doesn't count</summary>
+                <p>
+                    It counts only jobs Jane <em>directly booked or captured</em>. It does not count repeat work, word-of-mouth,
+                    or jobs you'd have caught anyway — so the real value is likely higher, not lower. We'd rather under-promise.
+                </p>
+            </details>
+            <details>
+                <summary>Want it more accurate?</summary>
+                <p>
+                    Tell us your real average job value and which bookings turned into paid work, and next month's report uses your
+                    actual numbers instead of the estimate.
+                </p>
+            </details>
+        </section>
+
+        <section>
+            <h2>Keep Jane on the phones</h2>
+            <p class="lead" style="font-size:0.98rem">
+                She's answering every call for <span data-field="business"></span>, day and night. Nothing changes unless you want it to.
+            </p>
+            <div class="btn-row">
+                <a class="btn btn-keep" id="keepBtn" href="https://48ai.jamiewiggautomation.au/">KEEP JANE RUNNING</a>
+                <a class="btn btn-ghost" id="askBtn" href="#">QUESTION? MESSAGE US</a>
+            </div>
+            <p class="small">This report doesn't charge you anything. Any change to your plan happens only when you ask.</p>
+        </section>
+
+        <footer>
+            Report made for <span data-field="business"></span> by The 48 AI Crew, Perth WA.
+            Figures marked as estimates are based on the numbers you gave us. Reply to the message that sent you this,
+            or <a id="optOut" href="#">email us</a>, anytime.
+        </footer>
+    </div>
+
+    <script>
+        // A customer's monthly report link looks like:
+        // ?b=Dave's%20Plumbing&o=Dave&m=October%202026&v=450&ca=84&ah=37&jb=22&em=3&n=0400000000&e=dave@example.com&pv=6200
+        // Every value comes from the URL and is only ever inserted as text, never as HTML.
+        const params = new URLSearchParams(location.search);
+
+        const cleanText = (value, fallback, max = 60) => {
+            const text = (value || "").replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, max);
+            return text || fallback;
+        };
+        const cleanNum = (value, fallback, max = 100000) => {
+            if (value === null || value === "") return fallback;
+            const n = Math.floor(Number(value));
+            return Number.isFinite(n) && n >= 0 ? Math.min(n, max) : fallback;
+        };
+        const money = n => "$" + Math.round(n).toLocaleString("en-AU");
+
+        // When no real data is passed, we show clearly-labelled sample numbers.
+        const hasData = params.has("jb") || params.has("ca") || params.has("v");
+
+        const r = {
+            business: cleanText(params.get("b"), "your business"),
+            owner: cleanText(params.get("o"), "", 30),
+            month: cleanText(params.get("m"), "this month", 30),
+            avgValue: cleanNum(params.get("v"), 450, 100000),
+            calls: cleanNum(params.get("ca"), 84),
+            afterHours: cleanNum(params.get("ah"), 37),
+            jobs: cleanNum(params.get("jb"), 22),
+            emergencies: cleanNum(params.get("em"), 3),
+            prevValue: params.has("pv") ? cleanNum(params.get("pv"), 0, 10000000) : null,
+            phone: cleanText(params.get("n"), "", 20).replace(/[^\d+]/g, ""),
+            email: cleanText(params.get("e"), "", 80),
+        };
+
+        const estValue = r.jobs * r.avgValue;
+
+        document.title = `Jane report for ${r.business} · The 48 AI Crew`;
+        document.querySelectorAll('[data-field="business"]').forEach(el => el.textContent = r.business);
+        document.querySelectorAll('[data-field="month"]').forEach(el => el.textContent = r.month);
+        document.getElementById("tagName").textContent = r.business.toUpperCase();
+        if (!hasData) document.getElementById("sampleBanner").hidden = false;
+
+        document.getElementById("heroValue").textContent = money(estValue);
+        document.getElementById("heroValue2").textContent = money(estValue);
+        document.getElementById("jobsCount").textContent = r.jobs;
+        document.getElementById("sCalls").textContent = r.calls;
+        document.getElementById("sAfter").textContent = r.afterHours;
+        document.getElementById("sJobs").textContent = r.jobs;
+        document.getElementById("sEmerg").textContent = r.emergencies;
+        document.getElementById("mJobs").textContent = r.jobs;
+        document.getElementById("mValue").textContent = money(r.avgValue);
+
+        // Month-on-month comparison, only when we actually have last month's figure.
+        const compare = document.getElementById("compare");
+        if (r.prevValue !== null && r.prevValue > 0) {
+            const diff = estValue - r.prevValue;
+            if (diff > 0) compare.innerHTML = '<span class="up">▲ up ' + money(diff) + ' on last month.</span>';
+            else if (diff < 0) compare.innerHTML = '<span class="down">▼ down ' + money(-diff) + ' on last month.</span>';
+            else compare.textContent = "Same as last month.";
+        }
+
+        // Sample bookings so the customer can see the shape of a real report.
+        // Real reports fill this from the customer's own call log (first name + suburb only).
+        const sampleJobs = [
+            ["Sam R.", "Joondalup", "After-hours call-out, booked Thu 9am"],
+            ["Mel T.", "Scarborough", "Quote request, booked for Monday"],
+            ["Dylan K.", "Wanneroo", "Hot water system, emergency — sent to you"],
+            ["Priya N.", "Clarkson", "Weekend callback, booked"],
+        ];
+        const jobsList = document.getElementById("jobsList");
+        sampleJobs.forEach(([who, suburb, note]) => {
+            const row = document.createElement("div");
+            row.className = "job";
+            const d = document.createElement("div");
+            d.className = "d";
+            const w = document.createElement("div");
+            w.className = "who";
+            w.textContent = who;
+            const m = document.createElement("div");
+            m.className = "meta";
+            m.textContent = suburb + " · " + note;
+            d.append(w, m);
+            const v = document.createElement("div");
+            v.className = "v";
+            v.textContent = "~" + money(r.avgValue);
+            row.append(d, v);
+            jobsList.appendChild(row);
+        });
+        if (!hasData) {
+            document.getElementById("jobsNote").textContent =
+                "Sample bookings — a real report lists your own jobs (first name and suburb only).";
+        }
+
+        // Contact links, built safely. No auto-charge anywhere on this page.
+        const ask = document.getElementById("askBtn");
+        if (r.phone) {
+            ask.href = "sms:" + r.phone;
+        } else {
+            ask.href = "https://48ai.jamiewiggautomation.au/";
+        }
+
+        const optOut = document.getElementById("optOut");
+        if (r.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r.email)) {
+            optOut.href = "mailto:" + r.email + "?subject=" + encodeURIComponent("My Jane report: " + r.business);
+            optOut.textContent = r.email;
+        } else {
+            optOut.removeAttribute("href");
+        }
+    </script>
+</body>
+</html>

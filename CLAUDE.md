@@ -13,6 +13,7 @@ Read this file before changing anything. It applies to Claude, Kimi and any othe
 - `.claude/agents/`: the agent team (researcher, planner, builder, tester, reviewer). Log each piece of work in `docs/work-log.md`.
 - `command-center/index.html`: owner Command Center dashboard shell (demo data, approvals queue, departments). Tests: `node tests/command-center-e2e.js`.
 - `demo/index.html`: personalised prospect demo page for The 48 AI Crew (Demo Hunter). Tests: `node tests/demo-e2e.js`. Brief: `docs/demo-hunter-brief.md`.
+- `retention/index.html`: monthly "Jane booked you $X this month" customer value report (the retention engine). Tests: `node tests/retention-e2e.js`. Brief: `docs/retention-engine-brief.md`.
 - `tests/`: browser tests for Forge. Run `node tests/forge-e2e.js` before committing any change to `generator.html`.
 
 ## How to work
