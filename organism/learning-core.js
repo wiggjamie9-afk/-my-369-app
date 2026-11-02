@@ -207,3 +207,46 @@ export function createLearner(options = {}) {
     },
   };
 }
+
+// The four-leaf looping system (the "clover"), the same pattern Forge uses,
+// put into the brain. Each round all the leaves (allowed variants) bloom:
+// every one is scored, every score is fed back so the brain learns from
+// ALL of them (not just the winner), and the loop repeats — improving —
+// until a leaf hits the target or the rounds run out. The best leaf wins.
+//
+//   learner   : a learner from createLearner()
+//   choiceName: a choice already defined with its variants (the leaves)
+//   score     : (variant) => reward in [0,1]  (your judge; sync or async)
+//   options   : { rounds=3, target=0.8, leaves }
+//
+// Returns { winner, score, rounds: [...], hitTarget }.
+export async function runClover(learner, choiceName, score, options = {}) {
+  const rounds = options.rounds == null ? 3 : options.rounds;
+  const target = options.target == null ? 0.8 : options.target;
+  const stats = learner.stats(choiceName);
+  // the leaves = the allowed (non-banned) variants of this choice
+  let leaves = options.leaves || Object.keys(stats).filter((v) => !stats[v].banned);
+  if (leaves.length === 0) return { winner: null, score: 0, rounds: [], hitTarget: false };
+
+  let best = { variant: null, score: -1 };
+  const history = [];
+
+  for (let r = 0; r < rounds; r++) {
+    const bloom = [];
+    for (const leaf of leaves) {
+      const reward = Math.max(0, Math.min(1, Number(await score(leaf)) || 0));
+      learner.record(choiceName, leaf, reward); // every leaf teaches the brain
+      bloom.push({ leaf, reward });
+      if (reward > best.score) best = { variant: leaf, score: reward };
+    }
+    history.push({ round: r + 1, bloom, best: { ...best } });
+    if (best.score >= target) break; // good enough — stop looping
+  }
+
+  return {
+    winner: best.variant,
+    score: best.score,
+    rounds: history,
+    hitTarget: best.score >= target,
+  };
+}

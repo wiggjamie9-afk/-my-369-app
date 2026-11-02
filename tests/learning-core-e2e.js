@@ -1,6 +1,6 @@
 // Proves the organism's learning core actually learns from outcomes.
 // Run: node tests/learning-core-e2e.js
-import { createLearner } from "../organism/learning-core.js";
+import { createLearner, runClover } from "../organism/learning-core.js";
 
 let failures = 0;
 function check(name, ok, detail = "") {
@@ -77,6 +77,41 @@ function check(name, ok, detail = "") {
   check("cold start returns a real variant (no data yet)", p === "p" || p === "q", "picked=" + p);
   check("cold start best is one of the variants", ["p", "q"].includes(L.best("empty")));
 }
+
+// 6. The four-leaf looping system (clover): all leaves bloom, best wins,
+//    the brain learns from every leaf, and it stops early on target.
+await (async () => {
+  const L = createLearner({ seed: 11 });
+  L.defineChoice("headline-clover", ["leaf-a", "leaf-b", "leaf-c", "leaf-d"]);
+  // a fixed judge: leaf-c is the strongest
+  const judge = (leaf) => ({ "leaf-a": 0.3, "leaf-b": 0.5, "leaf-c": 0.9, "leaf-d": 0.4 }[leaf]);
+  const res = await runClover(L, "headline-clover", judge, { rounds: 3, target: 0.8 });
+  check("clover picks the best leaf", res.winner === "leaf-c", "winner=" + res.winner);
+  check("clover reports the winning score", res.score === 0.9, "score=" + res.score);
+  check("clover stops early when target hit (1 round)", res.rounds.length === 1, "rounds=" + res.rounds.length);
+  check("clover bloomed all four leaves", res.rounds[0].bloom.length === 4, "leaves=" + res.rounds[0].bloom.length);
+  check("the brain learned from every leaf", (() => {
+    const s = L.stats("headline-clover");
+    return s["leaf-a"].tries === 1 && s["leaf-b"].tries === 1 && s["leaf-c"].tries === 1 && s["leaf-d"].tries === 1;
+  })());
+  check("after the clover, brain's best = the winner", L.best("headline-clover") === "leaf-c",
+    "best=" + L.best("headline-clover"));
+
+  // when nothing hits target, it loops the full number of rounds
+  const L2 = createLearner({ seed: 12 });
+  L2.defineChoice("hard", ["x", "y"]);
+  const weak = () => 0.4; // never reaches 0.8
+  const res2 = await runClover(L2, "hard", weak, { rounds: 3, target: 0.8 });
+  check("clover loops all rounds when target never met", res2.rounds.length === 3, "rounds=" + res2.rounds.length);
+  check("clover reports hitTarget false when it falls short", res2.hitTarget === false);
+
+  // a banned leaf never blooms
+  const L3 = createLearner({ seed: 13 });
+  L3.defineChoice("c3", ["ok", "bad"]);
+  L3.ban("c3", "bad");
+  const res3 = await runClover(L3, "c3", (v) => (v === "bad" ? 1 : 0.5), { rounds: 2, target: 0.9 });
+  check("clover never blooms a banned leaf", res3.winner === "ok", "winner=" + res3.winner);
+})();
 
 console.log(failures ? `\n${failures} check(s) failed` : "\nAll checks passed");
 process.exit(failures ? 1 : 0);
