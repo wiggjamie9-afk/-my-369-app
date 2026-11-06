@@ -1,0 +1,411 @@
+<title>369 Post Studio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one writing column on the left, platform proofs on the right; stacks to one column on phones.
+   Single dark look on purpose, matching Vitruvian 369 Core. */
+:root {
+  color-scheme: dark;
+  --bg: #0c0a0e;
+  --panel: #14121a;
+  --well: #070609;
+  --line: #2b2533;
+  --gold: #dfb76c;
+  --violet: #9b78d6;
+  --text: #e6dfd5;
+  --muted: #8f8794;
+  --ok: #7fc99a;
+  --warn: #e7b04f;
+  --bad: #ff6b6b;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--text); }
+body {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 60px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+header { text-align: center; border-bottom: 1px solid var(--line); padding-bottom: 14px; }
+h1 { margin: 0; font-weight: 300; letter-spacing: 4px; font-size: 1.5rem; color: var(--gold); text-wrap: balance; }
+.sub { font-size: .68rem; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-top: 6px; }
+.grid { display: grid; grid-template-columns: 1fr; gap: 22px; }
+@media (min-width: 860px) { .grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); align-items: start; } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.label { font-size: .72rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gold); }
+.hint { font-size: .8rem; color: var(--muted); }
+textarea, input, select {
+  width: 100%; background: var(--well); color: var(--text); border: 1px solid var(--line);
+  border-radius: 8px; padding: 10px 12px; font: inherit; font-size: .95rem;
+}
+textarea { resize: vertical; min-height: 150px; }
+textarea:focus, input:focus, select:focus { outline: none; border-color: var(--gold); }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.row > * { flex: 1 1 140px; min-width: 0; }
+button {
+  font: inherit; font-size: .85rem; letter-spacing: .5px; cursor: pointer; border-radius: 10px;
+  padding: 9px 14px; border: 1px solid var(--line); background: #17130e; color: var(--text);
+}
+button:hover { border-color: var(--gold); }
+button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+button.primary { background: var(--gold); color: var(--bg); border-color: var(--gold); font-weight: 600; }
+button.small { padding: 5px 10px; font-size: .78rem; border-radius: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; font-size: .8rem; cursor: pointer; user-select: none; }
+.chip input { width: auto; margin: 0; accent-color: var(--gold); }
+.chip.on { border-color: var(--gold); color: var(--gold); }
+.slots { display: flex; gap: 8px; }
+.slot { flex: 1; text-align: center; padding: 10px 4px; font-weight: 600; }
+.slot.on { background: var(--gold); color: var(--bg); border-color: var(--gold); }
+.cards { display: flex; flex-direction: column; gap: 14px; }
+.card { background: var(--well); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.card[data-state="over"] { border-color: var(--bad); }
+.card-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.card-head .name { font-weight: 600; letter-spacing: .5px; }
+.count { margin-left: auto; font-family: var(--mono); font-size: .78rem; font-variant-numeric: tabular-nums; color: var(--muted); }
+.pill { font-size: .68rem; text-transform: uppercase; letter-spacing: 1px; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; }
+.pill.ok { color: var(--ok); } .pill.warn { color: var(--warn); } .pill.bad { color: var(--bad); }
+.part { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .9rem; border-top: 1px dashed rgba(255,255,255,.07); padding-top: 8px; }
+.part:first-of-type { border-top: 0; padding-top: 0; }
+.part .meta { display: flex; justify-content: space-between; gap: 8px; font-family: var(--mono); font-size: .72rem; color: var(--muted); margin-top: 6px; }
+.notes { font-size: .78rem; color: var(--warn); margin: 0; padding-left: 18px; }
+.queue { display: flex; flex-direction: column; gap: 10px; }
+.q { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: start; background: var(--well); border: 1px solid var(--line); border-left: 3px solid var(--gold); border-radius: 0 10px 10px 0; padding: 12px; }
+.q.done { border-left-color: var(--ok); opacity: .6; }
+.q .when { font-family: var(--mono); font-size: .8rem; color: var(--gold); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.q .what { font-size: .88rem; overflow-wrap: anywhere; }
+.q .plats { font-size: .74rem; color: var(--muted); margin-top: 4px; }
+.q .acts { display: flex; flex-direction: column; gap: 6px; }
+.empty { text-align: center; color: var(--muted); font-style: italic; padding: 24px 0; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--gold); color: var(--bg); padding: 9px 16px; border-radius: 999px; font-weight: 600; font-size: .85rem; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.toast.show { opacity: 1; }
+.example { color: var(--violet); font-size: .75rem; }
+@media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>369 POST STUDIO</h1>
+    <div class="sub">Write once · fit every platform · post at 3, 6 &amp; 9</div>
+  </header>
+
+  <div class="grid">
+    <section class="panel" aria-labelledby="write-h">
+      <div class="label" id="write-h">Write once</div>
+      <div class="field">
+        <textarea id="post" placeholder="Write your post here..."></textarea>
+        <div class="hint"><span id="example-tag" class="example" hidden>Example post. Replace it with yours. </span>Blank lines split it into paragraphs; long posts are split into an X thread automatically.</div>
+      </div>
+      <div class="row">
+        <div class="field"><label class="hint" for="link">Link (optional)</label><input id="link" type="url" placeholder="https://..."></div>
+        <div class="field"><label class="hint" for="tags">Hashtags</label><input id="tags" placeholder="369 manifestation tesla"></div>
+      </div>
+      <div class="row" id="vision-row" hidden>
+        <button id="from-vision" type="button">Use latest entry from my Vision Log</button>
+      </div>
+
+      <div class="label">Platforms</div>
+      <div class="chips" id="platform-chips"></div>
+
+      <div class="label">Schedule</div>
+      <div class="row">
+        <div class="field"><label class="hint" for="date">Day</label><input id="date" type="date"></div>
+      </div>
+      <div class="slots" role="group" aria-label="Time slot">
+        <button type="button" class="slot" data-h="15">3 PM</button>
+        <button type="button" class="slot" data-h="18">6 PM</button>
+        <button type="button" class="slot" data-h="21">9 PM</button>
+      </div>
+      <button id="add" class="primary" type="button">Add to queue</button>
+    </section>
+
+    <section class="panel" aria-labelledby="proof-h">
+      <div class="label" id="proof-h">Ready to post</div>
+      <div class="cards" id="cards"></div>
+    </section>
+  </div>
+
+  <section class="panel" aria-labelledby="queue-h">
+    <div class="row" style="align-items:center">
+      <div class="label" id="queue-h">Queue</div>
+      <div class="row" style="flex:0 1 auto; justify-content:flex-end">
+        <button id="copy-csv" type="button" class="small">Copy as CSV</button>
+        <button id="dl-ics" type="button" class="small">Download calendar reminders (.ics)</button>
+      </div>
+    </div>
+    <div class="queue" id="queue"></div>
+  </section>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  // ---------- platform rules ----------
+  // limit: max characters; tags: how many hashtags to append; linkLen: how the platform counts a URL
+  const PLATFORMS = [
+    { id: 'threads',   name: 'Threads',          limit: 500,  tags: 1,  links: true,  thread: true, note: 'Threads uses one topic tag per post.' },
+    { id: 'x',         name: 'X',                limit: 280,  tags: 2,  links: true,  linkLen: 23, thread: true },
+    { id: 'instagram', name: 'Instagram',        limit: 2200, tags: 5,  links: false, note: 'Links in captions are not clickable, so it says "link in bio".' },
+    { id: 'tiktok',    name: 'TikTok',           limit: 4000, tags: 5,  links: false, note: 'Links in captions are not clickable, so it says "link in bio".' },
+    { id: 'youtube',   name: 'YouTube Shorts',   limit: 5000, tags: 3,  links: true,  title: 100, extraTag: 'shorts' },
+    { id: 'linkedin',  name: 'LinkedIn',         limit: 3000, tags: 3,  links: true },
+    { id: 'facebook',  name: 'Facebook',         limit: 63206, tags: 2, links: true },
+  ];
+  const EXAMPLE = "3 minutes. 6 breaths. 9 words.\n\nThat's the whole morning practice I've kept for 30 days. Open the app, pick a node, write the one sentence you want to be true by tonight, then let the tone run while you breathe.\n\nIt isn't magic. It's a cue to stop scrolling and decide what the day is for. Try it tomorrow and tell me what you wrote.";
+
+  // ---------- storage (optional; page works without it) ----------
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  };
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  const draft = store.get('studio_draft', null);
+  let enabled = store.get('studio_platforms', ['threads', 'x', 'instagram', 'tiktok', 'youtube']);
+  let queue = store.get('studio_queue', []);
+  let slotHour = 15;
+
+  $('post').value = draft ? draft.post : EXAMPLE;
+  $('link').value = draft ? draft.link : '';
+  $('tags').value = draft ? draft.tags : '369 manifestation dailyritual';
+  $('example-tag').hidden = !!draft;
+  const today = new Date();
+  $('date').value = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+
+  // Vision Log lives in the same browser storage when both pages are served from the same site.
+  const visions = store.get('core_vision_data', []);
+  if (Array.isArray(visions) && visions.length) $('vision-row').hidden = false;
+  $('from-vision').onclick = () => {
+    const v = visions[0];
+    $('post').value = v.text + (v.node ? `\n\nNode ${v.node} · ${v.freq} Hz` : '');
+    update();
+    toast('Loaded your latest vision');
+  };
+
+  // ---------- formatting ----------
+  const parseTags = (s) => s.split(/[\s,]+/).map(t => t.replace(/^#+/, '').replace(/[^\p{L}\p{N}_]/gu, '')).filter(Boolean);
+  const measure = (text, p) => {
+    if (!p.linkLen) return [...text].length;
+    return [...text.replace(/https?:\/\/\S+/g, 'x'.repeat(p.linkLen))].length;
+  };
+
+  function splitThread(body, p) {
+    const max = p.limit - 6; // room for " 10/12"
+    const sentences = body.split(/(?<=[.!?])\s+|\n{2,}/).map(s => s.trim()).filter(Boolean);
+    const parts = [];
+    let cur = '';
+    for (let s of sentences) {
+      while (measure(s, p) > max) { // one very long sentence: break on words
+        const words = s.split(' '); let chunk = '';
+        while (words.length && measure((chunk + ' ' + words[0]).trim(), p) <= max) chunk = (chunk + ' ' + words.shift()).trim();
+        if (!chunk) chunk = words.shift();
+        if (cur) { parts.push(cur); cur = ''; }
+        parts.push(chunk); s = words.join(' ');
+      }
+      if (!s) continue;
+      const next = cur ? cur + '\n\n' + s : s;
+      if (measure(next, p) <= max) cur = next; else { if (cur) parts.push(cur); cur = s; }
+    }
+    if (cur) parts.push(cur);
+    return parts.length > 1 ? parts.map((t, i) => `${t} ${i + 1}/${parts.length}`) : parts;
+  }
+
+  function build(p, post, link, tags) {
+    const notes = [];
+    let tagList = tags.slice(0, p.tags);
+    if (p.extraTag && !tagList.includes(p.extraTag)) tagList = [...tagList.slice(0, p.tags - 1), p.extraTag];
+    if (tags.length > p.tags) notes.push(`Kept the first ${p.tags} of ${tags.length} hashtags.`);
+    const tagLine = tagList.map(t => '#' + t).join(' ');
+    let linkLine = '';
+    if (link) linkLine = p.links ? link : 'Link in bio 🔗';
+    if (p.note && (p.id === 'threads' ? tags.length > 1 : link && !p.links)) notes.push(p.note);
+
+    let parts;
+    if (p.thread) {
+      parts = splitThread(post, p);
+      if (parts.length === 0) parts = [''];
+      const tail = [linkLine, tagLine].filter(Boolean).join('\n');
+      if (tail) {
+        const last = parts.length - 1;
+        if (measure(parts[last] + '\n\n' + tail, p) <= p.limit) parts[last] += '\n\n' + tail; else parts.push(tail);
+      }
+    } else {
+      parts = [[post, linkLine, tagLine].filter(Boolean).join('\n\n')];
+    }
+
+    let title = null;
+    if (p.title) {
+      const first = post.split('\n').find(l => l.trim()) || '';
+      title = [...first].length > p.title ? [...first].slice(0, p.title - 1).join('') + '…' : first;
+    }
+    const lens = parts.map(t => measure(t, p));
+    const over = lens.some(n => n > p.limit);
+    return { parts, lens, notes, title, over };
+  }
+
+  // ---------- render ----------
+  function renderChips() {
+    $('platform-chips').innerHTML = PLATFORMS.map(p => `
+      <label class="chip ${enabled.includes(p.id) ? 'on' : ''}">
+        <input type="checkbox" id="pf-${p.id}" value="${p.id}" ${enabled.includes(p.id) ? 'checked' : ''}> ${p.name}
+      </label>`).join('');
+    $('platform-chips').querySelectorAll('input').forEach(cb => cb.onchange = () => {
+      enabled = PLATFORMS.map(p => p.id).filter(id => $('pf-' + id).checked);
+      store.set('studio_platforms', enabled);
+      renderChips(); update();
+    });
+  }
+
+  let built = {};
+  function update() {
+    const post = $('post').value.trim();
+    const link = $('link').value.trim();
+    const tags = parseTags($('tags').value);
+    store.set('studio_draft', { post: $('post').value, link: $('link').value, tags: $('tags').value });
+    if ($('post').value !== EXAMPLE) $('example-tag').hidden = true;
+
+    built = {};
+    const html = PLATFORMS.filter(p => enabled.includes(p.id)).map(p => {
+      const b = built[p.id] = build(p, post, link, tags);
+      const state = b.over ? 'over' : 'ok';
+      const pill = b.over ? '<span class="pill bad">Too long</span>'
+        : b.parts.length > 1 ? `<span class="pill warn">${b.parts.length}-post thread</span>`
+        : '<span class="pill ok">Fits</span>';
+      const total = b.lens.length > 1 ? `${b.parts.length} × ≤${p.limit}` : `${b.lens[0]} / ${p.limit}`;
+      const titleBlock = b.title !== null ? `
+        <div class="part"><div class="hint">Title</div>${esc(b.title || '(first line of your post)')}
+          <div class="meta"><span>${[...b.title].length} / ${p.title}</span><button class="small" data-copy="${p.id}:title">Copy title</button></div></div>` : '';
+      const partsHtml = b.parts.map((t, i) => `
+        <div class="part">${esc(t)}
+          <div class="meta"><span>${b.lens[i]} / ${p.limit}</span>
+          <button class="small" data-copy="${p.id}:${i}">${b.parts.length > 1 ? 'Copy post ' + (i + 1) : 'Copy'}</button></div></div>`).join('');
+      const notes = b.notes.length ? `<ul class="notes">${b.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul>` : '';
+      return `<article class="card" data-state="${state}">
+        <div class="card-head"><span class="name">${p.name}</span>${pill}<span class="count">${total}</span></div>
+        ${titleBlock}${partsHtml}${notes}</article>`;
+    }).join('');
+    $('cards').innerHTML = html || '<div class="empty">Pick at least one platform.</div>';
+  }
+
+  $('cards').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-copy]'); if (!btn) return;
+    const [id, which] = btn.dataset.copy.split(':');
+    const b = built[id];
+    copy(which === 'title' ? b.title : b.parts[+which]);
+  });
+
+  function copy(text) {
+    const done = () => toast('Copied');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text, done));
+    } else fallbackCopy(text, done);
+  }
+  function fallbackCopy(text, done) {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch { toast('Select the text and copy it by hand'); }
+    ta.remove();
+  }
+  let tt;
+  function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 1600); }
+
+  // ---------- schedule & queue ----------
+  function renderSlots() { document.querySelectorAll('.slot').forEach(b => b.classList.toggle('on', +b.dataset.h === slotHour)); }
+  document.querySelectorAll('.slot').forEach(b => b.onclick = () => { slotHour = +b.dataset.h; renderSlots(); });
+
+  $('add').onclick = () => {
+    const post = $('post').value.trim();
+    if (!post) return toast('Write something first');
+    if (!enabled.length) return toast('Pick at least one platform');
+    if (!$('date').value) return toast('Pick a day');
+    const tooLong = PLATFORMS.filter(p => enabled.includes(p.id) && built[p.id]?.over).map(p => p.name);
+    if (tooLong.length) return toast(`Too long for ${tooLong.join(', ')}`);
+    const when = `${$('date').value}T${String(slotHour).padStart(2, '0')}:00`;
+    const versions = {};
+    enabled.forEach(id => versions[id] = { parts: built[id].parts, title: built[id].title });
+    queue.push({ id: Date.now(), when, post, platforms: [...enabled], versions, done: false });
+    queue.sort((a, b) => a.when.localeCompare(b.when));
+    store.set('studio_queue', queue);
+    renderQueue();
+    toast('Added to queue');
+  };
+
+  const fmtWhen = (w) => {
+    const d = new Date(w);
+    return d.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  };
+  const pname = (id) => PLATFORMS.find(p => p.id === id)?.name || id;
+
+  function renderQueue() {
+    if (!queue.length) { $('queue').innerHTML = '<div class="empty">Nothing queued yet. Write a post, pick 3, 6 or 9 PM, and add it.</div>'; return; }
+    $('queue').innerHTML = queue.map(q => `
+      <div class="q ${q.done ? 'done' : ''}">
+        <div class="when">${fmtWhen(q.when)}</div>
+        <div><div class="what">${esc(q.post.length > 140 ? q.post.slice(0, 140) + '…' : q.post)}</div>
+          <div class="plats">${q.platforms.map(pname).join(' · ')}</div></div>
+        <div class="acts">
+          <button class="small" data-act="load" data-id="${q.id}">Open</button>
+          <button class="small" data-act="done" data-id="${q.id}">${q.done ? 'Undo' : 'Posted'}</button>
+          <button class="small" data-act="del" data-id="${q.id}">Remove</button>
+        </div>
+      </div>`).join('');
+  }
+  $('queue').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const q = queue.find(x => x.id === +b.dataset.id); if (!q) return;
+    if (b.dataset.act === 'del') queue = queue.filter(x => x !== q);
+    if (b.dataset.act === 'done') q.done = !q.done;
+    if (b.dataset.act === 'load') {
+      $('post').value = q.post;
+      enabled = [...q.platforms]; store.set('studio_platforms', enabled);
+      renderChips(); update(); window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    store.set('studio_queue', queue);
+    renderQueue();
+  });
+
+  const csvCell = (s) => '"' + String(s).replace(/"/g, '""') + '"';
+  function toCSV() {
+    const rows = [['when', 'platform', 'part', 'title', 'text', 'posted']];
+    queue.forEach(q => q.platforms.forEach(id => {
+      const v = q.versions[id];
+      v.parts.forEach((t, i) => rows.push([q.when.replace('T', ' '), pname(id), i + 1, v.title || '', t, q.done ? 'yes' : 'no']));
+    }));
+    return rows.map(r => r.map(csvCell).join(',')).join('\n');
+  }
+  $('copy-csv').onclick = () => queue.length ? copy(toCSV()) : toast('Queue is empty');
+
+  function icsDate(d) { return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); }
+  const icsText = (s) => s.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;');
+  $('dl-ics').onclick = () => {
+    const open = queue.filter(q => !q.done);
+    if (!open.length) return toast('Nothing left to post');
+    const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//369 Post Studio//EN'];
+    open.forEach(q => {
+      const start = new Date(q.when), end = new Date(start.getTime() + 15 * 60000);
+      lines.push('BEGIN:VEVENT', `UID:${q.id}@369studio`, `DTSTAMP:${icsDate(new Date())}`,
+        `DTSTART:${icsDate(start)}`, `DTEND:${icsDate(end)}`,
+        `SUMMARY:${icsText('Post: ' + q.platforms.map(pname).join(', '))}`,
+        `DESCRIPTION:${icsText(q.post)}`,
+        'BEGIN:VALARM', 'TRIGGER:-PT0M', 'ACTION:DISPLAY', 'DESCRIPTION:Time to post', 'END:VALARM', 'END:VEVENT');
+    });
+    lines.push('END:VCALENDAR');
+    const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = '369-post-schedule.ics';
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('Calendar file saved');
+  };
+
+  ['post', 'link', 'tags'].forEach(id => $(id).addEventListener('input', update));
+  renderChips(); renderSlots(); update(); renderQueue();
+})();
+</script>
