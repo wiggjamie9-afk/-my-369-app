@@ -1,0 +1,325 @@
+<title>369 Reel Maker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: script on one side, a 9:16 live preview on the other; stacks on phones with the preview first.
+   Single dark look on purpose, matching Vitruvian 369 Core. */
+:root {
+  color-scheme: dark;
+  --bg: #0c0a0e; --panel: #14121a; --well: #070609; --line: #2b2533;
+  --gold: #dfb76c; --text: #e6dfd5; --muted: #8f8794; --bad: #ff6b6b; --ok: #7fc99a;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--text); }
+body { font-family: var(--sans); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 60px; }
+.wrap { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+header { text-align: center; border-bottom: 1px solid var(--line); padding-bottom: 14px; }
+h1 { margin: 0; font-weight: 300; letter-spacing: 4px; font-size: 1.5rem; color: var(--gold); }
+.sub { font-size: .68rem; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-top: 6px; }
+.grid { display: grid; grid-template-columns: 1fr; gap: 22px; }
+@media (min-width: 820px) { .grid { grid-template-columns: minmax(0, 1fr) 340px; align-items: start; } .preview { order: 2; position: sticky; top: 16px; } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.label { font-size: .72rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gold); }
+.hint { font-size: .8rem; color: var(--muted); }
+.field { display: flex; flex-direction: column; gap: 6px; }
+textarea, input, select { width: 100%; background: var(--well); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font: inherit; font-size: .95rem; }
+textarea { resize: vertical; min-height: 170px; }
+textarea:focus, input:focus, select:focus { outline: none; border-color: var(--gold); }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.row > * { flex: 1 1 120px; min-width: 0; }
+button { font: inherit; font-size: .85rem; cursor: pointer; border-radius: 10px; padding: 10px 14px; border: 1px solid var(--line); background: #17130e; color: var(--text); }
+button:hover { border-color: var(--gold); }
+button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+button:disabled { opacity: .5; cursor: default; }
+button.primary { background: var(--gold); color: var(--bg); border-color: var(--gold); font-weight: 600; }
+.nodes { display: flex; gap: 8px; }
+.nodes button { flex: 1; font-weight: 600; letter-spacing: 1px; }
+.nodes button.on { background: var(--gold); color: var(--bg); border-color: var(--gold); }
+.stage { width: 100%; aspect-ratio: 9 / 16; max-width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: #050403; }
+.stage canvas { width: 100%; height: 100%; display: block; }
+.status { font-family: var(--mono); font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums; min-height: 1.4em; }
+.status.bad { color: var(--bad); } .status.ok { color: var(--ok); }
+.result { display: flex; flex-direction: column; gap: 8px; }
+.result a { color: var(--gold); }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>369 REEL MAKER</h1>
+    <div class="sub">Script in · 9:16 video out · your node's tone underneath</div>
+  </header>
+
+  <div class="grid">
+    <section class="panel preview" aria-label="Preview">
+      <div class="stage"><canvas id="reel" width="1080" height="1920"></canvas></div>
+      <div class="row">
+        <button id="play" type="button">Preview</button>
+        <button id="record" type="button" class="primary">Make video</button>
+      </div>
+      <div class="status" id="status" role="status" aria-live="polite"></div>
+      <div class="result" id="result" hidden></div>
+    </section>
+
+    <section class="panel" aria-label="Script">
+      <div class="field">
+        <label class="label" for="hook">Hook (first 2 seconds)</label>
+        <input id="hook" maxlength="80">
+      </div>
+      <div class="field">
+        <label class="label" for="beats">Beats, one per line</label>
+        <textarea id="beats"></textarea>
+        <div class="hint">Keep each line under about 12 words. Six beats fit the 369 rhythm; any number works.</div>
+      </div>
+      <div class="field">
+        <label class="label" for="cta">Ending call to action</label>
+        <input id="cta" maxlength="80">
+      </div>
+      <div class="row">
+        <div class="field"><label class="hint" for="handle">Your handle</label><input id="handle" placeholder="@yourname"></div>
+        <div class="field"><label class="hint" for="pace">Seconds per beat</label>
+          <select id="pace"><option value="1.8">1.8 (fast)</option><option value="2.4" selected>2.4</option><option value="3">3.0</option><option value="3.6">3.6 (slow)</option></select></div>
+      </div>
+      <div class="label">Node · tone</div>
+      <div class="nodes" role="group" aria-label="Node">
+        <button type="button" data-n="3" data-f="174">3 · 174 Hz</button>
+        <button type="button" data-n="6" data-f="528">6 · 528 Hz</button>
+        <button type="button" data-n="9" data-f="963">9 · 963 Hz</button>
+      </div>
+      <div class="field">
+        <label class="hint" for="vol">Tone volume</label>
+        <input id="vol" type="range" min="0" max="0.3" step="0.01" value="0.08">
+      </div>
+      <div class="hint" id="example-note">The script loaded here is an example. Replace it with yours, or ask Claude to write one with the 369 reel skill.</div>
+    </section>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  };
+  const EXAMPLE = {
+    hook: 'I tried the 369 method for 30 days',
+    beats: 'Write it 3 times every morning\n6 times every afternoon\n9 times before bed\nDay 4 I nearly quit\nDay 12 I stopped scrolling first thing\nDay 30 I knew what I actually wanted',
+    cta: 'Comment 369 and I\'ll send you the app',
+    handle: '', pace: '2.4', node: 6, freq: 528, vol: 0.08,
+  };
+  const saved = store.get('reel_draft', null);
+  const s = Object.assign({}, EXAMPLE, saved || {});
+  $('hook').value = s.hook; $('beats').value = s.beats; $('cta').value = s.cta;
+  $('handle').value = s.handle; $('pace').value = s.pace; $('vol').value = s.vol;
+  $('example-note').hidden = !!saved;
+  let node = s.node, freq = s.freq;
+
+  function persist() {
+    store.set('reel_draft', { hook: $('hook').value, beats: $('beats').value, cta: $('cta').value, handle: $('handle').value, pace: $('pace').value, node, freq, vol: +$('vol').value });
+    $('example-note').hidden = true;
+  }
+  ['hook', 'beats', 'cta', 'handle', 'pace', 'vol'].forEach(id => $(id).addEventListener('input', () => { persist(); if (!playing) drawFrame(0); }));
+  function renderNodes() { document.querySelectorAll('.nodes button').forEach(b => b.classList.toggle('on', +b.dataset.n === node)); }
+  document.querySelectorAll('.nodes button').forEach(b => b.onclick = () => { node = +b.dataset.n; freq = +b.dataset.f; renderNodes(); persist(); if (!playing) drawFrame(0); });
+  renderNodes();
+
+  // ---------- timeline ----------
+  function timeline() {
+    const pace = +$('pace').value;
+    const segs = [];
+    const hook = $('hook').value.trim();
+    if (hook) segs.push({ text: hook, kind: 'hook', dur: 2.2 });
+    $('beats').value.split('\n').map(l => l.trim()).filter(Boolean).forEach((t, i) => segs.push({ text: t, kind: 'beat', idx: i + 1, dur: pace }));
+    const cta = $('cta').value.trim();
+    if (cta) segs.push({ text: cta, kind: 'cta', dur: 3.2 });
+    let t = 0; segs.forEach(sg => { sg.start = t; t += sg.dur; });
+    return { segs, total: t };
+  }
+
+  // ---------- drawing ----------
+  const cv = $('reel'), ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const GOLD = '#dfb76c', RED = '#ff4d4d', INK = '#f3ede4';
+  const FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+
+  function wrap(text, maxW, size, weight) {
+    ctx.font = `${weight} ${size}px ${FONT}`;
+    const words = text.split(/\s+/); const lines = []; let cur = '';
+    for (const w of words) {
+      const next = cur ? cur + ' ' + w : w;
+      if (ctx.measureText(next).width > maxW && cur) { lines.push(cur); cur = w; } else cur = next;
+    }
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  function fitText(text, maxW, maxH, start, weight) {
+    let size = start, lines;
+    while (size > 40) { lines = wrap(text, maxW, size, weight); if (lines.length * size * 1.18 <= maxH) break; size -= 6; }
+    return { size, lines: lines || wrap(text, maxW, size, weight) };
+  }
+
+  function drawSpiral(t) {
+    const cx = W / 2, cy = H * 0.5;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(223,183,108,0.10)'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(cx, cy, 420, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy, 420 / 1.618, 0, Math.PI * 2); ctx.stroke();
+    const rot = t * (freq / 1400);
+    ctx.strokeStyle = node === 9 ? 'rgba(255,77,77,0.35)' : 'rgba(212,175,55,0.35)';
+    ctx.lineWidth = 4; ctx.beginPath();
+    let r = 6;
+    for (let i = 0; i < 260; i++) {
+      const a = i * (0.1 / 1.618) + rot;
+      const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      r += node * 0.17;
+    }
+    ctx.stroke(); ctx.restore();
+  }
+
+  function drawFrame(t) {
+    const { segs, total } = timeline();
+    const g = ctx.createRadialGradient(W / 2, H / 2, 100, W / 2, H / 2, H * 0.75);
+    g.addColorStop(0, '#16110c'); g.addColorStop(1, '#050403');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    drawSpiral(t);
+
+    // header: node mark
+    ctx.fillStyle = 'rgba(223,183,108,0.85)'; ctx.font = `300 44px ${FONT}`; ctx.textAlign = 'center';
+    ctx.fillText(`N O D E   ${node}   ·   ${freq} H z`, W / 2, 190);
+
+    const seg = segs.find(sg => t >= sg.start && t < sg.start + sg.dur) || segs[segs.length - 1];
+    if (seg) {
+      const local = t - seg.start;
+      const fadeIn = Math.min(1, local / 0.25), fadeOut = seg === segs[segs.length - 1] ? 1 : Math.min(1, (seg.dur - local) / 0.2);
+      const a = Math.max(0, Math.min(fadeIn, fadeOut));
+      const rise = (1 - fadeIn) * 40;
+      const isHook = seg.kind === 'hook', isCta = seg.kind === 'cta';
+      const { size, lines } = fitText(seg.text, W - 180, 760, isHook ? 120 : isCta ? 96 : 104, isHook ? 800 : 700);
+      const lh = size * 1.18, blockH = lines.length * lh;
+      let y = H / 2 - blockH / 2 + size * 0.85 + rise;
+      ctx.globalAlpha = a;
+      if (seg.kind === 'beat') {
+        ctx.fillStyle = 'rgba(223,183,108,0.7)'; ctx.font = `600 40px ${FONT}`;
+        ctx.fillText(String(seg.idx).padStart(2, '0'), W / 2, y - size - 40);
+      }
+      lines.forEach(line => {
+        ctx.font = `${isHook ? 800 : 700} ${size}px ${FONT}`;
+        if (isHook || isCta) {
+          const w = ctx.measureText(line).width;
+          ctx.fillStyle = isHook ? GOLD : (node === 9 ? RED : GOLD);
+          ctx.fillRect(W / 2 - w / 2 - 24, y - size * 0.86, w + 48, size * 1.1);
+          ctx.fillStyle = '#0c0a0e';
+        } else ctx.fillStyle = INK;
+        ctx.fillText(line, W / 2, y); y += lh;
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    // footer: handle + 3/6/9 progress
+    const handle = $('handle').value.trim();
+    if (handle) { ctx.fillStyle = 'rgba(243,237,228,0.75)'; ctx.font = `500 42px ${FONT}`; ctx.fillText(handle, W / 2, H - 230); }
+    const bx = 140, bw = W - 280, by = H - 150;
+    ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(bx, by, bw, 8);
+    ctx.fillStyle = GOLD; ctx.fillRect(bx, by, bw * Math.min(1, total ? t / total : 0), 8);
+    [3, 6, 9].forEach(k => { const x = bx + bw * (k / 9) - 3; ctx.fillStyle = 'rgba(223,183,108,0.9)'; ctx.fillRect(x, by - 10, 6, 28); });
+  }
+
+  // ---------- playback / audio ----------
+  let audioCtx = null, osc = null, gain = null, playing = false, raf = 0;
+  function startTone(dest) {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    osc = audioCtx.createOscillator(); gain = audioCtx.createGain();
+    osc.type = 'sine'; osc.frequency.value = freq;
+    const v = +$('vol').value, now = audioCtx.currentTime;
+    gain.gain.setValueAtTime(0, now); gain.gain.linearRampToValueAtTime(v, now + 0.4);
+    osc.connect(gain); gain.connect(audioCtx.destination); if (dest) gain.connect(dest);
+    osc.start();
+  }
+  function stopTone() { if (osc) { try { osc.stop(); } catch {} osc.disconnect(); osc = null; } }
+
+  function run(onDone) {
+    const { total } = timeline();
+    if (!total) { status('Add a hook or at least one beat.', 'bad'); return false; }
+    playing = true;
+    const t0 = performance.now();
+    const tick = () => {
+      const t = (performance.now() - t0) / 1000;
+      drawFrame(Math.min(t, total));
+      if (t < total + 0.3 && playing) raf = requestAnimationFrame(tick);
+      else { playing = false; stopTone(); onDone && onDone(); }
+    };
+    raf = requestAnimationFrame(tick);
+    return true;
+  }
+  function stop() { playing = false; cancelAnimationFrame(raf); stopTone(); }
+  function status(msg, kind) { const el = $('status'); el.textContent = msg; el.className = 'status' + (kind ? ' ' + kind : ''); }
+
+  $('play').onclick = () => {
+    if (playing) { stop(); $('play').textContent = 'Preview'; drawFrame(0); return; }
+    startTone(null);
+    $('play').textContent = 'Stop';
+    run(() => { $('play').textContent = 'Preview'; });
+  };
+
+  // ---------- recording ----------
+  const downloadsP = (window.claude && window.claude.use) ? window.claude.use('downloads').catch(() => null) : Promise.resolve(null);
+  function pickType() {
+    const opts = ['video/mp4;codecs=avc1,mp4a', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm'];
+    if (!window.MediaRecorder) return null;
+    return opts.find(o => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(o)) || '';
+  }
+
+  $('record').onclick = async () => {
+    if (playing) return;
+    const type = pickType();
+    if (type === null || !cv.captureStream) { status('This browser cannot record video. Try Chrome or Safari on a computer.', 'bad'); return; }
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const dest = audioCtx.createMediaStreamDestination();
+    const stream = new MediaStream([...cv.captureStream(30).getVideoTracks(), ...dest.stream.getAudioTracks()]);
+    let rec;
+    try { rec = new MediaRecorder(stream, type ? { mimeType: type, videoBitsPerSecond: 8_000_000 } : undefined); }
+    catch { status('Recording failed to start in this browser.', 'bad'); return; }
+    const chunks = [];
+    rec.ondataavailable = e => e.data && e.data.size && chunks.push(e.data);
+    rec.onstop = () => finish(new Blob(chunks, { type: rec.mimeType || type || 'video/webm' }));
+    $('record').disabled = true; $('play').disabled = true; $('result').hidden = true;
+    status('Recording… keep this tab open.');
+    startTone(dest);
+    rec.start(250);
+    run(() => rec.stop());
+  };
+
+  async function finish(blob) {
+    $('record').disabled = false; $('play').disabled = false;
+    const ext = /mp4/.test(blob.type) ? 'mp4' : 'webm';
+    const name = `369-reel-node${node}.${ext}`;
+    const mb = (blob.size / 1048576).toFixed(1);
+    status(`Video ready: ${mb} MB ${ext.toUpperCase()}.`, 'ok');
+    const box = $('result'); box.hidden = false; box.innerHTML = '';
+    const downloads = await downloadsP;
+    const btn = document.createElement('button'); btn.className = 'primary'; btn.type = 'button'; btn.textContent = `Save ${name}`;
+    btn.onclick = async () => {
+      if (downloads) {
+        try { await downloads.save({ filename: name, data: blob }); status('Saved.', 'ok'); }
+        catch (e) { status(e && e.code === 'declined' ? 'Save cancelled.' : 'Saving is not available here.', 'bad'); }
+      } else {
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+        document.body.appendChild(a); a.click(); a.remove();
+      }
+    };
+    box.appendChild(btn);
+    if (ext === 'webm') {
+      const note = document.createElement('div'); note.className = 'hint';
+      note.textContent = 'This browser records WebM. Instagram and TikTok accept it from a computer; for phone upload, record in Safari or a recent Chrome to get MP4.';
+      box.appendChild(note);
+    }
+  }
+
+  drawFrame(0);
+})();
+</script>
