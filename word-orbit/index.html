@@ -6,6 +6,14 @@
 <title>Word Orbit</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Phonics, reading and spelling for dyslexic and ADHD learners, kids and adults.">
+<meta name="theme-color" content="#4a55e0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Word Orbit">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
@@ -435,6 +443,7 @@
       <button class="btn small" onclick="showScreen(homeScreen())">Close</button>
     </div>
     <div class="card stack" id="reportCard"></div>
+    <div class="card stack" id="accountCard"></div>
     <div class="card stack">
       <h3>Learners</h3>
       <div id="learnerList" class="stack" style="gap:8px"></div>
@@ -454,9 +463,14 @@
     <div class="card stack" id="soundsCard"></div>
     <div class="card stack" id="proCard"></div>
     <div class="card stack">
-      <h3>Data</h3>
-      <p class="muted">Progress is saved on this device only. Nothing is sent anywhere.</p>
-      <div class="row"><button class="btn small" onclick="resetAll()">Delete all data</button></div>
+      <h3>App and data</h3>
+      <p class="muted" id="dataNote">Progress is saved on this device only. Nothing is sent anywhere.</p>
+      <div class="row">
+        <button class="btn small" id="installBtn" onclick="installApp()" hidden>📲 Install the app</button>
+        <button class="btn small" onclick="resetAll()">Delete all data</button>
+      </div>
+      <p class="muted" id="installNote"></p>
+      <p class="muted"><a href="privacy.html" target="_blank" rel="noopener" style="color:var(--accent)">Privacy policy</a></p>
     </div>
   </section>
 </div>
@@ -504,10 +518,20 @@
 
 <script>
 /* ============================================================
-   CONFIG: paste your Stripe Payment Link here to take real payments.
-   While it is empty, "Unlock Family Plan" turns on a free test mode.
+   SETTINGS: fill these in to switch on accounts and payments (see SETUP.md).
+   Leave them empty and the app works on one device with a free test mode
+   for the Family Plan.
    ============================================================ */
-const PRO_CHECKOUT_URL = '';
+const CONFIG = {
+  SUPABASE_URL: '',          // e.g. 'https://abcdefgh.supabase.co'
+  SUPABASE_ANON_KEY: '',     // the "anon public" key (safe to put in the app)
+  STRIPE_MONTHLY_LINK: '',   // Stripe Payment Link for £5.99 a month
+  STRIPE_YEARLY_LINK: '',    // Stripe Payment Link for £39.99 a year
+  STRIPE_PORTAL_LINK: '',    // Stripe customer portal link (cancel or change plan)
+  SUPPORT_EMAIL: ''          // shown to parents for help, e.g. 'hello@yourdomain.com'
+};
+const CLOUD = !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY);
+const PAYMENTS = !!(CONFIG.STRIPE_MONTHLY_LINK || CONFIG.STRIPE_YEARLY_LINK);
 const FREE = { planets: 2, learners: 1, words: 10 };
 const PRO = { learners: 6 };
 
@@ -617,7 +641,11 @@ Her dog, Rocket, wagged his tail. He wanted to go too.`;
 const KEY = 'wordorbit_v1';
 function load() { try { const s = localStorage.getItem(KEY); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
 let S = load() || { learners: [], current: null, pro: false };
-function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+function save() {
+  S.updatedAt = Date.now();
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+  if (typeof cloudSchedulePush === 'function') cloudSchedulePush();
+}
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -1610,23 +1638,197 @@ function renderGrown() {
     $('sCalm').addEventListener('change', e => set('calm', e.target.checked));
   }
   // Plan
-  $('proCard').innerHTML = S.pro
-    ? `<h3>Family Plan ✓</h3><p class="muted">All planets, up to ${PRO.learners} learners and unlimited spelling words are unlocked.</p>`
-    : `<h3>Family Plan</h3>
-       <ul class="ticks"><li>All 9 planets: every sound, tricky words and word parts</li><li>Up to ${PRO.learners} learners, kids and adults</li><li>Unlimited spelling words</li><li>Progress reports and monthly reading checks</li></ul>
-       <div class="price-row"><div class="price"><b>£5.99</b><span>per month</span></div><div class="price best"><b>£39.99</b><span>per year · save 44%</span></div></div>
-       <button class="btn primary big" onclick="unlockPro()">Unlock Family Plan</button>
-       <p class="muted">${PRO_CHECKOUT_URL ? 'Secure checkout by Stripe. Cancel any time.' : 'Test mode: payments are not set up yet, so this unlocks the plan for free on this device.'}</p>`;
+  renderAccount();
+  renderPlan();
+  $('dataNote').textContent = CLOUD && cloud.user
+    ? 'Progress is saved on this device and backed up to your account, so it follows you to other devices. Recorded letter sounds stay on this device.'
+    : 'Progress is saved on this device only. Nothing is sent anywhere.';
+  $('installBtn').hidden = !installEvent;
+  $('installNote').textContent = isStandalone() ? '' : isIOS() ? 'To install on iPhone or iPad: tap Share, then "Add to Home Screen".' : '';
 }
-function unlockPro() {
-  if (PRO_CHECKOUT_URL) { location.href = PRO_CHECKOUT_URL; return; }
-  S.pro = true; save(); renderGrown(); toast('Family Plan unlocked (test mode)');
+function renderPlan() {
+  const portal = PAYMENTS && CONFIG.STRIPE_PORTAL_LINK
+    ? `<a class="btn small" href="${esc(CONFIG.STRIPE_PORTAL_LINK)}" target="_blank" rel="noopener">Manage or cancel</a>` : '';
+  if (S.pro) {
+    $('proCard').innerHTML = `<h3>Family Plan ✓</h3><p class="muted">All planets, up to ${PRO.learners} learners and unlimited spelling words are unlocked.</p>${portal ? `<div class="row">${portal}</div>` : ''}`;
+    return;
+  }
+  const needSignIn = PAYMENTS && CLOUD && !cloud.user;
+  const buttons = PAYMENTS
+    ? `<div class="row">${CONFIG.STRIPE_MONTHLY_LINK ? `<button class="btn" onclick="unlockPro('monthly')" ${needSignIn ? 'disabled' : ''}>£5.99 a month</button>` : ''}
+       ${CONFIG.STRIPE_YEARLY_LINK ? `<button class="btn primary" onclick="unlockPro('yearly')" ${needSignIn ? 'disabled' : ''}>£39.99 a year</button>` : ''}</div>
+       <p class="muted">${needSignIn ? 'Sign in above first, so the plan is linked to your account on every device.' : 'Secure checkout by Stripe. Cancel any time.'}</p>`
+    : `<button class="btn primary big" onclick="unlockPro()">Unlock Family Plan</button>
+       <p class="muted">Test mode: payments are not set up yet, so this unlocks the plan for free on this device.</p>`;
+  $('proCard').innerHTML = `<h3>Family Plan</h3>
+    <ul class="ticks"><li>All 9 planets: every sound, tricky words and word parts</li><li>Up to ${PRO.learners} learners, kids and adults</li><li>Unlimited spelling words</li><li>Progress reports and monthly reading checks</li></ul>
+    <div class="price-row"><div class="price"><b>£5.99</b><span>per month</span></div><div class="price best"><b>£39.99</b><span>per year · save 44%</span></div></div>
+    ${buttons}`;
+}
+function unlockPro(plan) {
+  if (!PAYMENTS) { S.pro = true; save(); renderGrown(); toast('Family Plan unlocked (test mode)'); return; }
+  const link = plan === 'monthly' ? CONFIG.STRIPE_MONTHLY_LINK : CONFIG.STRIPE_YEARLY_LINK;
+  if (CLOUD && !cloud.user) { toast('Sign in first, so your plan follows you to every device'); return; }
+  const u = new URL(link);
+  if (cloud.user) {
+    // Lets the webhook link the payment to this account
+    u.searchParams.set('client_reference_id', cloud.user.id);
+    if (cloud.user.email) u.searchParams.set('prefilled_email', cloud.user.email);
+  }
+  location.href = u.toString();
 }
 async function resetAll() {
-  if (!(await askConfirm('Delete every learner and all progress on this device?', 'Delete all'))) return;
+  const msg = CLOUD && cloud.user ? 'Delete every learner and all progress on this device and in your account backup?' : 'Delete every learner and all progress on this device?';
+  if (!(await askConfirm(msg, 'Delete all'))) return;
   S = { learners: [], current: null, pro: S.pro }; save(); showScreen('setup');
 }
-if (new URLSearchParams(location.search).get('pro') === 'success') { S.pro = true; save(); history.replaceState(null, '', location.pathname); }
+
+/* ---------------- Accounts and sync (Supabase) ----------------
+   Parents sign in with a one-time email link. The family's progress is stored as one
+   JSON document per account (table: families). The Family Plan status comes from the
+   subscriptions table, which only the Stripe webhook can write. */
+const cloud = { client: null, user: null, syncing: false, lastSync: null, pushTimer: null, ready: false };
+function loadScript(src) {
+  return new Promise((res, rej) => { const el = document.createElement('script'); el.src = src; el.onload = res; el.onerror = rej; document.head.appendChild(el); });
+}
+async function cloudInit() {
+  if (!CLOUD) return;
+  try {
+    await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js');
+    cloud.client = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+    cloud.client.auth.onAuthStateChange((event, session) => {
+      const was = cloud.user && cloud.user.id;
+      cloud.user = session ? session.user : null;
+      if (cloud.user && cloud.user.id !== was) cloudAfterSignIn();
+      if (!cloud.user && event === 'SIGNED_OUT') { S.pro = false; save(); }
+      if (screen === 'grown') renderGrown();
+    });
+    const { data } = await cloud.client.auth.getSession();
+    cloud.user = data.session ? data.session.user : null;
+    cloud.ready = true;
+    if (cloud.user) await cloudAfterSignIn();
+    if (screen === 'grown') renderGrown();
+  } catch (e) {
+    cloud.ready = true;
+    console.warn('Could not reach the account service', e);
+  }
+}
+async function cloudAfterSignIn() {
+  await cloudPull();
+  await refreshPlan();
+  if (new URLSearchParams(location.search).get('checkout') === 'done') confirmCheckout();
+}
+async function cloudPull() {
+  if (!cloud.user) return;
+  cloud.syncing = true;
+  try {
+    const { data, error } = await cloud.client.from('families').select('data, updated_at').eq('user_id', cloud.user.id).maybeSingle();
+    if (error) throw error;
+    const remote = data && data.data;
+    const remoteTime = data ? new Date(data.updated_at).getTime() : 0;
+    const localHas = S.learners.length > 0;
+    if (remote && remote.learners && (!localHas || remoteTime > (S.updatedAt || 0))) {
+      // The account copy is newer: use it on this device
+      const keepPro = S.pro;
+      S = Object.assign({ learners: [], current: null }, remote, { pro: keepPro });
+      if (!S.learners.some(l => l.id === S.current)) S.current = S.learners[0] ? S.learners[0].id : null;
+      S.learners.forEach(l => { l.placed = l.placed || 0; l.fluency = l.fluency || []; l.stories = l.stories || {}; });
+      try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+      showScreen(screen === 'grown' ? 'grown' : (L() ? homeScreen() : S.learners.length ? 'who' : 'setup'));
+      toast('Progress loaded from your account');
+    } else if (localHas) {
+      await cloudPush();
+    }
+    cloud.lastSync = Date.now();
+  } catch (e) { console.warn('Sync failed', e); }
+  cloud.syncing = false;
+}
+function cloudSchedulePush() {
+  if (!CLOUD || !cloud.user) return;
+  clearTimeout(cloud.pushTimer);
+  cloud.pushTimer = setTimeout(cloudPush, 2000);
+}
+async function cloudPush() {
+  if (!cloud.user || !cloud.client) return;
+  const { pro, ...data } = S; // the plan comes from the server, never from the device
+  try {
+    const { error } = await cloud.client.from('families').upsert({ user_id: cloud.user.id, data, updated_at: new Date(S.updatedAt || Date.now()).toISOString() });
+    if (error) throw error;
+    cloud.lastSync = Date.now();
+  } catch (e) { console.warn('Backup failed, will retry on the next change', e); }
+}
+async function refreshPlan() {
+  if (!cloud.user) return false;
+  try {
+    const { data } = await cloud.client.from('subscriptions').select('status, current_period_end').eq('user_id', cloud.user.id).maybeSingle();
+    const active = !!(data && ['active', 'trialing', 'past_due'].includes(data.status));
+    if (active !== !!S.pro) { S.pro = active; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+    if (screen === 'grown') renderGrown();
+    return active;
+  } catch (e) { return !!S.pro; }
+}
+async function confirmCheckout() {
+  history.replaceState(null, '', location.pathname);
+  toast('Confirming your payment…');
+  // The webhook usually lands within a few seconds
+  for (let k = 0; k < 10; k++) {
+    if (await refreshPlan()) { toast('Family Plan unlocked. Thank you!'); renderTop(); return; }
+    await new Promise(r => setTimeout(r, 3000));
+  }
+  toast('Payment received. Your plan will appear shortly; reopen the app if it does not.');
+}
+async function sendSignInLink() {
+  const email = ($('acctEmail').value || '').trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { toast('Type a valid email address'); $('acctEmail').focus(); return; }
+  $('acctSend').disabled = true;
+  const { error } = await cloud.client.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname } });
+  $('acctSend').disabled = false;
+  if (error) { toast('Could not send the link. Check the address and try again.'); return; }
+  $('acctMsg').textContent = `We sent a sign-in link to ${email}. Open it on this device to finish signing in.`;
+}
+async function signOut() {
+  if (!(await askConfirm('Sign out? Progress stays on this device and in your account.', 'Sign out'))) return;
+  await cloud.client.auth.signOut();
+  S.pro = false; save(); renderGrown();
+}
+function renderAccount() {
+  const card = $('accountCard');
+  if (!CLOUD) { card.hidden = true; return; }
+  card.hidden = false;
+  if (!cloud.ready) { card.innerHTML = '<h3>Account</h3><p class="muted">Connecting…</p>'; return; }
+  if (!cloud.client) { card.innerHTML = '<h3>Account</h3><p class="muted">The account service cannot be reached right now. Progress is still saved on this device.</p>'; return; }
+  if (cloud.user) {
+    const when = cloud.lastSync ? new Date(cloud.lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'not yet';
+    card.innerHTML = `<h3>Account</h3><p>Signed in as <b>${esc(cloud.user.email || '')}</b></p>
+      <p class="muted">Progress backs up automatically. Last backup: ${when}.</p>
+      <div class="row"><button class="btn small" onclick="cloudPull().then(renderGrown)">Sync now</button><button class="btn small" onclick="signOut()">Sign out</button></div>`;
+  } else {
+    card.innerHTML = `<h3>Back up progress and use it on every device</h3>
+      <p class="muted">Sign in with your email. We send a one-time link, so there is no password to remember.</p>
+      <div class="row"><input type="text" id="acctEmail" inputmode="email" autocomplete="email" placeholder="you@example.com" style="flex:1;min-width:180px"><button class="btn primary" id="acctSend" onclick="sendSignInLink()">Send link</button></div>
+      <p class="muted" id="acctMsg"></p>`;
+  }
+  if (CONFIG.SUPPORT_EMAIL) card.insertAdjacentHTML('beforeend', `<p class="muted">Help: <span style="user-select:all">${esc(CONFIG.SUPPORT_EMAIL)}</span></p>`);
+}
+
+/* ---------------- Install as an app ---------------- */
+let installEvent = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvent = e; if (screen === 'grown') renderGrown(); });
+async function installApp() {
+  if (!installEvent) return;
+  installEvent.prompt();
+  try { await installEvent.userChoice; } catch (e) {}
+  installEvent = null; if (screen === 'grown') renderGrown();
+}
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+// Without accounts, a Stripe success page can point back here with ?pro=success (single-device only)
+if (!CLOUD && new URLSearchParams(location.search).get('pro') === 'success') { S.pro = true; save(); history.replaceState(null, '', location.pathname); }
 
 $('spellNew').addEventListener('keydown', e => { if (e.key === 'Enter') addSpellWord(); });
 $('setupName').addEventListener('keydown', e => { if (e.key === 'Enter') finishSetup(); });
@@ -1634,6 +1836,7 @@ $('setupName').addEventListener('keydown', e => { if (e.key === 'Enter') finishS
 S.learners.forEach(l => { l.placed = l.placed || 0; l.fluency = l.fluency || []; l.stories = l.stories || {}; });
 loadRecordings();
 showScreen(L() ? homeScreen() : S.learners.length ? 'who' : 'setup');
+cloudInit();
 </script>
 </body>
 </html>
