@@ -22,6 +22,7 @@
     --input-bg: #070609;
     --ok: #7fd6a4;
     --radius: 14px;
+    color-scheme: dark;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -152,6 +153,13 @@
   .price b { display: block; font-size: 1.2rem; color: var(--accent-gold); }
   .price span { font-size: 0.7rem; color: var(--text-muted); }
 
+
+  .ask { position: fixed; inset: 0; background: rgba(0,0,0,0.78); display: none; align-items: center; justify-content: center; z-index: 70; padding: 16px; }
+  .ask.open { display: flex; }
+  .ask .box2 { width: 100%; max-width: 340px; background: var(--panel-bg); border: 1px solid var(--accent-gold); border-radius: 16px; padding: 20px; text-align: center; }
+  .ask p { margin: 0 0 16px; font-size: 0.95rem; line-height: 1.5; color: var(--text-light); }
+  .ask .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .wall img { width: min(100%, 300px); aspect-ratio: 9/16; height: auto; border-radius: 16px; border: 1px solid var(--border-color); display: block; margin: 12px auto; -webkit-touch-callout: default; user-select: auto; }
   .toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%) translateY(20px); background: var(--accent-gold); color: var(--bg-main); padding: 10px 16px; border-radius: 999px; font-size: 0.85rem; font-weight: 600; opacity: 0; pointer-events: none; transition: all .3s; z-index: 60; max-width: calc(100% - 32px); text-align: center; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   .spacer { height: 10px; }
@@ -326,6 +334,29 @@
   </div>
 </div>
 
+<!-- WALLPAPER -->
+<div class="modal" id="wallModal" onclick="if(event.target===this)closeWall()">
+  <div class="sheet wall" style="text-align:center">
+    <h2 style="font-size:1rem">✦ Your wallpaper</h2>
+    <p class="muted">Press and hold the image, then choose <b>Save image</b> or <b>Add to Photos</b>. On a computer, right-click it and choose <b>Save image as</b>.</p>
+    <img id="wallImg" alt="Your vision board wallpaper">
+    <div class="row wrap" style="justify-content:center">
+      <button class="btn gold" onclick="tryDownload()">⬇ Download</button>
+      <button class="btn" onclick="closeWall()">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="ask" id="askModal" role="dialog" aria-modal="true">
+  <div class="box2">
+    <p id="askText"></p>
+    <div class="row2">
+      <button class="btn" id="askNo">Cancel</button>
+      <button class="btn gold" id="askYes">Yes</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -343,6 +374,20 @@ const AI_ENDPOINT = '';
 
 const FREE_LIMITS = { boards: 1, goals: 6, tones: [174, 528, 963] };
 const PRO_GOALS = 9;
+
+
+/* In-app confirm box (browser pop-ups are blocked in some app views) */
+function askConfirm(text, yesLabel = 'Yes') {
+  return new Promise(resolve => {
+    const m = document.getElementById('askModal');
+    document.getElementById('askText').textContent = text;
+    document.getElementById('askYes').textContent = yesLabel;
+    const done = ok => { m.classList.remove('open'); resolve(ok); };
+    document.getElementById('askYes').onclick = () => done(true);
+    document.getElementById('askNo').onclick = () => done(false);
+    m.classList.add('open');
+  });
+}
 
 /* ---------------- Storage ---------------- */
 const STORE_KEY = 'v369_state_v1';
@@ -725,16 +770,23 @@ function boardBlob() {
   return new Promise(res => $('boardCanvas').toBlob(res, 'image/png'));
 }
 function fileName() { return (state.title || 'vision-board').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.png'; }
+let wallUrl = null;
 async function downloadBoard() {
   if (!state.goals.length) { toast('Add a goal first'); $('goalInput').focus(); return; }
   drawPreview();
   const blob = await boardBlob();
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = fileName();
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
-  toast('Saved. Set it as your phone wallpaper ✦');
+  if (wallUrl) URL.revokeObjectURL(wallUrl);
+  wallUrl = URL.createObjectURL(blob);
+  $('wallImg').src = wallUrl;
+  $('wallModal').classList.add('open');
 }
+function tryDownload() {
+  if (!wallUrl) return;
+  const a = document.createElement('a'); a.href = wallUrl; a.download = fileName();
+  document.body.appendChild(a); a.click(); a.remove();
+  toast('If nothing downloaded, press and hold the image to save it');
+}
+function closeWall() { $('wallModal').classList.remove('open'); }
 async function shareBoard() {
   if (!state.goals.length) { toast('Add a goal first'); return; }
   drawPreview();
@@ -759,9 +811,9 @@ function loadBoard(id) {
   saveState(); renderGoals(); renderThemes(); drawPreview(); renderRitualOptions(); renderGoalWins();
   window.scrollTo({ top: 0, behavior: 'smooth' }); toast('Board opened');
 }
-function deleteBoard(id, ev) {
+async function deleteBoard(id, ev) {
   ev.stopPropagation();
-  if (!confirm('Delete this board?')) return;
+  if (!(await askConfirm('Delete this board from your gallery?', 'Delete'))) return;
   state.boards = state.boards.filter(b => b.id !== id); saveState(); renderGallery();
 }
 function renderGallery() {
@@ -1039,8 +1091,8 @@ function exportData() {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'vitruvian369-backup.json'; a.click();
 }
-function resetAll() {
-  if (!confirm('Delete all your goals, boards and progress on this device?')) return;
+async function resetAll() {
+  if (!(await askConfirm('Delete all your goals, boards and progress on this device?', 'Delete all'))) return;
   const pro = state.pro; state = defaultState(); state.pro = pro; saveState(); boot();
 }
 
