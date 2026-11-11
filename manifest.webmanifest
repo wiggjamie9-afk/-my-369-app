@@ -1,0 +1,14 @@
+{
+  "name": "Vitruvian 369",
+  "short_name": "369",
+  "description": "Create your vision board, write your goals the 3-6-9 way each day and listen to healing tones.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0c0a0e",
+  "theme_color": "#0c0a0e",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

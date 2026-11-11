@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0c0a0e">
+<meta name="description" content="Create your vision board, write your goals the 3-6-9 way each day and listen to healing tones.">
+<title>Vitruvian 369</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+  :root {
+    --bg-main: #0c0a0e;
+    --panel-bg: #14121a;
+    --panel-2: #1b1822;
+    --accent-gold: #dfb76c;
+    --accent-purple: #7045af;
+    --text-light: #e6dfd5;
+    --text-muted: #8f8894;
+    --border-color: #2b2533;
+    --input-bg: #070609;
+    --ok: #7fd6a4;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: radial-gradient(1200px 600px at 50% -200px, #1d1528 0%, var(--bg-main) 60%) fixed, var(--bg-main);
+    color: var(--text-light);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .app { max-width: 760px; margin: 0 auto; padding: 16px 16px 110px; }
+  header { text-align: center; padding: 12px 0 18px; border-bottom: 1px solid var(--border-color); margin-bottom: 18px; position: relative; }
+  @media (max-width: 520px) { header { padding-top: 40px; } }
+  h1 { font-size: 1.35rem; margin: 0; font-weight: 300; letter-spacing: 5px; color: var(--accent-gold); }
+  .subtitle { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2.5px; color: var(--text-muted); margin-top: 6px; }
+  .pro-badge { position: absolute; right: 0; top: 0; font-size: 0.65rem; letter-spacing: 1.5px; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--accent-gold); color: var(--accent-gold); background: transparent; cursor: pointer; }
+  .pro-badge.on { background: var(--accent-gold); color: var(--bg-main); }
+  h2 { font-size: 0.8rem; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--accent-gold); margin: 0 0 12px; }
+  .panel { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
+  .muted { color: var(--text-muted); font-size: 0.82rem; line-height: 1.5; }
+  .row { display: flex; gap: 10px; align-items: center; }
+  .row.wrap { flex-wrap: wrap; }
+  input[type=text], textarea, select {
+    width: 100%; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 10px;
+    color: #fff; padding: 12px; font: inherit; font-size: 0.95rem;
+  }
+  textarea { resize: vertical; min-height: 64px; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent-gold); }
+  button { font: inherit; cursor: pointer; }
+  .btn { background: var(--panel-2); color: var(--text-light); border: 1px solid var(--border-color); border-radius: 10px; padding: 11px 14px; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.5px; white-space: nowrap; }
+  .btn:hover { border-color: var(--accent-gold); }
+  .btn.gold { background: var(--accent-gold); color: var(--bg-main); border-color: var(--accent-gold); }
+  .btn.ghost { background: transparent; }
+  .btn.small { padding: 7px 10px; font-size: 0.75rem; }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .lock::after { content: " 🔒"; }
+
+  /* Tabs */
+  nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: rgba(12,10,14,0.96); backdrop-filter: blur(10px); border-top: 1px solid var(--border-color); padding-bottom: env(safe-area-inset-bottom); }
+  nav.tabs .inner { max-width: 760px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); }
+  nav.tabs button { background: none; border: none; color: var(--text-muted); padding: 10px 4px 12px; font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  nav.tabs button .ico { font-size: 1.25rem; }
+  nav.tabs button.active { color: var(--accent-gold); }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* Goals */
+  .goal-list { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+  .goal { background: var(--input-bg); border: 1px solid var(--border-color); border-left: 3px solid var(--accent-gold); border-radius: 0 10px 10px 0; padding: 12px; }
+  .goal-top { display: flex; align-items: center; gap: 10px; }
+  .goal-top .emoji { font-size: 1.3rem; }
+  .goal-top .text { flex: 1; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-size: 0.85rem; overflow-wrap: anywhere; }
+  .goal .aff { margin-top: 8px; font-style: italic; color: #d9cfc2; font-size: 0.88rem; line-height: 1.45; width: 100%; background: transparent; border: 1px dashed transparent; border-radius: 8px; padding: 6px; resize: none; min-height: 0; }
+  .goal .aff:focus { border-color: var(--border-color); }
+  .icon-btn { background: none; border: none; color: var(--text-muted); font-size: 1rem; padding: 4px 6px; }
+  .icon-btn:hover { color: var(--accent-gold); }
+
+  /* Themes */
+  .themes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .theme { border: 2px solid var(--border-color); border-radius: 10px; padding: 8px 4px; text-align: center; font-size: 0.68rem; color: var(--text-muted); background: var(--input-bg); position: relative; }
+  .theme .sw { height: 26px; border-radius: 6px; margin-bottom: 6px; }
+  .theme.active { border-color: var(--accent-gold); color: var(--text-light); }
+
+  /* Board preview */
+  .preview-wrap { display: flex; justify-content: center; margin-top: 14px; }
+  #boardCanvas { width: min(100%, 340px); aspect-ratio: 9 / 16; height: auto; border-radius: 18px; border: 1px solid var(--border-color); box-shadow: 0 20px 60px rgba(0,0,0,0.7); background: #000; }
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
+  .thumb { position: relative; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-color); cursor: pointer; background: #000; }
+  .thumb canvas { width: 100%; display: block; aspect-ratio: 9/16; }
+  .thumb .del { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.7); border: none; color: #fff; border-radius: 6px; font-size: 0.7rem; padding: 3px 6px; }
+
+  /* Ritual */
+  .slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .slot { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 6px; text-align: center; color: var(--text-muted); }
+  .slot .n { font-size: 1.8rem; font-weight: 200; color: var(--text-light); }
+  .slot .l { font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase; }
+  .slot.active { border-color: var(--accent-gold); box-shadow: 0 0 18px rgba(223,183,108,0.25); }
+  .slot.done { border-color: var(--ok); }
+  .slot.done .n { color: var(--ok); }
+  .dots { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 16px 0; }
+  .dot { width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--accent-gold); transition: all .25s; }
+  .dot.on { background: var(--accent-gold); box-shadow: 0 0 12px rgba(223,183,108,0.7); }
+  .target-aff { font-style: italic; text-align: center; color: var(--accent-gold); font-size: 1rem; line-height: 1.5; padding: 10px; border: 1px dashed var(--border-color); border-radius: 10px; margin-bottom: 12px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; }
+  .stat .v { font-size: 1.6rem; font-weight: 200; color: var(--accent-gold); }
+  .stat .k { font-size: 0.62rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); }
+  .written { max-height: 160px; overflow-y: auto; font-size: 0.8rem; color: var(--text-muted); margin-top: 10px; }
+  .written div { padding: 4px 0; border-bottom: 1px solid #1a1720; }
+
+  /* Sounds */
+  .vessel { position: relative; height: 230px; background: #050403; border: 1px solid var(--border-color); border-radius: 12px; box-shadow: inset 0 0 25px rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; overflow: hidden; }
+  .vessel canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .vessel .center { z-index: 2; font-size: 2.2rem; font-weight: 200; color: var(--accent-gold); letter-spacing: 2px; text-align: center; }
+  .vessel .center small { display: block; font-size: 0.65rem; letter-spacing: 2px; color: var(--text-muted); }
+  .freq-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .freq { background: #17130e; border: 1px solid var(--border-color); color: var(--text-light); padding: 14px 4px; border-radius: 12px; text-align: center; }
+  .freq b { display: block; font-size: 1.05rem; font-weight: 600; }
+  .freq span { font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.5px; }
+  .freq.active { background: var(--accent-gold); border-color: var(--accent-gold); box-shadow: 0 0 20px rgba(223,183,108,0.4); }
+  .freq.active b, .freq.active span { color: var(--bg-main); }
+  .toggle { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; }
+  .toggle input { width: 20px; height: 20px; accent-color: var(--accent-gold); }
+  input[type=range] { width: 100%; accent-color: var(--accent-gold); }
+
+  /* Wins */
+  .win { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
+  .win .t { flex: 1; font-size: 0.9rem; line-height: 1.4; overflow-wrap: anywhere; }
+  .win .d { font-size: 0.7rem; color: var(--text-muted); }
+  .check { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--accent-gold); background: transparent; color: var(--bg-main); flex-shrink: 0; font-size: 0.8rem; }
+  .check.on { background: var(--ok); border-color: var(--ok); }
+
+  /* Modal */
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: none; align-items: flex-end; justify-content: center; z-index: 50; padding: 16px; }
+  .modal.open { display: flex; }
+  @media (min-width: 640px) { .modal { align-items: center; } }
+  .sheet { width: 100%; max-width: 440px; background: var(--panel-bg); border: 1px solid var(--accent-gold); border-radius: 18px; padding: 22px; max-height: 90vh; overflow-y: auto; }
+  .sheet ul { padding-left: 0; list-style: none; margin: 14px 0; }
+  .sheet li { padding: 7px 0; font-size: 0.9rem; border-bottom: 1px solid var(--border-color); }
+  .sheet li::before { content: "✦ "; color: var(--accent-gold); }
+  .price-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; }
+  .price { border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; text-align: center; background: var(--input-bg); }
+  .price.best { border-color: var(--accent-gold); }
+  .price b { display: block; font-size: 1.2rem; color: var(--accent-gold); }
+  .price span { font-size: 0.7rem; color: var(--text-muted); }
+
+  .toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%) translateY(20px); background: var(--accent-gold); color: var(--bg-main); padding: 10px 16px; border-radius: 999px; font-size: 0.85rem; font-weight: 600; opacity: 0; pointer-events: none; transition: all .3s; z-index: 60; max-width: calc(100% - 32px); text-align: center; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .spacer { height: 10px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>VITRUVIAN 369</h1>
+    <div class="subtitle">Vision board · 3-6-9 ritual · healing tones</div>
+    <button class="pro-badge" id="proBadge" onclick="openPro()">GO PRO</button>
+  </header>
+
+  <!-- BOARD -->
+  <section class="view active" id="view-board">
+    <div class="panel">
+      <h2>1 · Your goals</h2>
+      <p class="muted">Type a goal and press Add. We'll write an affirmation for it, and you can tap the affirmation to change it.</p>
+      <div class="row">
+        <input type="text" id="goalInput" placeholder="e.g. New car, £5k a month, Move to Spain" maxlength="60" enterkeyhint="done">
+        <button class="btn gold" onclick="addGoal()">Add</button>
+      </div>
+      <div class="goal-list" id="goalList"></div>
+      <p class="muted" id="goalLimitNote" style="margin-top:10px"></p>
+    </div>
+
+    <div class="panel">
+      <h2>2 · Style</h2>
+      <div class="row" style="margin-bottom:12px">
+        <input type="text" id="boardTitle" placeholder="Board title" maxlength="24">
+      </div>
+      <div class="themes" id="themePicker"></div>
+    </div>
+
+    <div class="panel">
+      <h2>3 · Your board</h2>
+      <div class="preview-wrap"><canvas id="boardCanvas" width="1080" height="1920"></canvas></div>
+      <div class="spacer"></div>
+      <div class="row wrap" style="justify-content:center">
+        <button class="btn gold" onclick="downloadBoard()">⬇ Save as wallpaper</button>
+        <button class="btn" onclick="shareBoard()">↗ Share</button>
+        <button class="btn" onclick="saveBoard()">✦ Keep in gallery</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Gallery</h2>
+      <div class="gallery" id="gallery"></div>
+      <p class="muted" id="galleryEmpty">Boards you keep show up here.</p>
+    </div>
+  </section>
+
+  <!-- RITUAL -->
+  <section class="view" id="view-ritual">
+    <div class="panel">
+      <div class="stats">
+        <div class="stat"><div class="v" id="statStreak">0</div><div class="k">Day streak</div></div>
+        <div class="stat"><div class="v" id="statBest">0</div><div class="k">Best streak</div></div>
+        <div class="stat"><div class="v" id="statFull">0</div><div class="k">Full 3·6·9 days</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Today's ritual</h2>
+      <div class="slots" id="slots"></div>
+      <div class="spacer"></div>
+      <label class="muted" for="ritualGoal">Goal to write</label>
+      <select id="ritualGoal" onchange="renderRitual()"></select>
+      <div class="spacer"></div>
+      <div class="target-aff" id="targetAff"></div>
+      <div class="dots" id="dots"></div>
+      <div class="row">
+        <input type="text" id="ritualInput" placeholder="Write the affirmation, then press Enter" enterkeyhint="send" autocomplete="off">
+        <button class="btn gold" onclick="submitLine()">✓</button>
+      </div>
+      <div class="spacer"></div>
+      <label class="toggle"><input type="checkbox" id="ritualTone"> Play 528 Hz while I write</label>
+      <div class="written" id="written"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Reminders</h2>
+      <p class="muted">The 3-6-9 method: write your goal 3 times in the morning, 6 times in the afternoon and 9 times at night.</p>
+      <button class="btn" onclick="enableReminders()">🔔 Turn on reminders</button>
+      <p class="muted" id="reminderNote" style="margin-top:8px"></p>
+    </div>
+  </section>
+
+  <!-- SOUNDS -->
+  <section class="view" id="view-sounds">
+    <div class="panel">
+      <div class="vessel" onclick="if(audio.hz) audio.stop()">
+        <canvas id="vortexCanvas"></canvas>
+        <div class="center" id="vortexLabel">369<small>TAP A TONE</small></div>
+      </div>
+      <div class="freq-grid" id="freqGrid"></div>
+    </div>
+    <div class="panel">
+      <h2>Settings</h2>
+      <label class="toggle"><input type="checkbox" id="binaural"> <span id="binauralLabel">Binaural mode, use headphones (7.83 Hz)</span></label>
+      <div class="spacer"></div>
+      <label class="muted" for="volume">Volume</label>
+      <input type="range" id="volume" min="0" max="100" value="35">
+      <div class="spacer"></div>
+      <label class="muted" for="sleepTimer">Sleep timer</label>
+      <select id="sleepTimer">
+        <option value="0">Off</option>
+        <option value="5">5 minutes</option>
+        <option value="15">15 minutes</option>
+        <option value="30">30 minutes</option>
+        <option value="60">60 minutes</option>
+      </select>
+      <p class="muted" id="timerNote"></p>
+    </div>
+  </section>
+
+  <!-- WINS -->
+  <section class="view" id="view-wins">
+    <div class="panel">
+      <h2>Goals that came true</h2>
+      <p class="muted">Tick a goal when it happens.</p>
+      <div id="goalWins"></div>
+    </div>
+    <div class="panel">
+      <h2>Wins and signs</h2>
+      <div class="row">
+        <input type="text" id="winInput" placeholder="e.g. Saw 333 three times today, got the interview" maxlength="140" enterkeyhint="done">
+        <button class="btn gold" onclick="addWin()">Log</button>
+      </div>
+      <div id="winList"></div>
+    </div>
+    <div class="panel">
+      <h2>Your data</h2>
+      <p class="muted">Everything is saved on this device only.</p>
+      <div class="row wrap">
+        <button class="btn small" onclick="exportData()">Export backup</button>
+        <button class="btn small ghost" onclick="resetAll()">Reset app</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<nav class="tabs">
+  <div class="inner">
+    <button class="active" data-view="board"><span class="ico">🖼️</span>Board</button>
+    <button data-view="ritual"><span class="ico">✍️</span>3·6·9</button>
+    <button data-view="sounds"><span class="ico">🎧</span>Tones</button>
+    <button data-view="wins"><span class="ico">🏆</span>Wins</button>
+  </div>
+</nav>
+
+<!-- PRO PAYWALL -->
+<div class="modal" id="proModal" onclick="if(event.target===this)closePro()">
+  <div class="sheet">
+    <h2 style="font-size:1rem">✦ Vitruvian 369 Pro</h2>
+    <p class="muted">Get everything in the app.</p>
+    <ul>
+      <li>Keep as many boards as you like (free: 1)</li>
+      <li>Up to 9 goals per board (free: 6)</li>
+      <li>All 4 board themes</li>
+      <li>No "Made with Vitruvian 369" mark on your wallpapers</li>
+      <li>All 9 healing tones (free: 3)</li>
+    </ul>
+    <div class="price-row">
+      <div class="price"><b>£4.99</b><span>per month</span></div>
+      <div class="price best"><b>£29.99</b><span>per year · save 50%</span></div>
+    </div>
+    <button class="btn gold" style="width:100%" onclick="startCheckout()">Unlock Pro</button>
+    <p class="muted" id="checkoutNote" style="margin-top:10px;font-size:0.72rem"></p>
+    <button class="btn ghost" style="width:100%;margin-top:6px" onclick="closePro()">Not now</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   CONFIG: paste your Stripe Payment Link here to take real payments.
+   While it is empty, "Unlock Pro" switches on a free test mode so you
+   can see how Pro behaves. Do not launch with it empty.
+   ============================================================ */
+const PRO_CHECKOUT_URL = '';
+
+const FREE_LIMITS = { boards: 1, goals: 6, tones: [174, 528, 963] };
+const PRO_GOALS = 9;
+
+/* ---------------- Storage ---------------- */
+const STORE_KEY = 'v369_state_v1';
+const defaultState = () => ({
+  goals: [], title: '2027 VISION', theme: 'gold', boards: [],
+  ritual: {}, ritualLines: {}, bestStreak: 0, wins: [], pro: false
+});
+let state = loadState();
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) return Object.assign(defaultState(), JSON.parse(raw));
+  } catch (e) {}
+  return defaultState();
+}
+function saveState() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+  catch (e) { toast('Could not save on this device'); }
+}
+
+/* ---------------- Helpers ---------------- */
+const $ = id => document.getElementById(id);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function todayKey(d = new Date()) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function hash(s) { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) | 0; return Math.abs(h); }
+let toastTimer;
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+function buzz(ms) { if (navigator.vibrate) navigator.vibrate(ms); }
+
+/* ---------------- Affirmation writer ---------------- */
+const CATEGORIES = [
+  { key: 'money',  emoji: '💰', words: ['money','£','$','€','income','rich','wealth','debt','salary','paid','cash','million','savings','k a month','invest','profit'],
+    extra: ['Money flows to me easily and often.', 'I am a magnet for abundance.', 'Wealth comes to me from expected and unexpected places.'] },
+  { key: 'car',    emoji: '🚗', words: ['car','tesla','bmw','mercedes','audi','range rover','porsche','drive','driving licence','van'],
+    extra: ['I love how it feels to drive it.', 'It is already parked outside my home.'] },
+  { key: 'home',   emoji: '🏡', words: ['house','home','flat','apartment','mortgage','garden','villa','property','keys'],
+    extra: ['My home is full of peace and light.', 'I am so happy holding my own keys.'] },
+  { key: 'travel', emoji: '✈️', words: ['travel','trip','holiday','move to','spain','dubai','bali','beach','visit','abroad','world','japan','usa','italy'],
+    extra: ['The world opens up for me.', 'I feel the sun on my skin already.'] },
+  { key: 'love',   emoji: '💞', words: ['love','partner','relationship','marriage','married','soulmate','wife','husband','girlfriend','boyfriend','family','baby'],
+    extra: ['I give and receive love freely.', 'I am deeply loved exactly as I am.'] },
+  { key: 'health', emoji: '🌿', words: ['health','healthy','fit','gym','weight','kg','lbs','run','marathon','heal','body','sleep','sober','abs','glow'],
+    extra: ['My body is strong, healthy and full of energy.', 'Every cell in my body is thriving.'] },
+  { key: 'career', emoji: '🚀', words: ['job','business','career','promotion','clients','brand','app','launch','company','boss','followers','degree','exam','book','music','album'],
+    extra: ['Success comes naturally to me.', 'Doors open for me everywhere I go.'] },
+  { key: 'spirit', emoji: '🔮', words: ['peace','calm','happy','happiness','confidence','spiritual','purpose','free','freedom','anxiety','joy'],
+    extra: ['I am calm, clear and aligned.', 'I trust the timing of my life.'] }
+];
+const DEFAULT_CAT = { key: 'dream', emoji: '✨', extra: ['The universe is working in my favour.', 'It is done. And so it is.'] };
+
+const VERBS = { move:'moved', get:'got', buy:'bought', lose:'lost', start:'started', launch:'launched', find:'found',
+  become:'become', travel:'travelled', build:'built', earn:'earned', run:'run', pay:'paid', learn:'learned',
+  open:'opened', visit:'visited', meet:'met', quit:'quit', make:'made', save:'saved', write:'written', pass:'passed',
+  grow:'grown', win:'won', go:'gone', own:'owned', reach:'reached', finish:'finished', release:'released', sell:'sold',
+  hit:'hit', land:'landed', create:'created', heal:'healed', marry:'married', graduate:'graduated' };
+
+function categorize(text) {
+  const t = ' ' + text.toLowerCase() + ' ';
+  return CATEGORIES.find(c => c.words.some(w => t.includes(w))) || DEFAULT_CAT;
+}
+
+function writeAffirmation(goal) {
+  let g = goal.trim().replace(/[.!]+$/, '');
+  const lower = g.charAt(0).toLowerCase() + g.slice(1);
+  const words = lower.split(/\s+/);
+  const first = words[0];
+  const cat = categorize(g);
+  let main;
+  if (/^(i|i'm|i am|my)$/.test(first)) {
+    main = 'I am so happy and grateful now that ' + (first === 'my' ? lower : g.replace(/^i\b/i, 'I')) + '.';
+  } else if (VERBS[first]) {
+    main = 'I am so happy and grateful now that I have ' + [VERBS[first], ...words.slice(1)].join(' ') + '.';
+  } else if (first === 'be' || first === 'feel') {
+    main = 'I am so happy and grateful now that I ' + (first === 'be' ? 'am ' : 'feel ') + words.slice(1).join(' ') + '.';
+  } else {
+    const needsMy = /^(new|dream|big|own|first|perfect|beautiful|luxury|soulmate|partner|wife|husband|girlfriend|boyfriend|baby|house|home|car|business|brand|degree|promotion)$/.test(first);
+    const noun = needsMy ? 'my ' + lower : lower;
+    main = 'I am so happy and grateful now that I have ' + noun + '.';
+  }
+  const extra = cat.extra[hash(g) % cat.extra.length];
+  return main + ' ' + extra;
+}
+
+/* ---------------- Goals ---------------- */
+function autosize(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; }
+function goalLimit() { return state.pro ? PRO_GOALS : FREE_LIMITS.goals; }
+
+function addGoal() {
+  const input = $('goalInput');
+  const text = input.value.trim();
+  if (!text) { input.focus(); return; }
+  if (state.goals.length >= goalLimit()) {
+    if (!state.pro) { openPro(); toast('Free boards hold ' + FREE_LIMITS.goals + ' goals'); }
+    else toast('A board holds up to ' + PRO_GOALS + ' goals');
+    return;
+  }
+  const cat = categorize(text);
+  state.goals.push({ id: uid(), text, aff: writeAffirmation(text), emoji: cat.emoji, done: false, doneAt: null });
+  input.value = '';
+  saveState(); renderGoals(); drawPreview(); renderRitualOptions(); renderGoalWins();
+  buzz(20);
+}
+function removeGoal(id) {
+  state.goals = state.goals.filter(g => g.id !== id);
+  saveState(); renderGoals(); drawPreview(); renderRitualOptions(); renderGoalWins();
+}
+function rewriteGoal(id) {
+  const g = state.goals.find(g => g.id === id); if (!g) return;
+  const cat = categorize(g.text);
+  const idx = (cat.extra.indexOf(g.aff.split('. ').slice(-1)[0]) + 1) % cat.extra.length;
+  g.aff = writeAffirmation(g.text).replace(/[^.]*\.$/, ' ' + cat.extra[idx]).replace(/\s+/g, ' ').trim();
+  saveState(); renderGoals(); drawPreview();
+}
+function updateAff(id, val) {
+  const g = state.goals.find(g => g.id === id); if (!g) return;
+  g.aff = val.trim() || writeAffirmation(g.text);
+  saveState(); drawPreview(); renderRitual();
+}
+function renderGoals() {
+  const list = $('goalList');
+  list.innerHTML = state.goals.map(g => `
+    <div class="goal">
+      <div class="goal-top">
+        <span class="emoji">${g.emoji}</span>
+        <span class="text">${esc(g.text)}</span>
+        <button class="icon-btn" title="Write a new affirmation" onclick="rewriteGoal('${g.id}')">↻</button>
+        <button class="icon-btn" title="Remove" onclick="removeGoal('${g.id}')">✕</button>
+      </div>
+      <textarea class="aff" rows="2" oninput="autosize(this)" onchange="updateAff('${g.id}', this.value)">${esc(g.aff)}</textarea>
+    </div>`).join('');
+  list.querySelectorAll('.aff').forEach(autosize);
+  $('goalLimitNote').textContent = state.goals.length
+    ? `${state.goals.length} of ${goalLimit()} goals` + (state.pro ? '' : ' · Go Pro for 9')
+    : 'Add between 3 and 6 goals to make a great board.';
+}
+
+/* ---------------- Themes ---------------- */
+const THEMES = {
+  gold:     { name: 'Gold Vortex', bg1: '#1d1528', bg2: '#0c0a0e', accent: '#dfb76c', second: '#7045af', text: '#f3ead9', free: true },
+  amethyst: { name: 'Amethyst',    bg1: '#2a1446', bg2: '#0d0716', accent: '#cfa8ff', second: '#dfb76c', text: '#f1e8ff' },
+  rose:     { name: 'Rose Quartz', bg1: '#3a1424', bg2: '#12070c', accent: '#f4b8c8', second: '#dfb76c', text: '#fff0f4' },
+  emerald:  { name: 'Emerald',     bg1: '#0f3326', bg2: '#05110c', accent: '#93e6bd', second: '#dfb76c', text: '#ecfff5' }
+};
+function renderThemes() {
+  $('themePicker').innerHTML = Object.entries(THEMES).map(([k, t]) => `
+    <button class="theme ${state.theme === k ? 'active' : ''} ${!t.free && !state.pro ? 'lock' : ''}" onclick="pickTheme('${k}')">
+      <div class="sw" style="background:linear-gradient(135deg, ${t.bg1}, ${t.accent})"></div>${t.name}
+    </button>`).join('');
+}
+function pickTheme(k) {
+  if (!THEMES[k].free && !state.pro) { openPro(); return; }
+  state.theme = k; saveState(); renderThemes(); drawPreview();
+}
+
+/* ---------------- Board drawing ---------------- */
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function wrapLines(ctx, text, maxW) {
+  const words = text.split(/\s+/); const lines = []; let line = '';
+  for (const w of words) {
+    const test = line ? line + ' ' + w : w;
+    if (ctx.measureText(test).width > maxW && line) { lines.push(line); line = w; } else line = test;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+function fitText(ctx, text, maxW, maxH, start, min, font, lh) {
+  for (let s = start; s >= min; s -= 2) {
+    ctx.font = font(s);
+    const lines = wrapLines(ctx, text, maxW);
+    if (lines.length * s * lh <= maxH) return { size: s, lines };
+  }
+  ctx.font = font(min);
+  let lines = wrapLines(ctx, text, maxW);
+  const maxLines = Math.max(1, Math.floor(maxH / (min * lh)));
+  if (lines.length > maxLines) { lines = lines.slice(0, maxLines); lines[maxLines - 1] += '…'; }
+  return { size: min, lines };
+}
+function hexA(hex, a) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+}
+function drawTeslaVortex(ctx, cx, cy, r, th) {
+  ctx.save();
+  // Outer rings
+  ctx.strokeStyle = hexA(th.accent, 0.35); ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, r / 1.618, 0, Math.PI * 2); ctx.stroke();
+  // Golden spiral
+  ctx.strokeStyle = hexA(th.second, 0.55); ctx.lineWidth = 2;
+  ctx.beginPath();
+  let rad = 2;
+  for (let i = 0; i < 260; i++) {
+    const a = i * (0.1 / 1.618) * 1.6;
+    const x = cx + Math.cos(a) * rad, y = cy + Math.sin(a) * rad;
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    rad += r / 290;
+  }
+  ctx.stroke();
+  // 9 points
+  const pts = [];
+  for (let i = 0; i < 9; i++) {
+    const a = -Math.PI / 2 + (i + 1) * (Math.PI * 2 / 9);
+    pts[i + 1] = [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
+  }
+  ctx.strokeStyle = hexA(th.accent, 0.6); ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  [1, 2, 4, 8, 7, 5, 1].forEach((n, i) => i ? ctx.lineTo(...pts[n]) : ctx.moveTo(...pts[n]));
+  ctx.stroke();
+  ctx.strokeStyle = th.accent; ctx.lineWidth = 3.5;
+  ctx.beginPath(); [3, 6, 9, 3].forEach((n, i) => i ? ctx.lineTo(...pts[n]) : ctx.moveTo(...pts[n])); ctx.stroke();
+  ctx.font = '600 30px Georgia, serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for (let i = 1; i <= 9; i++) {
+    const [x, y] = pts[i];
+    const hot = i % 3 === 0;
+    ctx.fillStyle = hot ? th.accent : th.bg2;
+    ctx.beginPath(); ctx.arc(x, y, 24, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = th.accent; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = hot ? th.bg2 : th.accent;
+    ctx.fillText(String(i), x, y + 1);
+  }
+  ctx.restore();
+}
+function drawBoard(canvas, opts) {
+  const { goals, theme, title, watermark } = opts;
+  const th = THEMES[theme] || THEMES.gold;
+  const ctx = canvas.getContext('2d');
+  const W = 1080, H = 1920;
+  canvas.width = W; canvas.height = H;
+
+  // Background
+  const g = ctx.createRadialGradient(W / 2, 260, 40, W / 2, H / 2, H * 0.85);
+  g.addColorStop(0, th.bg1); g.addColorStop(1, th.bg2);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+  // Flower-of-life pattern
+  ctx.strokeStyle = hexA(th.accent, 0.05); ctx.lineWidth = 1.5;
+  const R = 90;
+  for (let row = -1; row < H / (R * 0.866) + 1; row++) {
+    for (let col = -1; col < W / R + 1; col++) {
+      const x = col * R + (row % 2 ? R / 2 : 0), y = row * R * 0.866;
+      ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI * 2); ctx.stroke();
+    }
+  }
+  // Stars
+  let seed = hash(title + theme) || 7;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 140; i++) {
+    ctx.fillStyle = hexA(th.text, 0.15 + rnd() * 0.5);
+    ctx.beginPath(); ctx.arc(rnd() * W, rnd() * H, rnd() * 2.2 + 0.4, 0, Math.PI * 2); ctx.fill();
+  }
+
+  drawTeslaVortex(ctx, W / 2, 255, 165, th);
+
+  // Title
+  ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = th.accent;
+  ctx.shadowColor = hexA(th.accent, 0.55); ctx.shadowBlur = 30;
+  const t = (title || '2027 VISION').toUpperCase();
+  const tf = fitText(ctx, t, W - 140, 110, 96, 50, s => `300 ${s}px Georgia, "Times New Roman", serif`, 1.1);
+  ctx.font = `300 ${tf.size}px Georgia, "Times New Roman", serif`;
+  if ('letterSpacing' in ctx) ctx.letterSpacing = Math.round(tf.size * 0.12) + 'px';
+  ctx.fillText(tf.lines[0], W / 2, 545);
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = hexA(th.text, 0.6);
+  ctx.font = '500 26px -apple-system, "Segoe UI", Roboto, sans-serif';
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '10px';
+  ctx.fillText('3 · 6 · 9   IT IS DONE', W / 2, 600);
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+
+  // Goal cards
+  const list = goals.length ? goals : [{ emoji: '✨', text: 'Add your first goal', aff: 'Type a goal above and it will appear here with its affirmation.' }];
+  const n = list.length;
+  const cols = n <= 3 ? 1 : 2;
+  const rows = Math.ceil(n / cols);
+  const top = 650, bottom = 1790, side = 64, gap = 26;
+  const areaH = bottom - top;
+  let cardH = (areaH - gap * (rows - 1)) / rows;
+  if (cols === 1) cardH = Math.min(cardH, 330);
+  const usedH = cardH * rows + gap * (rows - 1);
+  const startY = top + (areaH - usedH) / 2;
+  const cardW = (W - side * 2 - gap * (cols - 1)) / cols;
+
+  list.forEach((goal, i) => {
+    const c = i % cols, r = Math.floor(i / cols);
+    // Centre a lone last card in a 2-column grid
+    const lone = cols === 2 && i === n - 1 && n % 2 === 1;
+    const x = lone ? (W - cardW) / 2 : side + c * (cardW + gap);
+    const y = startY + r * (cardH + gap);
+    const pad = cols === 1 ? 36 : 28;
+
+    ctx.save();
+    roundRect(ctx, x, y, cardW, cardH, 28);
+    const cg = ctx.createLinearGradient(x, y, x + cardW, y + cardH);
+    cg.addColorStop(0, hexA(th.accent, 0.13)); cg.addColorStop(1, hexA(th.second, 0.10));
+    ctx.fillStyle = cg; ctx.fill();
+    ctx.strokeStyle = hexA(th.accent, 0.55); ctx.lineWidth = 2; ctx.stroke();
+    ctx.restore();
+
+    const emojiSize = Math.min(64, cardH * 0.22);
+    ctx.font = `${emojiSize}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText(goal.emoji || '✨', x + pad, y + pad);
+
+    // Goal heading
+    ctx.fillStyle = th.accent;
+    const headX = x + pad + emojiSize + 18;
+    const head = fitText(ctx, goal.text.toUpperCase(), x + cardW - pad - headX, emojiSize * 1.25, 40, 22,
+      s => `700 ${s}px -apple-system, "Segoe UI", Roboto, sans-serif`, 1.15);
+    ctx.font = `700 ${head.size}px -apple-system, "Segoe UI", Roboto, sans-serif`;
+    const headBlock = head.lines.length * head.size * 1.15;
+    head.lines.forEach((l, k) => ctx.fillText(l, headX, y + pad + (emojiSize - headBlock) / 2 + k * head.size * 1.15 + 2));
+
+    // Affirmation
+    const affTop = y + pad + emojiSize + 18;
+    const aff = fitText(ctx, goal.aff, cardW - pad * 2, y + cardH - pad - affTop, cols === 1 ? 44 : 40, 18,
+      s => `italic 400 ${s}px Georgia, "Times New Roman", serif`, 1.35);
+    ctx.fillStyle = hexA(th.text, 0.92);
+    ctx.font = `italic 400 ${aff.size}px Georgia, "Times New Roman", serif`;
+    aff.lines.forEach((l, k) => ctx.fillText(l, x + pad, affTop + k * aff.size * 1.35));
+  });
+
+  // Footer
+  ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = hexA(th.accent, 0.8);
+  ctx.font = '400 30px Georgia, serif';
+  ctx.fillText('✦  ✦  ✦', W / 2, 1850);
+  if (watermark) {
+    ctx.fillStyle = hexA(th.text, 0.4);
+    ctx.font = '500 22px -apple-system, "Segoe UI", Roboto, sans-serif';
+    ctx.fillText('Made with Vitruvian 369', W / 2, 1890);
+  }
+}
+function currentBoardOpts() {
+  return { goals: state.goals, theme: state.pro || THEMES[state.theme].free ? state.theme : 'gold', title: state.title, watermark: !state.pro };
+}
+function drawPreview() { drawBoard($('boardCanvas'), currentBoardOpts()); }
+
+function boardBlob() {
+  return new Promise(res => $('boardCanvas').toBlob(res, 'image/png'));
+}
+function fileName() { return (state.title || 'vision-board').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.png'; }
+async function downloadBoard() {
+  if (!state.goals.length) { toast('Add a goal first'); $('goalInput').focus(); return; }
+  drawPreview();
+  const blob = await boardBlob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fileName();
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  toast('Saved. Set it as your phone wallpaper ✦');
+}
+async function shareBoard() {
+  if (!state.goals.length) { toast('Add a goal first'); return; }
+  drawPreview();
+  const blob = await boardBlob();
+  const file = new File([blob], fileName(), { type: 'image/png' });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: state.title, text: 'My 369 vision board ✦' }); } catch (e) {}
+  } else {
+    downloadBoard();
+  }
+}
+function saveBoard() {
+  if (!state.goals.length) { toast('Add a goal first'); return; }
+  if (!state.pro && state.boards.length >= FREE_LIMITS.boards) { openPro(); toast('Free version keeps 1 board'); return; }
+  state.boards.unshift({ id: uid(), title: state.title, theme: state.theme, goals: JSON.parse(JSON.stringify(state.goals)), created: Date.now() });
+  saveState(); renderGallery(); toast('Board kept in your gallery');
+}
+function loadBoard(id) {
+  const b = state.boards.find(b => b.id === id); if (!b) return;
+  state.title = b.title; state.theme = b.theme; state.goals = JSON.parse(JSON.stringify(b.goals));
+  $('boardTitle').value = state.title;
+  saveState(); renderGoals(); renderThemes(); drawPreview(); renderRitualOptions(); renderGoalWins();
+  window.scrollTo({ top: 0, behavior: 'smooth' }); toast('Board opened');
+}
+function deleteBoard(id, ev) {
+  ev.stopPropagation();
+  if (!confirm('Delete this board?')) return;
+  state.boards = state.boards.filter(b => b.id !== id); saveState(); renderGallery();
+}
+function renderGallery() {
+  const gal = $('gallery');
+  gal.innerHTML = state.boards.map(b => `
+    <div class="thumb" onclick="loadBoard('${b.id}')">
+      <canvas data-board="${b.id}"></canvas>
+      <button class="del" onclick="deleteBoard('${b.id}', event)">✕</button>
+    </div>`).join('');
+  gal.querySelectorAll('canvas').forEach(c => {
+    const b = state.boards.find(x => x.id === c.dataset.board);
+    drawBoard(c, { goals: b.goals, theme: b.theme, title: b.title, watermark: false });
+  });
+  $('galleryEmpty').style.display = state.boards.length ? 'none' : 'block';
+}
+
+/* ---------------- 3-6-9 ritual ---------------- */
+const SLOTS = [
+  { key: 'm', label: 'Morning', count: 3 },
+  { key: 'a', label: 'Afternoon', count: 6 },
+  { key: 'n', label: 'Night', count: 9 }
+];
+let activeSlot = null;
+function defaultSlot() {
+  const h = new Date().getHours();
+  return h < 12 ? 'm' : h < 18 ? 'a' : 'n';
+}
+function todayRitual() { return state.ritual[todayKey()] || (state.ritual[todayKey()] = { m: false, a: false, n: false }); }
+function linesKey() { return todayKey() + ':' + activeSlot; }
+
+function renderRitualOptions() {
+  const sel = $('ritualGoal');
+  const prev = sel.value;
+  sel.innerHTML = state.goals.length
+    ? state.goals.map(g => `<option value="${g.id}">${g.emoji} ${esc(g.text)}</option>`).join('')
+    : '<option value="">Add a goal on the Board tab first</option>';
+  if (state.goals.some(g => g.id === prev)) sel.value = prev;
+  renderRitual();
+}
+function pickSlot(k) { activeSlot = k; renderRitual(); }
+function renderRitual() {
+  if (!activeSlot) activeSlot = defaultSlot();
+  const day = todayRitual();
+  $('slots').innerHTML = SLOTS.map(s => `
+    <button class="slot ${s.key === activeSlot ? 'active' : ''} ${day[s.key] ? 'done' : ''}" onclick="pickSlot('${s.key}')">
+      <div class="n">${day[s.key] ? '✓' : s.count}</div><div class="l">${s.label}</div>
+    </button>`).join('');
+  const goal = state.goals.find(g => g.id === $('ritualGoal').value);
+  $('targetAff').textContent = goal ? goal.aff : 'Your affirmation will appear here.';
+  const slot = SLOTS.find(s => s.key === activeSlot);
+  const lines = state.ritualLines[linesKey()] || [];
+  const done = day[activeSlot] ? slot.count : Math.min(lines.length, slot.count);
+  $('dots').innerHTML = Array.from({ length: slot.count }, (_, i) => `<div class="dot ${i < done ? 'on' : ''}"></div>`).join('');
+  $('written').innerHTML = lines.map((l, i) => `<div>${i + 1}. ${esc(l)}</div>`).join('');
+  $('ritualInput').disabled = !goal || day[activeSlot];
+  $('ritualInput').placeholder = day[activeSlot] ? slot.label + ' session done ✓' : 'Write the affirmation, then press Enter';
+  renderStats();
+}
+function similarity(a, b) {
+  const norm = s => s.toLowerCase().replace(/[^a-z0-9£$ ]/g, '').split(/\s+/).filter(Boolean);
+  const A = norm(a), B = new Set(norm(b));
+  if (!B.size) return 0;
+  return A.filter(w => B.has(w)).length / B.size;
+}
+function submitLine() {
+  const input = $('ritualInput');
+  const goal = state.goals.find(g => g.id === $('ritualGoal').value);
+  if (!goal || input.disabled) return;
+  const text = input.value.trim();
+  if (!text) return;
+  // Require the user to actually write it out (about 60% of the words)
+  if (similarity(text, goal.aff) < 0.6) { toast('Write the whole affirmation, with feeling ✦'); buzz([30, 40, 30]); return; }
+  const key = linesKey();
+  (state.ritualLines[key] = state.ritualLines[key] || []).push(text);
+  input.value = '';
+  buzz(25);
+  const slot = SLOTS.find(s => s.key === activeSlot);
+  if (state.ritualLines[key].length >= slot.count) {
+    todayRitual()[activeSlot] = true;
+    buzz([60, 60, 120]);
+    const day = todayRitual();
+    toast(day.m && day.a && day.n ? 'Full 3·6·9 day complete! 🔥' : slot.label + ' session complete ✦');
+    if ($('ritualTone').checked) audio.stop();
+  }
+  pruneLines();
+  saveState(); renderRitual();
+}
+function pruneLines() {
+  // Only keep the last 3 days of written lines
+  const keep = new Set([0, 1, 2].map(d => todayKey(new Date(Date.now() - d * 864e5))));
+  for (const k of Object.keys(state.ritualLines)) if (!keep.has(k.split(':')[0])) delete state.ritualLines[k];
+}
+function computeStreak() {
+  let streak = 0;
+  const d = new Date();
+  const has = day => { const r = state.ritual[todayKey(day)]; return r && (r.m || r.a || r.n); };
+  if (!has(d)) d.setDate(d.getDate() - 1); // today not done yet still counts yesterday's streak
+  while (has(d)) { streak++; d.setDate(d.getDate() - 1); }
+  return streak;
+}
+function renderStats() {
+  const s = computeStreak();
+  if (s > state.bestStreak) { state.bestStreak = s; saveState(); }
+  $('statStreak').textContent = s;
+  $('statBest').textContent = state.bestStreak;
+  $('statFull').textContent = Object.values(state.ritual).filter(r => r.m && r.a && r.n).length;
+}
+async function enableReminders() {
+  if (!('Notification' in window)) { $('reminderNote').textContent = 'Reminders are not supported in this browser. Add the app to your home screen first.'; return; }
+  const p = await Notification.requestPermission();
+  if (p !== 'granted') { $('reminderNote').textContent = 'Reminders were blocked. You can allow them in your phone settings.'; return; }
+  try { localStorage.setItem('v369_reminders', '1'); } catch (e) {}
+  $('reminderNote').textContent = 'Reminders are on. While the app is open, it will remind you at 9am, 3pm and 9pm.';
+  scheduleReminders();
+}
+function scheduleReminders() {
+  let on = false; try { on = localStorage.getItem('v369_reminders') === '1'; } catch (e) {}
+  if (!on || !('Notification' in window) || Notification.permission !== 'granted') return;
+  const times = [[9, 'm', 'Morning 3 ✦'], [15, 'a', 'Afternoon 6 ✦'], [21, 'n', 'Night 9 ✦']];
+  setInterval(() => {
+    const now = new Date();
+    for (const [h, k, label] of times) {
+      const flag = todayKey() + k;
+      let sent = false; try { sent = localStorage.getItem('v369_sent') === flag; } catch (e) {}
+      if (now.getHours() === h && !todayRitual()[k] && !sent) {
+        try { localStorage.setItem('v369_sent', flag); } catch (e) {}
+        const show = reg => reg ? reg.showNotification('Vitruvian 369', { body: label + ' Time to write your affirmation.', icon: 'icon.svg' })
+                                : new Notification('Vitruvian 369', { body: label + ' Time to write your affirmation.' });
+        navigator.serviceWorker && navigator.serviceWorker.getRegistration ? navigator.serviceWorker.getRegistration().then(show) : show();
+      }
+    }
+  }, 60000);
+}
+
+/* ---------------- Audio engine ---------------- */
+const TONES = [
+  { hz: 174, name: 'Grounding' }, { hz: 285, name: 'Restore' }, { hz: 396, name: 'Release fear' },
+  { hz: 417, name: 'Change' },    { hz: 528, name: 'Love · DNA' }, { hz: 639, name: 'Connection' },
+  { hz: 741, name: 'Clarity' },   { hz: 852, name: 'Intuition' },  { hz: 963, name: 'Crown' }
+];
+const audio = {
+  ctx: null, nodes: [], gain: null, panner: null, hz: null, panTimer: null, sleepTimer: null,
+  ensure() {
+    if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+  },
+  volume() { return ($('volume').value / 100) * 0.25; },
+  play(hz) {
+    this.ensure(); this.stop(true);
+    const c = this.ctx, t = c.currentTime;
+    this.gain = c.createGain();
+    this.gain.gain.setValueAtTime(0, t);
+    this.gain.gain.linearRampToValueAtTime(this.volume(), t + 1.2);
+    this.gain.connect(c.destination);
+    if ($('binaural').checked && c.createChannelMerger) {
+      const merger = c.createChannelMerger(2);
+      const l = c.createOscillator(), r = c.createOscillator();
+      l.frequency.value = hz; r.frequency.value = hz + 7.83;
+      l.connect(merger, 0, 0); r.connect(merger, 0, 1);
+      merger.connect(this.gain);
+      l.start(); r.start(); this.nodes = [l, r];
+    } else {
+      const o = c.createOscillator(); o.type = 'sine'; o.frequency.value = hz;
+      if (c.createStereoPanner) {
+        this.panner = c.createStereoPanner(); o.connect(this.panner).connect(this.gain);
+        this.panTimer = setInterval(() => { if (this.panner) this.panner.pan.setValueAtTime(Math.sin(Date.now() / 1618) * 0.6, c.currentTime); }, 40);
+      } else o.connect(this.gain);
+      o.start(); this.nodes = [o];
+    }
+    this.hz = hz;
+    this.armSleep();
+    onAudioChange();
+  },
+  stop(silent) {
+    clearInterval(this.panTimer); clearTimeout(this.sleepTimer);
+    if (this.ctx && this.gain) {
+      const g = this.gain, ns = this.nodes, t = this.ctx.currentTime;
+      g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(g.gain.value, t); g.gain.linearRampToValueAtTime(0, t + 0.4);
+      setTimeout(() => { ns.forEach(n => { try { n.stop(); } catch (e) {} }); try { g.disconnect(); } catch (e) {} }, 500);
+    }
+    this.nodes = []; this.gain = null; this.panner = null; this.hz = null;
+    $('timerNote').textContent = '';
+    if (!silent) onAudioChange();
+  },
+  armSleep() {
+    clearTimeout(this.sleepTimer);
+    const mins = +$('sleepTimer').value;
+    if (mins) {
+      this.sleepTimer = setTimeout(() => { this.stop(); toast('Sleep timer finished'); }, mins * 60000);
+      $('timerNote').textContent = 'Will stop in ' + mins + ' minutes.';
+    } else $('timerNote').textContent = '';
+  }
+};
+function toneAllowed(hz) { return state.pro || FREE_LIMITS.tones.includes(hz); }
+function renderTones() {
+  $('freqGrid').innerHTML = TONES.map(t => `
+    <button class="freq ${audio.hz === t.hz ? 'active' : ''} ${toneAllowed(t.hz) ? '' : 'lock'}" onclick="toggleTone(${t.hz})">
+      <b>${t.hz} Hz</b><span>${t.name}</span>
+    </button>`).join('');
+}
+function toggleTone(hz) {
+  if (!toneAllowed(hz)) { openPro(); return; }
+  if (audio.hz === hz) audio.stop(); else { audio.play(hz); buzz(hz % 9 === 0 ? 90 : 30); }
+}
+function onAudioChange() {
+  renderTones();
+  $('vortexLabel').innerHTML = audio.hz ? `${audio.hz}<small>HZ · TAP TO STOP</small>` : '369<small>TAP A TONE</small>';
+  if (audio.hz) startVortex();
+  $('ritualTone').checked = audio.hz === 528 && $('ritualTone').dataset.on === '1';
+}
+
+/* ---------------- Vortex animation ---------------- */
+let vortexRunning = false, spin = 0;
+function startVortex() { if (!vortexRunning) { vortexRunning = true; requestAnimationFrame(drawVortex); } }
+function drawVortex() {
+  const cv = $('vortexCanvas');
+  const dpr = window.devicePixelRatio || 1;
+  const w = cv.offsetWidth, h = cv.offsetHeight;
+  if (cv.width !== w * dpr) { cv.width = w * dpr; cv.height = h * dpr; }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  const cx = w / 2, cy = h / 2;
+  ctx.strokeStyle = '#2a2015'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(cx, cy, 90, 0, Math.PI * 2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, 90 / 1.618, 0, Math.PI * 2); ctx.stroke();
+  if (audio.hz) {
+    const node = [3, 6, 9][TONES.findIndex(t => t.hz === audio.hz) % 3];
+    ctx.strokeStyle = node === 9 ? 'rgba(255,120,120,0.8)' : 'rgba(223,183,108,0.85)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    let r = 3;
+    for (let i = 0; i < 220; i++) {
+      const a = i * (0.1 / 1.618) + spin;
+      const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      r += node * 0.045;
+    }
+    ctx.stroke();
+    spin += audio.hz / 35000;
+    requestAnimationFrame(drawVortex);
+  } else {
+    ctx.strokeStyle = '#2b2116';
+    ctx.beginPath(); ctx.moveTo(cx - 70, cy); ctx.lineTo(cx + 70, cy); ctx.moveTo(cx, cy - 70); ctx.lineTo(cx, cy + 70); ctx.stroke();
+    vortexRunning = false;
+  }
+}
+
+/* ---------------- Wins ---------------- */
+function renderGoalWins() {
+  $('goalWins').innerHTML = state.goals.length ? state.goals.map(g => `
+    <div class="win">
+      <button class="check ${g.done ? 'on' : ''}" onclick="toggleGoalDone('${g.id}')">${g.done ? '✓' : ''}</button>
+      <div class="t">${g.emoji} ${esc(g.text)}${g.done ? `<div class="d">Came true on ${new Date(g.doneAt).toLocaleDateString()}</div>` : ''}</div>
+    </div>`).join('') : '<p class="muted">Your goals will show here.</p>';
+}
+function toggleGoalDone(id) {
+  const g = state.goals.find(g => g.id === id); if (!g) return;
+  g.done = !g.done; g.doneAt = g.done ? Date.now() : null;
+  if (g.done) { buzz([80, 60, 160]); toast('It came true! 🎉'); }
+  saveState(); renderGoalWins();
+}
+function addWin() {
+  const i = $('winInput'); const t = i.value.trim(); if (!t) return;
+  state.wins.unshift({ id: uid(), text: t, at: Date.now() }); i.value = '';
+  saveState(); renderWins(); buzz(20);
+}
+function removeWin(id) { state.wins = state.wins.filter(w => w.id !== id); saveState(); renderWins(); }
+function renderWins() {
+  $('winList').innerHTML = state.wins.map(w => `
+    <div class="win"><div class="t">✦ ${esc(w.text)}<div class="d">${new Date(w.at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</div></div>
+    <button class="icon-btn" onclick="removeWin('${w.id}')">✕</button></div>`).join('');
+}
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'vitruvian369-backup.json'; a.click();
+}
+function resetAll() {
+  if (!confirm('Delete all your goals, boards and progress on this device?')) return;
+  const pro = state.pro; state = defaultState(); state.pro = pro; saveState(); boot();
+}
+
+/* ---------------- Pro ---------------- */
+function openPro() {
+  $('checkoutNote').textContent = PRO_CHECKOUT_URL ? 'Secure checkout by Stripe. Cancel any time.'
+    : 'Test mode: payments are not set up yet, so this unlocks Pro for free on this device.';
+  $('proModal').classList.add('open');
+}
+function closePro() { $('proModal').classList.remove('open'); }
+function startCheckout() {
+  if (PRO_CHECKOUT_URL) { window.location.href = PRO_CHECKOUT_URL; return; }
+  state.pro = true; saveState(); closePro(); applyPro(); toast('Pro unlocked (test mode) ✦');
+}
+function applyPro() {
+  $('proBadge').textContent = state.pro ? 'PRO ✦' : 'GO PRO';
+  $('proBadge').classList.toggle('on', state.pro);
+  renderThemes(); renderGoals(); renderTones(); drawPreview();
+}
+
+/* ---------------- Tabs and wiring ---------------- */
+document.querySelectorAll('nav.tabs button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('nav.tabs button').forEach(x => x.classList.toggle('active', x === b));
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + b.dataset.view));
+  window.scrollTo({ top: 0 });
+  if (b.dataset.view === 'sounds') drawVortex();
+  if (b.dataset.view === 'ritual') renderRitual();
+}));
+$('goalInput').addEventListener('keydown', e => { if (e.key === 'Enter') addGoal(); });
+$('winInput').addEventListener('keydown', e => { if (e.key === 'Enter') addWin(); });
+$('ritualInput').addEventListener('keydown', e => { if (e.key === 'Enter') submitLine(); });
+$('ritualInput').addEventListener('paste', e => { e.preventDefault(); toast('Type it out. Writing it is the magic ✦'); });
+$('boardTitle').addEventListener('input', e => { state.title = e.target.value || '2027 VISION'; saveState(); drawPreview(); });
+$('ritualTone').addEventListener('change', e => {
+  e.target.dataset.on = e.target.checked ? '1' : '0';
+  if (e.target.checked) audio.play(528); else if (audio.hz === 528) audio.stop();
+});
+$('volume').addEventListener('input', () => { if (audio.gain) audio.gain.gain.setTargetAtTime(audio.volume(), audio.ctx.currentTime, 0.1); });
+$('sleepTimer').addEventListener('change', () => { if (audio.hz) audio.armSleep(); });
+$('binaural').addEventListener('change', () => { if (audio.hz) audio.play(audio.hz); });
+
+// Coming back from a Stripe Payment Link: set its success URL to ...?pro=success
+if (new URLSearchParams(location.search).get('pro') === 'success') {
+  state.pro = true; saveState(); history.replaceState(null, '', location.pathname);
+  setTimeout(() => toast('Welcome to Pro ✦'), 400);
+}
+
+function boot() {
+  $('boardTitle').value = state.title;
+  renderGoals(); renderThemes(); renderGallery(); renderRitualOptions(); renderTones(); renderGoalWins(); renderWins();
+  applyPro(); drawVortex();
+}
+boot();
+scheduleReminders();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawPreview);
+
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
