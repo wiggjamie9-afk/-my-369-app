@@ -1,0 +1,9 @@
+{
+  "name": "vitruvian-369",
+  "private": true,
+  "type": "module",
+  "description": "Vitruvian 369 vision board app, Vortex 369 game and the AI affirmation endpoint",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0"
+  }
+}

@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0c0a0e">
+<meta name="description" content="Vortex 369: a calm merge puzzle. Match three orbs to rise from 3 to 6 to 9 to a star.">
+<title>Vortex 369</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+  :root {
+    --bg-main: #0c0a0e;
+    --panel-bg: #14121a;
+    --panel-2: #1b1822;
+    --accent-gold: #dfb76c;
+    --accent-purple: #7045af;
+    --text-light: #e6dfd5;
+    --text-muted: #8f8894;
+    --border-color: #2b2533;
+    --input-bg: #070609;
+    --cell: rgba(16,14,21,0.72);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: radial-gradient(900px 500px at 50% -150px, #221833 0%, var(--bg-main) 65%) fixed, var(--bg-main);
+    color: var(--text-light);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none; user-select: none;
+  }
+  .wrap { max-width: 460px; margin: 0 auto; padding: 14px 16px 30px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+  header a, .link { color: var(--text-muted); text-decoration: none; font-size: 0.75rem; letter-spacing: 1px; background: none; border: none; cursor: pointer; padding: 6px 0; }
+  header a:hover, .link:hover { color: var(--accent-gold); }
+  h1 { margin: 0; font-size: 1.15rem; font-weight: 300; letter-spacing: 5px; color: var(--accent-gold); text-align: center; }
+  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .mode { background: var(--panel-bg); border: 1px solid var(--border-color); color: var(--text-muted); border-radius: 10px; padding: 9px; font: inherit; font-size: 0.75rem; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; }
+  .mode.active { border-color: var(--accent-gold); color: var(--accent-gold); }
+  .hud { display: grid; grid-template-columns: 1fr 1fr 74px 74px; gap: 8px; margin-bottom: 12px; align-items: stretch; }
+  .box { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 8px 10px; text-align: center; }
+  .box .k { font-size: 0.58rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); }
+  .box .v { font-size: 1.35rem; font-weight: 300; color: var(--accent-gold); font-variant-numeric: tabular-nums; }
+  .slotbox { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: default; }
+  .slotbox.hold { cursor: pointer; }
+  .slotbox.hold:hover { border-color: var(--accent-gold); }
+  .slotbox .orb { width: 40px; height: 40px; font-size: 1rem; }
+  .slotbox .empty { width: 40px; height: 40px; border-radius: 50%; border: 1px dashed var(--border-color); }
+
+  .board-wrap { position: relative; }
+  .board {
+    position: relative; z-index: 1;
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px;
+    background: rgba(20,18,26,0.55); border: 1px solid var(--border-color); border-radius: 16px; padding: 8px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6), inset 0 0 30px rgba(0,0,0,0.6);
+  }
+  .bg-vortex { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.55; pointer-events: none; }
+  .cell {
+    aspect-ratio: 1; background: var(--cell); border: 1px solid #1e1a26; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; padding: 0;
+    transition: background .15s, border-color .15s;
+  }
+  .cell:hover, .cell:focus-visible { border-color: #4a3e5c; outline: none; }
+  .cell.preview { background: rgba(223,183,108,0.12); border-color: rgba(223,183,108,0.6); }
+  .cell.target { border-color: #ff8ab0; }
+  .orb {
+    width: 82%; height: 82%; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-family: Georgia, "Times New Roman", serif; font-size: clamp(0.9rem, 4.5vw, 1.35rem);
+    color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  }
+  .t1 { background: radial-gradient(circle at 32% 28%, #b994ff, #6a3fb0 55%, #2c1752); box-shadow: 0 0 10px rgba(140,90,230,0.45); }
+  .t2 { background: radial-gradient(circle at 32% 28%, #9ff2e0, #2e9c8e 55%, #0e3d3a); box-shadow: 0 0 12px rgba(70,200,180,0.45); }
+  .t3 { background: radial-gradient(circle at 32% 28%, #fff1c9, #dfb76c 50%, #7a5520); box-shadow: 0 0 16px rgba(223,183,108,0.65); color: #2a1c06; text-shadow: none; }
+  .t4 { background: radial-gradient(circle at 50% 45%, #ffffff, #ffe8b0 45%, #c58a2c 80%); box-shadow: 0 0 22px rgba(255,230,170,0.9); color: #6b4310; text-shadow: none; font-size: clamp(1.1rem, 5.5vw, 1.6rem); }
+  .tV { background: conic-gradient(from 0deg, #2c1752, #7045af, #dfb76c, #2e9c8e, #2c1752); box-shadow: 0 0 14px rgba(255,138,176,0.6); animation: spin 2.4s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .pop { animation: pop .35s ease-out; }
+  @keyframes pop { 0% { transform: scale(0.3); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
+  .burst { position: absolute; inset: -6px; border-radius: 50%; border: 2px solid var(--accent-gold); animation: burst .6s ease-out forwards; pointer-events: none; }
+  @keyframes burst { from { transform: scale(0.4); opacity: 1; } to { transform: scale(1.8); opacity: 0; } }
+  .floater { position: absolute; z-index: 5; color: var(--accent-gold); font-weight: 700; font-size: 1rem; pointer-events: none; animation: float 0.9s ease-out forwards; text-shadow: 0 0 8px rgba(0,0,0,0.9); white-space: nowrap; }
+  @keyframes float { from { transform: translate(-50%, 0); opacity: 1; } to { transform: translate(-50%, -46px); opacity: 0; } }
+
+  .ladder { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 14px 0 6px; font-size: 0.7rem; color: var(--text-muted); flex-wrap: wrap; }
+  .ladder .orb { width: 24px; height: 24px; font-size: 0.7rem; }
+  .ladder .arr { opacity: 0.6; }
+  .actions { display: flex; gap: 8px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+  .btn { background: var(--panel-2); color: var(--text-light); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 14px; font: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+  .btn:hover { border-color: var(--accent-gold); }
+  .btn.gold { background: var(--accent-gold); color: var(--bg-main); border-color: var(--accent-gold); }
+  .hint { text-align: center; font-size: 0.75rem; color: var(--text-muted); min-height: 1.2em; margin-top: 10px; }
+
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.78); display: none; align-items: center; justify-content: center; z-index: 50; padding: 16px; }
+  .modal.open { display: flex; }
+  .sheet { width: 100%; max-width: 400px; background: var(--panel-bg); border: 1px solid var(--accent-gold); border-radius: 18px; padding: 22px; text-align: center; max-height: 90vh; overflow-y: auto; }
+  .sheet h2 { margin: 0 0 6px; font-weight: 300; letter-spacing: 4px; color: var(--accent-gold); font-size: 1.1rem; }
+  .sheet .big { font-size: 2.6rem; font-weight: 200; color: var(--accent-gold); margin: 6px 0; }
+  .sheet p { color: var(--text-muted); font-size: 0.85rem; line-height: 1.55; }
+  .sheet .aff { font-family: Georgia, serif; font-style: italic; color: var(--text-light); font-size: 1rem; border: 1px dashed var(--border-color); border-radius: 10px; padding: 12px; margin: 14px 0; }
+  .rules { text-align: left; padding-left: 0; list-style: none; margin: 12px 0; }
+  .rules li { padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 0.86rem; line-height: 1.45; display: flex; gap: 10px; align-items: center; }
+  .rules .orb { width: 28px; height: 28px; font-size: 0.75rem; flex-shrink: 0; }
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: var(--accent-gold); color: var(--bg-main); padding: 9px 16px; border-radius: 999px; font-size: 0.82rem; font-weight: 600; opacity: 0; pointer-events: none; transition: all .3s; z-index: 60; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .shake { animation: shake .3s; }
+  @keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a href="index.html">← 369 app</a>
+    <h1>VORTEX 369</h1>
+    <button class="link" id="soundBtn" onclick="toggleSound()">🔊</button>
+  </header>
+
+  <div class="modes">
+    <button class="mode" data-mode="classic" onclick="switchMode('classic')">Endless</button>
+    <button class="mode" data-mode="daily" onclick="switchMode('daily')">Daily ✦ <span id="dailyTag"></span></button>
+  </div>
+
+  <div class="hud">
+    <div class="box"><div class="k">Score</div><div class="v" id="score">0</div></div>
+    <div class="box"><div class="k" id="bestLabel">Best</div><div class="v" id="best">0</div></div>
+    <div class="box slotbox"><div class="k">Next</div><div id="nextSlot"></div></div>
+    <div class="box slotbox hold" onclick="swapHold()" title="Tap to hold or swap"><div class="k">Hold</div><div id="holdSlot"></div></div>
+  </div>
+
+  <div class="board-wrap">
+    <canvas class="bg-vortex" id="bgVortex"></canvas>
+    <div class="board" id="board" role="grid" aria-label="Game board"></div>
+  </div>
+  <div class="hint" id="hint">Tap an empty square to place the orb.</div>
+
+  <div class="ladder" aria-hidden="true">
+    <div class="orb t1">3</div><span class="arr">→</span>
+    <div class="orb t2">6</div><span class="arr">→</span>
+    <div class="orb t3">9</div><span class="arr">→</span>
+    <div class="orb t4">✦</div><span class="arr">→</span><span>Supernova</span>
+  </div>
+
+  <div class="actions">
+    <button class="btn" onclick="openHelp()">How to play</button>
+    <button class="btn" onclick="confirmRestart()" id="restartBtn">New game</button>
+  </div>
+</div>
+
+<!-- HELP -->
+<div class="modal" id="helpModal" onclick="if(event.target===this)closeModal('helpModal')">
+  <div class="sheet">
+    <h2>HOW TO PLAY</h2>
+    <ul class="rules">
+      <li><div class="orb t1">3</div>Tap an empty square to place the next orb.</li>
+      <li><div class="orb t2">6</div>When 3 or more matching orbs touch (up, down, left or right), they merge into the next level where you placed the last one.</li>
+      <li><div class="orb t3">9</div>Merges can chain together for bonus points.</li>
+      <li><div class="orb t4">✦</div>Three stars together make a Supernova, which clears the squares around it.</li>
+      <li><div class="orb tV"></div>A vortex orb removes any one orb you tap.</li>
+      <li><span style="width:28px;text-align:center">⇄</span>Tap Hold to save an orb for later, or swap it back.</li>
+    </ul>
+    <p>The game ends when the board is full. Daily mode gives everyone the same orbs each day.</p>
+    <button class="btn gold" style="width:100%" onclick="closeModal('helpModal')">Let's play</button>
+  </div>
+</div>
+
+<!-- GAME OVER -->
+<div class="modal" id="overModal">
+  <div class="sheet">
+    <h2 id="overTitle">THE VORTEX IS FULL</h2>
+    <div class="big" id="overScore">0</div>
+    <p id="overNote"></p>
+    <div class="aff" id="overAff"></div>
+    <div class="actions">
+      <button class="btn" onclick="shareScore()">↗ Share</button>
+      <button class="btn gold" onclick="closeModal('overModal'); newGame()">Play again</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const N = 6;
+const VORTEX = 'V';
+const LABELS = { 1: '3', 2: '6', 3: '9', 4: '✦' };
+const POINTS = { 1: 3, 2: 6, 3: 9, 4: 369 };
+const TONES = { 1: 396, 2: 639, 3: 963, 4: 528 };
+const SAVE_KEY = 'v369_game_v1';
+const $ = id => document.getElementById(id);
+
+/* ---------- storage ---------- */
+function load(key, fallback) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
+function store(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
+
+let meta = load(SAVE_KEY + '_meta', { best: 0, dailyBest: {}, dailyDays: [], sound: true, seenHelp: false, mode: 'classic' });
+let game = null;
+
+/* ---------- seeded random ---------- */
+function todayKey(d = new Date()) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function hashStr(s) { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+function rand() {
+  // mulberry32 with state kept in the saved game, so a reload continues the same sequence
+  let t = (game.seed = (game.seed + 0x6D2B79F5) >>> 0);
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+function spawn() {
+  const r = rand();
+  const vortexChance = 0.055;
+  const sixChance = Math.min(0.28, 0.14 + game.turn * 0.0007);
+  if (r < vortexChance) return VORTEX;
+  if (r < vortexChance + sixChance) return 2;
+  return 1;
+}
+
+/* ---------- game state ---------- */
+function newGame(mode = meta.mode) {
+  meta.mode = mode;
+  const seed = mode === 'daily' ? hashStr('vortex369-' + todayKey()) : (Math.random() * 4294967296) >>> 0;
+  game = { mode, day: todayKey(), grid: Array(N * N).fill(0), score: 0, turn: 0, seed, next: 1, hold: null, over: false };
+  // A few starting orbs so the board isn't blank
+  for (let k = 0; k < 5; k++) {
+    let i; do { i = Math.floor(rand() * N * N); } while (game.grid[i]);
+    game.grid[i] = rand() < 0.8 ? 1 : 2;
+  }
+  // Make sure the starting layout has no ready-made merges
+  for (let i = 0; i < N * N; i++) if (game.grid[i] && group(i, game.grid[i]).length >= 3) game.grid[i] = 0;
+  game.next = spawn();
+  save(); render(); renderModes();
+  setHint(mode === 'daily' ? 'Daily puzzle: everyone gets the same orbs today.' : 'Tap an empty square to place the orb.');
+}
+function save() { store(SAVE_KEY, game); store(SAVE_KEY + '_meta', meta); }
+
+/* ---------- board logic ---------- */
+function neighbours(i) {
+  const r = Math.floor(i / N), c = i % N, out = [];
+  if (r > 0) out.push(i - N); if (r < N - 1) out.push(i + N);
+  if (c > 0) out.push(i - 1); if (c < N - 1) out.push(i + 1);
+  return out;
+}
+function ring(i) {
+  const r = Math.floor(i / N), c = i % N, out = [];
+  for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
+    if (!dr && !dc) continue;
+    const rr = r + dr, cc = c + dc;
+    if (rr >= 0 && rr < N && cc >= 0 && cc < N) out.push(rr * N + cc);
+  }
+  return out;
+}
+// Connected cells of value v that include i (i is treated as holding v)
+function group(i, v, grid = game.grid) {
+  const seen = new Set([i]), stack = [i];
+  while (stack.length) {
+    const cur = stack.pop();
+    for (const n of neighbours(cur)) if (!seen.has(n) && grid[n] === v) { seen.add(n); stack.push(n); }
+  }
+  return [...seen];
+}
+// Preview: which cells would merge if the next orb went on i
+function previewCells(i) {
+  if (game.next === VORTEX || game.grid[i]) return [];
+  const g = group(i, game.next);
+  return g.length >= 3 ? g : [];
+}
+
+function place(i) {
+  if (game.over) return;
+  const v = game.next;
+  if (v === VORTEX) {
+    if (!game.grid[i]) { setHint('Tap an orb to pull it into the vortex.'); shake(i); return; }
+    const removed = game.grid[i];
+    game.grid[i] = 0;
+    addScore(5 * removed, i);
+    play([174, 285], 0.08);
+    buzz(30);
+    advance([i]);
+    return;
+  }
+  if (game.grid[i]) { shake(i); return; }
+  game.grid[i] = v;
+  play([TONES[v] / 2], 0.06);
+  buzz(12);
+  const changed = resolve(i);
+  advance(changed);
+}
+
+function resolve(i) {
+  const changed = [i];
+  let chain = 0;
+  while (true) {
+    const v = game.grid[i];
+    if (!v) break;
+    const g = group(i, v);
+    if (g.length < 3) break;
+    chain++;
+    const mult = chain;
+    const pts = POINTS[v] * g.length * 10 * mult;
+    g.forEach(c => { game.grid[c] = 0; changed.push(c); });
+    if (v === 4) {
+      // Supernova: clear the ring around it too
+      const cleared = ring(i).filter(c => game.grid[c]);
+      cleared.forEach(c => { game.grid[c] = 0; changed.push(c); });
+      addScore(pts + cleared.length * 30, i, 'SUPERNOVA');
+      play([174, 528, 963, 1056], 0.12, 0.09);
+      buzz([60, 40, 60, 40, 160]);
+      toast('✦ SUPERNOVA ✦');
+      break;
+    }
+    game.grid[i] = v + 1;
+    addScore(pts, i, chain > 1 ? 'x' + chain + ' CHAIN' : null);
+    play(v + 1 === 4 ? [528, 660, 792] : [TONES[v + 1]], 0.1, 0.07);
+    buzz(chain > 1 ? [40, 30, 80] : 40);
+    burstAt.push(i);
+  }
+  return changed;
+}
+
+function advance(changed) {
+  game.turn++;
+  game.next = spawn();
+  save();
+  render(changed);
+  checkOver();
+}
+function swapHold() {
+  if (game.over) return;
+  if (game.hold === null) { game.hold = game.next; game.next = spawn(); }
+  else { [game.hold, game.next] = [game.next, game.hold]; }
+  play([432], 0.04);
+  save(); render(); checkOver();
+}
+function checkOver() {
+  const full = !game.grid.includes(0);
+  if (full && game.next !== VORTEX && game.hold !== VORTEX) endGame();
+  else if (full) setHint('Board full! Use the vortex to make space.');
+}
+function endGame() {
+  game.over = true;
+  let note = '';
+  if (game.mode === 'daily') {
+    const prev = meta.dailyBest[game.day] || 0;
+    if (game.score > prev) meta.dailyBest[game.day] = game.score;
+    if (!meta.dailyDays.includes(game.day)) meta.dailyDays.push(game.day);
+    note = `Today's best: ${meta.dailyBest[game.day]} · Daily streak: ${dailyStreak()} 🔥`;
+  } else {
+    if (game.score > meta.best) { meta.best = game.score; note = 'New best score! 🎉'; }
+    else note = `Best score: ${meta.best}`;
+  }
+  // Keep only 30 days of daily scores
+  const days = Object.keys(meta.dailyBest).sort();
+  while (days.length > 30) delete meta.dailyBest[days.shift()];
+  meta.dailyDays = meta.dailyDays.slice(-60);
+  save();
+  play([963, 852, 741, 528], 0.1, 0.18);
+  $('overScore').textContent = game.score.toLocaleString();
+  $('overNote').textContent = note;
+  $('overAff').textContent = pickAffirmation();
+  setTimeout(() => $('overModal').classList.add('open'), 600);
+  renderModes();
+}
+function dailyStreak() {
+  const set = new Set(meta.dailyDays);
+  let s = 0; const d = new Date();
+  if (!set.has(todayKey(d))) d.setDate(d.getDate() - 1);
+  while (set.has(todayKey(d))) { s++; d.setDate(d.getDate() - 1); }
+  return s;
+}
+function pickAffirmation() {
+  // Uses the player's own goals from the Vitruvian 369 app when they exist
+  const app = load('v369_state_v1', null);
+  const own = app && Array.isArray(app.goals) ? app.goals.map(g => g.aff).filter(Boolean) : [];
+  const general = [
+    'I am aligned with the energy of abundance.',
+    'Everything I need flows to me with ease.',
+    'I trust the timing of my life.',
+    'I am calm, focused and unstoppable.',
+    'My thoughts become my reality, and my thoughts are golden.',
+    'I welcome miracles into my life today.'
+  ];
+  const pool = own.length ? own : general;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+/* ---------- scoring effects ---------- */
+let burstAt = [];
+function addScore(pts, i, label) {
+  game.score += pts;
+  const cell = $('board').children[i];
+  if (!cell) return;
+  const f = document.createElement('div');
+  f.className = 'floater';
+  f.textContent = '+' + pts + (label ? ' ' + label : '');
+  const wrap = $('board').getBoundingClientRect(), r = cell.getBoundingClientRect();
+  f.style.left = (r.left - wrap.left + r.width / 2) + 'px';
+  f.style.top = (r.top - wrap.top) + 'px';
+  $('board').appendChild(f);
+  setTimeout(() => f.remove(), 950);
+}
+
+/* ---------- rendering ---------- */
+function orbHTML(v, cls = '') {
+  if (!v) return '';
+  if (v === VORTEX) return `<div class="orb tV ${cls}" aria-label="vortex"></div>`;
+  return `<div class="orb t${v} ${cls}">${LABELS[v]}</div>`;
+}
+function buildBoard() {
+  const b = $('board');
+  b.innerHTML = '';
+  for (let i = 0; i < N * N; i++) {
+    const c = document.createElement('button');
+    c.className = 'cell';
+    c.setAttribute('aria-label', 'square ' + (i + 1));
+    c.addEventListener('click', () => place(i));
+    c.addEventListener('mouseenter', () => showPreview(i));
+    c.addEventListener('mouseleave', clearPreview);
+    b.appendChild(c);
+  }
+}
+function render(changed = []) {
+  const cells = $('board').querySelectorAll('.cell');
+  game.grid.forEach((v, i) => {
+    const cell = cells[i];
+    const html = orbHTML(v, changed.includes(i) && v ? 'pop' : '');
+    if (cell.dataset.v !== String(v) || changed.includes(i)) { cell.innerHTML = html; cell.dataset.v = String(v); }
+    cell.setAttribute('aria-label', 'square ' + (i + 1) + (v ? ', orb ' + (v === VORTEX ? 'vortex' : LABELS[v]) : ', empty'));
+  });
+  burstAt.forEach(i => { const s = document.createElement('div'); s.className = 'burst'; cells[i].appendChild(s); setTimeout(() => s.remove(), 650); });
+  burstAt = [];
+  $('nextSlot').innerHTML = orbHTML(game.next);
+  $('holdSlot').innerHTML = game.hold === null ? '<div class="empty"></div>' : orbHTML(game.hold);
+  $('score').textContent = game.score.toLocaleString();
+  if (game.mode === 'daily') { $('bestLabel').textContent = "Today's best"; $('best').textContent = (meta.dailyBest[game.day] || 0).toLocaleString(); }
+  else { $('bestLabel').textContent = 'Best'; $('best').textContent = Math.max(meta.best, game.score).toLocaleString(); }
+  if (game.next === VORTEX) setHint('Vortex! Tap any orb to remove it.');
+}
+function showPreview(i) {
+  clearPreview();
+  const cells = $('board').querySelectorAll('.cell');
+  if (game.next === VORTEX) { if (game.grid[i]) cells[i].classList.add('target'); return; }
+  previewCells(i).forEach(c => cells[c].classList.add('preview'));
+}
+function clearPreview() { $('board').querySelectorAll('.preview, .target').forEach(c => c.classList.remove('preview', 'target')); }
+function renderModes() {
+  document.querySelectorAll('.mode').forEach(m => m.classList.toggle('active', m.dataset.mode === meta.mode));
+  const played = meta.dailyBest[todayKey()];
+  $('dailyTag').textContent = played ? '· ' + played.toLocaleString() : '· new';
+}
+function setHint(t) { $('hint').textContent = t; }
+function shake(i) { const c = $('board').children[i]; c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); buzz([20, 30, 20]); }
+let toastTimer;
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 1800); }
+function buzz(p) { if (navigator.vibrate) navigator.vibrate(p); }
+
+/* ---------- modes and modals ---------- */
+function switchMode(mode) {
+  if (mode === meta.mode && !game.over) return;
+  if (mode === 'daily' && game.mode !== 'daily') {
+    const saved = load(SAVE_KEY + '_daily', null);
+    if (saved && saved.day === todayKey() && !saved.over) { stash(); game = saved; meta.mode = 'daily'; save(); render(); renderModes(); return; }
+  }
+  if (mode === 'classic' && game.mode !== 'classic') {
+    const saved = load(SAVE_KEY + '_classic', null);
+    if (saved && !saved.over) { stash(); game = saved; meta.mode = 'classic'; save(); render(); renderModes(); setHint('Welcome back to your endless game.'); return; }
+  }
+  stash();
+  newGame(mode);
+}
+// Keep the other mode's game so switching back resumes it
+function stash() { if (game) store(SAVE_KEY + '_' + game.mode, game); }
+function confirmRestart() {
+  if (game.turn > 3 && !game.over && !confirm('Start a new game? This one will be lost.')) return;
+  if (game.mode === 'daily' && !game.over) {
+    // Restarting the daily counts the current score first
+    const prev = meta.dailyBest[game.day] || 0;
+    if (game.score > prev) meta.dailyBest[game.day] = game.score;
+  }
+  newGame(game.mode);
+}
+function openHelp() { $('helpModal').classList.add('open'); }
+function closeModal(id) { $(id).classList.remove('open'); if (id === 'helpModal') { meta.seenHelp = true; save(); } }
+async function shareScore() {
+  const text = `I scored ${game.score.toLocaleString()} in Vortex 369${game.mode === 'daily' ? " (today's daily puzzle)" : ''} ✦ 3 · 6 · 9`;
+  if (navigator.share) { try { await navigator.share({ text }); } catch (e) {} }
+  else { try { await navigator.clipboard.writeText(text); toast('Copied, paste it anywhere'); } catch (e) { toast(text); } }
+}
+
+/* ---------- sound ---------- */
+let actx = null;
+function play(freqs, vol = 0.08, gap = 0) {
+  if (!meta.sound) return;
+  try {
+    if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+    freqs.forEach((f, k) => {
+      const t = actx.currentTime + k * gap;
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(vol, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
+      o.connect(g).connect(actx.destination);
+      o.start(t); o.stop(t + 1);
+    });
+  } catch (e) {}
+}
+function toggleSound() { meta.sound = !meta.sound; save(); $('soundBtn').textContent = meta.sound ? '🔊' : '🔇'; if (meta.sound) play([528], 0.06); }
+
+/* ---------- background vortex ---------- */
+let spin = 0;
+function drawBg() {
+  const cv = $('bgVortex'), dpr = window.devicePixelRatio || 1;
+  const w = cv.offsetWidth, h = cv.offsetHeight;
+  if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.46;
+  ctx.strokeStyle = 'rgba(112,69,175,0.35)'; ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  let r = 2;
+  for (let i = 0; i < 300; i++) {
+    const a = i * (0.1 / 1.618) * 1.6 + spin;
+    const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    r += R / 300;
+  }
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(223,183,108,0.18)';
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
+  spin += 0.0025;
+  requestAnimationFrame(drawBg);
+}
+
+/* ---------- boot ---------- */
+buildBoard();
+const saved = load(SAVE_KEY, null);
+if (saved && saved.grid && saved.grid.length === N * N && !saved.over && !(saved.mode === 'daily' && saved.day !== todayKey())) {
+  game = saved; meta.mode = saved.mode; render(); renderModes();
+  setHint('Welcome back. Your game is just as you left it.');
+} else {
+  newGame(meta.mode === 'daily' ? 'daily' : 'classic');
+}
+$('soundBtn').textContent = meta.sound ? '🔊' : '🔇';
+if (!meta.seenHelp) openHelp();
+drawBg();
+document.addEventListener('keydown', e => { if (e.key === 'h') swapHold(); });
+</script>
+</body>
+</html>

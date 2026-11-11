@@ -77,6 +77,10 @@
   .goal-top .text { flex: 1; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-size: 0.85rem; overflow-wrap: anywhere; }
   .goal .aff { margin-top: 8px; font-style: italic; color: #d9cfc2; font-size: 0.88rem; line-height: 1.45; width: 100%; background: transparent; border: 1px dashed transparent; border-radius: 8px; padding: 6px; resize: none; min-height: 0; }
   .goal .aff:focus { border-color: var(--border-color); }
+  .goal .aff.thinking { opacity: 0.5; animation: breathe 1.2s ease-in-out infinite; }
+  @keyframes breathe { 50% { opacity: 0.25; } }
+  .game-link { position: absolute; left: 0; top: 0; font-size: 0.65rem; letter-spacing: 1.5px; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--border-color); color: var(--text-muted); text-decoration: none; }
+  .game-link:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
   .icon-btn { background: none; border: none; color: var(--text-muted); font-size: 1rem; padding: 4px 6px; }
   .icon-btn:hover { color: var(--accent-gold); }
 
@@ -158,6 +162,7 @@
   <header>
     <h1>VITRUVIAN 369</h1>
     <div class="subtitle">Vision board · 3-6-9 ritual · healing tones</div>
+    <a class="game-link" href="game.html">🎮 PLAY VORTEX</a>
     <button class="pro-badge" id="proBadge" onclick="openPro()">GO PRO</button>
   </header>
 
@@ -331,6 +336,11 @@
    ============================================================ */
 const PRO_CHECKOUT_URL = '';
 
+/* Optional: the address of the AI affirmation endpoint (api/affirm.js), for
+   example 'https://your-app.vercel.app/api/affirm'. When empty, the app uses
+   its built-in affirmation writer. */
+const AI_ENDPOINT = '';
+
 const FREE_LIMITS = { boards: 1, goals: 6, tones: [174, 528, 963] };
 const PRO_GOALS = 9;
 
@@ -437,17 +447,46 @@ function addGoal() {
     return;
   }
   const cat = categorize(text);
-  state.goals.push({ id: uid(), text, aff: writeAffirmation(text), emoji: cat.emoji, done: false, doneAt: null });
+  const goal = { id: uid(), text, aff: writeAffirmation(text), emoji: cat.emoji, done: false, doneAt: null };
+  state.goals.push(goal);
   input.value = '';
   saveState(); renderGoals(); drawPreview(); renderRitualOptions(); renderGoalWins();
   buzz(20);
+  aiAffirmation(goal);
+}
+
+// Ask the AI endpoint for a personal affirmation; keep the built-in one if it fails.
+async function aiAffirmation(goal) {
+  if (!AI_ENDPOINT) return false;
+  const box = document.querySelector(`[data-goal="${goal.id}"] .aff`);
+  if (box) box.classList.add('thinking');
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 15000);
+    const res = await fetch(AI_ENDPOINT, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ goal: goal.text }), signal: ctrl.signal
+    });
+    clearTimeout(timer);
+    const data = await res.json();
+    if (!res.ok || !data.affirmation) throw new Error(data.error || 'failed');
+    const g = state.goals.find(x => x.id === goal.id);
+    if (!g) return true;
+    g.aff = data.affirmation;
+    saveState(); renderGoals(); drawPreview(); renderRitual();
+    return true;
+  } catch (e) {
+    if (box) box.classList.remove('thinking');
+    return false;
+  }
 }
 function removeGoal(id) {
   state.goals = state.goals.filter(g => g.id !== id);
   saveState(); renderGoals(); drawPreview(); renderRitualOptions(); renderGoalWins();
 }
-function rewriteGoal(id) {
+async function rewriteGoal(id) {
   const g = state.goals.find(g => g.id === id); if (!g) return;
+  if (AI_ENDPOINT && await aiAffirmation(g)) { toast('New affirmation ✦'); return; }
   const cat = categorize(g.text);
   const idx = (cat.extra.indexOf(g.aff.split('. ').slice(-1)[0]) + 1) % cat.extra.length;
   g.aff = writeAffirmation(g.text).replace(/[^.]*\.$/, ' ' + cat.extra[idx]).replace(/\s+/g, ' ').trim();
@@ -461,7 +500,7 @@ function updateAff(id, val) {
 function renderGoals() {
   const list = $('goalList');
   list.innerHTML = state.goals.map(g => `
-    <div class="goal">
+    <div class="goal" data-goal="${g.id}">
       <div class="goal-top">
         <span class="emoji">${g.emoji}</span>
         <span class="text">${esc(g.text)}</span>

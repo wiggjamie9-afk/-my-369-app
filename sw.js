@@ -1,6 +1,6 @@
 // Offline cache so the app works without signal once it is installed.
-const CACHE = 'v369-v1';
-const FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
+const CACHE = 'v369-v2';
+const FILES = ['./', './index.html', './game.html', './manifest.webmanifest', './icon.svg'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
