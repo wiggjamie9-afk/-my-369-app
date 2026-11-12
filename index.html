@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#070B14">
+<title>AI9 Organism Console</title>
+<style>
+  :root {
+    --bg: #070B14;
+    --ink: #DCE6F7;
+    --dim: #6F7FA0;
+    --faint: #3A4763;
+    --blue: 46, 124, 246;      /* #2E7CF6 */
+    --ok: 53, 214, 138;
+    --busy: 245, 176, 65;
+    --down: 240, 80, 110;
+    --rest: 96, 112, 148;
+    --line: rgba(var(--blue), .16);
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(900px 520px at 50% -120px, rgba(var(--blue), .13), transparent 70%),
+      var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  main {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 40px 20px 72px;
+  }
+
+  /* state colour plumbing: anything with data-state gets --c */
+  [data-state]          { --c: var(--rest); }
+  [data-state="ok"]     { --c: var(--ok); }
+  [data-state="busy"]   { --c: var(--busy); }
+  [data-state="down"]   { --c: var(--down); }
+
+  /* ---------- header ---------- */
+  header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 14px;
+    padding-bottom: 44px;
+  }
+
+  .clover {
+    width: 148px;
+    height: 160px;
+    overflow: visible;
+  }
+  .clover .body {
+    transform-origin: 0 0;
+    animation: pulse 4.2s ease-in-out infinite;
+  }
+  .clover .halo {
+    fill: rgba(var(--blue), .10);
+    animation: halo 4.2s ease-in-out infinite;
+  }
+  .clover .leaf,
+  .clover .core {
+    fill: rgba(var(--c), .14);
+    stroke: rgba(var(--c), .95);
+    stroke-width: 1.1;
+    stroke-linejoin: round;
+    transition: fill .9s ease, stroke .9s ease;
+    filter: drop-shadow(0 0 5px rgba(var(--c), .45));
+  }
+  .clover .core { fill: rgba(var(--c), .30); }
+  .clover .vein,
+  .clover .stem {
+    fill: none;
+    stroke: rgba(var(--blue), .55);
+    stroke-width: .8;
+    stroke-linecap: round;
+  }
+  .clover .stem { stroke-width: 1.2; }
+
+  h1 {
+    margin: 6px 0 0;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: .42em;
+    margin-right: -.42em; /* optically re-centre tracked text */
+  }
+
+  .stamp {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .06em;
+    color: var(--dim);
+    min-height: 18px;
+  }
+  .stamp .beat {
+    display: inline-block;
+    width: 6px; height: 6px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: rgb(var(--blue));
+    box-shadow: 0 0 8px rgba(var(--blue), .9);
+    vertical-align: 1px;
+    animation: beat 2.1s ease-in-out infinite;
+  }
+
+  /* ---------- sections ---------- */
+  section { margin-top: 56px; }
+  section:first-of-type { margin-top: 0; }
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 0 0 22px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    color: rgb(var(--blue));
+  }
+  h2::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--line), transparent);
+  }
+
+  .quiet {
+    margin: 0;
+    padding: 26px 0;
+    color: var(--dim);
+    font-size: 13px;
+    letter-spacing: .04em;
+  }
+
+  /* ---------- organs ---------- */
+  .organs {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  /* the nerve that threads the organs together */
+  .organs::before {
+    content: "";
+    position: absolute;
+    left: 27px; top: 10px; bottom: 10px;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, rgba(var(--blue), .35), transparent);
+  }
+
+  .organ {
+    position: relative;
+    padding: 18px 18px 18px 22px;
+    border: 1px solid rgba(var(--c), .34);
+    border-radius: 14px;
+    background:
+      linear-gradient(180deg, rgba(var(--c), .07), rgba(var(--c), .015)),
+      var(--bg);
+    box-shadow: 0 0 22px -6px rgba(var(--c), .45), inset 0 0 18px -12px rgba(var(--c), .7);
+    transition: border-color .9s ease, box-shadow .9s ease, background .9s ease;
+    animation: breathe 5s ease-in-out infinite;
+  }
+  .organ:nth-child(2) { animation-delay: -1s; }
+  .organ:nth-child(3) { animation-delay: -2s; }
+  .organ:nth-child(4) { animation-delay: -3s; }
+  .organ:nth-child(5) { animation-delay: -4s; }
+
+  .organ .key {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .26em;
+    color: var(--dim);
+  }
+  .organ .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: rgb(var(--c));
+    box-shadow: 0 0 10px 1px rgba(var(--c), .85);
+    animation: beat 2.6s ease-in-out infinite;
+    transition: background .9s ease;
+  }
+  .organ .label {
+    margin-top: 10px;
+    font-size: 19px;
+    font-weight: 400;
+    letter-spacing: .02em;
+  }
+  .organ .state {
+    margin-top: 2px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: rgb(var(--c));
+    transition: color .9s ease;
+  }
+  .organ .note {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--dim);
+    overflow-wrap: anywhere;
+    min-height: 1.5em;
+  }
+
+  /* ---------- scoreboard ---------- */
+  .model { padding: 16px 0; border-bottom: 1px solid rgba(var(--blue), .09); }
+  .model:last-child { border-bottom: 0; }
+  .model .row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .model .name { font-size: 15px; overflow-wrap: anywhere; }
+  .model .score {
+    font-family: var(--mono);
+    font-size: 14px;
+    white-space: nowrap;
+  }
+  .model .score small { font-size: 12px; color: var(--dim); }
+  .model .track {
+    position: relative;
+    height: 4px;
+    margin: 12px 0 9px;
+    border-radius: 4px;
+    background: rgba(var(--blue), .12);
+  }
+  .model .fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0;
+    border-radius: 4px;
+    background: linear-gradient(90deg, rgba(var(--blue), .55), rgb(var(--blue)));
+    box-shadow: 0 0 12px rgba(var(--blue), .7);
+    transition: width 1.4s cubic-bezier(.2, .7, .2, 1);
+  }
+  .model .fill::after { /* the bright cell at the growing tip */
+    content: "";
+    position: absolute;
+    right: -3px; top: -2px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #BFD8FF;
+    box-shadow: 0 0 10px 2px rgba(var(--blue), .9);
+    animation: beat 2.6s ease-in-out infinite;
+  }
+  .model .meta {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--dim);
+  }
+
+  /* ---------- run log ---------- */
+  .logwrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th {
+    padding: 0 12px 12px 0;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  td {
+    padding: 13px 12px 13px 0;
+    border-top: 1px solid rgba(var(--blue), .09);
+    vertical-align: baseline;
+  }
+  th:last-child, td:last-child { padding-right: 0; text-align: right; }
+  td.task, td.secs { font-family: var(--mono); white-space: nowrap; }
+  td.model-name { color: var(--dim); overflow-wrap: anywhere; }
+  td.secs { color: var(--dim); }
+  .status {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .14em;
+    color: var(--dim);
+    white-space: nowrap;
+  }
+  .status::before {
+    content: "";
+    display: inline-block;
+    width: 5px; height: 5px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 8px currentColor;
+    vertical-align: 2px;
+  }
+  .status.pass { color: rgb(var(--ok)); }
+  .status.fail { color: rgb(var(--down)); }
+  tbody tr { animation: surface .7s ease both; }
+
+  footer {
+    margin-top: 72px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .14em;
+    color: var(--faint);
+  }
+
+  /* ---------- sleeping ---------- */
+  body.sleeping .clover .body { animation-duration: 9s; }
+  body.sleeping .clover .halo { animation-duration: 9s; }
+  body.sleeping .clover .vein,
+  body.sleeping .clover .stem { stroke: rgba(var(--rest), .5); }
+  body.sleeping .stamp .beat {
+    background: rgb(var(--rest));
+    box-shadow: 0 0 8px rgba(var(--rest), .8);
+    animation-duration: 6s;
+  }
+  body.sleeping .organ { animation-duration: 9s; }
+  body.sleeping .organ .dot { animation-duration: 6s; }
+  body.sleeping h2 { color: rgba(var(--blue), .55); }
+
+  /* ---------- wider screens ---------- */
+  @media (min-width: 820px) {
+    main { padding: 64px 32px 96px; }
+    header { padding-bottom: 60px; }
+    .clover { width: 176px; height: 190px; }
+    h1 { font-size: 26px; }
+    section { margin-top: 72px; }
+    .organs { grid-template-columns: repeat(5, 1fr); gap: 16px; }
+    .organs::before {
+      left: 10px; right: 10px; top: 28px; bottom: auto;
+      width: auto; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(var(--blue), .35), transparent);
+    }
+    .organ { padding: 20px 18px 22px; }
+  }
+
+  /* ---------- motion ---------- */
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.035); }
+  }
+  @keyframes halo {
+    0%, 100% { opacity: .35; transform: scale(.94); }
+    50%      { opacity: 1;   transform: scale(1.06); }
+  }
+  @keyframes beat {
+    0%, 100% { opacity: .45; }
+    50%      { opacity: 1; }
+  }
+  @keyframes breathe {
+    0%, 100% { box-shadow: 0 0 18px -8px rgba(var(--c), .40), inset 0 0 18px -12px rgba(var(--c), .7); }
+    50%      { box-shadow: 0 0 28px -4px rgba(var(--c), .55), inset 0 0 18px -10px rgba(var(--c), .8); }
+  }
+  @keyframes surface {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body class="sleeping">
+<main>
+
+  <header>
+    <!-- Four leaves + a centre: SENSE top, DECIDE right, VERIFY bottom, LEARN left, MODEL at the heart -->
+    <svg class="clover" viewBox="-60 -60 120 130" role="img" aria-label="AI9 organism clover">
+      <circle class="halo" r="56" style="transform-origin:0 0"/>
+      <g class="body">
+        <path class="stem" d="M0,39 C 2,50 0,58 -9,66"/>
+        <g data-organ="sense"  data-state="rest"><path class="leaf" d="M0,-7 C-14,-20 -27,-33 -15,-44 C-8,-50 0,-45 0,-38 C0,-45 8,-50 15,-44 C27,-33 14,-20 0,-7Z"/><path class="vein" d="M0,-12 V-34"/></g>
+        <g data-organ="decide" data-state="rest" transform="rotate(90)"><path class="leaf" d="M0,-7 C-14,-20 -27,-33 -15,-44 C-8,-50 0,-45 0,-38 C0,-45 8,-50 15,-44 C27,-33 14,-20 0,-7Z"/><path class="vein" d="M0,-12 V-34"/></g>
+        <g data-organ="verify" data-state="rest" transform="rotate(180)"><path class="leaf" d="M0,-7 C-14,-20 -27,-33 -15,-44 C-8,-50 0,-45 0,-38 C0,-45 8,-50 15,-44 C27,-33 14,-20 0,-7Z"/><path class="vein" d="M0,-12 V-34"/></g>
+        <g data-organ="learn"  data-state="rest" transform="rotate(270)"><path class="leaf" d="M0,-7 C-14,-20 -27,-33 -15,-44 C-8,-50 0,-45 0,-38 C0,-45 8,-50 15,-44 C27,-33 14,-20 0,-7Z"/><path class="vein" d="M0,-12 V-34"/></g>
+        <g data-organ="model"  data-state="rest"><path class="core" d="M0,-8 C5,-8 8,-5 8,0 C8,5 5,8 0,8 C-5,8 -8,5 -8,0 C-8,-5 -5,-8 0,-8Z"/></g>
+      </g>
+    </svg>
+    <h1>AI9 ORGANISM</h1>
+    <p class="stamp" id="stamp" aria-live="polite"><span class="beat"></span><span id="stampText">organism sleeping</span></p>
+  </header>
+
+  <section aria-labelledby="h-organs">
+    <h2 id="h-organs">Organs</h2>
+    <div class="organs" id="organs"></div>
+  </section>
+
+  <section aria-labelledby="h-models">
+    <h2 id="h-models">Model scoreboard</h2>
+    <div id="models"></div>
+  </section>
+
+  <section aria-labelledby="h-runs">
+    <h2 id="h-runs">Run log</h2>
+    <div id="runs"></div>
+  </section>
+
+  <footer id="foot">reads ./status.json · no keys · no servers</footer>
+
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var SOURCE = "./status.json";
+  var REFRESH_MS = 30000;
+
+  // Fixed anatomy. status.json supplies state, note and (optionally) label.
+  var ORGANS = [
+    { id: "sense",  key: "SENSE",  label: "Research" },
+    { id: "model",  key: "MODEL",  label: "Cortex"   },
+    { id: "decide", key: "DECIDE", label: "Kernel"   },
+    { id: "verify", key: "VERIFY", label: "Immune"   },
+    { id: "learn",  key: "LEARN",  label: "Memory"   }
+  ];
+  var STATE_WORD = { ok: "ok", busy: "busy", down: "down", rest: "resting" };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var updatedAt = null;   // Date of last good "updated" value
+  var updatedRaw = "";
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined && text !== null) n.textContent = String(text);
+    return n;
+  }
+
+  function num(v) {
+    var n = typeof v === "number" ? v : parseFloat(v);
+    return isFinite(n) ? n : null;
+  }
+
+  function secs(v) {
+    var n = num(v);
+    return n === null ? "–" : n.toFixed(1) + "s";
+  }
+
+  // ----- organs -----
+  var cards = {};
+  ORGANS.forEach(function (o) {
+    var card = el("article", "organ");
+    card.dataset.state = "rest";
+    var key = el("div", "key");
+    key.appendChild(el("span", "", o.key));
+    key.appendChild(el("span", "dot"));
+    var label = el("div", "label", o.label);
+    var state = el("div", "state", STATE_WORD.rest);
+    var note = el("div", "note", "");
+    card.appendChild(key);
+    card.appendChild(label);
+    card.appendChild(state);
+    card.appendChild(note);
+    $("organs").appendChild(card);
+    cards[o.id] = { card: card, label: label, state: state, note: note,
+                    leaf: document.querySelector('[data-organ="' + o.id + '"]') };
+  });
+
+  function paintOrgans(list) {
+    var byId = {};
+    (Array.isArray(list) ? list : []).forEach(function (o) {
+      if (o && o.id != null) byId[String(o.id).toLowerCase()] = o;
+    });
+    ORGANS.forEach(function (def) {
+      var data = byId[def.id];
+      var c = cards[def.id];
+      var s = data && typeof data.state === "string" ? data.state.toLowerCase() : "rest";
+      if (!STATE_WORD[s]) s = "rest";
+      c.card.dataset.state = s;
+      c.leaf.dataset.state = s;
+      c.label.textContent = (data && data.label) ? data.label : def.label;
+      c.state.textContent = STATE_WORD[s];
+      c.note.textContent = (data && data.note) ? data.note : "";
+    });
+  }
+
+  // ----- models -----
+  function paintModels(list) {
+    var box = $("models");
+    box.textContent = "";
+    if (!Array.isArray(list) || !list.length) {
+      box.appendChild(el("p", "quiet", "No scores yet."));
+      return;
+    }
+    var fills = [];
+    list.forEach(function (m) {
+      if (!m) return;
+      var pass = num(m.pass), total = num(m.total);
+      var ratio = (pass !== null && total) ? Math.max(0, Math.min(1, pass / total)) : 0;
+
+      var wrap = el("div", "model");
+      var row = el("div", "row");
+      row.appendChild(el("span", "name", m.name || "unnamed model"));
+      var score = el("span", "score");
+      score.appendChild(document.createTextNode(pass === null ? "–" : pass));
+      score.appendChild(el("small", "", " / " + (total === null ? "–" : total)));
+      row.appendChild(score);
+
+      var track = el("div", "track");
+      track.setAttribute("role", "img");
+      track.setAttribute("aria-label", (pass === null ? "?" : pass) + " of " + (total === null ? "?" : total) + " passed");
+      var fill = el("div", "fill");
+      track.appendChild(fill);
+      fills.push([fill, ratio]);
+
+      var meta = el("div", "meta");
+      meta.appendChild(el("span", "", total ? Math.round(ratio * 100) + "% pass" : "no tasks"));
+      meta.appendChild(el("span", "", "avg " + secs(m.avg_sec) + " / task"));
+
+      wrap.appendChild(row);
+      wrap.appendChild(track);
+      wrap.appendChild(meta);
+      box.appendChild(wrap);
+    });
+    // let the bars grow in after layout
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        fills.forEach(function (f) { f[0].style.width = (f[1] * 100) + "%"; });
+      });
+    });
+  }
+
+  // ----- runs -----
+  function paintRuns(list) {
+    var box = $("runs");
+    box.textContent = "";
+    if (!Array.isArray(list) || !list.length) {
+      box.appendChild(el("p", "quiet", "No runs recorded yet."));
+      return;
+    }
+    var wrap = el("div", "logwrap");
+    var table = el("table");
+    var head = el("tr");
+    ["Task", "Model", "Status", "Time"].forEach(function (h) { head.appendChild(el("th", "", h)); });
+    var thead = el("thead"); thead.appendChild(head); table.appendChild(thead);
+    var body = el("tbody");
+
+    // status.json is appended to in run order, so the last entry is the newest.
+    list.slice().reverse().forEach(function (r, i) {
+      if (!r) return;
+      var tr = el("tr");
+      tr.style.animationDelay = Math.min(i, 12) * 40 + "ms";
+      tr.appendChild(el("td", "task", r.task || "–"));
+      tr.appendChild(el("td", "model-name", r.model || "–"));
+      var st = String(r.status || "–").toUpperCase();
+      var td = el("td");
+      td.appendChild(el("span", "status" + (st === "PASS" ? " pass" : st === "FAIL" ? " fail" : ""), st));
+      tr.appendChild(td);
+      tr.appendChild(el("td", "secs", secs(r.secs)));
+      body.appendChild(tr);
+    });
+    table.appendChild(body);
+    wrap.appendChild(table);
+    box.appendChild(wrap);
+  }
+
+  // ----- timestamp -----
+  function ago(d) {
+    var s = Math.round((Date.now() - d.getTime()) / 1000);
+    if (s < 0) return "";
+    if (s < 60) return "just now";
+    var m = Math.round(s / 60);
+    if (m < 60) return m + " min ago";
+    var h = Math.round(m / 60);
+    if (h < 48) return h + " h ago";
+    return Math.round(h / 24) + " d ago";
+  }
+
+  function paintStamp() {
+    if (document.body.classList.contains("sleeping")) {
+      $("stampText").textContent = "organism sleeping";
+      return;
+    }
+    if (updatedAt) {
+      var when = updatedAt.toLocaleString(undefined, {
+        day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit"
+      });
+      var rel = ago(updatedAt);
+      $("stampText").textContent = "updated " + when + (rel ? " · " + rel : "");
+      $("stamp").title = updatedRaw;
+    } else {
+      $("stampText").textContent = updatedRaw ? "updated " + updatedRaw : "awake";
+    }
+  }
+
+  // ----- modes -----
+  function wake(data) {
+    document.body.classList.remove("sleeping");
+    updatedRaw = data.updated ? String(data.updated) : "";
+    var d = updatedRaw ? new Date(updatedRaw) : null;
+    updatedAt = d && !isNaN(d.getTime()) ? d : null;
+    paintStamp();
+    paintOrgans(data.organs);
+    paintModels(data.models);
+    paintRuns(data.runs);
+  }
+
+  function sleep() {
+    document.body.classList.add("sleeping");
+    updatedAt = null; updatedRaw = "";
+    paintStamp();
+    paintOrgans([]);
+    $("models").textContent = "";
+    $("models").appendChild(el("p", "quiet", "Resting. Scores will surface when the organism wakes."));
+    $("runs").textContent = "";
+    $("runs").appendChild(el("p", "quiet", "Quiet. No runs to show while sleeping."));
+  }
+
+  var lastText = null;
+  function refresh() {
+    fetch(SOURCE, { cache: "no-store" })
+      .then(function (res) {
+        if (!res.ok) throw new Error("no status");
+        return res.text();
+      })
+      .then(function (text) {
+        if (text === lastText) { paintStamp(); return; }   // nothing changed: don't re-animate
+        var data = JSON.parse(text);
+        if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("bad status");
+        lastText = text;
+        wake(data);
+      })
+      .catch(function () {
+        lastText = null;
+        sleep();
+      });
+  }
+
+  sleep();
+  refresh();
+  setInterval(refresh, REFRESH_MS);
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) refresh();
+  });
+})();
+</script>
+</body>
+</html>
