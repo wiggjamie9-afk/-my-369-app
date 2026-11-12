@@ -8,6 +8,13 @@ Standard library only. No network calls, no keys. Python 3.8+.
     python3 organism.py beat sense ok "3 feeds scanned" --ttl 3600
     python3 organism.py build                      rebuild status.json from the archive
     python3 organism.py serve                      rebuild on every read, serve the console locally
+    python3 organism.py connect [FOLDER ...]       watch folders for results, ingest them, serve the console
+    python3 organism.py connect ~/harness/out --lan   same, and reachable from a phone on the same network
+
+"connect" is the one command that joins everything up: point it at the folder
+the harness writes its results into (default: a "results" folder beside this
+script) and leave it running. New or changed results files are archived within
+a few seconds and the console updates by itself.
 
 Results files may be JSON (a list of runs, or an object holding one), JSON
 Lines, or CSV. Field names are matched loosely: task/id/name, model,
@@ -25,8 +32,11 @@ import hashlib
 import io
 import json
 import os
+import socket
 import sys
 import tempfile
+import threading
+import time
 from datetime import datetime, timezone
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
@@ -48,6 +58,7 @@ TIME_KEYS = ("at", "timestamp", "ts", "finished", "finished_at", "completed",
              "started", "started_at", "date", "datetime", "time")
 REASON_KEYS = ("reason", "error", "message", "detail", "failure")
 LIST_KEYS = ("runs", "results", "tasks", "records", "items", "data")
+RESULT_EXTS = (".json", ".jsonl", ".ndjson", ".csv", ".tsv")
 
 PASS_WORDS = {"pass", "passed", "ok", "success", "succeeded", "true", "1", "correct", "yes", "y"}
 FAIL_WORDS = {"fail", "failed", "failure", "error", "errored", "false", "0", "incorrect",
@@ -210,7 +221,8 @@ def rows_from_json(obj, default_model):
     for key, val in obj.items():                   # {"TREND-1": {...}} or {"TREND-1": true}
         if isinstance(val, dict):
             rows.append((val, model, str(key)))
-        elif isinstance(val, (bool, str)):
+        elif isinstance(val, bool) or (isinstance(val, str)
+                                       and val.strip().lower() in PASS_WORDS | FAIL_WORDS):
             rows.append(({"status": val}, model, str(key)))
     return rows
 
@@ -223,7 +235,10 @@ def parse_results(text, name="", default_model=None):
     rows = None
     if text[0] in "[{":
         try:
-            rows = rows_from_json(json.loads(text), default_model)
+            obj = json.loads(text)
+            if isinstance(obj, dict) and "organs" in obj and "updated" in obj:
+                return []                          # a status.json is output, never input
+            rows = rows_from_json(obj, default_model)
         except ValueError:
             rows = []
             for line in text.splitlines():         # JSON Lines
@@ -297,10 +312,13 @@ class Store:
         except (FileNotFoundError, ValueError):
             return {}
 
-    def add_batch(self, batch_id, at, source, records):
+    def add_batch(self, batch_id, at, source, records, path=None, replaces=None):
         # runs first, batch marker last: a batch only counts once it is complete
         self._append("runs.jsonl", [dict(r, batch=batch_id) for r in records])
-        self._append("batches.jsonl", [{"id": batch_id, "at": at, "source": source, "count": len(records)}])
+        marker = {"id": batch_id, "at": at, "source": source, "count": len(records), "path": path}
+        if replaces:
+            marker["replaces"] = replaces
+        self._append("batches.jsonl", [marker])
 
     def beat(self, organ, state, note, ttl):
         beats = self.heartbeats()
@@ -348,7 +366,18 @@ def ingest(store, path, default_model=None):
         raise ValueError("no runs recognised in %s (need a task and a pass/fail per row)" % path)
     stamps = [r["at"] for r in records if r["at"]]
     at = max(stamps) if stamps else iso(datetime.fromtimestamp(os.path.getmtime(path), timezone.utc))
-    store.add_batch(batch_id, at, os.path.basename(path), records)
+
+    # A file the harness is still appending to is one growing batch, not many:
+    # if this file's last version is the start of the new one, the new one replaces it.
+    full = os.path.abspath(path)
+    replaces = None
+    earlier = [b for b in store.batches() if b.get("path") == full]
+    if earlier:
+        key = lambda r: (r.get("task"), r.get("model"), r.get("status"), r.get("secs"))
+        old = [key(r) for r in store.runs() if r["batch"] == earlier[-1]["id"]]
+        if old and len(old) <= len(records) and old == [key(r) for r in records[:len(old)]]:
+            replaces = earlier[-1]["id"]
+    store.add_batch(batch_id, at, os.path.basename(path), records, full, replaces)
     return batch_id, len(records)
 
 
@@ -365,6 +394,8 @@ def tally(runs):
 def build_status(store, max_runs=200, max_history=120, now=None):
     now = now or datetime.now(timezone.utc)
     batches = store.batches()
+    gone = {b["replaces"] for b in batches if b.get("replaces")}
+    batches = [b for b in batches if b["id"] not in gone]
     order = {b["id"]: i for i, b in enumerate(batches)}
     batches.sort(key=lambda b: (b.get("at") or "", order[b["id"]]))
     rank = {b["id"]: i for i, b in enumerate(batches)}
@@ -487,6 +518,83 @@ def build(store, out, max_runs=200):
     return status, changed
 
 
+# ---------------------------------------------------------------- watching for results
+
+class Watcher(threading.Thread):
+    """Polls folders for results files and archives whatever is new."""
+
+    def __init__(self, store, out, folders, max_runs=200, interval=5.0, settle=2.0,
+                 default_model=None, log=print):
+        super().__init__(daemon=True)
+        self.store, self.out, self.max_runs = store, os.path.abspath(out), max_runs
+        self.folders = [os.path.abspath(f) for f in folders]
+        self.interval, self.settle, self.default_model, self.log = interval, settle, default_model, log
+        self.seen = {}
+        self.stop = threading.Event()
+
+    def candidates(self):
+        skip = os.path.abspath(self.store.path)
+        for folder in self.folders:
+            for root, dirs, files in os.walk(folder):
+                dirs[:] = sorted(d for d in dirs if not d.startswith(".") and d != "__pycache__"
+                                 and os.path.abspath(os.path.join(root, d)) != skip)
+                for name in sorted(files):
+                    path = os.path.join(root, name)
+                    if name.startswith(".") or not name.lower().endswith(RESULT_EXTS):
+                        continue
+                    if os.path.abspath(path) == self.out:
+                        continue
+                    yield path
+
+    def scan(self):
+        """One pass. Returns how many new runs were archived."""
+        added, found = 0, []
+        for path in self.candidates():
+            try:
+                st = os.stat(path)
+            except OSError:
+                continue
+            if 0 <= time.time() - st.st_mtime < self.settle:
+                continue                           # still being written: look again next pass
+            sig = (st.st_mtime_ns, st.st_size)
+            if self.seen.get(path) == sig:
+                continue
+            self.seen[path] = sig
+            found.append((st.st_mtime_ns, path))
+        for _, path in sorted(found):              # oldest file first
+            try:
+                batch, n = ingest(self.store, path, self.default_model)
+            except (OSError, ValueError) as exc:
+                self.log("skipped %s" % exc)
+                continue
+            if n:
+                added += n
+                self.log("%s: %d runs archived as batch %s" % (path, n, batch))
+        if added:
+            build(self.store, self.out, self.max_runs)
+        return added
+
+    def run(self):
+        while not self.stop.is_set():
+            try:
+                self.scan()
+            except Exception as exc:               # the watcher must outlive a bad pass
+                self.log("watch pass failed: %s" % exc)
+            self.stop.wait(self.interval)
+
+
+def lan_address():
+    """This machine's address on the local network, or None. Sends nothing."""
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(("10.255.255.255", 1))
+        return s.getsockname()[0]
+    except OSError:
+        return None
+    finally:
+        s.close()
+
+
 # ---------------------------------------------------------------- serving locally
 
 class ConsoleHandler(SimpleHTTPRequestHandler):
@@ -554,9 +662,18 @@ def main(argv=None):
     p.add_argument("--ttl", type=float, default=None,
                    help="seconds after which a silent organ is shown as down")
     sub.add_parser("build", parents=[common], help="rebuild status.json from the archive")
-    p = sub.add_parser("serve", parents=[common], help="serve the console locally, rebuilding on each read")
-    p.add_argument("--host", default="127.0.0.1")
-    p.add_argument("--port", type=int, default=8369)
+    for name, text in (("serve", "serve the console locally, rebuilding on each read"),
+                       ("connect", "watch folders for results, ingest them, and serve the console")):
+        p = sub.add_parser(name, parents=[common], help=text)
+        p.add_argument("--host", default="127.0.0.1")
+        p.add_argument("--port", type=int, default=8369)
+        p.add_argument("--lan", action="store_true",
+                       help="also reachable from other devices on this network (read-only)")
+        if name == "connect":
+            p.add_argument("folders", nargs="*",
+                           help="folders the harness writes results into (default: results/ beside this script)")
+            p.add_argument("--model", help="model name for rows that do not carry one")
+            p.add_argument("--interval", type=float, default=5.0, help="seconds between looks (default 5)")
 
     args = ap.parse_args(argv)
     store = Store(args.store)
@@ -568,17 +685,40 @@ def main(argv=None):
                                   else "already archived (batch %s), nothing added" % batch))
         elif args.cmd == "beat":
             store.beat(args.organ, args.state, args.note, args.ttl)
-        if args.cmd == "serve":
+        if args.cmd in ("serve", "connect"):
             out_dir = os.path.dirname(os.path.abspath(args.out))
+            if not os.path.isfile(os.path.join(out_dir, "index.html")):
+                raise ValueError("index.html must sit in the same folder as %s" % args.out)
             ConsoleHandler.store, ConsoleHandler.out, ConsoleHandler.max_runs = store, args.out, args.max_runs
             build(store, args.out, args.max_runs)
-            server = ThreadingHTTPServer((args.host, args.port),
+            watcher = None
+            if args.cmd == "connect":
+                folders = args.folders or [os.path.join(HERE, "results")]
+                for folder in folders:
+                    os.makedirs(folder, exist_ok=True)
+                watcher = Watcher(store, args.out, folders, args.max_runs, max(1.0, args.interval),
+                                  default_model=args.model)
+                watcher.scan()
+                watcher.start()
+                print("watching for results in: %s" % ", ".join(watcher.folders))
+            host = "0.0.0.0" if args.lan else args.host
+            server = ThreadingHTTPServer((host, args.port),
                                          functools.partial(ConsoleHandler, directory=out_dir))
-            print("AI9 console at http://%s:%d/  (Ctrl+C to stop)" % (args.host, args.port))
+            print("AI9 console on this machine: http://%s:%d/" % (
+                "127.0.0.1" if host == "0.0.0.0" else host, args.port))
+            if args.lan:
+                addr = lan_address()
+                print("on your network (phone, tablet): %s" % (
+                    "http://%s:%d/" % (addr, args.port) if addr else "address not found, check network settings"))
+            print("Ctrl+C to stop")
             try:
                 server.serve_forever()
             except KeyboardInterrupt:
                 print()
+            finally:
+                if watcher:
+                    watcher.stop.set()
+                server.server_close()
             return 0
         status, changed = build(store, args.out, args.max_runs)
         print(summary(status))

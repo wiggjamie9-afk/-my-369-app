@@ -170,5 +170,83 @@ class Building(Base):
         self.assertEqual(status["organs"][2]["state"], "ok")
 
 
+class Watching(Base):
+    def watcher(self, **kw):
+        self.results = os.path.join(self.dir, "results")
+        os.makedirs(self.results, exist_ok=True)
+        self.log = []
+        return org.Watcher(self.store, self.out, [self.dir], settle=0, log=self.log.append, **kw)
+
+    def drop(self, name, rows):
+        path = os.path.join(self.results, name)
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump(rows, fh)
+        return path
+
+    def test_new_files_are_archived_and_status_rebuilt(self):
+        w = self.watcher()
+        self.assertEqual(w.scan(), 0)
+        self.drop("day1.json", [{"task": "A", "model": "m", "status": "PASS"}])
+        self.assertEqual(w.scan(), 1)
+        self.assertEqual(w.scan(), 0)                      # nothing new on the next look
+        with open(self.out, encoding="utf-8") as fh:
+            self.assertEqual(json.load(fh)["models"][0]["pass"], 1)
+
+    def test_changed_file_is_read_again(self):
+        w = self.watcher()
+        path = self.drop("live.json", [{"task": "A", "model": "m", "status": "PASS"}])
+        w.scan()
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump([{"task": "A", "model": "m", "status": "PASS"},
+                       {"task": "B", "model": "m", "status": "FAIL"}], fh)
+        os.utime(path, (2000000000, 2000000000))
+        self.assertEqual(w.scan(), 2)
+        with open(self.out, encoding="utf-8") as fh:
+            status = json.load(fh)
+        self.assertEqual(status["models"][0]["total"], 2)
+        self.assertEqual(len(status["runs"]), 2)           # the grown file replaced its earlier self
+        self.assertEqual(len(status["history"]), 1)
+
+    def test_overwritten_file_with_different_runs_is_a_new_batch(self):
+        w = self.watcher()
+        path = self.drop("results.json", [{"task": "A", "model": "m", "status": "FAIL", "at": "2026-11-10T10:00:00Z"}])
+        w.scan()
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump([{"task": "A", "model": "m", "status": "PASS", "at": "2026-11-11T10:00:00Z"}], fh)
+        os.utime(path, (2000000000, 2000000000))
+        w.scan()
+        with open(self.out, encoding="utf-8") as fh:
+            status = json.load(fh)
+        self.assertEqual([(h["pass"], h["total"]) for h in status["history"]], [(0, 1), (1, 1)])
+        self.assertEqual(len(status["runs"]), 2)
+
+    def test_never_eats_its_own_output_or_archive(self):
+        w = self.watcher()
+        self.drop("day1.json", [{"task": "A", "model": "m", "status": "PASS"}])
+        w.scan()                                           # writes status.json and data/ inside the watched folder
+        w.seen.clear()
+        self.assertEqual(w.scan(), 0)
+        self.assertEqual(len(self.store.batches()), 1)
+        copy = self.write("copy-of-status.json", open(self.out, encoding="utf-8").read())
+        with self.assertRaises(ValueError):
+            org.ingest(self.store, copy)
+
+    def test_unreadable_file_is_reported_once_and_skipped(self):
+        w = self.watcher()
+        self.drop("notes.json", {"hello": "world"})
+        self.drop("good.json", [{"task": "A", "model": "m", "status": "PASS"}])
+        self.assertEqual(w.scan(), 1)
+        w.scan()
+        self.assertEqual(len([m for m in self.log if m.startswith("skipped")]), 1)
+
+    def test_file_still_being_written_waits(self):
+        w = self.watcher()
+        w.settle = 3600
+        self.drop("fresh.json", [{"task": "A", "model": "m", "status": "PASS"}])
+        self.assertEqual(w.scan(), 0)
+        w.settle = 0
+        self.assertEqual(w.scan(), 1)
+
+
 if __name__ == "__main__":
     unittest.main()
