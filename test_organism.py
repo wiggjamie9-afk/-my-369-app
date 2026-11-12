@@ -248,5 +248,44 @@ class Watching(Base):
         self.assertEqual(w.scan(), 1)
 
 
+class Serving(Base):
+    def test_only_the_console_is_served_and_changes_are_pushed(self):
+        import functools
+        import threading
+        import urllib.error
+        import urllib.request
+        from http.server import ThreadingHTTPServer
+
+        self.write("index.html", "<!doctype html><title>console</title>")
+        self.write("secret.txt", "not for serving")
+        org.ingest(self.store, self.write("r.json", json.dumps([{"task": "A", "model": "m", "status": "PASS"}])))
+        org.build(self.store, self.out)
+        org.ConsoleHandler.store, org.ConsoleHandler.out = self.store, self.out
+        org.ConsoleHandler.closing = threading.Event()
+        server = ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(org.ConsoleHandler, directory=self.dir))
+        server.block_on_close = False
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        base = "http://127.0.0.1:%d" % server.server_address[1]
+        try:
+            self.assertIn(b"console", urllib.request.urlopen(base + "/", timeout=5).read())
+            status = json.load(urllib.request.urlopen(base + "/status.json", timeout=5))
+            self.assertEqual(status["models"][0]["pass"], 1)
+            for path in ("/secret.txt", "/data/runs.jsonl", "/r.json", "/../organism.py"):
+                with self.assertRaises(urllib.error.HTTPError):
+                    urllib.request.urlopen(base + path, timeout=5)
+
+            feed = urllib.request.urlopen(base + "/events", timeout=5)
+            self.assertEqual(feed.headers["Content-Type"], "text/event-stream")
+            self.assertEqual(feed.readline(), b"event: status\n")       # first nudge on connect
+            feed.readline(); feed.readline()
+            self.store.beat("sense", "ok", "awake", None)
+            org.build(self.store, self.out)
+            self.assertEqual(feed.readline(), b"event: status\n")       # pushed after the change
+        finally:
+            org.ConsoleHandler.closing.set()
+            server.shutdown()
+            server.server_close()
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -598,15 +598,19 @@ def lan_address():
 # ---------------------------------------------------------------- serving locally
 
 class ConsoleHandler(SimpleHTTPRequestHandler):
-    """Serves the console and status.json only, rebuilding status on each read."""
+    """Serves the console, status.json and a live change feed; nothing else."""
     store = None
     out = None
     max_runs = 200
+    closing = threading.Event()
 
     def do_GET(self):
         path = self.path.split("?", 1)[0].split("#", 1)[0]
         if path in ("/", "/index.html"):
             self.path = "/index.html"
+        elif path == "/events":
+            self.events()
+            return
         elif path == "/status.json":
             try:
                 build(self.store, self.out, self.max_runs)
@@ -619,6 +623,31 @@ class ConsoleHandler(SimpleHTTPRequestHandler):
         super().do_GET()
 
     do_HEAD = do_GET
+
+    def events(self):
+        """Server-sent events: one "status" nudge whenever status.json changes on disk."""
+        self.send_response(200)
+        self.send_header("Content-Type", "text/event-stream")
+        self.end_headers()
+        last, quiet = None, 0
+        try:
+            while not self.closing.is_set():
+                try:
+                    st = os.stat(self.out)
+                    sig = (st.st_mtime_ns, st.st_size)
+                except OSError:
+                    sig = None
+                if sig != last:
+                    last, quiet = sig, 0
+                    self.wfile.write(b"event: status\ndata: changed\n\n")
+                else:
+                    quiet += 1
+                    if quiet % 15 == 0:
+                        self.wfile.write(b": still here\n\n")
+                self.wfile.flush()
+                self.closing.wait(1.0)
+        except OSError:
+            pass                                   # the page went away
 
     def end_headers(self):
         self.send_header("Cache-Control", "no-store")
@@ -704,6 +733,7 @@ def main(argv=None):
             host = "0.0.0.0" if args.lan else args.host
             server = ThreadingHTTPServer((host, args.port),
                                          functools.partial(ConsoleHandler, directory=out_dir))
+            server.block_on_close = False          # open live connections must not hold up Ctrl+C
             print("AI9 console on this machine: http://%s:%d/" % (
                 "127.0.0.1" if host == "0.0.0.0" else host, args.port))
             if args.lan:
@@ -716,6 +746,7 @@ def main(argv=None):
             except KeyboardInterrupt:
                 print()
             finally:
+                ConsoleHandler.closing.set()
                 if watcher:
                     watcher.stop.set()
                 server.server_close()

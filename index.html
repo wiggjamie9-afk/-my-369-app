@@ -94,6 +94,10 @@
     margin: 0; min-height: 18px;
     font-family: var(--mono); font-size: 12px; letter-spacing: .06em; color: var(--dim);
   }
+  .live {
+    margin-left: 10px; padding: 1px 7px; border: 1px solid rgba(var(--blue), .5); border-radius: 20px;
+    font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: rgb(var(--blue));
+  }
   .beat {
     display: inline-block; width: 6px; height: 6px; margin-right: 8px;
     border-radius: 50%;
@@ -190,6 +194,8 @@
     color: rgb(var(--c)); transition: color .9s ease;
   }
   .organ .note { margin-top: 12px; font-size: 13px; color: var(--dim); overflow-wrap: anywhere; min-height: 1.5em; }
+  .organ .seen { margin-top: 10px; font-family: var(--mono); font-size: 10px; letter-spacing: .1em; color: var(--faint); }
+  .organ .seen:empty { display: none; }
 
   /* ================= signals (state changes it remembers) ================= */
   .signals { list-style: none; margin: 0; padding: 0; }
@@ -262,8 +268,18 @@
   .chip:hover, .more:hover, .filters select:hover { color: var(--ink); border-color: rgba(var(--blue), .5); }
   .chip[aria-pressed="true"] { color: var(--ink); border-color: rgb(var(--blue)); background: rgba(var(--blue), .14); }
   .chip span { margin-left: 6px; color: var(--faint); }
+  .chips { display: contents; }
+  .filters input {
+    margin-left: auto; width: 150px; max-width: 100%;
+    padding: 5px 12px; border: 1px solid var(--line); border-radius: 20px; background: transparent;
+    font-family: var(--mono); font-size: 12px; color: var(--ink);
+    transition: border-color .3s ease;
+  }
+  .filters input::placeholder { color: var(--faint); }
+  .filters input:hover, .filters input:focus { border-color: rgba(var(--blue), .5); outline: none; }
+  .filters input:focus-visible { border-color: rgb(var(--blue)); }
   .filters select {
-    margin-left: auto; max-width: 100%;
+    max-width: 100%;
     -webkit-appearance: none; appearance: none; padding-right: 26px;
     background: transparent no-repeat right 10px center / 8px
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%237686A8'/%3E%3C/svg%3E");
@@ -300,6 +316,41 @@
     font-size: 12px; color: var(--dim); overflow-wrap: anywhere;
   }
   .more { display: block; margin: 22px auto 0; }
+
+  /* ================= trend ================= */
+  .trend { position: relative; }
+  .trend svg { display: block; overflow: visible; touch-action: pan-y; }
+  .trend .grid { stroke: var(--hair); stroke-width: 1; }
+  .trend .axis { fill: var(--faint); font-family: var(--mono); font-size: 10px; }
+  .trend .line { fill: none; stroke: rgb(var(--blue)); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .trend .end { fill: #BFD8FF; }
+  .trend .endlabel { fill: var(--ink); font-family: var(--mono); font-size: 11px; }
+  .trend .cross { stroke: rgba(var(--blue), .5); stroke-width: 1; }
+  .trend .mark { fill: rgb(var(--blue)); stroke: var(--bg); stroke-width: 2; }
+  .tip {
+    position: absolute; top: -6px; pointer-events: none; transform: translateX(-50%);
+    padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: #0B1220;
+    font-size: 12px; white-space: nowrap;
+  }
+  .tip b { display: block; font-family: var(--mono); font-weight: 400; font-size: 13px; }
+  .tip span { color: var(--dim); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  /* ================= weak spots ================= */
+  .weak { list-style: none; margin: 0; padding: 0; }
+  .weak li {
+    display: grid; grid-template-columns: minmax(90px, 1fr) 2fr; gap: 6px 18px; align-items: center;
+    padding: 12px 0; border-top: 1px solid var(--hair); font-size: 13px;
+  }
+  .weak li:first-child { border-top: 0; padding-top: 0; }
+  .weak .t { font-family: var(--mono); overflow-wrap: anywhere; }
+  .weak .bar { height: 4px; border-radius: 4px; background: rgba(var(--down), .14); }
+  .weak .bar i { display: block; height: 100%; border-radius: 4px; background: rgba(var(--down), .85); }
+  .weak .d { grid-column: 1 / -1; font-size: 12px; color: var(--dim); }
+
+  /* once the first paint has settled, only genuinely new things move */
+  body.settled .model, body.settled tbody tr, body.settled .signals li { animation: none; }
+  body.settled tbody tr.fresh { animation: surface .6s ease both; }
 
   footer {
     margin-top: 72px; text-align: center;
@@ -379,7 +430,7 @@
       </svg>
     </button>
     <h1>AI9 ORGANISM</h1>
-    <p class="stamp" id="stamp" aria-live="polite"><span class="beat"></span><span id="stampText">organism sleeping</span></p>
+    <p class="stamp" id="stamp" aria-live="polite"><span class="beat"></span><span id="stampText">organism sleeping</span><span class="live" id="live" hidden>live</span></p>
   </header>
 
   <svg class="ecg" viewBox="0 0 600 40" preserveAspectRatio="none" aria-hidden="true">
@@ -404,19 +455,33 @@
     <ul class="signals" id="signals"></ul>
   </section>
 
+  <section aria-labelledby="h-trend" id="trendSection" hidden>
+    <h2 id="h-trend">Pass rate over time</h2>
+    <div class="trend" id="trend"></div>
+  </section>
+
   <section aria-labelledby="h-models">
     <h2 id="h-models">Model scoreboard</h2>
     <div id="models"></div>
   </section>
 
+  <section aria-labelledby="h-weak" id="weakSection" hidden>
+    <h2 id="h-weak">Weak spots</h2>
+    <ul class="weak" id="weak"></ul>
+  </section>
+
   <section aria-labelledby="h-runs">
     <h2 id="h-runs">Run log</h2>
-    <div class="filters" id="filters" hidden></div>
+    <div class="filters" id="filters" hidden>
+      <span class="chips" id="chips"></span>
+      <input id="q" type="search" placeholder="Find a task" aria-label="Find a task" autocomplete="off" spellcheck="false">
+      <span id="modelPick"></span>
+    </div>
     <div id="runs"></div>
   </section>
 
   <footer>
-    <div id="next">reads ./status.json · no keys · no servers</div>
+    <div id="next">reads ./status.json · no keys</div>
     <div id="memoryLine" hidden><span id="memoryText"></span> · <button type="button" id="forget">forget</button></div>
   </footer>
 
@@ -428,6 +493,7 @@
 
   var SOURCE = "./status.json";
   var REFRESH_S = 30;
+  var LIVE_REFRESH_S = 120;      // safety read while the live push is connected
   var FETCH_TIMEOUT_MS = 8000;
   var PAGE = 40;                 // run-log rows shown before "show more"
   var HISTORY_MAX = 60;
@@ -491,7 +557,8 @@
       var s = x && typeof x.state === "string" ? x.state.toLowerCase() : "rest";
       if (!STATE_WORD[s]) s = "rest";
       counts[s]++;
-      o[def.id] = { state: s, label: (x && x.label) || def.label, note: (x && x.note) || "" };
+      o[def.id] = { state: s, label: (x && x.label) || def.label, note: (x && x.note) || "",
+                    at: x && x.at ? String(x.at) : "", source: x && x.source ? String(x.source) : "" };
     });
 
     var reported = counts.ok + counts.busy + counts.down;
@@ -562,17 +629,18 @@
     }
 
     // optional: the back end's own history, one point per batch
-    var trend = (Array.isArray(data.history) ? data.history : []).map(function (h) {
+    var past = (Array.isArray(data.history) ? data.history : []).map(function (h) {
       var p = h ? num(h.pass) : null, t = h ? num(h.total) : null;
-      return p !== null && t ? p / t : null;
-    }).filter(function (p) { return p !== null; });
+      return p !== null && t ? { p: Math.max(0, Math.min(1, p / t)), pass: p, total: t, at: h.at ? String(h.at) : "" } : null;
+    }).filter(Boolean);
+    var trend = past.map(function (h) { return h.p; });
 
     var raw = data.updated ? String(data.updated) : "";
     var d = raw ? new Date(raw) : null;
     return {
       updatedRaw: raw, updatedAt: d && !isNaN(d.getTime()) ? d : null,
       organs: o, health: health, models: models, runs: runs,
-      passRate: passRate, passLine: passLine, tempo: tempo, trend: trend,
+      passRate: passRate, passLine: passLine, tempo: tempo, trend: trend, history: past,
       runPass: rPass, runFail: rFail, streak: streak
     };
   }
@@ -612,12 +680,13 @@
     var label = el("div", "label", def.label);
     var state = el("div", "state", STATE_WORD.rest);
     var note = el("div", "note", "");
-    card.appendChild(key); card.appendChild(label); card.appendChild(state); card.appendChild(note);
+    var seen = el("div", "seen", "");
+    card.appendChild(key); card.appendChild(label); card.appendChild(state); card.appendChild(note); card.appendChild(seen);
     $("organs").appendChild(card);
     var leaf = document.querySelector('[data-organ="' + def.id + '"]');
     card.addEventListener("mouseenter", function () { leaf.classList.add("lit"); });
     card.addEventListener("mouseleave", function () { leaf.classList.remove("lit"); });
-    cards[def.id] = { card: card, label: label, state: state, note: note, leaf: leaf, shown: "rest" };
+    cards[def.id] = { card: card, label: label, state: state, note: note, seen: seen, leaf: leaf, shown: "rest" };
   });
 
   // a spark travelling along a leaf's vein: inward for SENSE, outward for the rest
@@ -656,6 +725,10 @@
       c.label.textContent = o.label;
       c.state.textContent = STATE_WORD[o.state];
       c.note.textContent = o.note;
+      var beatAt = o.at ? new Date(o.at) : null;
+      c.seen.textContent = o.state === "rest" ? ""
+        : o.source === "derived" ? "from results"
+        : beatAt && !isNaN(beatAt.getTime()) ? "heartbeat " + (ago(beatAt) || "just now") : "";
     });
   }
 
@@ -793,7 +866,8 @@
           c.title = t.task + " · " + (t.status || "?");
           c.style.transitionDelay = i * 22 + "ms";
           real.appendChild(c);
-          grow.push([c, t.status === "PASS" ? "on" : "off"]);
+          if (settled) c.className = t.status === "PASS" ? "on" : "off";
+          else grow.push([c, t.status === "PASS" ? "on" : "off"]);
         });
         wrap.appendChild(real);
       } else if (whole) {
@@ -805,7 +879,8 @@
           var cell = el("i");
           cell.style.transitionDelay = i * 22 + "ms";
           cells.appendChild(cell);
-          grow.push([cell, i < m.pass ? "on" : "off"]);
+          if (settled) cell.className = i < m.pass ? "on" : "off";
+          else grow.push([cell, i < m.pass ? "on" : "off"]);
         }
         wrap.appendChild(cells);
       } else {
@@ -846,12 +921,38 @@
 
   // ---------- run log ----------
   var view = null;                                   // the current picture, or null while sleeping
-  var filter = { status: "ALL", model: "", limit: PAGE };
+  var filter = { status: "ALL", model: "", q: "", limit: PAGE };
+  var settled = false;                               // true once the first paint has finished moving
+  var knownRuns = null;                              // runs already shown, so only new ones animate
+
+  function readHash() {
+    var h = {};
+    location.hash.replace(/^#/, "").split("&").forEach(function (kv) {
+      var i = kv.indexOf("=");
+      if (i > 0) { try { h[kv.slice(0, i)] = decodeURIComponent(kv.slice(i + 1)); } catch (e) {} }
+    });
+    var st = (h.status || "").toUpperCase();
+    filter.status = st === "PASS" || st === "FAIL" ? st : "ALL";
+    filter.model = h.model || "";
+    filter.q = h.q || "";
+    filter.limit = PAGE;
+  }
+
+  // the filter lives in the address, so a filtered view can be bookmarked or shared
+  function writeHash() {
+    var parts = [];
+    if (filter.status !== "ALL") parts.push("status=" + filter.status.toLowerCase());
+    if (filter.model) parts.push("model=" + encodeURIComponent(filter.model));
+    if (filter.q) parts.push("q=" + encodeURIComponent(filter.q));
+    try {
+      window.history.replaceState(null, "", parts.length ? "#" + parts.join("&") : location.pathname + location.search);
+    } catch (e) {}
+  }
 
   function paintFilters() {
-    var box = $("filters");
-    box.textContent = "";
+    var box = $("filters"), chips = $("chips"), pick = $("modelPick");
     box.hidden = !view || !view.runs.length;
+    chips.textContent = ""; pick.textContent = "";
     if (box.hidden) return;
 
     [["ALL", "All", view.runs.length], ["PASS", "Pass", view.runPass], ["FAIL", "Fail", view.runFail]].forEach(function (f) {
@@ -859,9 +960,13 @@
       b.type = "button";
       b.setAttribute("aria-pressed", String(filter.status === f[0]));
       b.appendChild(el("span", "", f[2]));
-      b.addEventListener("click", function () { filter.status = f[0]; filter.limit = PAGE; paintFilters(); paintRuns(); });
-      box.appendChild(b);
+      b.addEventListener("click", function () {
+        filter.status = f[0]; filter.limit = PAGE; writeHash(); paintFilters(); paintRuns();
+      });
+      chips.appendChild(b);
     });
+
+    if ($("q").value !== filter.q && document.activeElement !== $("q")) $("q").value = filter.q;
 
     var names = [];
     view.runs.forEach(function (r) { if (names.indexOf(r.model) < 0) names.push(r.model); });
@@ -872,18 +977,23 @@
       var all = el("option", "", "All models"); all.value = ""; sel.appendChild(all);
       names.forEach(function (n) { var o = el("option", "", n); o.value = n; sel.appendChild(o); });
       sel.value = filter.model;
-      sel.addEventListener("change", function () { filter.model = sel.value; filter.limit = PAGE; paintRuns(); });
-      box.appendChild(sel);
+      sel.addEventListener("change", function () { filter.model = sel.value; filter.limit = PAGE; writeHash(); paintRuns(); });
+      pick.appendChild(sel);
     }
   }
+
+  function runKey(r) { return r.task + "|" + r.model + "|" + r.at + "|" + r.status; }
 
   function paintRuns() {
     var box = $("runs");
     box.textContent = "";
     if (!view.runs.length) { box.appendChild(el("p", "quiet", "No runs recorded yet.")); return; }
 
+    var needle = filter.q.trim().toLowerCase();
     var rows = view.runs.filter(function (r) {
-      return (filter.status === "ALL" || r.status === filter.status) && (!filter.model || r.model === filter.model);
+      return (filter.status === "ALL" || r.status === filter.status) &&
+             (!filter.model || r.model === filter.model) &&
+             (!needle || r.task.toLowerCase().indexOf(needle) >= 0);
     });
     if (!rows.length) { box.appendChild(el("p", "quiet", "Nothing matches this filter.")); return; }
 
@@ -898,7 +1008,8 @@
     var body = el("tbody");
     rows.slice(0, filter.limit).forEach(function (r, i) {
       var tr = el("tr");
-      tr.style.animationDelay = Math.min(i, 12) * 35 + "ms";
+      if (!settled) tr.style.animationDelay = Math.min(i, 12) * 35 + "ms";
+      else if (knownRuns && !knownRuns[runKey(r)]) tr.className = "fresh";
       tr.appendChild(el("td", "task", r.task));
       tr.appendChild(el("td", "model-name", r.model));
       var td = el("td");
@@ -930,6 +1041,116 @@
       more.addEventListener("click", function () { filter.limit += PAGE; paintRuns(); });
       box.appendChild(more);
     }
+  }
+
+  // ---------- trend: pass rate per batch, from the back end's history ----------
+  function paintTrend() {
+    var sec = $("trendSection"), box = $("trend");
+    var pts = view ? view.history : [];
+    sec.hidden = pts.length < 2;
+    box.textContent = "";
+    if (sec.hidden) return;
+
+    var W = Math.max(260, box.clientWidth), H = 176, L = 34, R = 46, T = 16, B = 26;
+    var lo = Math.min.apply(null, pts.map(function (p) { return p.p; }));
+    var floor = Math.min(0.9, Math.max(0, Math.floor(lo * 10 - 0.5) / 10));
+    var n = pts.length;
+    var X = function (i) { return L + (i / (n - 1)) * (W - L - R); };
+    var Y = function (p) { return T + (1 - (p - floor) / (1 - floor)) * (H - T - B); };
+
+    var svg = sv("svg", { width: W, height: H, viewBox: "0 0 " + W + " " + H, role: "img",
+      "aria-label": "Pass rate across " + n + " batches, latest " + pct(pts[n - 1].p) });
+    var defs = sv("defs", {}), grad = sv("linearGradient", { id: "trendFill", x1: 0, y1: 0, x2: 0, y2: 1 });
+    grad.appendChild(sv("stop", { offset: "0", "stop-color": "rgb(46,124,246)", "stop-opacity": ".22" }));
+    grad.appendChild(sv("stop", { offset: "1", "stop-color": "rgb(46,124,246)", "stop-opacity": "0" }));
+    defs.appendChild(grad); svg.appendChild(defs);
+
+    [floor, (floor + 1) / 2, 1].forEach(function (t) {
+      svg.appendChild(sv("line", { "class": "grid", x1: L, x2: W - R, y1: Y(t), y2: Y(t) }));
+      var lab = sv("text", { "class": "axis", x: L - 8, y: Y(t) + 3, "text-anchor": "end" });
+      lab.textContent = pct(t); svg.appendChild(lab);
+    });
+    [[0, "start"], [n - 1, "end"]].forEach(function (e) {
+      var d = new Date(pts[e[0]].at);
+      if (isNaN(d.getTime())) return;
+      var lab = sv("text", { "class": "axis", x: X(e[0]), y: H - 6, "text-anchor": e[1] });
+      lab.textContent = d.toLocaleDateString(undefined, { day: "numeric", month: "short" });
+      svg.appendChild(lab);
+    });
+
+    var path = pts.map(function (p, i) { return (i ? "L" : "M") + X(i).toFixed(1) + "," + Y(p.p).toFixed(1); }).join(" ");
+    svg.appendChild(sv("path", { fill: "url(#trendFill)",
+      d: path + " L" + X(n - 1).toFixed(1) + "," + Y(floor) + " L" + X(0).toFixed(1) + "," + Y(floor) + " Z" }));
+    svg.appendChild(sv("path", { "class": "line", d: path }));
+    svg.appendChild(sv("circle", { "class": "end", cx: X(n - 1), cy: Y(pts[n - 1].p), r: 3.5 }));
+    var endLabel = sv("text", { "class": "endlabel", x: X(n - 1) + 9, y: Y(pts[n - 1].p) + 4 });
+    endLabel.textContent = pct(pts[n - 1].p); svg.appendChild(endLabel);
+
+    var cross = sv("line", { "class": "cross", y1: T, y2: H - B, visibility: "hidden" });
+    var mark = sv("circle", { "class": "mark", r: 5, visibility: "hidden" });
+    svg.appendChild(cross); svg.appendChild(mark);
+    var tip = el("div", "tip"); tip.hidden = true;
+    var tipValue = el("b"), tipWhen = el("span");
+    tip.appendChild(tipValue); tip.appendChild(tipWhen);
+
+    function show(e) {
+      var i = Math.round(((e.clientX - svg.getBoundingClientRect().left - L) / (W - L - R)) * (n - 1));
+      i = Math.max(0, Math.min(n - 1, i));
+      var p = pts[i], x = X(i);
+      cross.setAttribute("x1", x); cross.setAttribute("x2", x); cross.setAttribute("visibility", "visible");
+      mark.setAttribute("cx", x); mark.setAttribute("cy", Y(p.p)); mark.setAttribute("visibility", "visible");
+      tipValue.textContent = p.pass + " / " + p.total + " · " + pct(p.p);
+      tipWhen.textContent = p.at ? shortTime(p.at) : "batch " + (i + 1);
+      tip.hidden = false;
+      tip.style.left = Math.max(70, Math.min(W - 70, x)) + "px";
+    }
+    function hide() {
+      cross.setAttribute("visibility", "hidden"); mark.setAttribute("visibility", "hidden"); tip.hidden = true;
+    }
+    svg.addEventListener("pointermove", show);
+    svg.addEventListener("pointerdown", show);
+    svg.addEventListener("pointerleave", hide);
+
+    // the same numbers as a table, for screen readers
+    var table = el("table", "sr"), cap = el("caption", "", "Pass rate per batch");
+    table.appendChild(cap);
+    pts.forEach(function (p, i) {
+      var tr = el("tr");
+      tr.appendChild(el("td", "", p.at ? shortTime(p.at) : "batch " + (i + 1)));
+      tr.appendChild(el("td", "", p.pass + " of " + p.total + " passed"));
+      table.appendChild(tr);
+    });
+
+    box.appendChild(svg); box.appendChild(tip); box.appendChild(table);
+  }
+
+  // ---------- weak spots: the tasks that fail most in the runs on file ----------
+  function paintWeak() {
+    var sec = $("weakSection"), box = $("weak");
+    box.textContent = "";
+    var by = Object.create(null), all = [];
+    (view ? view.runs : []).forEach(function (r) {
+      if (r.status !== "PASS" && r.status !== "FAIL") return;
+      var t = by[r.task];
+      if (!t) { t = by[r.task] = { task: r.task, fail: 0, total: 0, models: [] }; all.push(t); }
+      t.total++;
+      if (r.status === "FAIL") { t.fail++; if (t.models.indexOf(r.model) < 0) t.models.push(r.model); }
+    });
+    var worst = all.filter(function (t) { return t.fail; }).sort(function (a, b) {
+      return b.fail - a.fail || b.fail / b.total - a.fail / a.total;
+    }).slice(0, 6);
+    sec.hidden = !worst.length || all.length < 2;
+    if (sec.hidden) return;
+    worst.forEach(function (t) {
+      var li = el("li");
+      li.appendChild(el("span", "t", t.task));
+      var bar = el("span", "bar"), fill = el("i");
+      fill.style.width = (t.fail / t.total) * 100 + "%";
+      bar.appendChild(fill); li.appendChild(bar);
+      li.appendChild(el("span", "d", "failed " + t.fail + " of " + t.total + " run" + (t.total === 1 ? "" : "s") +
+        " · " + t.models.join(", ")));
+      box.appendChild(li);
+    });
   }
 
   // ---------- header: timestamp, tab title, favicon ----------
@@ -980,9 +1201,14 @@
     paintVitals(view);
     paintOrgans(view.organs, announce);
     paintSignals();
+    paintTrend();
     paintModels(view);
+    paintWeak();
     paintFilters(); paintRuns();
     paintMemoryLine();
+    knownRuns = Object.create(null);
+    view.runs.forEach(function (r) { knownRuns[runKey(r)] = true; });
+    if (!settled) setTimeout(function () { settled = true; document.body.classList.add("settled"); }, 1600);
   }
 
   function sleep() {
@@ -992,6 +1218,7 @@
     paintVitals(null);
     paintOrgans(null, false);
     paintSignals();
+    paintTrend(); paintWeak();
     paintFilters();
     $("models").textContent = "";
     $("models").appendChild(el("p", "quiet", "Resting. Scores will surface when the organism wakes."));
@@ -1001,11 +1228,11 @@
   }
 
   // ---------- the pulse: read status.json, again and again ----------
-  var lastText = null, awakeOnce = false, countdown = REFRESH_S, busy = false;
+  var lastText = null, awakeOnce = false, countdown = REFRESH_S, busy = false, again = false, live = false;
 
   function refresh() {
-    if (busy) return;
-    busy = true; countdown = REFRESH_S;
+    if (busy) { again = true; return; }
+    busy = true; countdown = live ? LIVE_REFRESH_S : REFRESH_S;
     var ctl = typeof AbortController === "function" ? new AbortController() : null;
     var timer = ctl ? setTimeout(function () { ctl.abort(); }, FETCH_TIMEOUT_MS) : null;
 
@@ -1020,7 +1247,22 @@
         awakeOnce = true;
       })
       .catch(function () { lastText = null; sleep(); })
-      .then(function () { busy = false; if (timer) clearTimeout(timer); });
+      .then(function () {
+        busy = false; if (timer) clearTimeout(timer);
+        if (again) { again = false; refresh(); }
+      });
+  }
+
+  // When organism.py is serving, it pushes a nudge the moment status.json changes.
+  // Anywhere else this quietly fails and the page keeps reading on its timer.
+  function listen() {
+    if (typeof EventSource !== "function" || location.protocol === "file:") return;
+    var es;
+    try { es = new EventSource("./events"); } catch (e) { return; }
+    var setLive = function (on) { live = on; $("live").hidden = !on; };
+    es.onopen = function () { setLive(true); };
+    es.onerror = function () { setLive(false); };
+    es.addEventListener("status", function () { setLive(true); refresh(); });
   }
 
   $("heart").addEventListener("click", function () {
@@ -1038,13 +1280,41 @@
     if (document.hidden) return;
     countdown--;
     if (countdown <= 0) refresh();
-    $("next").textContent = "next pulse in " + Math.max(countdown, 0) + "s · reads ./status.json · no keys · no servers";
+    $("next").textContent = (live ? "live · updates as results arrive" : "next pulse in " + Math.max(countdown, 0) + "s") +
+      " · reads ./status.json · no keys";
     if (countdown % 10 === 0) paintStamp();
   }, 1000);
   document.addEventListener("visibilitychange", function () { if (!document.hidden) refresh(); });
 
+  $("q").addEventListener("input", function () {
+    filter.q = $("q").value; filter.limit = PAGE; writeHash();
+    if (view) paintRuns();
+  });
+  window.addEventListener("hashchange", function () { readHash(); if (view) { paintFilters(); paintRuns(); } });
+
+  var resizing = null;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizing);
+    resizing = setTimeout(paintTrend, 150);
+  });
+
+  // keys: r reads now, / jumps to the task search, Esc clears it
+  document.addEventListener("keydown", function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var t = e.target, q = $("q");
+    if (e.key === "Escape" && t === q) {
+      q.value = ""; filter.q = ""; writeHash(); if (view) paintRuns(); q.blur(); return;
+    }
+    if (t && /^(INPUT|SELECT|TEXTAREA)$/.test(t.tagName)) return;
+    if (e.key === "/" && !$("filters").hidden) { e.preventDefault(); q.focus(); }
+    else if (e.key === "r") $("heart").click();
+  });
+
+  readHash();
+  $("q").value = filter.q;
   sleep();
   refresh();
+  listen();
 })();
 </script>
 </body>
