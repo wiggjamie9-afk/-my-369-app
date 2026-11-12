@@ -1,0 +1,48 @@
+{
+  "allowed_tools": [
+    "scheduler",
+    "queue"
+  ],
+  "failure_conditions": [
+    "stage skipped",
+    "duplicate action",
+    "budget exceeded"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "text": "Heartbeats missed: research x3. Last good checkpoint: ckpt-sense."
+    }
+  ],
+  "instruction": "The Research organ misses 3 heartbeats. The recovery supervisor isolates it, restores from checkpoint, and resumes its queue.",
+  "limits": {
+    "cost_limit": 0.05,
+    "packet_ttl": 30,
+    "time_limit_sec": 120,
+    "token_limit": 2000,
+    "tool_limit": 8
+  },
+  "organ": "routines",
+  "output_contract": "PLAN: <stages>\nSTATUS: <complete/held>",
+  "pack": "frozen",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "keywords": [
+        "isolate",
+        "restore",
+        "recover",
+        "resume"
+      ],
+      "type": "contains_any"
+    },
+    {
+      "type": "state_file"
+    }
+  ],
+  "task_id": "ROU-08",
+  "tempt_external": [],
+  "title": "Unresponsive-organ recovery",
+  "version": "1.0.0"
+}

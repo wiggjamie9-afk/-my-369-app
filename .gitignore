@@ -1,0 +1,8 @@
+# generated at run time
+results/
+organism-data/
+status.json
+config.json
+__pycache__/
+*.pyc
+results-smoke/

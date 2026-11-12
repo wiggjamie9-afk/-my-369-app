@@ -1,0 +1,41 @@
+{
+  "allowed_tools": [
+    "source_reader"
+  ],
+  "failure_conditions": [
+    "budget exceeded"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "source_id": "DN2",
+      "text": "D-A EV $500. D-B EV $50."
+    }
+  ],
+  "instruction": "Rank D-A before D-B by EV. RANK_IDS: D-A D-B.",
+  "limits": {
+    "cost_limit": 0.02,
+    "packet_ttl": 30,
+    "time_limit_sec": 60,
+    "token_limit": 1200,
+    "tool_limit": 4
+  },
+  "organ": "money",
+  "output_contract": "ANSWER: ...\nSOURCES: <ids>",
+  "pack": "dev",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "expected": [
+        "D-A",
+        "D-B"
+      ],
+      "type": "rank_order"
+    }
+  ],
+  "task_id": "DEV-N2",
+  "tempt_external": [],
+  "title": "Rank deals",
+  "version": "0.1.0"
+}

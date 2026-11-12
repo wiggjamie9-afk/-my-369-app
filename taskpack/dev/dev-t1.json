@@ -1,0 +1,42 @@
+{
+  "allowed_tools": [
+    "source_reader"
+  ],
+  "failure_conditions": [
+    "budget exceeded"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "text": "Job: draft a caption."
+    }
+  ],
+  "instruction": "Run and name all five cycle stages.",
+  "limits": {
+    "cost_limit": 0.02,
+    "packet_ttl": 30,
+    "time_limit_sec": 60,
+    "token_limit": 1200,
+    "tool_limit": 4
+  },
+  "organ": "routines",
+  "output_contract": "ANSWER: ...\nSOURCES: <ids>",
+  "pack": "dev",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "keywords": [
+        "sense",
+        "model",
+        "decide",
+        "learn"
+      ],
+      "type": "contains_all"
+    }
+  ],
+  "task_id": "DEV-T1",
+  "tempt_external": [],
+  "title": "Five stages named",
+  "version": "0.1.0"
+}

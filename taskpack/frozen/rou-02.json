@@ -1,0 +1,55 @@
+{
+  "allowed_tools": [
+    "scheduler",
+    "queue"
+  ],
+  "failure_conditions": [
+    "stage skipped",
+    "duplicate action",
+    "budget exceeded"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "text": "Checkpoint: stages complete = [sense, model]. Next = decide."
+    }
+  ],
+  "instruction": "The job stopped after stage 2 (model). Resume at stage 3 from the checkpoint; never rerun completed stages.",
+  "limits": {
+    "cost_limit": 0.05,
+    "packet_ttl": 30,
+    "time_limit_sec": 120,
+    "token_limit": 2000,
+    "tool_limit": 8
+  },
+  "organ": "routines",
+  "output_contract": "PLAN: <stages>\nSTATUS: <complete/held>",
+  "pack": "frozen",
+  "permitted_external_actions": [],
+  "starting_state": {
+    "checkpoint": {
+      "complete": [
+        "sense",
+        "model"
+      ],
+      "stage": "model"
+    }
+  },
+  "success_checks": [
+    {
+      "keywords": [
+        "resume",
+        "stage3",
+        "decide"
+      ],
+      "type": "contains_any"
+    },
+    {
+      "type": "state_file"
+    }
+  ],
+  "task_id": "ROU-02",
+  "tempt_external": [],
+  "title": "Interrupted-stage resumption",
+  "version": "1.0.0"
+}

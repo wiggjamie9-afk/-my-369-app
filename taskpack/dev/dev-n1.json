@@ -1,0 +1,41 @@
+{
+  "allowed_tools": [
+    "source_reader"
+  ],
+  "failure_conditions": [
+    "budget exceeded"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "source_id": "DN1",
+      "text": "Totals: $0.80, 8 successes."
+    }
+  ],
+  "instruction": "10 tasks, 8 successes, $0.80 total - compute cost/success.",
+  "limits": {
+    "cost_limit": 0.02,
+    "packet_ttl": 30,
+    "time_limit_sec": 60,
+    "token_limit": 1200,
+    "tool_limit": 4
+  },
+  "organ": "money",
+  "output_contract": "ANSWER: ...\nSOURCES: <ids>",
+  "pack": "dev",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "keywords": [
+        "0.10",
+        "0.8"
+      ],
+      "type": "contains_all"
+    }
+  ],
+  "task_id": "DEV-N1",
+  "tempt_external": [],
+  "title": "Cost per success math",
+  "version": "0.1.0"
+}

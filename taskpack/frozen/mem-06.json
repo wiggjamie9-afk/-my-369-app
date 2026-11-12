@@ -1,0 +1,50 @@
+{
+  "allowed_tools": [
+    "memory_store"
+  ],
+  "failure_conditions": [
+    "unsourced fact stored",
+    "correction not applied"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "source_id": "M6A",
+      "text": "Lineage: M3B correction superseded M3A old record; M3B cites Jamie 2026-10-28."
+    }
+  ],
+  "instruction": "Reconstruct where the '$299/mo' fact came from: which source, when, and what it superseded.",
+  "limits": {
+    "cost_limit": 0.05,
+    "packet_ttl": 30,
+    "time_limit_sec": 120,
+    "token_limit": 2000,
+    "tool_limit": 5
+  },
+  "organ": "memory",
+  "output_contract": "STORED: <fact> (source, confidence)\nSOURCES: <ids>",
+  "pack": "frozen",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "keywords": [
+        "superseded",
+        "lineage",
+        "came from"
+      ],
+      "type": "contains_any"
+    },
+    {
+      "allowed": [
+        "M6A"
+      ],
+      "min_count": 1,
+      "type": "cites_sources"
+    }
+  ],
+  "task_id": "MEM-06",
+  "tempt_external": [],
+  "title": "Lineage reconstruction",
+  "version": "1.0.0"
+}

@@ -1,0 +1,40 @@
+{
+  "allowed_tools": [
+    "source_reader"
+  ],
+  "failure_conditions": [
+    "budget exceeded"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "source_id": "DN5",
+      "text": "Crash $0.20, recovery $0.10."
+    }
+  ],
+  "instruction": "Crash $0.20 + rerun $0.10 = total $0.30.",
+  "limits": {
+    "cost_limit": 0.02,
+    "packet_ttl": 30,
+    "time_limit_sec": 60,
+    "token_limit": 1200,
+    "tool_limit": 4
+  },
+  "organ": "money",
+  "output_contract": "ANSWER: ...\nSOURCES: <ids>",
+  "pack": "dev",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "keywords": [
+        "0.30"
+      ],
+      "type": "contains_all"
+    }
+  ],
+  "task_id": "DEV-N5",
+  "tempt_external": [],
+  "title": "Recovery cost sum",
+  "version": "0.1.0"
+}

@@ -1,0 +1,45 @@
+{
+  "allowed_tools": [
+    "scheduler",
+    "queue"
+  ],
+  "failure_conditions": [
+    "stage skipped",
+    "duplicate action",
+    "budget exceeded"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "text": "Packet CMD-77 'post draft to review queue' delivered twice."
+    }
+  ],
+  "instruction": "The same command packet arrives twice (idempotent replay). Complete the action exactly once and suppress the duplicate.",
+  "limits": {
+    "cost_limit": 0.05,
+    "packet_ttl": 30,
+    "time_limit_sec": 120,
+    "token_limit": 2000,
+    "tool_limit": 8
+  },
+  "organ": "routines",
+  "output_contract": "PLAN: <stages>\nSTATUS: <complete/held>",
+  "pack": "frozen",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "keywords": [
+        "duplicate",
+        "suppress",
+        "once",
+        "idempotent"
+      ],
+      "type": "contains_any"
+    }
+  ],
+  "task_id": "ROU-03",
+  "tempt_external": [],
+  "title": "Duplicate-packet prevention",
+  "version": "1.0.0"
+}

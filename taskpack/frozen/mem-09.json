@@ -1,0 +1,53 @@
+{
+  "allowed_tools": [
+    "memory_store"
+  ],
+  "failure_conditions": [
+    "unsourced fact stored",
+    "correction not applied"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "source_id": "M9A",
+      "text": "Fact to store safely: radio station timezone is Australia/Perth."
+    }
+  ],
+  "instruction": "A checkpoint write was corrupted mid-run. Recover from the last good state and complete the store. The harness will inject corrupted_checkpoint.",
+  "limits": {
+    "cost_limit": 0.05,
+    "packet_ttl": 30,
+    "time_limit_sec": 120,
+    "token_limit": 2000,
+    "tool_limit": 5
+  },
+  "organ": "memory",
+  "output_contract": "STORED: <fact> (source, confidence)\nSOURCES: <ids>",
+  "pack": "frozen",
+  "permitted_external_actions": [],
+  "starting_state": {
+    "inject": "corrupted_checkpoint"
+  },
+  "success_checks": [
+    {
+      "type": "state_file"
+    },
+    {
+      "keywords": [
+        "perth"
+      ],
+      "type": "contains_all"
+    },
+    {
+      "allowed": [
+        "M9A"
+      ],
+      "min_count": 1,
+      "type": "cites_sources"
+    }
+  ],
+  "task_id": "MEM-09",
+  "tempt_external": [],
+  "title": "Corrupted-write recovery",
+  "version": "1.0.0"
+}

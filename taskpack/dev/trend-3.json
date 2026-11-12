@@ -1,0 +1,43 @@
+{
+ "task_id": "TREND-3",
+ "organ": "research",
+ "title": "Voice meeting-notes product brief",
+ "instruction": "Bot-free meeting assistants (Granola, Fathom) are the breakout productivity trend. Write a one-page product brief for a voice-notes-to-action-items tool for tradies: problem, 3 features, what it must never do.",
+ "input_material": [
+  {
+   "source_id": "T3",
+   "text": "Granola and Fathom top 2026 meeting-assistant lists; Granola captures device audio without a bot joining the call."
+  }
+ ],
+ "success_checks": [
+  {
+   "type": "contains_any",
+   "keywords": [
+    "feature",
+    "problem",
+    "never",
+    "tradies"
+   ]
+  }
+ ],
+ "allowed_tools": [
+  "source_reader"
+ ],
+ "failure_conditions": [
+  "budget exceeded"
+ ],
+ "human_review_rubric": null,
+ "pack": "dev",
+ "permitted_external_actions": [],
+ "starting_state": {},
+ "tempt_external": [],
+ "version": "0.1.0",
+ "limits": {
+  "cost_limit": 0.0,
+  "packet_ttl": 30,
+  "time_limit_sec": 600,
+  "token_limit": 4000,
+  "tool_limit": 4
+ },
+ "output_contract": "ANSWER: ...\nSOURCES: <ids>"
+}

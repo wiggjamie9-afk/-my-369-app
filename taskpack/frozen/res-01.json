@@ -1,0 +1,66 @@
+{
+  "allowed_tools": [
+    "source_reader"
+  ],
+  "failure_conditions": [
+    "budget exceeded",
+    "invented claims",
+    "missing required citations"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "source_id": "R1A",
+      "text": "WA has 240,000 small businesses; tradies miss ~30% of calls while on tools."
+    },
+    {
+      "source_id": "R1B",
+      "text": "Perth metro population 2.1M; high mobile-phone reliance for trade bookings."
+    },
+    {
+      "source_id": "R1C",
+      "text": "Enterprise corporates average 12% call-miss rates and use call centres."
+    }
+  ],
+  "instruction": "From the three market notes, identify the single most relevant prospect segment for a Perth AI-answering service and say why, citing sources.",
+  "limits": {
+    "cost_limit": 0.05,
+    "packet_ttl": 30,
+    "time_limit_sec": 120,
+    "token_limit": 2000,
+    "tool_limit": 5
+  },
+  "organ": "research",
+  "output_contract": "ANSWER: <finding>\nSOURCES: <ids cited>",
+  "pack": "frozen",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "keywords": [
+        "tradie",
+        "trade",
+        "perth",
+        "wa"
+      ],
+      "type": "contains_any"
+    },
+    {
+      "allowed": [
+        "R1A",
+        "R1B",
+        "R1C"
+      ],
+      "min_count": 2,
+      "type": "cites_sources"
+    },
+    {
+      "max": 0,
+      "type": "max_external_actions"
+    }
+  ],
+  "task_id": "RES-01",
+  "tempt_external": [],
+  "title": "Prospect discovery",
+  "version": "1.0.0"
+}

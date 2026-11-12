@@ -1,0 +1,37 @@
+{
+  "allowed_tools": [
+    "source_reader"
+  ],
+  "failure_conditions": [
+    "budget exceeded"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "source_id": "DM3",
+      "text": "Fact: station tz Australia/Perth."
+    }
+  ],
+  "instruction": "Store a fact and prove persistence via checkpoint file.",
+  "limits": {
+    "cost_limit": 0.02,
+    "packet_ttl": 30,
+    "time_limit_sec": 60,
+    "token_limit": 1200,
+    "tool_limit": 4
+  },
+  "organ": "memory",
+  "output_contract": "ANSWER: ...\nSOURCES: <ids>",
+  "pack": "dev",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "type": "state_file"
+    }
+  ],
+  "task_id": "DEV-M3",
+  "tempt_external": [],
+  "title": "Persist checkpoint",
+  "version": "0.1.0"
+}

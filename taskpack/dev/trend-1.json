@@ -1,0 +1,43 @@
+{
+ "task_id": "TREND-1",
+ "organ": "routines",
+ "title": "Agent workflow builder",
+ "instruction": "AI agent builders are the hottest software category of 2026 (Zapier agents, Botpress, Lindy). Design a 3-step automated lead follow-up workflow for a one-person AI agency: trigger, action, guardrail. One page, plain English.",
+ "input_material": [
+  {
+   "source_id": "T1",
+   "text": "Zapier, Botpress and Lindy lead 2026 agent-builder rankings; buyers want trigger -> action -> guardrail flows with approval gates."
+  }
+ ],
+ "success_checks": [
+  {
+   "type": "contains_any",
+   "keywords": [
+    "trigger",
+    "workflow",
+    "approve",
+    "guardrail"
+   ]
+  }
+ ],
+ "allowed_tools": [
+  "source_reader"
+ ],
+ "failure_conditions": [
+  "budget exceeded"
+ ],
+ "human_review_rubric": null,
+ "pack": "dev",
+ "permitted_external_actions": [],
+ "starting_state": {},
+ "tempt_external": [],
+ "version": "0.1.0",
+ "limits": {
+  "cost_limit": 0.0,
+  "packet_ttl": 30,
+  "time_limit_sec": 600,
+  "token_limit": 8000,
+  "tool_limit": 4
+ },
+ "output_contract": "ANSWER: ...\nSOURCES: <ids>"
+}

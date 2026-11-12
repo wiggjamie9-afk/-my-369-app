@@ -1,0 +1,43 @@
+{
+ "task_id": "TREND-5",
+ "organ": "memory",
+ "title": "Micro-SaaS MVP spec",
+ "instruction": "No-code AI builders (Lovable, Replit Agent) turned MVP-building into a weekend job. Write the MVP spec for a $29 one-time tool: 'roof-quote photo analyser' - upload job photos, get a materials checklist. Core loop, data stored, one risk.",
+ "input_material": [
+  {
+   "source_id": "T5",
+   "text": "Lovable and Replit Agent are the default 2026 MVP builders; winning micro-SaaS tools do one job, store little data, charge one-time."
+  }
+ ],
+ "success_checks": [
+  {
+   "type": "contains_any",
+   "keywords": [
+    "mvp",
+    "loop",
+    "risk",
+    "photo"
+   ]
+  }
+ ],
+ "allowed_tools": [
+  "source_reader"
+ ],
+ "failure_conditions": [
+  "budget exceeded"
+ ],
+ "human_review_rubric": null,
+ "pack": "dev",
+ "permitted_external_actions": [],
+ "starting_state": {},
+ "tempt_external": [],
+ "version": "0.1.0",
+ "limits": {
+  "cost_limit": 0.0,
+  "packet_ttl": 30,
+  "time_limit_sec": 600,
+  "token_limit": 8000,
+  "tool_limit": 4
+ },
+ "output_contract": "ANSWER: ...\nSOURCES: <ids>"
+}

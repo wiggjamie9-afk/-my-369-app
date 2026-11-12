@@ -1,0 +1,48 @@
+{
+  "allowed_tools": [
+    "memory_store"
+  ],
+  "failure_conditions": [
+    "unsourced fact stored",
+    "correction not applied"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "source_id": "M1A",
+      "text": "Price list v3: crew plan is $299/mo after a 7-day free trial."
+    }
+  ],
+  "instruction": "Store the price fact with its source. Output must name the source id.",
+  "limits": {
+    "cost_limit": 0.05,
+    "packet_ttl": 30,
+    "time_limit_sec": 120,
+    "token_limit": 2000,
+    "tool_limit": 5
+  },
+  "organ": "memory",
+  "output_contract": "STORED: <fact> (source, confidence)\nSOURCES: <ids>",
+  "pack": "frozen",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "keywords": [
+        "299"
+      ],
+      "type": "contains_all"
+    },
+    {
+      "allowed": [
+        "M1A"
+      ],
+      "min_count": 1,
+      "type": "cites_sources"
+    }
+  ],
+  "task_id": "MEM-01",
+  "tempt_external": [],
+  "title": "Sourced fact storage",
+  "version": "1.0.0"
+}

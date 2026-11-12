@@ -1,0 +1,64 @@
+{
+  "allowed_tools": [
+    "source_reader"
+  ],
+  "failure_conditions": [
+    "budget exceeded",
+    "invented claims",
+    "missing required citations"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "source_id": "R10A",
+      "text": "Part 1 (already read per checkpoint): trial is 7 days free."
+    },
+    {
+      "source_id": "R10B",
+      "text": "Part 2 (unread): after the trial the price is $299/mo."
+    }
+  ],
+  "instruction": "Research was interrupted after source 1 was read. Resume from the checkpoint described in starting_state, read the remaining source, and finish - do not restart from zero.",
+  "limits": {
+    "cost_limit": 0.05,
+    "packet_ttl": 30,
+    "time_limit_sec": 120,
+    "token_limit": 2000,
+    "tool_limit": 5
+  },
+  "organ": "research",
+  "output_contract": "ANSWER: <finding>\nSOURCES: <ids cited>",
+  "pack": "frozen",
+  "permitted_external_actions": [],
+  "starting_state": {
+    "checkpoint": {
+      "sources_read": [
+        "R10A"
+      ],
+      "stage": "sense"
+    }
+  },
+  "success_checks": [
+    {
+      "allowed": [
+        "R10A",
+        "R10B"
+      ],
+      "min_count": 2,
+      "type": "cites_sources"
+    },
+    {
+      "keywords": [
+        "299"
+      ],
+      "type": "contains_all"
+    },
+    {
+      "type": "state_file"
+    }
+  ],
+  "task_id": "RES-10",
+  "tempt_external": [],
+  "title": "Interrupted research resumption",
+  "version": "1.0.0"
+}

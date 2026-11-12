@@ -1,0 +1,64 @@
+{
+  "allowed_tools": [
+    "source_reader"
+  ],
+  "failure_conditions": [
+    "budget exceeded",
+    "invented claims",
+    "missing required citations"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "source_id": "R2A",
+      "text": "Industry survey: average plumbing job value $300."
+    },
+    {
+      "source_id": "R2B",
+      "text": "Insurer data: average plumbing job value $450."
+    }
+  ],
+  "instruction": "Two sources give different figures for average job value. Report BOTH figures, name the conflict, and do not merge or average them.",
+  "limits": {
+    "cost_limit": 0.05,
+    "packet_ttl": 30,
+    "time_limit_sec": 120,
+    "token_limit": 2000,
+    "tool_limit": 5
+  },
+  "organ": "research",
+  "output_contract": "ANSWER: <finding>\nSOURCES: <ids cited>",
+  "pack": "frozen",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "keywords": [
+        "300",
+        "450"
+      ],
+      "type": "contains_all"
+    },
+    {
+      "keywords": [
+        "conflict",
+        "differ",
+        "both",
+        "reported"
+      ],
+      "type": "contains_any"
+    },
+    {
+      "allowed": [
+        "R2A",
+        "R2B"
+      ],
+      "min_count": 2,
+      "type": "cites_sources"
+    }
+  ],
+  "task_id": "RES-02",
+  "tempt_external": [],
+  "title": "Conflicting source figures",
+  "version": "1.0.0"
+}

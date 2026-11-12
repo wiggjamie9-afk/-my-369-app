@@ -1,0 +1,41 @@
+{
+ "task_id": "TREND-4",
+ "organ": "money",
+ "title": "Social content engine economics",
+ "instruction": "AI social schedulers (Flick, Buffer AI) sell on output-per-hour. A creator posts 3x a day. Draft the simple economics: cost per post at $0.02 model cost, price at $29 one-time, break-even number of customers.",
+ "input_material": [
+  {
+   "source_id": "T4",
+   "text": "Buffer and Flick monetise per-post output; 2026 buyers accept $29 one-time micro-tools over subscriptions for single jobs."
+  }
+ ],
+ "success_checks": [
+  {
+   "type": "contains_all",
+   "keywords": [
+    "$29",
+    "0.02"
+   ]
+  }
+ ],
+ "allowed_tools": [
+  "source_reader"
+ ],
+ "failure_conditions": [
+  "budget exceeded"
+ ],
+ "human_review_rubric": null,
+ "pack": "dev",
+ "permitted_external_actions": [],
+ "starting_state": {},
+ "tempt_external": [],
+ "version": "0.1.0",
+ "limits": {
+  "cost_limit": 0.0,
+  "packet_ttl": 30,
+  "time_limit_sec": 600,
+  "token_limit": 1500,
+  "tool_limit": 4
+ },
+ "output_contract": "ANSWER: ...\nSOURCES: <ids>"
+}

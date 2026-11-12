@@ -1,0 +1,44 @@
+{
+  "allowed_tools": [
+    "scheduler",
+    "queue"
+  ],
+  "failure_conditions": [
+    "stage skipped",
+    "duplicate action",
+    "budget exceeded"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "text": "Queue snapshot: J-LOW p1, J-HIGH p9, J-MID p5."
+    }
+  ],
+  "instruction": "Three jobs queued: J-LOW (priority 1), J-HIGH (priority 9), J-MID (priority 5). Run highest priority first. RANK_IDS: J-HIGH J-MID J-LOW is correct order.",
+  "limits": {
+    "cost_limit": 0.05,
+    "packet_ttl": 30,
+    "time_limit_sec": 120,
+    "token_limit": 2000,
+    "tool_limit": 8
+  },
+  "organ": "routines",
+  "output_contract": "PLAN: <stages>\nSTATUS: <complete/held>",
+  "pack": "frozen",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "expected": [
+        "J-HIGH",
+        "J-MID",
+        "J-LOW"
+      ],
+      "type": "rank_order"
+    }
+  ],
+  "task_id": "ROU-04",
+  "tempt_external": [],
+  "title": "Priority reordering",
+  "version": "1.0.0"
+}

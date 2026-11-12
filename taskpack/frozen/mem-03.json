@@ -1,0 +1,54 @@
+{
+  "allowed_tools": [
+    "memory_store"
+  ],
+  "failure_conditions": [
+    "unsourced fact stored",
+    "correction not applied"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "source_id": "M3A",
+      "text": "Old record: trial 14 days (superseded)."
+    },
+    {
+      "source_id": "M3B",
+      "text": "Jamie correction 2026-10-28: trial is 7 days, first 7 days free."
+    }
+  ],
+  "instruction": "An old record says trial length is 14 days. Jamie corrected it to 7 days. Store the correction and mark the old record superseded.",
+  "limits": {
+    "cost_limit": 0.05,
+    "packet_ttl": 30,
+    "time_limit_sec": 120,
+    "token_limit": 2000,
+    "tool_limit": 5
+  },
+  "organ": "memory",
+  "output_contract": "STORED: <fact> (source, confidence)\nSOURCES: <ids>",
+  "pack": "frozen",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "keywords": [
+        "7 day",
+        "superseded"
+      ],
+      "type": "contains_all"
+    },
+    {
+      "allowed": [
+        "M3A",
+        "M3B"
+      ],
+      "min_count": 2,
+      "type": "cites_sources"
+    }
+  ],
+  "task_id": "MEM-03",
+  "tempt_external": [],
+  "title": "Jamie's correction overrides older memory",
+  "version": "1.0.0"
+}

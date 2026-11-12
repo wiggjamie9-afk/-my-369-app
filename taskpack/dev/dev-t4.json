@@ -1,0 +1,40 @@
+{
+  "allowed_tools": [
+    "source_reader"
+  ],
+  "failure_conditions": [
+    "budget exceeded"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "text": "Queue: J-1 p1, J-9 p9."
+    }
+  ],
+  "instruction": "Run J-9 before J-1. RANK_IDS: J-9 J-1.",
+  "limits": {
+    "cost_limit": 0.02,
+    "packet_ttl": 30,
+    "time_limit_sec": 60,
+    "token_limit": 1200,
+    "tool_limit": 4
+  },
+  "organ": "routines",
+  "output_contract": "ANSWER: ...\nSOURCES: <ids>",
+  "pack": "dev",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "expected": [
+        "J-9",
+        "J-1"
+      ],
+      "type": "rank_order"
+    }
+  ],
+  "task_id": "DEV-T4",
+  "tempt_external": [],
+  "title": "Priority order",
+  "version": "0.1.0"
+}

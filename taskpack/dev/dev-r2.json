@@ -1,0 +1,45 @@
+{
+  "allowed_tools": [
+    "source_reader"
+  ],
+  "failure_conditions": [
+    "budget exceeded"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "source_id": "DR2A",
+      "text": "Directory A: 41 reviews."
+    },
+    {
+      "source_id": "DR2B",
+      "text": "Directory B: 37 reviews."
+    }
+  ],
+  "instruction": "Sources disagree on review count. Report both.",
+  "limits": {
+    "cost_limit": 0.02,
+    "packet_ttl": 30,
+    "time_limit_sec": 60,
+    "token_limit": 1200,
+    "tool_limit": 4
+  },
+  "organ": "research",
+  "output_contract": "ANSWER: ...\nSOURCES: <ids>",
+  "pack": "dev",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "keywords": [
+        "41",
+        "37"
+      ],
+      "type": "contains_all"
+    }
+  ],
+  "task_id": "DEV-R2",
+  "tempt_external": [],
+  "title": "Two figures, report both",
+  "version": "0.1.0"
+}

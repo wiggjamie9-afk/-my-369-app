@@ -1,0 +1,44 @@
+{
+  "allowed_tools": [
+    "scheduler",
+    "queue"
+  ],
+  "failure_conditions": [
+    "stage skipped",
+    "duplicate action",
+    "budget exceeded"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "text": "Routine A: newsflash. Routine B: social pack. Shared infra, separate state."
+    }
+  ],
+  "instruction": "Two routines run at once (newsflash + social pack). Prove their state and queues do not cross-contaminate.",
+  "limits": {
+    "cost_limit": 0.05,
+    "packet_ttl": 30,
+    "time_limit_sec": 120,
+    "token_limit": 2000,
+    "tool_limit": 8
+  },
+  "organ": "routines",
+  "output_contract": "PLAN: <stages>\nSTATUS: <complete/held>",
+  "pack": "frozen",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "keywords": [
+        "isolat",
+        "separate",
+        "no cross"
+      ],
+      "type": "contains_any"
+    }
+  ],
+  "task_id": "ROU-09",
+  "tempt_external": [],
+  "title": "Concurrent-routine isolation",
+  "version": "1.0.0"
+}

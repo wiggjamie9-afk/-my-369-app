@@ -10,6 +10,7 @@ Standard library only. No network calls, no keys. Python 3.8+.
     python3 organism.py serve                      rebuild on every read, serve the console locally
     python3 organism.py connect [FOLDER ...]       watch folders for results, ingest them, serve the console
     python3 organism.py connect ~/harness/out --lan   same, and reachable from a phone on the same network
+    python3 organism.py doctor                     check the page, database, task pack, scores and port
 
 If the AI9 validation harness's results database (results/results.db) is
 found, it is the source of truth: status.json is built straight from its runs
@@ -39,6 +40,7 @@ import hashlib
 import io
 import json
 import os
+import signal
 import socket
 import sqlite3
 import sys
@@ -427,7 +429,7 @@ def finish_organs(derived, beats, now):
 HARNESS_COLUMNS = ("run_id", "task_id", "pack", "system", "model", "seed", "status", "repeat_index",
                    "ts_queued", "ts_start", "ts_end", "verified_success", "checks_json", "failure_type",
                    "recovery_json", "claims_total", "claims_sourced", "ext_actions_requested",
-                   "ext_actions_executed", "packet_count", "duplicate_actions", "notes")
+                   "ext_actions_executed", "packet_count", "duplicate_actions", "notes", "duration_s")
 HARNESS_NEEDS = {"run_id", "task_id", "system", "status", "verified_success"}
 PENDING_FRESH_S = 900          # a queued/running row older than this is an interrupted batch, not work in progress
 
@@ -435,21 +437,30 @@ PENDING_FRESH_S = 900          # a queued/running row older than this is an inte
 def read_harness(path):
     """All rows of the harness runs table. Opens the database read-only; never writes to it."""
     uri = "file:%s?mode=ro" % urllib.parse.quote(os.path.abspath(path))
-    try:
-        con = sqlite3.connect(uri, uri=True, timeout=5)
-    except sqlite3.Error as exc:
-        raise ValueError("cannot open %s: %s" % (path, exc))
-    try:
-        have = {r[1] for r in con.execute("PRAGMA table_info(runs)")}
-        if not HARNESS_NEEDS <= have:
-            raise ValueError("%s is not an AI9 harness results database" % path)
-        cols = [c for c in HARNESS_COLUMNS if c in have]
-        cur = con.execute("SELECT rowid, %s FROM runs ORDER BY rowid" % ", ".join(cols))
-        return [dict(zip(["_n"] + cols, row)) for row in cur]
-    except sqlite3.Error as exc:
-        raise ValueError("cannot read %s: %s" % (path, exc))
-    finally:
-        con.close()
+    last = None
+    for attempt in range(4):                       # the harness may be mid-write: wait and look again
+        try:
+            con = sqlite3.connect(uri, uri=True, timeout=5)
+        except sqlite3.Error as exc:
+            raise ValueError("cannot open %s: %s" % (path, exc))
+        try:
+            have = {r[1] for r in con.execute("PRAGMA table_info(runs)")}
+            if not HARNESS_NEEDS <= have:
+                raise ValueError("%s is not an AI9 harness results database" % path)
+            cols = [c for c in HARNESS_COLUMNS if c in have]
+            cur = con.execute("SELECT rowid, %s FROM runs ORDER BY rowid" % ", ".join(cols))
+            return [dict(zip(["_n"] + cols, row)) for row in cur]
+        except sqlite3.OperationalError as exc:
+            last = exc
+            if "locked" not in str(exc) and "busy" not in str(exc):
+                break
+            time.sleep(0.3 * (attempt + 1))
+        except sqlite3.Error as exc:
+            last = exc
+            break
+        finally:
+            con.close()
+    raise ValueError("cannot read %s: %s" % (path, last))
 
 
 def is_harness_db(path):
@@ -470,6 +481,100 @@ def find_harness_db(folders):
     return None
 
 
+def harness_root(db):
+    """The harness folder: the database lives in <root>/results/."""
+    return os.path.dirname(os.path.dirname(os.path.abspath(db)))
+
+
+def _task_files(root, pack):
+    folder = os.path.join(root, "taskpack", pack)
+    try:
+        return folder, sorted(fn for fn in os.listdir(folder) if fn.endswith(".json"))
+    except OSError:
+        return folder, []
+
+
+def load_catalog(root):
+    """task_id -> organ and title, from the task pack beside the database (if it is there)."""
+    catalog = {}
+    for pack in ("frozen", "dev"):
+        folder, names = _task_files(root, pack)
+        for fn in names:
+            try:
+                with open(os.path.join(folder, fn), encoding="utf-8") as fh:
+                    task = json.load(fh)
+            except (OSError, ValueError):
+                continue
+            if isinstance(task, dict) and task.get("task_id"):
+                catalog[str(task["task_id"])] = {"organ": str(task.get("organ") or ""),
+                                                 "title": str(task.get("title") or "")}
+    return catalog
+
+
+def check_pack(root):
+    """Compare every task file with taskpack/pack.json. None when there is no pack here."""
+    try:
+        with open(os.path.join(root, "taskpack", "pack.json"), encoding="utf-8") as fh:
+            manifest = json.load(fh)
+    except FileNotFoundError:
+        return None
+    except (OSError, ValueError) as exc:
+        return {"ok": False, "problems": ["pack.json unreadable: %s" % exc]}
+    problems, counts = [], {}
+    for pack in ("frozen", "dev"):
+        listed = manifest.get(pack + "_sha256") or {}
+        folder, names = _task_files(root, pack)
+        counts[pack] = len(names)
+        for fn in names:
+            if fn not in listed:
+                problems.append("%s/%s is not in the manifest" % (pack, fn))
+                continue
+            with open(os.path.join(folder, fn), "rb") as fh:
+                blob = fh.read()
+            if hashlib.sha256(blob[:-1] if blob.endswith(b"\n") else blob).hexdigest() != listed[fn]:
+                problems.append("%s/%s differs from the manifest" % (pack, fn))
+        problems += ["%s/%s is in the manifest but missing" % (pack, fn) for fn in sorted(listed) if fn not in names]
+    return {"ok": not problems, "problems": problems[:12], "version": manifest.get("version"),
+            "frozen": counts["frozen"], "dev": counts["dev"]}
+
+
+# score.py's own numbers, shown as written. Nothing here recomputes a score.
+COMPARE = (
+    ("verified_success_rate_pct", "Verified success", "%", "higher"),
+    ("cost_per_success_usd", "Cost per success", "$", "lower"),
+    ("provenance_accuracy_pct", "Claims with a source", "%", "higher"),
+    ("recovery_rate_pct", "Recovery rate", "%", "higher"),
+    ("energy_per_success_tokens", "Tokens per success", "", "lower"),
+    ("duration_median_s", "Median run time", "s", "lower"),
+    ("interventions_per_success", "Human interventions per success", "", "lower"),
+    ("duplicate_action_rate_pct", "Duplicate actions", "%", "lower"),
+)
+
+
+def load_scores(db, done):
+    """The harness's scores.json as a control-vs-ai9 table, flagged stale if it no longer matches the runs."""
+    try:
+        with open(os.path.join(os.path.dirname(os.path.abspath(db)), "scores.json"), encoding="utf-8") as fh:
+            systems = json.load(fh).get("systems")
+    except (OSError, ValueError, AttributeError):
+        return None
+    if not isinstance(systems, dict) or not systems:
+        return None
+    counted = {}
+    for r in done:
+        counted[r.get("system")] = counted.get(r.get("system"), 0) + 1
+    stale = set(systems) != set(counted) or any(
+        (systems[name] or {}).get("runs") != n for name, n in counted.items())
+    rows = []
+    for key, label, unit, better in COMPARE:
+        control = (systems.get("control") or {}).get(key)
+        ai9 = (systems.get("ai9") or {}).get(key)
+        if isinstance(control, (int, float)) or isinstance(ai9, (int, float)):
+            rows.append({"metric": label, "unit": unit, "better": better, "control": control, "ai9": ai9})
+    return {"from": "score.py", "stale": bool(stale), "rows": rows,
+            "blends_packs": len({r.get("pack") for r in done}) > 1}
+
+
 def _loads(text):
     try:
         return json.loads(text) if text else None
@@ -477,11 +582,17 @@ def _loads(text):
         return None
 
 
-def harness_status(rows, beats, max_runs=200, max_history=120, now=None):
+def harness_status(rows, beats, max_runs=200, max_history=120, now=None, db=None):
     """status.json from harness rows. Scores count what score.py counts: completed runs."""
     now = now or datetime.now(timezone.utc)
     stamp = lambda ts: iso(datetime.fromtimestamp(ts, timezone.utc)) if ts else None
-    dur = lambda r: max(0, r["ts_end"] - r["ts_start"]) if r.get("ts_end") and r.get("ts_start") else None
+    def dur(r):
+        if isinstance(r.get("duration_s"), (int, float)):
+            return round(r["duration_s"], 3)       # measured wall time, when the harness recorded it
+        return max(0, r["ts_end"] - r["ts_start"]) if r.get("ts_end") and r.get("ts_start") else None
+    root = harness_root(db) if db else None
+    catalog = load_catalog(root) if root else {}
+    pack_check = check_pack(root) if root else None
     done = [r for r in rows if r.get("status") == "done"]
     crashed = [r for r in rows if r.get("status") == "failed"]
     waiting = [r for r in rows if r.get("status") in ("queued", "running")]
@@ -536,6 +647,8 @@ def harness_status(rows, beats, max_runs=200, max_history=120, now=None):
         reason = why(r)
         if reason:
             out["reason"] = reason
+        if catalog.get(out["task"], {}).get("title"):
+            out["title"] = catalog[out["task"]]["title"]
         runs_out.append(out)
 
     # the headline is the organism itself, on the pack it ran most recently
@@ -556,6 +669,18 @@ def harness_status(rows, beats, max_runs=200, max_history=120, now=None):
                             "pass": sum(1 for r in days[day] if r.get("verified_success")),
                             "total": len(days[day])})
         history = history[-max_history:]
+
+    # how each kind of task went, organism beside control, on the headline pack
+    breakdown = []
+    if ai9 and catalog:
+        for kind in ("research", "memory", "routines", "money"):
+            row = {"organ": kind}
+            for system in ("ai9", "control"):
+                mine = [r for r in done if r.get("system") == system and r.get("pack") == pack
+                        and catalog.get(str(r["task_id"]), {}).get("organ") == kind]
+                row[system] = {"pass": sum(1 for r in mine if r.get("verified_success")), "total": len(mine)}
+            if row["ai9"]["total"] or row["control"]["total"]:
+                breakdown.append(row)
 
     # organs: each reads the measurement the harness logs for its stage
     derived = {}
@@ -605,6 +730,10 @@ def harness_status(rows, beats, max_runs=200, max_history=120, now=None):
         for oid in ORGAN_IDS:
             derived[oid] = ("rest", "no organism runs yet")
 
+    if pack_check and not pack_check["ok"]:        # results are only comparable on an intact pack
+        n = len(pack_check["problems"])
+        derived["verify"] = ("down", "task pack does not match its manifest (%d problem%s)" % (n, "" if n == 1 else "s"))
+
     organs, stamps = finish_organs(derived, beats, now)
     stamps += [stamp(max(r.get("ts_end") or 0, r.get("ts_start") or 0, r.get("ts_queued") or 0)) for r in rows]
     stamps = [x for x in stamps if x]
@@ -616,15 +745,23 @@ def harness_status(rows, beats, max_runs=200, max_history=120, now=None):
         "history": history,
         "totals": {"runs": len(finished), "pending": len(waiting), "crashed": len(crashed)},
         "source": "harness",
+        "schema": 2,
     }
     if headline:
         status["headline"] = headline
+    if breakdown:
+        status["breakdown"] = breakdown
+    if pack_check:
+        status["pack"] = pack_check
+    comparison = load_scores(db, done) if db else None
+    if comparison:
+        status["comparison"] = comparison
     return status
 
 
 def build_status(store, max_runs=200, max_history=120, now=None):
     if store.db and os.path.isfile(store.db):
-        return harness_status(read_harness(store.db), store.heartbeats(), max_runs, max_history, now)
+        return harness_status(read_harness(store.db), store.heartbeats(), max_runs, max_history, now, store.db)
     now = now or datetime.now(timezone.utc)
     batches = store.batches()
     gone = {b["replaces"] for b in batches if b.get("replaces")}
@@ -704,6 +841,8 @@ def build_status(store, max_runs=200, max_history=120, now=None):
         "runs": runs,
         "history": history,
         "totals": {"batches": len(batches), "runs": total_runs},
+        "source": "archive",
+        "schema": 2,
     }
 
 
@@ -742,11 +881,12 @@ class Watcher(threading.Thread):
     """Polls folders for results files and archives whatever is new."""
 
     def __init__(self, store, out, folders, max_runs=200, interval=5.0, settle=2.0,
-                 default_model=None, log=print):
+                 default_model=None, log=None):
         super().__init__(daemon=True)
         self.store, self.out, self.max_runs = store, os.path.abspath(out), max_runs
         self.folders = [os.path.abspath(f) for f in folders]
-        self.interval, self.settle, self.default_model, self.log = interval, settle, default_model, log
+        self.interval, self.settle, self.default_model = interval, settle, default_model
+        self.log = log or (lambda msg: print("[%s] %s" % (time.strftime("%H:%M:%S"), msg), flush=True))
         self.seen = {}
         self.db_sig = None
         self.stop = threading.Event()
@@ -774,6 +914,10 @@ class Watcher(threading.Thread):
 
     def scan(self):
         """One pass. Returns how many new runs were archived."""
+        if not self.store.db:                      # the harness may create its database after we start
+            self.store.db = find_harness_db(self.folders + [HERE])
+            if self.store.db:
+                self.log("found the harness database: %s" % self.store.db)
         added, found = 0, []
         for path in self.candidates():
             try:
@@ -885,6 +1029,13 @@ class ConsoleHandler(SimpleHTTPRequestHandler):
 
     def end_headers(self):
         self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Referrer-Policy", "no-referrer")
+        # the console is one self-contained page: it may talk to this server and nothing else
+        self.send_header("Content-Security-Policy",
+                         "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; "
+                         "connect-src 'self'; img-src data:; base-uri 'none'; form-action 'none'; "
+                         "frame-ancestors 'none'")
         super().end_headers()
 
     def log_message(self, *args):
@@ -892,6 +1043,81 @@ class ConsoleHandler(SimpleHTTPRequestHandler):
 
 
 # ---------------------------------------------------------------- command line
+
+def doctor(store, out, port):
+    """Check everything the console depends on. Returns (lines, failures)."""
+    lines, failures = [], 0
+
+    def say(level, text):
+        nonlocal failures
+        failures += level == "FAIL"
+        lines.append("%-4s %s" % (level, text))
+
+    say("ok" if sys.version_info >= (3, 8) else "FAIL", "Python %d.%d.%d" % sys.version_info[:3])
+    page = os.path.join(os.path.dirname(os.path.abspath(out)), "index.html")
+    say("ok" if os.path.isfile(page) else "FAIL", "console page %s" % page)
+
+    if not store.db:
+        batches = store.batches()
+        say("warn", "no harness database found (looked for results/results.db); "
+                    "using the results archive: %d batch%s" % (len(batches), "" if len(batches) == 1 else "es"))
+    else:
+        try:
+            rows = read_harness(store.db)
+            done = [r for r in rows if r.get("status") == "done"]
+            waiting = [r for r in rows if r.get("status") in ("queued", "running")]
+            crashed = [r for r in rows if r.get("status") == "failed"]
+            say("ok", "harness database %s: %d completed, %d crashed, %d queued or running"
+                % (store.db, len(done), len(crashed), len(waiting)))
+            old = [r for r in waiting if time.time() - (r.get("ts_start") or r.get("ts_queued") or 0) >= PENDING_FRESH_S]
+            if old:
+                say("warn", "%d run%s left queued by an interrupted batch - rerun the same benchmark command to resume"
+                    % (len(old), "" if len(old) == 1 else "s"))
+            if any(r.get("model") == "offline-stub" for r in done):
+                say("warn", "some runs used the offline stub - plumbing checks only, never benchmark claims")
+            root = harness_root(store.db)
+            pack = check_pack(root)
+            if pack is None:
+                say("warn", "no task pack beside the database - task titles and the pack check are unavailable")
+            elif pack["ok"]:
+                say("ok", "task pack %s intact: %d frozen + %d dev" % (pack.get("version"), pack["frozen"], pack["dev"]))
+            else:
+                say("FAIL", "task pack does not match its manifest: " + "; ".join(pack["problems"][:4]))
+            scores = load_scores(store.db, done)
+            if scores is None:
+                say("warn", "no scores.json yet - run: python3 -m ai9lab.score")
+            elif scores["stale"]:
+                say("warn", "scores.json is older than the runs - run: python3 -m ai9lab.score")
+            else:
+                say("ok", "scores.json matches the runs")
+            try:
+                with open(os.path.join(root, "config.json"), encoding="utf-8") as fh:
+                    model = json.load(fh).get("model", {})
+                key_env = model.get("key_env") or ""
+                say("ok", "model config: backend %s, model %s, key variable %s is %s" % (
+                    model.get("backend"), model.get("model"), key_env or "(none)",
+                    "set" if key_env and os.environ.get(key_env) else "not set in this shell"))
+            except (OSError, ValueError):
+                say("warn", "no config.json - benchmarks will use the offline stub")
+        except ValueError as exc:
+            say("FAIL", str(exc))
+
+    try:
+        validate(build_status(store))
+        say("ok", "status.json can be built")
+    except Exception as exc:
+        say("FAIL", "status.json cannot be built: %s" % exc)
+
+    probe = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        probe.bind(("127.0.0.1", port))
+        say("ok", "port %d is free" % port)
+    except OSError:
+        say("warn", "port %d is in use - the console may already be running, or pass --port" % port)
+    finally:
+        probe.close()
+    return lines, failures
+
 
 def summary(status):
     lines = ["updated %s" % status["updated"]]
@@ -929,6 +1155,8 @@ def main(argv=None):
     p.add_argument("--ttl", type=float, default=None,
                    help="seconds after which a silent organ is shown as down")
     sub.add_parser("build", parents=[common], help="rebuild status.json from the archive")
+    p = sub.add_parser("doctor", parents=[common], help="check everything the console depends on")
+    p.add_argument("--port", type=int, default=8369)
     for name, text in (("serve", "serve the console locally, rebuilding on each read"),
                        ("connect", "watch folders for results, ingest them, and serve the console")):
         p = sub.add_parser(name, parents=[common], help=text)
@@ -953,6 +1181,11 @@ def main(argv=None):
             store.db = find_harness_db(list(getattr(args, "folders", None) or []) + [HERE])
         if store.db:
             print("reading the harness database (read-only): %s" % store.db)
+        if args.cmd == "doctor":
+            lines, failures = doctor(store, args.out, args.port)
+            print("\n".join(lines))
+            print("all good" if not failures else "%d thing%s to fix" % (failures, "" if failures == 1 else "s"))
+            return 1 if failures else 0
         if args.cmd == "ingest":
             for path in args.files:
                 batch, n = ingest(store, path, args.model)
@@ -988,7 +1221,14 @@ def main(argv=None):
                 addr = lan_address()
                 print("on your network (phone, tablet): %s" % (
                     "http://%s:%d/" % (addr, args.port) if addr else "address not found, check network settings"))
-            print("Ctrl+C to stop")
+            print("Ctrl+C to stop", flush=True)
+
+            def stop(*_):                          # a plain "kill" shuts down as cleanly as Ctrl+C
+                raise KeyboardInterrupt
+            try:
+                signal.signal(signal.SIGTERM, stop)
+            except (ValueError, OSError, AttributeError):
+                pass                               # not the main thread, or no SIGTERM here
             try:
                 server.serve_forever()
             except KeyboardInterrupt:

@@ -1,0 +1,11 @@
+{
+  "model": {
+    "backend": "offline-stub",
+    "model": "offline-stub",
+    "base_url": "",
+    "key_env": "AI9_MODEL_KEY",
+    "price_per_m_in": 0.0,
+    "price_per_m_out": 0.0,
+    "timeout_sec": 120
+  }
+}

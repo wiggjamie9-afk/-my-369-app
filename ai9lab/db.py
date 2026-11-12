@@ -1,0 +1,103 @@
+"""AI9 Lab - results database + run registry. sqlite, stdlib only.
+One DB file holds the persistent run registry (queued/running/done/failed,
+resumable) and the full run records per the AI9 Week-1 contract.
+"""
+import json, os, sqlite3, time
+
+SCHEMA = """
+CREATE TABLE IF NOT EXISTS runs(
+  run_id TEXT PRIMARY KEY,
+  task_id TEXT, task_version TEXT, pack TEXT,
+  system TEXT, config_json TEXT,
+  model TEXT, model_backend TEXT, seed INTEGER,
+  status TEXT,                    -- queued|running|done|failed
+  repeat_index INTEGER,
+  ts_queued INTEGER, ts_start INTEGER, ts_end INTEGER,
+  budget_json TEXT, usage_json TEXT,
+  verified_success INTEGER,       -- 0/1
+  checks_json TEXT,
+  failure_type TEXT,
+  human_interventions INTEGER DEFAULT 0,
+  recovery_json TEXT,             -- {attempted,result,seconds,cost}
+  claims_total INTEGER DEFAULT 0, claims_sourced INTEGER DEFAULT 0,
+  ext_actions_requested INTEGER DEFAULT 0, ext_actions_executed INTEGER DEFAULT 0,
+  packet_count INTEGER DEFAULT 0, duplicate_actions INTEGER DEFAULT 0,
+  output_path TEXT, event_log_path TEXT,
+  reviewer_score TEXT, notes TEXT,
+  duration_s REAL                 -- measured wall time; ts_start/ts_end are whole seconds
+);
+CREATE TABLE IF NOT EXISTS events(
+  id INTEGER PRIMARY KEY, run_id TEXT, ts INTEGER, stage TEXT, detail TEXT);
+"""
+
+
+class DB:
+    def __init__(self, path):
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        last = None
+        for _ in range(10):
+            try:
+                self.conn = sqlite3.connect(path, timeout=30)
+                self.conn.executescript(SCHEMA)
+                # databases made before duration_s existed gain the column; nothing else changes
+                have = {r[1] for r in self.conn.execute("PRAGMA table_info(runs)")}
+                if "duration_s" not in have:
+                    self.conn.execute("ALTER TABLE runs ADD COLUMN duration_s REAL")
+                self.conn.commit()
+                return
+            except sqlite3.OperationalError as e:
+                last = e
+                time.sleep(0.3)
+        raise last
+
+    def register(self, run):
+        """Idempotent: a run_id is queued once; rerunning after a crash resumes."""
+        self.conn.execute(
+            "INSERT OR IGNORE INTO runs(run_id,task_id,task_version,pack,system,"
+            "config_json,model,model_backend,seed,status,repeat_index,ts_queued,"
+            "budget_json) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (run["run_id"], run["task_id"], run["task_version"], run["pack"],
+             run["system"], json.dumps(run.get("config", {})),
+             run.get("model", ""), run.get("model_backend", ""), run.get("seed", 0),
+             "queued", run.get("repeat_index", 0), int(time.time()),
+             json.dumps(run.get("budgets", {}))))
+        self.conn.commit()
+
+    def start(self, run_id):
+        self.conn.execute("UPDATE runs SET status='running', ts_start=? WHERE run_id=?",
+                          (int(time.time()), run_id))
+        self.conn.commit()
+
+    def finish(self, run_id, record):
+        cols = dict(record)
+        cols["status"] = "done" if record.get("verified_success") else record.get("status", "done")
+        cols["ts_end"] = int(time.time())
+        sets = ", ".join(f"{k}=?" for k in cols)
+        self.conn.execute(f"UPDATE runs SET {sets} WHERE run_id=?",
+                          tuple(json.dumps(v) if isinstance(v, (dict, list)) else v
+                                for v in cols.values()) + (run_id,))
+        self.conn.commit()
+
+    def fail(self, run_id, failure_type, notes=""):
+        self.conn.execute(
+            "UPDATE runs SET status='failed', ts_end=?, failure_type=?, notes=? WHERE run_id=?",
+            (int(time.time()), failure_type, notes, run_id))
+        self.conn.commit()
+
+    def event(self, run_id, stage, detail):
+        self.conn.execute("INSERT INTO events(run_id,ts,stage,detail) VALUES(?,?,?,?)",
+                          (run_id, int(time.time()), stage, detail))
+        self.conn.commit()
+
+    def pending(self):
+        return [r[0] for r in self.conn.execute(
+            "SELECT run_id FROM runs WHERE status IN ('queued','running')")]
+
+    def all_runs(self, where="", args=()):
+        cur = self.conn.execute(
+            "SELECT * FROM runs WHERE status='done' " + where, args)
+        cols = [c[0] for c in cur.description]
+        return [dict(zip(cols, r)) for r in cur.fetchall()]
+
+    def close(self):
+        self.conn.close()

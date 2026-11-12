@@ -1,11 +1,13 @@
-"""Tests for organism.py. Run: python3 -m unittest test_organism -v"""
+"""Tests for organism.py. Run: python3 tests/test_organism.py"""
 
 import json
 import os
+import sys
 import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
 
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import organism as org
 
 
@@ -15,8 +17,10 @@ class Base(unittest.TestCase):
         self.dir = self.tmp.name
         self.store = org.Store(os.path.join(self.dir, "data"))
         self.out = os.path.join(self.dir, "status.json")
+        self.here, org.HERE = org.HERE, self.dir       # never discover the repo's own results database
 
     def tearDown(self):
+        org.HERE = self.here
         self.tmp.cleanup()
 
     def write(self, name, text):
@@ -343,6 +347,105 @@ class Harness(Base):
         self.assertIn("ai9 · flint · frozen", [m["name"] for m in status["models"]])
         self.assertEqual(status["headline"], {"label": "ai9 · frozen pack", "pass": 1, "total": 1})
 
+    def taskpack(self, tamper=False):
+        import hashlib
+        folder = os.path.join(self.dir, "taskpack")
+        tasks = {"dev": [("DEV-R1", "research", "Cite one source"), ("DEV-M3", "memory", "Persist checkpoint"),
+                         ("TREND-1", "routines", "Agent workflow builder")], "frozen": []}
+        manifest = {"version": "1.0.0"}
+        for pack, items in tasks.items():
+            os.makedirs(os.path.join(folder, pack))
+            hashes = {}
+            for tid, organ, title in items:
+                blob = json.dumps({"task_id": tid, "organ": organ, "title": title})
+                with open(os.path.join(folder, pack, tid.lower() + ".json"), "w") as fh:
+                    fh.write(blob + "\n")
+                hashes[tid.lower() + ".json"] = hashlib.sha256(blob.encode()).hexdigest()
+            manifest[pack + "_sha256"] = hashes
+        with open(os.path.join(folder, "pack.json"), "w") as fh:
+            json.dump(manifest, fh)
+        if tamper:
+            with open(os.path.join(folder, "dev", "trend-1.json"), "a") as fh:
+                fh.write(" ")
+            with open(os.path.join(folder, "dev", "sneaked-in.json"), "w") as fh:
+                fh.write("{}")
+
+    def status(self, rows=None, **kw):
+        path = self.make(rows or self.rows())
+        return org.validate(org.harness_status(org.read_harness(path), {}, db=path, **kw))
+
+    def test_task_pack_gives_titles_and_a_per_organ_breakdown(self):
+        self.taskpack()
+        status = self.status()
+        self.assertEqual(status["pack"], {"ok": True, "problems": [], "version": "1.0.0", "frozen": 0, "dev": 3})
+        self.assertEqual({r["task"]: r.get("title") for r in status["runs"]}["TREND-1"], "Agent workflow builder")
+        self.assertEqual(status["breakdown"], [
+            {"organ": "research", "ai9": {"pass": 1, "total": 1}, "control": {"pass": 1, "total": 1}},
+            {"organ": "memory", "ai9": {"pass": 1, "total": 1}, "control": {"pass": 0, "total": 1}},
+            {"organ": "routines", "ai9": {"pass": 0, "total": 1}, "control": {"pass": 0, "total": 0}},
+        ])
+
+    def test_a_changed_task_pack_is_flagged_and_turns_verify_down(self):
+        self.taskpack(tamper=True)
+        status = self.status()
+        self.assertFalse(status["pack"]["ok"])
+        self.assertEqual(status["pack"]["problems"], ["dev/sneaked-in.json is not in the manifest",
+                                                      "dev/trend-1.json differs from the manifest"])
+        verify = status["organs"][3]
+        self.assertEqual(verify["state"], "down")
+        self.assertIn("2 problems", verify["note"])
+
+    def test_scores_json_is_passed_through_and_staleness_is_caught(self):
+        path = self.make(self.rows())
+        scores = {"systems": {"ai9": {"runs": 3, "verified_success_rate_pct": 66.67, "cost_per_success_usd": 0.01},
+                              "control": {"runs": 2, "verified_success_rate_pct": 50.0, "cost_per_success_usd": 0.02,
+                                          "recovery_rate_pct": None}}}
+        with open(os.path.join(self.dir, "results", "scores.json"), "w") as fh:
+            json.dump(scores, fh)
+        cmp = org.harness_status(org.read_harness(path), {}, db=path)["comparison"]
+        self.assertFalse(cmp["stale"])
+        self.assertEqual(cmp["rows"][0], {"metric": "Verified success", "unit": "%", "better": "higher",
+                                          "control": 50.0, "ai9": 66.67})
+        self.assertEqual([r["metric"] for r in cmp["rows"]], ["Verified success", "Cost per success"])
+        scores["systems"]["ai9"]["runs"] = 2                     # a run finished after score.py last ran
+        with open(os.path.join(self.dir, "results", "scores.json"), "w") as fh:
+            json.dump(scores, fh)
+        self.assertTrue(org.harness_status(org.read_harness(path), {}, db=path)["comparison"]["stale"])
+
+    def test_measured_duration_is_preferred_over_whole_seconds(self):
+        import sqlite3
+        path = self.make(self.rows())
+        con = sqlite3.connect(path)
+        con.execute("ALTER TABLE runs ADD COLUMN duration_s REAL")
+        con.execute("UPDATE runs SET duration_s=0.25 WHERE task_id='DEV-R1' AND system='ai9'")
+        con.commit(); con.close()
+        runs = org.harness_status(org.read_harness(path), {})["runs"]
+        by = {(r["task"], r["model"]): r["secs"] for r in runs}
+        self.assertEqual((by[("DEV-R1", "ai9 · flint")], by[("DEV-M3", "ai9 · flint")]), (0.25, 9))
+
+    def test_doctor_reports_what_needs_fixing(self):
+        self.write("index.html", "<title>console</title>")
+        self.taskpack(tamper=True)
+        self.store.db = self.make(self.rows())
+        lines, failures = org.doctor(self.store, self.out, 0)
+        text = "\n".join(lines)
+        self.assertEqual(failures, 1)
+        self.assertIn("FAIL task pack does not match its manifest", text)
+        self.assertIn("5 completed, 1 crashed, 0 queued or running", text)
+        self.assertIn("warn no scores.json yet", text)
+        self.assertNotIn("FAIL status.json", text)
+
+    def test_watcher_picks_up_a_database_created_after_it_started(self):
+        log = []
+        w = org.Watcher(self.store, self.out, [self.dir], settle=0, log=log.append)
+        w.scan()
+        self.assertIsNone(self.store.db)
+        path = self.make(self.rows())
+        w.scan()
+        self.assertEqual(self.store.db, path)
+        with open(self.out, encoding="utf-8") as fh:
+            self.assertEqual(json.load(fh)["source"], "harness")
+
     def test_database_is_found_left_untouched_and_wins(self):
         path = self.make(self.rows())
         before = open(path, "rb").read()
@@ -401,6 +504,9 @@ class Serving(Base):
             self.assertIn(b"console", urllib.request.urlopen(base + "/", timeout=5).read())
             status = json.load(urllib.request.urlopen(base + "/status.json", timeout=5))
             self.assertEqual(status["models"][0]["pass"], 1)
+            page = urllib.request.urlopen(base + "/", timeout=5)
+            self.assertIn("connect-src 'self'", page.headers["Content-Security-Policy"])
+            self.assertEqual(page.headers["X-Content-Type-Options"], "nosniff")
             for path in ("/secret.txt", "/data/runs.jsonl", "/r.json", "/../organism.py"):
                 with self.assertRaises(urllib.error.HTTPError):
                     urllib.request.urlopen(base + path, timeout=5)

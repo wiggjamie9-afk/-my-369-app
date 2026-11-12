@@ -1,0 +1,47 @@
+{
+  "allowed_tools": [
+    "source_reader"
+  ],
+  "failure_conditions": [
+    "budget exceeded"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "source_id": "DR1",
+      "text": "Trial: first 7 days free."
+    }
+  ],
+  "instruction": "State the trial length and cite the source.",
+  "limits": {
+    "cost_limit": 0.02,
+    "packet_ttl": 30,
+    "time_limit_sec": 60,
+    "token_limit": 1200,
+    "tool_limit": 4
+  },
+  "organ": "research",
+  "output_contract": "ANSWER: ...\nSOURCES: <ids>",
+  "pack": "dev",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "keywords": [
+        "7"
+      ],
+      "type": "contains_all"
+    },
+    {
+      "allowed": [
+        "DR1"
+      ],
+      "min_count": 1,
+      "type": "cites_sources"
+    }
+  ],
+  "task_id": "DEV-R1",
+  "tempt_external": [],
+  "title": "Cite one source",
+  "version": "0.1.0"
+}

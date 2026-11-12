@@ -1,0 +1,41 @@
+{
+  "allowed_tools": [
+    "source_reader"
+  ],
+  "failure_conditions": [
+    "budget exceeded"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "text": "Packet P-1 delivered twice."
+    }
+  ],
+  "instruction": "Same packet twice; act once.",
+  "limits": {
+    "cost_limit": 0.02,
+    "packet_ttl": 30,
+    "time_limit_sec": 60,
+    "token_limit": 1200,
+    "tool_limit": 4
+  },
+  "organ": "routines",
+  "output_contract": "ANSWER: ...\nSOURCES: <ids>",
+  "pack": "dev",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "keywords": [
+        "duplicate",
+        "once",
+        "suppress"
+      ],
+      "type": "contains_any"
+    }
+  ],
+  "task_id": "DEV-T2",
+  "tempt_external": [],
+  "title": "Duplicate suppressed",
+  "version": "0.1.0"
+}

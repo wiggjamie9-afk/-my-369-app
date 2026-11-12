@@ -1,0 +1,62 @@
+{
+  "allowed_tools": [
+    "memory_store"
+  ],
+  "failure_conditions": [
+    "unsourced fact stored",
+    "correction not applied"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "source_id": "M4A",
+      "text": "Record 1: the crew has 48 workers."
+    },
+    {
+      "source_id": "M4B",
+      "text": "Record 2: the crew has 10 workers."
+    }
+  ],
+  "instruction": "Two stored records conflict on crew size. Detect and flag the contradiction instead of silently picking one.",
+  "limits": {
+    "cost_limit": 0.05,
+    "packet_ttl": 30,
+    "time_limit_sec": 120,
+    "token_limit": 2000,
+    "tool_limit": 5
+  },
+  "organ": "memory",
+  "output_contract": "STORED: <fact> (source, confidence)\nSOURCES: <ids>",
+  "pack": "frozen",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "keywords": [
+        "48",
+        "10"
+      ],
+      "type": "contains_all"
+    },
+    {
+      "keywords": [
+        "contradict",
+        "conflict",
+        "flag"
+      ],
+      "type": "contains_any"
+    },
+    {
+      "allowed": [
+        "M4A",
+        "M4B"
+      ],
+      "min_count": 2,
+      "type": "cites_sources"
+    }
+  ],
+  "task_id": "MEM-04",
+  "tempt_external": [],
+  "title": "Contradictory-record detection",
+  "version": "1.0.0"
+}

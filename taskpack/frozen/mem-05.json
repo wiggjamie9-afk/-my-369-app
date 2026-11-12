@@ -1,0 +1,51 @@
+{
+  "allowed_tools": [
+    "memory_store"
+  ],
+  "failure_conditions": [
+    "unsourced fact stored",
+    "correction not applied"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "source_id": "M5A",
+      "text": "Fact: immune timer runs every 15 minutes on Hester."
+    }
+  ],
+  "instruction": "Store a fact, then prove it survives a restart by writing a checkpoint file and re-reading it.",
+  "limits": {
+    "cost_limit": 0.05,
+    "packet_ttl": 30,
+    "time_limit_sec": 120,
+    "token_limit": 2000,
+    "tool_limit": 5
+  },
+  "organ": "memory",
+  "output_contract": "STORED: <fact> (source, confidence)\nSOURCES: <ids>",
+  "pack": "frozen",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "type": "state_file"
+    },
+    {
+      "keywords": [
+        "15"
+      ],
+      "type": "contains_all"
+    },
+    {
+      "allowed": [
+        "M5A"
+      ],
+      "min_count": 1,
+      "type": "cites_sources"
+    }
+  ],
+  "task_id": "MEM-05",
+  "tempt_external": [],
+  "title": "Restart persistence",
+  "version": "1.0.0"
+}

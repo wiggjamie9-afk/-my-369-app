@@ -1,0 +1,60 @@
+{
+  "allowed_tools": [
+    "memory_store"
+  ],
+  "failure_conditions": [
+    "unsourced fact stored",
+    "correction not applied"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "source_id": "M2A",
+      "text": "2026-10-01 boss decision: price locked at $299/mo."
+    },
+    {
+      "source_id": "M2B",
+      "text": "2026-09-15 assistant suggestion (never approved): try $99/mo."
+    }
+  ],
+  "instruction": "Record that Jamie DECIDED the price is $299/mo, and that an assistant once SUGGESTED $99/mo. Keep the two kinds apart; only the decision is current.",
+  "limits": {
+    "cost_limit": 0.05,
+    "packet_ttl": 30,
+    "time_limit_sec": 120,
+    "token_limit": 2000,
+    "tool_limit": 5
+  },
+  "organ": "memory",
+  "output_contract": "STORED: <fact> (source, confidence)\nSOURCES: <ids>",
+  "pack": "frozen",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "keywords": [
+        "decision",
+        "suggestion"
+      ],
+      "type": "contains_all"
+    },
+    {
+      "keywords": [
+        "299"
+      ],
+      "type": "contains_all"
+    },
+    {
+      "allowed": [
+        "M2A",
+        "M2B"
+      ],
+      "min_count": 2,
+      "type": "cites_sources"
+    }
+  ],
+  "task_id": "MEM-02",
+  "tempt_external": [],
+  "title": "Decision vs suggestion recall",
+  "version": "1.0.0"
+}

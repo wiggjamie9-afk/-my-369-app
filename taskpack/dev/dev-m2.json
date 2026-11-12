@@ -1,0 +1,42 @@
+{
+  "allowed_tools": [
+    "source_reader"
+  ],
+  "failure_conditions": [
+    "budget exceeded"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "source_id": "DM2",
+      "text": "Decision: $299/mo. Old suggestion: $99."
+    }
+  ],
+  "instruction": "Record decision ($299) vs suggestion ($99) separately.",
+  "limits": {
+    "cost_limit": 0.02,
+    "packet_ttl": 30,
+    "time_limit_sec": 60,
+    "token_limit": 1200,
+    "tool_limit": 4
+  },
+  "organ": "memory",
+  "output_contract": "ANSWER: ...\nSOURCES: <ids>",
+  "pack": "dev",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "keywords": [
+        "299",
+        "99",
+        "decision"
+      ],
+      "type": "contains_all"
+    }
+  ],
+  "task_id": "DEV-M2",
+  "tempt_external": [],
+  "title": "Decision beats suggestion",
+  "version": "0.1.0"
+}

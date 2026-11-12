@@ -1,0 +1,42 @@
+{
+  "allowed_tools": [
+    "source_reader"
+  ],
+  "failure_conditions": [
+    "budget exceeded"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "source_id": "DM4",
+      "text": "Records: 48 workers vs 10 workers."
+    }
+  ],
+  "instruction": "Flag conflicting stored figures 48 vs 10.",
+  "limits": {
+    "cost_limit": 0.02,
+    "packet_ttl": 30,
+    "time_limit_sec": 60,
+    "token_limit": 1200,
+    "tool_limit": 4
+  },
+  "organ": "memory",
+  "output_contract": "ANSWER: ...\nSOURCES: <ids>",
+  "pack": "dev",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "keywords": [
+        "contradict",
+        "conflict",
+        "flag"
+      ],
+      "type": "contains_any"
+    }
+  ],
+  "task_id": "DEV-M4",
+  "tempt_external": [],
+  "title": "Contradiction flag",
+  "version": "0.1.0"
+}

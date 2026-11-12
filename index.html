@@ -297,6 +297,10 @@
   td.task, td.secs { font-family: var(--mono); white-space: nowrap; }
   td.model-name, td.secs { color: var(--dim); }
   td.model-name { overflow-wrap: anywhere; }
+  td.task small {
+    display: block; margin-top: 2px; max-width: 30ch; white-space: normal;
+    font-family: var(--sans); font-size: 12px; color: var(--dim);
+  }
   .dur {
     display: inline-block; width: 44px; height: 2px; margin-right: 10px; vertical-align: 3px;
     background: rgba(var(--blue), .12); border-radius: 2px; overflow: hidden;
@@ -316,6 +320,36 @@
     font-size: 12px; color: var(--dim); overflow-wrap: anywhere;
   }
   .more { display: block; margin: 22px auto 0; }
+
+  /* ================= alerts ================= */
+  .alerts { display: grid; gap: 8px; margin-top: 30px; }
+  .alert {
+    padding: 11px 14px; border: 1px solid rgba(var(--c), .38); border-radius: 10px;
+    background: rgba(var(--c), .06); font-size: 13px;
+  }
+  .alert b { font-weight: 500; }
+  .alert span { display: block; margin-top: 2px; color: var(--dim); font-size: 12px; overflow-wrap: anywhere; }
+
+  /* ================= organism vs control ================= */
+  .versus { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .versus th:not(:first-child), .versus td:not(:first-child) { text-align: right; width: 22%; }
+  .versus td { font-family: var(--mono); color: var(--dim); }
+  .versus td:first-child { font-family: var(--sans); color: var(--ink); }
+  .versus td.best { color: var(--ink); }
+  .versus td.best::before {
+    content: ""; display: inline-block; width: 5px; height: 5px; margin-right: 8px; border-radius: 50%;
+    background: rgb(var(--blue)); box-shadow: 0 0 8px rgba(var(--blue), .9); vertical-align: 2px;
+  }
+  .versus-note { margin: 14px 0 0; font-size: 12px; color: var(--faint); }
+  .kinds { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 20px; margin-top: 34px; }
+  .kind .k { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: var(--faint); margin-bottom: 8px; }
+  .kind .r { display: grid; grid-template-columns: 58px 1fr 38px; align-items: center; gap: 10px; font-family: var(--mono); font-size: 12px; color: var(--dim); padding: 3px 0; }
+  .kind .r span:last-child { text-align: right; }
+  .kind .r.me { color: var(--ink); }
+  .kind .bar { height: 3px; border-radius: 3px; background: rgba(var(--blue), .12); }
+  .kind .bar i { display: block; height: 100%; border-radius: 3px; background: rgba(var(--rest), .9); }
+  .kind .r.me .bar i { background: rgb(var(--blue)); box-shadow: 0 0 8px rgba(var(--blue), .6); }
+  @media (min-width: 820px) { .kinds { grid-template-columns: repeat(4, 1fr); } }
 
   /* ================= trend ================= */
   .trend { position: relative; }
@@ -372,7 +406,7 @@
   body.sleeping h2 { color: rgba(var(--blue), .55); }
 
   /* ================= wider screens ================= */
-  @media (max-width: 479px) { .dur { display: none; } }
+  @media (max-width: 479px) { .dur, td.task small { display: none; } }
   @media (min-width: 820px) {
     main { padding: 60px 32px 96px; }
     .clover { width: 200px; height: 216px; }
@@ -445,6 +479,8 @@
     <div class="vital"><div class="k">Runs</div><div class="v" id="vRuns">–</div><div class="s" id="sRuns"></div></div>
   </div>
 
+  <div class="alerts" id="alerts" hidden></div>
+
   <section aria-labelledby="h-organs">
     <h2 id="h-organs">Organs</h2>
     <div class="organs" id="organs"></div>
@@ -453,6 +489,11 @@
   <section aria-labelledby="h-signals" id="signalsSection" hidden>
     <h2 id="h-signals">Signals</h2>
     <ul class="signals" id="signals"></ul>
+  </section>
+
+  <section aria-labelledby="h-versus" id="versusSection" hidden>
+    <h2 id="h-versus">Organism vs control</h2>
+    <div id="versus"></div>
   </section>
 
   <section aria-labelledby="h-trend" id="trendSection" hidden>
@@ -601,6 +642,7 @@
         status: String(r.status || "–").toUpperCase(),
         secs: num(r.secs),
         at: r.at ? String(r.at) : "",
+        title: r.title ? String(r.title) : "",
         reason: r.reason ? String(r.reason) : ""
       };
     }).reverse();
@@ -647,6 +689,9 @@
     return {
       updatedRaw: raw, updatedAt: d && !isNaN(d.getTime()) ? d : null,
       organs: o, health: health, models: models, runs: runs,
+      comparison: data.comparison && Array.isArray(data.comparison.rows) ? data.comparison : null,
+      breakdown: Array.isArray(data.breakdown) ? data.breakdown : [],
+      pack: data.pack && typeof data.pack === "object" ? data.pack : null,
       passRate: passRate, passLine: passLine, tempo: tempo, trend: trend, history: past,
       runPass: rPass, runFail: rFail, streak: streak
     };
@@ -1017,7 +1062,9 @@
       var tr = el("tr");
       if (!settled) tr.style.animationDelay = Math.min(i, 12) * 35 + "ms";
       else if (knownRuns && !knownRuns[runKey(r)]) tr.className = "fresh";
-      tr.appendChild(el("td", "task", r.task));
+      var taskCell = el("td", "task", r.task);
+      if (r.title) taskCell.appendChild(el("small", "", r.title));
+      tr.appendChild(taskCell);
       tr.appendChild(el("td", "model-name", r.model));
       var td = el("td");
       td.appendChild(el("span", "status" + (r.status === "PASS" ? " pass" : r.status === "FAIL" ? " fail" : ""), r.status));
@@ -1047,6 +1094,93 @@
       more.type = "button";
       more.addEventListener("click", function () { filter.limit += PAGE; paintRuns(); });
       box.appendChild(more);
+    }
+  }
+
+  // ---------- alerts: things that change how far the numbers can be trusted ----------
+  function paintAlerts() {
+    var box = $("alerts");
+    box.textContent = "";
+    var list = [];
+    if (view) {
+      if (view.pack && view.pack.ok === false) {
+        list.push(["down", "The task pack does not match its manifest, so these results are not comparable.",
+                   (view.pack.problems || []).slice(0, 3).join(" · ")]);
+      }
+      if (view.comparison && view.comparison.stale) {
+        list.push(["busy", "The organism-vs-control table is older than the runs.",
+                   "Refresh it with: python3 -m ai9lab.score"]);
+      }
+      if (view.models.some(function (m) { return m.name.indexOf("offline-stub") >= 0; })) {
+        list.push(["rest", "Some of these runs used the offline stub.",
+                   "They prove the plumbing works. They are not benchmark results."]);
+      }
+    }
+    box.hidden = !list.length;
+    list.forEach(function (a) {
+      var d = el("div", "alert");
+      d.dataset.state = a[0];
+      d.setAttribute("role", a[0] === "down" ? "alert" : "status");
+      d.appendChild(el("b", "", a[1]));
+      if (a[2]) d.appendChild(el("span", "", a[2]));
+      box.appendChild(d);
+    });
+  }
+
+  // ---------- organism vs control: score.py's own numbers, shown as written ----------
+  function fmtMetric(v, unit) {
+    if (typeof v !== "number" || !isFinite(v)) return "–";
+    var n = unit === "$" ? (Math.abs(v) < 1 ? v.toFixed(4) : v.toFixed(2)) : String(Math.round(v * 100) / 100);
+    return unit === "$" ? "$" + n : n + unit;
+  }
+
+  function paintVersus() {
+    var sec = $("versusSection"), box = $("versus");
+    box.textContent = "";
+    var cmp = view ? view.comparison : null, kinds = view ? view.breakdown : [];
+    sec.hidden = !(cmp && cmp.rows.length) && !kinds.length;
+    if (sec.hidden) return;
+
+    if (cmp && cmp.rows.length) {
+      var table = el("table", "versus"), head = el("tr");
+      ["Metric", "Control", "AI9"].forEach(function (h) { head.appendChild(el("th", "", h)); });
+      var thead = el("thead"); thead.appendChild(head); table.appendChild(thead);
+      var body = el("tbody");
+      cmp.rows.forEach(function (r) {
+        var tr = el("tr");
+        tr.appendChild(el("td", "", r.metric));
+        var c = el("td", "", fmtMetric(r.control, r.unit)), a = el("td", "", fmtMetric(r.ai9, r.unit));
+        if (typeof r.control === "number" && typeof r.ai9 === "number" && r.control !== r.ai9) {
+          var aiWins = r.better === "lower" ? r.ai9 < r.control : r.ai9 > r.control;
+          (aiWins ? a : c).className = "best";
+          (aiWins ? a : c).title = "better on this metric (" + r.better + " is better)";
+        }
+        tr.appendChild(c); tr.appendChild(a);
+        body.appendChild(tr);
+      });
+      table.appendChild(body); box.appendChild(table);
+      box.appendChild(el("p", "versus-note", "Numbers come from the harness's score.py, unchanged. The dot marks the better value." +
+        (cmp.blends_packs ? " score.py blends the dev and frozen packs." : "")));
+    }
+
+    if (kinds.length) {
+      var grid = el("div", "kinds");
+      kinds.forEach(function (k) {
+        var card = el("div", "kind");
+        card.appendChild(el("div", "k", k.organ));
+        [["ai9", "ai9", "r me"], ["control", "control", "r"]].forEach(function (w) {
+          var d = k[w[0]] || {}, p = num(d.pass), t = num(d.total);
+          var row = el("div", w[2]);
+          row.appendChild(el("span", "", w[1]));
+          var bar = el("span", "bar"), fill = el("i");
+          fill.style.width = (t ? (p / t) * 100 : 0) + "%";
+          bar.appendChild(fill); row.appendChild(bar);
+          row.appendChild(el("span", "", t ? p + "/" + t : "–"));
+          card.appendChild(row);
+        });
+        grid.appendChild(card);
+      });
+      box.appendChild(grid);
     }
   }
 
@@ -1208,6 +1342,8 @@
     paintVitals(view);
     paintOrgans(view.organs, announce);
     paintSignals();
+    paintAlerts();
+    paintVersus();
     paintTrend();
     paintModels(view);
     paintWeak();
@@ -1225,6 +1361,7 @@
     paintVitals(null);
     paintOrgans(null, false);
     paintSignals();
+    paintAlerts(); paintVersus();
     paintTrend(); paintWeak();
     paintFilters();
     $("models").textContent = "";

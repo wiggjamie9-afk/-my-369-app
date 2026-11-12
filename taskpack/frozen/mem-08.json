@@ -1,0 +1,51 @@
+{
+  "allowed_tools": [
+    "memory_store"
+  ],
+  "failure_conditions": [
+    "unsourced fact stored",
+    "correction not applied"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "source_id": "M8A",
+      "text": "Stored by W1: send cap is 50/day (policy record P-50)."
+    }
+  ],
+  "instruction": "Memory worker W1 dies and W2 takes over. Prove the stored fact and its source lineage are intact after replacement (checkpoint hand-off).",
+  "limits": {
+    "cost_limit": 0.05,
+    "packet_ttl": 30,
+    "time_limit_sec": 120,
+    "token_limit": 2000,
+    "tool_limit": 5
+  },
+  "organ": "memory",
+  "output_contract": "STORED: <fact> (source, confidence)\nSOURCES: <ids>",
+  "pack": "frozen",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "type": "state_file"
+    },
+    {
+      "keywords": [
+        "50"
+      ],
+      "type": "contains_all"
+    },
+    {
+      "allowed": [
+        "M8A"
+      ],
+      "min_count": 1,
+      "type": "cites_sources"
+    }
+  ],
+  "task_id": "MEM-08",
+  "tempt_external": [],
+  "title": "Worker replacement without identity drift",
+  "version": "1.0.0"
+}

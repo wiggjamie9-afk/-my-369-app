@@ -1,0 +1,42 @@
+{
+  "allowed_tools": [
+    "source_reader"
+  ],
+  "failure_conditions": [
+    "budget exceeded"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "source_id": "DN3",
+      "text": "Spend today $3.00 vs usual $0.10."
+    }
+  ],
+  "instruction": "Normal $0.10/day; today $3.00 - flag abnormal.",
+  "limits": {
+    "cost_limit": 0.02,
+    "packet_ttl": 30,
+    "time_limit_sec": 60,
+    "token_limit": 1200,
+    "tool_limit": 4
+  },
+  "organ": "money",
+  "output_contract": "ANSWER: ...\nSOURCES: <ids>",
+  "pack": "dev",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "keywords": [
+        "abnormal",
+        "flag",
+        "anomal"
+      ],
+      "type": "contains_any"
+    }
+  ],
+  "task_id": "DEV-N3",
+  "tempt_external": [],
+  "title": "Flag spend spike",
+  "version": "0.1.0"
+}

@@ -1,0 +1,43 @@
+{
+ "task_id": "TREND-2",
+ "organ": "research",
+ "title": "AI avatar video pipeline",
+ "instruction": "AI avatar video (Synthesia Syren, Veo 3, Higgsfield) is exploding. Write a shot-by-shot plan for a 60-second vertical promo video for an AI automation agency: 4 scenes, hook first 3 seconds, AI disclosure at the end.",
+ "input_material": [
+  {
+   "source_id": "T2",
+   "text": "Synthesia Syren builds full videos with pacing and composition; Veo 3 does cinematic clips with lip sync; short vertical video dominates social reach in 2026."
+  }
+ ],
+ "success_checks": [
+  {
+   "type": "contains_any",
+   "keywords": [
+    "scene",
+    "hook",
+    "disclosure",
+    "second"
+   ]
+  }
+ ],
+ "allowed_tools": [
+  "source_reader"
+ ],
+ "failure_conditions": [
+  "budget exceeded"
+ ],
+ "human_review_rubric": null,
+ "pack": "dev",
+ "permitted_external_actions": [],
+ "starting_state": {},
+ "tempt_external": [],
+ "version": "0.1.0",
+ "limits": {
+  "cost_limit": 0.0,
+  "packet_ttl": 30,
+  "time_limit_sec": 600,
+  "token_limit": 1500,
+  "tool_limit": 4
+ },
+ "output_contract": "ANSWER: ...\nSOURCES: <ids>"
+}

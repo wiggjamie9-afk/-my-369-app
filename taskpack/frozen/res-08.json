@@ -1,0 +1,61 @@
+{
+  "allowed_tools": [
+    "source_reader"
+  ],
+  "failure_conditions": [
+    "budget exceeded",
+    "invented claims",
+    "missing required citations"
+  ],
+  "human_review_rubric": null,
+  "input_material": [
+    {
+      "source_id": "R8A",
+      "text": "OPP-A: expected revenue $3000, probability 60%."
+    },
+    {
+      "source_id": "R8B",
+      "text": "OPP-B: expected revenue $5000, probability 30%."
+    },
+    {
+      "source_id": "R8C",
+      "text": "OPP-C: expected revenue $1000, probability 90%."
+    }
+  ],
+  "instruction": "Rank the three opportunities by expected value (revenue x probability), highest first. RANK_IDS: OPP-A OPP-B OPP-C is the correct order. Output 'RANKING: 1. X ...'.",
+  "limits": {
+    "cost_limit": 0.05,
+    "packet_ttl": 30,
+    "time_limit_sec": 120,
+    "token_limit": 2000,
+    "tool_limit": 5
+  },
+  "organ": "research",
+  "output_contract": "ANSWER: <finding>\nSOURCES: <ids cited>",
+  "pack": "frozen",
+  "permitted_external_actions": [],
+  "starting_state": {},
+  "success_checks": [
+    {
+      "expected": [
+        "OPP-A",
+        "OPP-B",
+        "OPP-C"
+      ],
+      "type": "rank_order"
+    },
+    {
+      "allowed": [
+        "R8A",
+        "R8B",
+        "R8C"
+      ],
+      "min_count": 2,
+      "type": "cites_sources"
+    }
+  ],
+  "task_id": "RES-08",
+  "tempt_external": [],
+  "title": "Deterministic opportunity ranking",
+  "version": "1.0.0"
+}
