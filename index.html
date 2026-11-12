@@ -5,31 +5,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#070B14">
 <title>AI9 Organism Console</title>
+<link rel="icon" id="favicon" href="data:,">
 <style>
   :root {
     --bg: #070B14;
     --ink: #DCE6F7;
-    --dim: #6F7FA0;
-    --faint: #3A4763;
+    --dim: #7686A8;
+    --faint: #3F4D6B;
     --blue: 46, 124, 246;      /* #2E7CF6 */
     --ok: 53, 214, 138;
     --busy: 245, 176, 65;
     --down: 240, 80, 110;
     --rest: 96, 112, 148;
     --line: rgba(var(--blue), .16);
+    --hair: rgba(var(--blue), .09);
     --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
     --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   }
 
   * { box-sizing: border-box; }
-
   html { -webkit-text-size-adjust: 100%; }
 
   body {
     margin: 0;
     min-height: 100vh;
     background:
-      radial-gradient(900px 520px at 50% -120px, rgba(var(--blue), .13), transparent 70%),
+      radial-gradient(900px 560px at 50% -120px, rgba(var(--blue), .14), transparent 70%),
       var(--bg);
     color: var(--ink);
     font-family: var(--sans);
@@ -38,374 +39,365 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  main {
-    max-width: 1080px;
-    margin: 0 auto;
-    padding: 40px 20px 72px;
-  }
+  main { max-width: 1080px; margin: 0 auto; padding: 36px 20px 64px; }
 
-  /* state colour plumbing: anything with data-state gets --c */
-  [data-state]          { --c: var(--rest); }
-  [data-state="ok"]     { --c: var(--ok); }
-  [data-state="busy"]   { --c: var(--busy); }
-  [data-state="down"]   { --c: var(--down); }
+  /* anything carrying data-state exposes its colour as --c */
+  [data-state]        { --c: var(--rest); }
+  [data-state="ok"]   { --c: var(--ok); }
+  [data-state="busy"] { --c: var(--busy); }
+  [data-state="down"] { --c: var(--down); }
 
-  /* ---------- header ---------- */
+  button, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 1px solid rgb(var(--blue)); outline-offset: 3px; }
+
+  /* ================= header ================= */
   header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 14px;
-    padding-bottom: 44px;
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; gap: 14px;
   }
 
-  .clover {
-    width: 148px;
-    height: 160px;
-    overflow: visible;
+  .heart {
+    padding: 0; border: 0; background: none; cursor: pointer;
+    border-radius: 50%;
+    -webkit-tap-highlight-color: transparent;
   }
-  .clover .body {
-    transform-origin: 0 0;
-    animation: pulse 4.2s ease-in-out infinite;
+  .clover { display: block; width: 168px; height: 182px; overflow: visible; }
+  .clover .body  { transform-origin: 0 0; animation: pulse 4.2s ease-in-out infinite; }
+  .clover .halo  { fill: rgba(var(--blue), .10); transform-origin: 0 0; animation: halo 4.2s ease-in-out infinite; }
+  .clover .orbit {
+    fill: none; stroke: rgba(var(--blue), .28); stroke-width: .5; stroke-dasharray: 1 5;
+    transform-origin: 0 0; animation: spin 80s linear infinite;
   }
-  .clover .halo {
-    fill: rgba(var(--blue), .10);
-    animation: halo 4.2s ease-in-out infinite;
-  }
-  .clover .leaf,
-  .clover .core {
+  .clover .leaf, .clover .core {
     fill: rgba(var(--c), .14);
     stroke: rgba(var(--c), .95);
-    stroke-width: 1.1;
-    stroke-linejoin: round;
+    stroke-width: 1.1; stroke-linejoin: round;
     transition: fill .9s ease, stroke .9s ease;
     filter: drop-shadow(0 0 5px rgba(var(--c), .45));
   }
   .clover .core { fill: rgba(var(--c), .30); }
-  .clover .vein,
-  .clover .stem {
-    fill: none;
-    stroke: rgba(var(--blue), .55);
-    stroke-width: .8;
-    stroke-linecap: round;
+  .clover .lit .leaf, .clover .lit .core { fill: rgba(var(--c), .42); }
+  .clover .vein, .clover .stem {
+    fill: none; stroke: rgba(var(--blue), .5); stroke-width: .8; stroke-linecap: round;
   }
   .clover .stem { stroke-width: 1.2; }
+  .clover .spark { fill: rgb(var(--c)); filter: drop-shadow(0 0 2px rgb(var(--c))); }
+  .heart.firing .body { animation: fire .6s ease-out; }
 
   h1 {
     margin: 6px 0 0;
-    font-size: 22px;
-    font-weight: 500;
-    letter-spacing: .42em;
-    margin-right: -.42em; /* optically re-centre tracked text */
+    font-size: 22px; font-weight: 500;
+    letter-spacing: .42em; margin-right: -.42em;
   }
 
   .stamp {
-    margin: 0;
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: .06em;
-    color: var(--dim);
-    min-height: 18px;
+    margin: 0; min-height: 18px;
+    font-family: var(--mono); font-size: 12px; letter-spacing: .06em; color: var(--dim);
   }
-  .stamp .beat {
-    display: inline-block;
-    width: 6px; height: 6px;
-    margin-right: 8px;
+  .beat {
+    display: inline-block; width: 6px; height: 6px; margin-right: 8px;
     border-radius: 50%;
-    background: rgb(var(--blue));
-    box-shadow: 0 0 8px rgba(var(--blue), .9);
+    background: rgb(var(--c, var(--blue)));
+    box-shadow: 0 0 8px rgba(var(--c, var(--blue)), .9);
     vertical-align: 1px;
     animation: beat 2.1s ease-in-out infinite;
   }
 
-  /* ---------- sections ---------- */
-  section { margin-top: 56px; }
-  section:first-of-type { margin-top: 0; }
+  /* heartbeat trace */
+  .ecg { display: block; width: 100%; height: 44px; margin-top: 26px; }
+  .ecg path { fill: none; stroke-width: 1; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+  .ecg .base  { stroke: rgba(var(--c), .16); }
+  .ecg .trace {
+    stroke: rgb(var(--c));
+    stroke-dasharray: 90 510;
+    filter: drop-shadow(0 0 3px rgba(var(--c), .9));
+    animation: trace var(--tempo, 3.2s) linear infinite;
+    transition: stroke .9s ease;
+  }
 
+  /* ================= vitals ================= */
+  .vitals {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 26px 20px;
+    margin-top: 22px;
+  }
+  .vital .k {
+    font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: var(--faint);
+  }
+  .vital .v {
+    margin-top: 6px;
+    font-family: var(--mono); font-size: 26px; font-weight: 300; letter-spacing: .01em;
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  .vital .v.word { color: rgb(var(--c)); font-family: var(--sans); font-weight: 400; transition: color .9s ease; }
+  .vital .s { margin-top: 2px; font-size: 12px; color: var(--dim); min-height: 18px; }
+  .vital .up   { color: rgb(var(--ok)); }
+  .vital .dn   { color: rgb(var(--down)); }
+  .spark-line { width: 64px; height: 20px; overflow: visible; }
+  .spark-line polyline { fill: none; stroke: rgb(var(--blue)); stroke-width: 1.2; stroke-linejoin: round; stroke-linecap: round; }
+  .spark-line circle { fill: #BFD8FF; }
+
+  /* ================= sections ================= */
+  section { margin-top: 56px; }
   h2 {
-    display: flex;
-    align-items: center;
-    gap: 14px;
+    display: flex; align-items: center; gap: 14px;
     margin: 0 0 22px;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: .3em;
-    text-transform: uppercase;
+    font-size: 11px; font-weight: 500; letter-spacing: .3em; text-transform: uppercase;
     color: rgb(var(--blue));
   }
-  h2::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, var(--line), transparent);
-  }
+  h2::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--line), transparent); }
+  .quiet { margin: 0; padding: 22px 0; color: var(--dim); font-size: 13px; letter-spacing: .04em; }
+  [hidden] { display: none !important; }
 
-  .quiet {
-    margin: 0;
-    padding: 26px 0;
-    color: var(--dim);
-    font-size: 13px;
-    letter-spacing: .04em;
-  }
-
-  /* ---------- organs ---------- */
-  .organs {
-    position: relative;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-  /* the nerve that threads the organs together */
+  /* ================= organs ================= */
+  .organs { position: relative; display: grid; grid-template-columns: 1fr; gap: 14px; }
   .organs::before {
-    content: "";
-    position: absolute;
-    left: 27px; top: 10px; bottom: 10px;
-    width: 1px;
+    content: ""; position: absolute; left: 27px; top: 10px; bottom: 10px; width: 1px;
     background: linear-gradient(180deg, transparent, rgba(var(--blue), .35), transparent);
   }
-
   .organ {
     position: relative;
     padding: 18px 18px 18px 22px;
-    border: 1px solid rgba(var(--c), .34);
-    border-radius: 14px;
-    background:
-      linear-gradient(180deg, rgba(var(--c), .07), rgba(var(--c), .015)),
-      var(--bg);
-    box-shadow: 0 0 22px -6px rgba(var(--c), .45), inset 0 0 18px -12px rgba(var(--c), .7);
-    transition: border-color .9s ease, box-shadow .9s ease, background .9s ease;
+    border: 1px solid rgba(var(--c), .34); border-radius: 14px;
+    background: linear-gradient(180deg, rgba(var(--c), .07), rgba(var(--c), .015)), var(--bg);
+    transition: border-color .9s ease, background .9s ease, transform .3s ease;
     animation: breathe 5s ease-in-out infinite;
   }
   .organ:nth-child(2) { animation-delay: -1s; }
   .organ:nth-child(3) { animation-delay: -2s; }
   .organ:nth-child(4) { animation-delay: -3s; }
   .organ:nth-child(5) { animation-delay: -4s; }
-
+  .organ:hover { transform: translateY(-2px); }
+  .organ.changed::after {
+    content: ""; position: absolute; inset: -1px; border-radius: 14px;
+    border: 1px solid rgb(var(--c));
+    animation: ripple 1.8s ease-out forwards; pointer-events: none;
+  }
   .organ .key {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: .26em;
-    color: var(--dim);
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .26em; color: var(--dim);
   }
   .organ .dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: rgb(var(--c));
-    box-shadow: 0 0 10px 1px rgba(var(--c), .85);
-    animation: beat 2.6s ease-in-out infinite;
-    transition: background .9s ease;
+    width: 7px; height: 7px; border-radius: 50%;
+    background: rgb(var(--c)); box-shadow: 0 0 10px 1px rgba(var(--c), .85);
+    animation: beat 2.6s ease-in-out infinite; transition: background .9s ease;
   }
-  .organ .label {
-    margin-top: 10px;
-    font-size: 19px;
-    font-weight: 400;
-    letter-spacing: .02em;
-  }
+  .organ[data-state="busy"] .dot { animation-duration: 1.2s; }
+  .organ[data-state="down"] .dot { animation-duration: 4.5s; }
+  .organ .label { margin-top: 10px; font-size: 19px; letter-spacing: .02em; }
   .organ .state {
     margin-top: 2px;
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: .18em;
-    text-transform: uppercase;
-    color: rgb(var(--c));
-    transition: color .9s ease;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+    color: rgb(var(--c)); transition: color .9s ease;
   }
-  .organ .note {
-    margin-top: 12px;
-    font-size: 13px;
-    color: var(--dim);
-    overflow-wrap: anywhere;
-    min-height: 1.5em;
-  }
+  .organ .note { margin-top: 12px; font-size: 13px; color: var(--dim); overflow-wrap: anywhere; min-height: 1.5em; }
 
-  /* ---------- scoreboard ---------- */
-  .model { padding: 16px 0; border-bottom: 1px solid rgba(var(--blue), .09); }
+  /* ================= signals (state changes it remembers) ================= */
+  .signals { list-style: none; margin: 0; padding: 0; }
+  .signals li {
+    display: flex; align-items: baseline; gap: 14px;
+    padding: 11px 0; border-top: 1px solid var(--hair);
+    font-size: 13px; animation: surface .7s ease both;
+  }
+  .signals li:first-child { border-top: 0; padding-top: 0; }
+  .signals time { flex: none; min-width: 124px; white-space: nowrap; font-family: var(--mono); font-size: 11px; color: var(--faint); }
+  .signals .what { font-family: var(--mono); letter-spacing: .08em; }
+  .signals .to { color: rgb(var(--c)); }
+  .signals .from { color: var(--dim); }
+
+  /* ================= scoreboard ================= */
+  .model { padding: 18px 0; border-bottom: 1px solid var(--hair); animation: surface .7s ease both; }
+  .model:first-child { padding-top: 0; }
   .model:last-child { border-bottom: 0; }
-  .model .row {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 16px;
-  }
+  .model .row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
   .model .name { font-size: 15px; overflow-wrap: anywhere; }
-  .model .score {
-    font-family: var(--mono);
-    font-size: 14px;
-    white-space: nowrap;
+  .tag {
+    display: inline-block; margin-left: 10px; padding: 1px 7px;
+    border: 1px solid rgba(var(--blue), .5); border-radius: 20px;
+    font-family: var(--mono); font-size: 9px; letter-spacing: .18em; text-transform: uppercase;
+    color: rgb(var(--blue)); vertical-align: 2px; white-space: nowrap;
   }
+  .model .score { font-family: var(--mono); font-size: 14px; white-space: nowrap; }
   .model .score small { font-size: 12px; color: var(--dim); }
-  .model .track {
-    position: relative;
-    height: 4px;
-    margin: 12px 0 9px;
-    border-radius: 4px;
-    background: rgba(var(--blue), .12);
+
+  /* one cell per task: the tissue view */
+  .cells { display: grid; gap: 3px; margin: 13px 0 10px; }
+  .cells i {
+    height: 9px; border-radius: 2px;
+    background: rgba(var(--blue), .10);
+    transition: background .5s ease, box-shadow .5s ease;
   }
-  .model .fill {
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 0;
-    border-radius: 4px;
+  .cells i.on  { background: rgb(var(--blue)); box-shadow: 0 0 7px rgba(var(--blue), .65); }
+  .cells i.off { background: rgba(var(--down), .32); }
+  .cells.dense { gap: 1px; }
+
+  .track { position: relative; height: 4px; margin: 15px 0 12px; border-radius: 4px; background: rgba(var(--blue), .12); }
+  .fill {
+    position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 4px;
     background: linear-gradient(90deg, rgba(var(--blue), .55), rgb(var(--blue)));
     box-shadow: 0 0 12px rgba(var(--blue), .7);
     transition: width 1.4s cubic-bezier(.2, .7, .2, 1);
   }
-  .model .fill::after { /* the bright cell at the growing tip */
-    content: "";
-    position: absolute;
-    right: -3px; top: -2px;
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: #BFD8FF;
-    box-shadow: 0 0 10px 2px rgba(var(--blue), .9);
-    animation: beat 2.6s ease-in-out infinite;
-  }
-  .model .meta {
-    display: flex;
-    justify-content: space-between;
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--dim);
-  }
 
-  /* ---------- run log ---------- */
+  .model .meta {
+    display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px;
+    font-family: var(--mono); font-size: 12px; color: var(--dim);
+  }
+  .recent { display: inline-flex; align-items: center; gap: 4px; }
+  .recent b {
+    width: 5px; height: 5px; border-radius: 50%; background: var(--faint);
+  }
+  .recent b.pass { background: rgb(var(--ok)); box-shadow: 0 0 5px rgba(var(--ok), .8); }
+  .recent b.fail { background: rgb(var(--down)); box-shadow: 0 0 5px rgba(var(--down), .8); }
+
+  /* ================= run log ================= */
+  .filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: -6px 0 20px; }
+  .chip, .filters select, .more {
+    padding: 5px 12px;
+    border: 1px solid var(--line); border-radius: 20px;
+    background: transparent;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--dim); cursor: pointer;
+    transition: border-color .3s ease, color .3s ease, background .3s ease;
+  }
+  .chip:hover, .more:hover, .filters select:hover { color: var(--ink); border-color: rgba(var(--blue), .5); }
+  .chip[aria-pressed="true"] { color: var(--ink); border-color: rgb(var(--blue)); background: rgba(var(--blue), .14); }
+  .chip span { margin-left: 6px; color: var(--faint); }
+  .filters select {
+    margin-left: auto; max-width: 100%;
+    -webkit-appearance: none; appearance: none; padding-right: 26px;
+    background: transparent no-repeat right 10px center / 8px
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%237686A8'/%3E%3C/svg%3E");
+  }
+  .filters select option { background: #0B1220; color: var(--ink); }
+
   .logwrap { overflow-x: auto; }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th {
-    padding: 0 12px 12px 0;
-    text-align: left;
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: .24em;
-    text-transform: uppercase;
-    color: var(--faint);
+    padding: 0 12px 12px 0; text-align: left;
+    font-size: 10px; font-weight: 500; letter-spacing: .24em; text-transform: uppercase; color: var(--faint);
   }
-  td {
-    padding: 13px 12px 13px 0;
-    border-top: 1px solid rgba(var(--blue), .09);
-    vertical-align: baseline;
-  }
+  td { padding: 13px 12px 13px 0; border-top: 1px solid var(--hair); vertical-align: baseline; }
   th:last-child, td:last-child { padding-right: 0; text-align: right; }
   td.task, td.secs { font-family: var(--mono); white-space: nowrap; }
-  td.model-name { color: var(--dim); overflow-wrap: anywhere; }
-  td.secs { color: var(--dim); }
-  .status {
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: .14em;
-    color: var(--dim);
-    white-space: nowrap;
+  td.model-name, td.secs { color: var(--dim); }
+  td.model-name { overflow-wrap: anywhere; }
+  .dur {
+    display: inline-block; width: 44px; height: 2px; margin-right: 10px; vertical-align: 3px;
+    background: rgba(var(--blue), .12); border-radius: 2px; overflow: hidden;
   }
+  .dur i { display: block; height: 100%; background: rgba(var(--blue), .8); border-radius: 2px; }
+  .status { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; color: var(--dim); white-space: nowrap; }
   .status::before {
-    content: "";
-    display: inline-block;
-    width: 5px; height: 5px;
-    margin-right: 8px;
-    border-radius: 50%;
-    background: currentColor;
-    box-shadow: 0 0 8px currentColor;
-    vertical-align: 2px;
+    content: ""; display: inline-block; width: 5px; height: 5px; margin-right: 8px;
+    border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; vertical-align: 2px;
   }
   .status.pass { color: rgb(var(--ok)); }
   .status.fail { color: rgb(var(--down)); }
-  tbody tr { animation: surface .7s ease both; }
+  tbody tr { animation: surface .6s ease both; transition: background .3s ease; }
+  tbody tr:hover { background: rgba(var(--blue), .04); }
+  .more { display: block; margin: 22px auto 0; }
 
   footer {
-    margin-top: 72px;
-    text-align: center;
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: .14em;
-    color: var(--faint);
+    margin-top: 72px; text-align: center;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .14em; color: var(--faint);
+    line-height: 2;
   }
+  footer button {
+    padding: 0; border: 0; background: none; cursor: pointer;
+    font: inherit; letter-spacing: inherit; color: inherit; text-decoration: underline; text-underline-offset: 3px;
+  }
+  footer button:hover { color: var(--dim); }
 
-  /* ---------- sleeping ---------- */
-  body.sleeping .clover .body { animation-duration: 9s; }
-  body.sleeping .clover .halo { animation-duration: 9s; }
-  body.sleeping .clover .vein,
-  body.sleeping .clover .stem { stroke: rgba(var(--rest), .5); }
-  body.sleeping .stamp .beat {
-    background: rgb(var(--rest));
-    box-shadow: 0 0 8px rgba(var(--rest), .8);
-    animation-duration: 6s;
-  }
+  /* ================= sleeping ================= */
+  body.sleeping .clover .body, body.sleeping .clover .halo { animation-duration: 9s; }
+  body.sleeping .clover .vein, body.sleeping .clover .stem { stroke: rgba(var(--rest), .5); }
+  body.sleeping .beat { animation-duration: 6s; }
   body.sleeping .organ { animation-duration: 9s; }
   body.sleeping .organ .dot { animation-duration: 6s; }
   body.sleeping h2 { color: rgba(var(--blue), .55); }
 
-  /* ---------- wider screens ---------- */
+  /* ================= wider screens ================= */
+  @media (max-width: 479px) { .dur { display: none; } }
   @media (min-width: 820px) {
-    main { padding: 64px 32px 96px; }
-    header { padding-bottom: 60px; }
-    .clover { width: 176px; height: 190px; }
+    main { padding: 60px 32px 96px; }
+    .clover { width: 200px; height: 216px; }
     h1 { font-size: 26px; }
-    section { margin-top: 72px; }
+    .ecg { height: 52px; margin-top: 34px; }
+    .vitals { grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 30px; }
+    .vital { padding-left: 20px; border-left: 1px solid var(--hair); }
+    .vital:first-child { padding-left: 0; border-left: 0; }
+    .vital .v { font-size: 30px; }
+    section { margin-top: 76px; }
     .organs { grid-template-columns: repeat(5, 1fr); gap: 16px; }
     .organs::before {
-      left: 10px; right: 10px; top: 28px; bottom: auto;
-      width: auto; height: 1px;
+      left: 10px; right: 10px; top: 28px; bottom: auto; width: auto; height: 1px;
       background: linear-gradient(90deg, transparent, rgba(var(--blue), .35), transparent);
     }
     .organ { padding: 20px 18px 22px; }
+    .cells i { height: 11px; }
   }
 
-  /* ---------- motion ---------- */
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50%      { transform: scale(1.035); }
-  }
-  @keyframes halo {
-    0%, 100% { opacity: .35; transform: scale(.94); }
-    50%      { opacity: 1;   transform: scale(1.06); }
-  }
-  @keyframes beat {
-    0%, 100% { opacity: .45; }
-    50%      { opacity: 1; }
-  }
+  /* ================= motion ================= */
+  @keyframes pulse   { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.035); } }
+  @keyframes fire    { 0% { transform: scale(1); } 35% { transform: scale(1.09); } 100% { transform: scale(1); } }
+  @keyframes halo    { 0%, 100% { opacity: .35; transform: scale(.94); } 50% { opacity: 1; transform: scale(1.06); } }
+  @keyframes spin    { to { transform: rotate(360deg); } }
+  @keyframes beat    { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
+  @keyframes trace   { from { stroke-dashoffset: 600; } to { stroke-dashoffset: 0; } }
   @keyframes breathe {
     0%, 100% { box-shadow: 0 0 18px -8px rgba(var(--c), .40), inset 0 0 18px -12px rgba(var(--c), .7); }
     50%      { box-shadow: 0 0 28px -4px rgba(var(--c), .55), inset 0 0 18px -10px rgba(var(--c), .8); }
   }
-  @keyframes surface {
-    from { opacity: 0; transform: translateY(4px); }
-    to   { opacity: 1; transform: none; }
-  }
+  @keyframes ripple  { from { opacity: .9; transform: scale(1); } to { opacity: 0; transform: scale(1.07); } }
+  @keyframes surface { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
 </style>
 </head>
-<body class="sleeping">
+<body class="sleeping" data-state="rest">
 <main>
 
   <header>
-    <!-- Four leaves + a centre: SENSE top, DECIDE right, VERIFY bottom, LEARN left, MODEL at the heart -->
-    <svg class="clover" viewBox="-60 -60 120 130" role="img" aria-label="AI9 organism clover">
-      <circle class="halo" r="56" style="transform-origin:0 0"/>
-      <g class="body">
-        <path class="stem" d="M0,39 C 2,50 0,58 -9,66"/>
-        <g data-organ="sense"  data-state="rest"><path class="leaf" d="M0,-7 C-14,-20 -27,-33 -15,-44 C-8,-50 0,-45 0,-38 C0,-45 8,-50 15,-44 C27,-33 14,-20 0,-7Z"/><path class="vein" d="M0,-12 V-34"/></g>
-        <g data-organ="decide" data-state="rest" transform="rotate(90)"><path class="leaf" d="M0,-7 C-14,-20 -27,-33 -15,-44 C-8,-50 0,-45 0,-38 C0,-45 8,-50 15,-44 C27,-33 14,-20 0,-7Z"/><path class="vein" d="M0,-12 V-34"/></g>
-        <g data-organ="verify" data-state="rest" transform="rotate(180)"><path class="leaf" d="M0,-7 C-14,-20 -27,-33 -15,-44 C-8,-50 0,-45 0,-38 C0,-45 8,-50 15,-44 C27,-33 14,-20 0,-7Z"/><path class="vein" d="M0,-12 V-34"/></g>
-        <g data-organ="learn"  data-state="rest" transform="rotate(270)"><path class="leaf" d="M0,-7 C-14,-20 -27,-33 -15,-44 C-8,-50 0,-45 0,-38 C0,-45 8,-50 15,-44 C27,-33 14,-20 0,-7Z"/><path class="vein" d="M0,-12 V-34"/></g>
-        <g data-organ="model"  data-state="rest"><path class="core" d="M0,-8 C5,-8 8,-5 8,0 C8,5 5,8 0,8 C-5,8 -8,5 -8,0 C-8,-5 -5,-8 0,-8Z"/></g>
-      </g>
-    </svg>
+    <!-- Four leaves and a heart: SENSE top, DECIDE right, VERIFY bottom, LEARN left, MODEL at the centre -->
+    <button class="heart" id="heart" type="button" aria-label="Read status now" title="Read status now">
+      <svg class="clover" viewBox="-62 -62 124 134" aria-hidden="true">
+        <circle class="halo" r="56"/>
+        <circle class="orbit" r="59"/>
+        <g class="body">
+          <path class="stem" d="M0,39 C 2,50 0,58 -9,66"/>
+          <g data-organ="sense"  data-state="rest"><path class="leaf" d="M0,-7 C-14,-20 -27,-33 -15,-44 C-8,-50 0,-45 0,-38 C0,-45 8,-50 15,-44 C27,-33 14,-20 0,-7Z"/><path class="vein" d="M0,-12 V-34"/></g>
+          <g data-organ="decide" data-state="rest" transform="rotate(90)"><path class="leaf" d="M0,-7 C-14,-20 -27,-33 -15,-44 C-8,-50 0,-45 0,-38 C0,-45 8,-50 15,-44 C27,-33 14,-20 0,-7Z"/><path class="vein" d="M0,-12 V-34"/></g>
+          <g data-organ="verify" data-state="rest" transform="rotate(180)"><path class="leaf" d="M0,-7 C-14,-20 -27,-33 -15,-44 C-8,-50 0,-45 0,-38 C0,-45 8,-50 15,-44 C27,-33 14,-20 0,-7Z"/><path class="vein" d="M0,-12 V-34"/></g>
+          <g data-organ="learn"  data-state="rest" transform="rotate(270)"><path class="leaf" d="M0,-7 C-14,-20 -27,-33 -15,-44 C-8,-50 0,-45 0,-38 C0,-45 8,-50 15,-44 C27,-33 14,-20 0,-7Z"/><path class="vein" d="M0,-12 V-34"/></g>
+          <g data-organ="model"  data-state="rest"><path class="core" d="M0,-8 C5,-8 8,-5 8,0 C8,5 5,8 0,8 C-5,8 -8,5 -8,0 C-8,-5 -5,-8 0,-8Z"/></g>
+        </g>
+      </svg>
+    </button>
     <h1>AI9 ORGANISM</h1>
     <p class="stamp" id="stamp" aria-live="polite"><span class="beat"></span><span id="stampText">organism sleeping</span></p>
   </header>
 
+  <svg class="ecg" viewBox="0 0 600 40" preserveAspectRatio="none" aria-hidden="true">
+    <path class="base"  pathLength="600" d="M0,20 H214 l7,-4 l7,4 h18 l5,5 l8,-23 l9,31 l6,-13 h26 l9,-6 l11,6 H600"/>
+    <path class="trace" pathLength="600" d="M0,20 H214 l7,-4 l7,4 h18 l5,5 l8,-23 l9,31 l6,-13 h26 l9,-6 l11,6 H600"/>
+  </svg>
+
+  <div class="vitals" aria-label="Vital signs">
+    <div class="vital"><div class="k">Health</div><div class="v word" id="vHealth">–</div><div class="s" id="sHealth"></div></div>
+    <div class="vital"><div class="k">Pass rate</div><div class="v"><span id="vPass">–</span><span id="spark"></span></div><div class="s" id="sPass"></div></div>
+    <div class="vital"><div class="k">Tempo</div><div class="v" id="vTempo">–</div><div class="s" id="sTempo"></div></div>
+    <div class="vital"><div class="k">Runs</div><div class="v" id="vRuns">–</div><div class="s" id="sRuns"></div></div>
+  </div>
+
   <section aria-labelledby="h-organs">
     <h2 id="h-organs">Organs</h2>
     <div class="organs" id="organs"></div>
+  </section>
+
+  <section aria-labelledby="h-signals" id="signalsSection" hidden>
+    <h2 id="h-signals">Signals</h2>
+    <ul class="signals" id="signals"></ul>
   </section>
 
   <section aria-labelledby="h-models">
@@ -415,10 +407,14 @@
 
   <section aria-labelledby="h-runs">
     <h2 id="h-runs">Run log</h2>
+    <div class="filters" id="filters" hidden></div>
     <div id="runs"></div>
   </section>
 
-  <footer id="foot">reads ./status.json · no keys · no servers</footer>
+  <footer>
+    <div id="next">reads ./status.json · no keys · no servers</div>
+    <div id="memoryLine" hidden><span id="memoryText"></span> · <button type="button" id="forget">forget</button></div>
+  </footer>
 
 </main>
 
@@ -427,7 +423,11 @@
   "use strict";
 
   var SOURCE = "./status.json";
-  var REFRESH_MS = 30000;
+  var REFRESH_S = 30;
+  var FETCH_TIMEOUT_MS = 8000;
+  var PAGE = 40;                 // run-log rows shown before "show more"
+  var HISTORY_MAX = 60;
+  var SIGNALS_MAX = 20;
 
   // Fixed anatomy. status.json supplies state, note and (optionally) label.
   var ORGANS = [
@@ -438,10 +438,11 @@
     { id: "learn",  key: "LEARN",  label: "Memory"   }
   ];
   var STATE_WORD = { ok: "ok", busy: "busy", down: "down", rest: "resting" };
+  var RGB = { ok: "53,214,138", busy: "245,176,65", down: "240,80,110", rest: "96,112,148" };
+  var SVG_NS = "http://www.w3.org/2000/svg";
+  var calm = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   var $ = function (id) { return document.getElementById(id); };
-  var updatedAt = null;   // Date of last good "updated" value
-  var updatedRaw = "";
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -449,136 +450,451 @@
     if (text !== undefined && text !== null) n.textContent = String(text);
     return n;
   }
-
+  function sv(tag, attrs) {
+    var n = document.createElementNS(SVG_NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    return n;
+  }
   function num(v) {
+    if (v === null || v === undefined || v === "") return null;
     var n = typeof v === "number" ? v : parseFloat(v);
     return isFinite(n) ? n : null;
   }
+  function secs(v) { var n = num(v); return n === null ? "–" : n.toFixed(1) + "s"; }
+  function pct(r) { return Math.round(r * 100) + "%"; }
 
-  function secs(v) {
-    var n = num(v);
-    return n === null ? "–" : n.toFixed(1) + "s";
+  // ---------- memory: lives only in this browser, never leaves it ----------
+  var memory = {
+    get: function (k, fallback) {
+      try { var v = JSON.parse(localStorage.getItem("ai9." + k)); return v === null ? fallback : v; }
+      catch (e) { return fallback; }
+    },
+    set: function (k, v) { try { localStorage.setItem("ai9." + k, JSON.stringify(v)); } catch (e) {} },
+    clear: function () {
+      try { ["history", "organs", "signals"].forEach(function (k) { localStorage.removeItem("ai9." + k); }); } catch (e) {}
+    }
+  };
+
+  // ---------- read status.json into one tidy picture ----------
+  function understand(data) {
+    var o = {}, byId = {};
+    (Array.isArray(data.organs) ? data.organs : []).forEach(function (x) {
+      if (x && x.id != null) byId[String(x.id).toLowerCase()] = x;
+    });
+    var counts = { ok: 0, busy: 0, down: 0, rest: 0 };
+    ORGANS.forEach(function (def) {
+      var x = byId[def.id];
+      var s = x && typeof x.state === "string" ? x.state.toLowerCase() : "rest";
+      if (!STATE_WORD[s]) s = "rest";
+      counts[s]++;
+      o[def.id] = { state: s, label: (x && x.label) || def.label, note: (x && x.note) || "" };
+    });
+
+    var reported = counts.ok + counts.busy + counts.down;
+    var health = { state: "rest", word: "unknown", line: "no organs reporting" };
+    if (reported) {
+      if (counts.down >= 2 || o.model.state === "down") health = { state: "down", word: "critical" };
+      else if (counts.down)  health = { state: "down", word: "strained" };
+      else if (counts.busy)  health = { state: "busy", word: "active" };
+      else                   health = { state: "ok",   word: "thriving" };
+      var bits = [];
+      if (counts.ok)   bits.push(counts.ok + " ok");
+      if (counts.busy) bits.push(counts.busy + " busy");
+      if (counts.down) bits.push(counts.down + " down");
+      health.line = bits.join(" · ");
+    }
+
+    var models = (Array.isArray(data.models) ? data.models : []).filter(Boolean).map(function (m) {
+      var pass = num(m.pass), total = num(m.total);
+      return {
+        name: m.name ? String(m.name) : "unnamed model",
+        pass: pass, total: total, avg: num(m.avg_sec),
+        ratio: pass !== null && total ? Math.max(0, Math.min(1, pass / total)) : null
+      };
+    });
+    // strongest first; ties go to the quicker model
+    models.sort(function (a, b) {
+      var d = (b.ratio === null ? -1 : b.ratio) - (a.ratio === null ? -1 : a.ratio);
+      if (d) return d;
+      return (a.avg === null ? Infinity : a.avg) - (b.avg === null ? Infinity : b.avg);
+    });
+
+    // status.json is appended to in run order, so the last entry is the newest
+    var runs = (Array.isArray(data.runs) ? data.runs : []).filter(Boolean).map(function (r) {
+      return {
+        task: r.task ? String(r.task) : "–",
+        model: r.model ? String(r.model) : "–",
+        status: String(r.status || "–").toUpperCase(),
+        secs: num(r.secs)
+      };
+    }).reverse();
+
+    var sumPass = 0, sumTotal = 0, sumTime = 0, timed = 0;
+    models.forEach(function (m) {
+      if (m.ratio !== null) { sumPass += m.pass; sumTotal += m.total; }
+      if (m.avg !== null && m.total) { sumTime += m.avg * m.total; timed += m.total; }
+    });
+    var rPass = runs.filter(function (r) { return r.status === "PASS"; }).length;
+    var rFail = runs.filter(function (r) { return r.status === "FAIL"; }).length;
+    var passRate = null, passLine = "";
+    if (sumTotal) { passRate = sumPass / sumTotal; passLine = sumPass + " / " + sumTotal + " tasks"; }
+    else if (rPass + rFail) { passRate = rPass / (rPass + rFail); passLine = rPass + " / " + (rPass + rFail) + " runs"; }
+
+    var tempo = null;
+    if (timed) tempo = sumTime / timed;
+    else {
+      var t = runs.filter(function (r) { return r.secs !== null; });
+      if (t.length) tempo = t.reduce(function (a, r) { return a + r.secs; }, 0) / t.length;
+    }
+
+    var streak = 0;
+    if (runs.length && (runs[0].status === "PASS" || runs[0].status === "FAIL")) {
+      while (streak < runs.length && runs[streak].status === runs[0].status) streak++;
+    }
+
+    var raw = data.updated ? String(data.updated) : "";
+    var d = raw ? new Date(raw) : null;
+    return {
+      updatedRaw: raw, updatedAt: d && !isNaN(d.getTime()) ? d : null,
+      organs: o, health: health, models: models, runs: runs,
+      passRate: passRate, passLine: passLine, tempo: tempo,
+      runPass: rPass, runFail: rFail, streak: streak
+    };
   }
 
-  // ----- organs -----
+  // ---------- remember each new snapshot; notice organs changing state ----------
+  function remember(v) {
+    if (!v.updatedRaw) return;
+    var history = memory.get("history", []);
+    if (!Array.isArray(history)) history = [];
+    if (history.length && history[history.length - 1].u === v.updatedRaw) return;   // already known
+
+    var before = memory.get("organs", null);
+    var now = {};
+    var signals = memory.get("signals", []);
+    if (!Array.isArray(signals)) signals = [];
+    ORGANS.forEach(function (def) {
+      var s = v.organs[def.id].state;
+      now[def.id] = s;
+      if (before && before[def.id] && before[def.id] !== s) {
+        signals.unshift({ t: v.updatedRaw, k: def.key, a: before[def.id], b: s });
+      }
+    });
+    history.push({ u: v.updatedRaw, p: v.passRate });
+    memory.set("history", history.slice(-HISTORY_MAX));
+    memory.set("signals", signals.slice(0, SIGNALS_MAX));
+    memory.set("organs", now);
+  }
+
+  // ---------- organs ----------
   var cards = {};
-  ORGANS.forEach(function (o) {
+  ORGANS.forEach(function (def) {
     var card = el("article", "organ");
     card.dataset.state = "rest";
     var key = el("div", "key");
-    key.appendChild(el("span", "", o.key));
+    key.appendChild(el("span", "", def.key));
     key.appendChild(el("span", "dot"));
-    var label = el("div", "label", o.label);
+    var label = el("div", "label", def.label);
     var state = el("div", "state", STATE_WORD.rest);
     var note = el("div", "note", "");
-    card.appendChild(key);
-    card.appendChild(label);
-    card.appendChild(state);
-    card.appendChild(note);
+    card.appendChild(key); card.appendChild(label); card.appendChild(state); card.appendChild(note);
     $("organs").appendChild(card);
-    cards[o.id] = { card: card, label: label, state: state, note: note,
-                    leaf: document.querySelector('[data-organ="' + o.id + '"]') };
+    var leaf = document.querySelector('[data-organ="' + def.id + '"]');
+    card.addEventListener("mouseenter", function () { leaf.classList.add("lit"); });
+    card.addEventListener("mouseleave", function () { leaf.classList.remove("lit"); });
+    cards[def.id] = { card: card, label: label, state: state, note: note, leaf: leaf, shown: "rest" };
   });
 
-  function paintOrgans(list) {
-    var byId = {};
-    (Array.isArray(list) ? list : []).forEach(function (o) {
-      if (o && o.id != null) byId[String(o.id).toLowerCase()] = o;
-    });
+  // a spark travelling along a leaf's vein: inward for SENSE, outward for the rest
+  function nerve(def, c, s) {
+    Array.prototype.slice.call(c.leaf.querySelectorAll(".spark")).forEach(function (n) { n.remove(); });
+    if (calm || def.id === "model" || (s !== "ok" && s !== "busy")) return;
+    var dur = s === "busy" ? 1.3 : 3.4;
+    var begin = (ORGANS.indexOf(def) * 0.7) + "s";
+    var dot = sv("circle", { "class": "spark", r: 1.3, opacity: 0 });
+    dot.appendChild(sv("animateMotion", {
+      dur: dur + "s", begin: begin, repeatCount: "indefinite",
+      path: def.id === "sense" ? "M0,-35 V-11" : "M0,-11 V-35"
+    }));
+    dot.appendChild(sv("animate", {
+      attributeName: "opacity", values: "0;1;1;0", keyTimes: "0;.2;.7;1",
+      dur: dur + "s", begin: begin, repeatCount: "indefinite"
+    }));
+    c.leaf.appendChild(dot);
+  }
+
+  function paintOrgans(organs, announce) {
     ORGANS.forEach(function (def) {
-      var data = byId[def.id];
       var c = cards[def.id];
-      var s = data && typeof data.state === "string" ? data.state.toLowerCase() : "rest";
-      if (!STATE_WORD[s]) s = "rest";
-      c.card.dataset.state = s;
-      c.leaf.dataset.state = s;
-      c.label.textContent = (data && data.label) ? data.label : def.label;
-      c.state.textContent = STATE_WORD[s];
-      c.note.textContent = (data && data.note) ? data.note : "";
+      var o = organs ? organs[def.id] : { state: "rest", label: def.label, note: "" };
+      if (c.shown !== o.state) {
+        if (announce && !calm) {
+          c.card.classList.remove("changed");
+          void c.card.offsetWidth;
+          c.card.classList.add("changed");
+        }
+        nerve(def, c, o.state);
+        c.shown = o.state;
+      }
+      c.card.dataset.state = o.state;
+      c.leaf.dataset.state = o.state;
+      c.label.textContent = o.label;
+      c.state.textContent = STATE_WORD[o.state];
+      c.note.textContent = o.note;
     });
   }
 
-  // ----- models -----
-  function paintModels(list) {
-    var box = $("models");
+  // ---------- vitals ----------
+  function sparkline(values) {
+    var box = $("spark");
     box.textContent = "";
-    if (!Array.isArray(list) || !list.length) {
-      box.appendChild(el("p", "quiet", "No scores yet."));
+    if (values.length < 2) return;
+    var lo = Math.min.apply(null, values), hi = Math.max.apply(null, values);
+    var span = hi - lo || 1, w = 64, h = 20;
+    var pts = values.map(function (v, i) {
+      return [(i / (values.length - 1)) * w, h - 2 - ((v - lo) / span) * (h - 4)];
+    });
+    var svg = sv("svg", { "class": "spark-line", viewBox: "0 0 " + w + " " + h, role: "img",
+                         "aria-label": "Pass rate across the last " + values.length + " updates" });
+    svg.appendChild(sv("polyline", { points: pts.map(function (p) { return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ") }));
+    var last = pts[pts.length - 1];
+    svg.appendChild(sv("circle", { cx: last[0], cy: last[1], r: 1.8 }));
+    box.appendChild(svg);
+  }
+
+  function paintVitals(v) {
+    var tempo = { ok: "3.2s", busy: "1.9s", down: "5.5s", rest: "10s" };
+    document.body.dataset.state = v ? v.health.state : "rest";
+    document.querySelector(".ecg").style.setProperty("--tempo", tempo[v ? v.health.state : "rest"]);
+
+    if (!v) {
+      $("vHealth").textContent = "sleeping"; $("sHealth").textContent = "waiting for a pulse";
+      $("vPass").textContent = "–";  $("sPass").textContent = "";  $("spark").textContent = "";
+      $("vTempo").textContent = "–"; $("sTempo").textContent = "";
+      $("vRuns").textContent = "–";  $("sRuns").textContent = "";
       return;
     }
-    var fills = [];
-    list.forEach(function (m) {
-      if (!m) return;
-      var pass = num(m.pass), total = num(m.total);
-      var ratio = (pass !== null && total) ? Math.max(0, Math.min(1, pass / total)) : 0;
+    $("vHealth").textContent = v.health.word;
+    $("sHealth").textContent = v.health.line;
 
+    $("vPass").textContent = v.passRate === null ? "–" : pct(v.passRate);
+    var sPass = $("sPass");
+    sPass.textContent = v.passLine;
+    var past = memory.get("history", []);
+    past = (Array.isArray(past) ? past : []).filter(function (h) { return h && typeof h.p === "number"; });
+    sparkline(past.map(function (h) { return h.p; }));
+    if (past.length >= 2) {
+      var delta = Math.round((past[past.length - 1].p - past[past.length - 2].p) * 100);
+      if (delta) {
+        sPass.appendChild(document.createTextNode(" · "));
+        sPass.appendChild(el("span", delta > 0 ? "up" : "dn", (delta > 0 ? "▲ " : "▼ ") + Math.abs(delta) + " pts"));
+      }
+    }
+
+    $("vTempo").textContent = secs(v.tempo);
+    $("sTempo").textContent = v.tempo === null ? "" : "average per task";
+
+    $("vRuns").textContent = v.runs.length;
+    var bits = [];
+    if (v.runs.length) bits.push(v.runPass + " pass · " + v.runFail + " fail");
+    if (v.streak >= 2) bits.push(v.streak + " " + v.runs[0].status.toLowerCase() + " in a row");
+    $("sRuns").textContent = bits.join(" · ");
+  }
+
+  // ---------- signals ----------
+  function shortTime(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return String(iso);
+    return d.toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  }
+
+  function paintSignals() {
+    var list = memory.get("signals", []);
+    list = Array.isArray(list) ? list.slice(0, 8) : [];
+    var box = $("signals");
+    box.textContent = "";
+    $("signalsSection").hidden = !list.length;
+    list.forEach(function (s) {
+      var li = el("li");
+      var t = el("time", "", shortTime(s.t));
+      var what = el("span", "what");
+      what.appendChild(document.createTextNode(String(s.k) + "  "));
+      what.appendChild(el("span", "from", STATE_WORD[s.a] || s.a));
+      what.appendChild(document.createTextNode(" → "));
+      var to = el("span", "to", STATE_WORD[s.b] || s.b);
+      to.dataset.state = STATE_WORD[s.b] ? s.b : "rest";
+      what.appendChild(to);
+      li.appendChild(t); li.appendChild(what);
+      box.appendChild(li);
+    });
+  }
+
+  function paintMemoryLine() {
+    var h = memory.get("history", []);
+    var n = Array.isArray(h) ? h.length : 0;
+    $("memoryLine").hidden = !n;
+    $("memoryText").textContent = "remembers " + n + " update" + (n === 1 ? "" : "s") + " in this browser";
+  }
+
+  // ---------- scoreboard ----------
+  function paintModels(v) {
+    var box = $("models");
+    box.textContent = "";
+    if (!v.models.length) { box.appendChild(el("p", "quiet", "No scores yet.")); return; }
+
+    var fastest = null;
+    if (v.models.length > 1) {
+      v.models.forEach(function (m) { if (m.avg !== null && (!fastest || m.avg < fastest.avg)) fastest = m; });
+    }
+    var grow = [];
+
+    v.models.forEach(function (m, idx) {
       var wrap = el("div", "model");
-      var row = el("div", "row");
-      row.appendChild(el("span", "name", m.name || "unnamed model"));
-      var score = el("span", "score");
-      score.appendChild(document.createTextNode(pass === null ? "–" : pass));
-      score.appendChild(el("small", "", " / " + (total === null ? "–" : total)));
-      row.appendChild(score);
+      wrap.style.animationDelay = idx * 80 + "ms";
 
-      var track = el("div", "track");
-      track.setAttribute("role", "img");
-      track.setAttribute("aria-label", (pass === null ? "?" : pass) + " of " + (total === null ? "?" : total) + " passed");
-      var fill = el("div", "fill");
-      track.appendChild(fill);
-      fills.push([fill, ratio]);
+      var row = el("div", "row");
+      var name = el("span", "name", m.name);
+      if (v.models.length > 1 && idx === 0 && m.ratio !== null) name.appendChild(el("span", "tag", "lead"));
+      if (fastest === m) name.appendChild(el("span", "tag", "fastest"));
+      row.appendChild(name);
+      var score = el("span", "score");
+      score.appendChild(document.createTextNode(m.pass === null ? "–" : m.pass));
+      score.appendChild(el("small", "", " / " + (m.total === null ? "–" : m.total)));
+      row.appendChild(score);
+      wrap.appendChild(row);
+
+      var label = (m.pass === null ? "?" : m.pass) + " of " + (m.total === null ? "?" : m.total) + " passed";
+      var whole = m.total !== null && m.pass !== null && m.total > 0 && m.total <= 100 &&
+                  m.total % 1 === 0 && m.pass % 1 === 0 && m.pass >= 0 && m.pass <= m.total;
+      if (whole) {
+        // one cell per task; failures are counted at the end, not located
+        var cells = el("div", "cells" + (m.total > 40 ? " dense" : ""));
+        cells.style.gridTemplateColumns = "repeat(" + m.total + ", 1fr)";
+        cells.setAttribute("role", "img"); cells.setAttribute("aria-label", label);
+        for (var i = 0; i < m.total; i++) {
+          var cell = el("i");
+          cell.style.transitionDelay = i * 22 + "ms";
+          cells.appendChild(cell);
+          grow.push([cell, i < m.pass ? "on" : "off"]);
+        }
+        wrap.appendChild(cells);
+      } else {
+        var track = el("div", "track");
+        track.setAttribute("role", "img"); track.setAttribute("aria-label", label);
+        var fill = el("div", "fill");
+        track.appendChild(fill);
+        grow.push([fill, (m.ratio || 0) * 100 + "%"]);
+        wrap.appendChild(track);
+      }
 
       var meta = el("div", "meta");
-      meta.appendChild(el("span", "", total ? Math.round(ratio * 100) + "% pass" : "no tasks"));
-      meta.appendChild(el("span", "", "avg " + secs(m.avg_sec) + " / task"));
-
-      wrap.appendChild(row);
-      wrap.appendChild(track);
+      meta.appendChild(el("span", "", m.ratio === null ? "no tasks" : pct(m.ratio) + " pass"));
+      var mine = v.runs.filter(function (r) { return r.model === m.name; }).slice(0, 12);
+      if (mine.length) {
+        var recent = el("span", "recent");
+        recent.setAttribute("role", "img");
+        recent.setAttribute("aria-label", "Latest runs, newest first: " + mine.map(function (r) { return r.status; }).join(", "));
+        recent.title = "Latest runs, newest first";
+        mine.forEach(function (r) {
+          recent.appendChild(el("b", r.status === "PASS" ? "pass" : r.status === "FAIL" ? "fail" : ""));
+        });
+        meta.appendChild(recent);
+      }
+      meta.appendChild(el("span", "", "avg " + secs(m.avg) + " / task"));
       wrap.appendChild(meta);
       box.appendChild(wrap);
     });
-    // let the bars grow in after layout
+
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
-        fills.forEach(function (f) { f[0].style.width = (f[1] * 100) + "%"; });
+        grow.forEach(function (g) {
+          if (g[0].tagName === "I") g[0].classList.add(g[1]); else g[0].style.width = g[1];
+        });
       });
     });
   }
 
-  // ----- runs -----
-  function paintRuns(list) {
+  // ---------- run log ----------
+  var view = null;                                   // the current picture, or null while sleeping
+  var filter = { status: "ALL", model: "", limit: PAGE };
+
+  function paintFilters() {
+    var box = $("filters");
+    box.textContent = "";
+    box.hidden = !view || !view.runs.length;
+    if (box.hidden) return;
+
+    [["ALL", "All", view.runs.length], ["PASS", "Pass", view.runPass], ["FAIL", "Fail", view.runFail]].forEach(function (f) {
+      var b = el("button", "chip", f[1]);
+      b.type = "button";
+      b.setAttribute("aria-pressed", String(filter.status === f[0]));
+      b.appendChild(el("span", "", f[2]));
+      b.addEventListener("click", function () { filter.status = f[0]; filter.limit = PAGE; paintFilters(); paintRuns(); });
+      box.appendChild(b);
+    });
+
+    var names = [];
+    view.runs.forEach(function (r) { if (names.indexOf(r.model) < 0) names.push(r.model); });
+    if (names.indexOf(filter.model) < 0) filter.model = "";
+    if (names.length > 1) {
+      var sel = el("select");
+      sel.setAttribute("aria-label", "Filter runs by model");
+      var all = el("option", "", "All models"); all.value = ""; sel.appendChild(all);
+      names.forEach(function (n) { var o = el("option", "", n); o.value = n; sel.appendChild(o); });
+      sel.value = filter.model;
+      sel.addEventListener("change", function () { filter.model = sel.value; filter.limit = PAGE; paintRuns(); });
+      box.appendChild(sel);
+    }
+  }
+
+  function paintRuns() {
     var box = $("runs");
     box.textContent = "";
-    if (!Array.isArray(list) || !list.length) {
-      box.appendChild(el("p", "quiet", "No runs recorded yet."));
-      return;
-    }
+    if (!view.runs.length) { box.appendChild(el("p", "quiet", "No runs recorded yet.")); return; }
+
+    var rows = view.runs.filter(function (r) {
+      return (filter.status === "ALL" || r.status === filter.status) && (!filter.model || r.model === filter.model);
+    });
+    if (!rows.length) { box.appendChild(el("p", "quiet", "Nothing matches this filter.")); return; }
+
+    var longest = 0;
+    view.runs.forEach(function (r) { if (r.secs !== null && r.secs > longest) longest = r.secs; });
+
     var wrap = el("div", "logwrap");
     var table = el("table");
     var head = el("tr");
     ["Task", "Model", "Status", "Time"].forEach(function (h) { head.appendChild(el("th", "", h)); });
     var thead = el("thead"); thead.appendChild(head); table.appendChild(thead);
     var body = el("tbody");
-
-    // status.json is appended to in run order, so the last entry is the newest.
-    list.slice().reverse().forEach(function (r, i) {
-      if (!r) return;
+    rows.slice(0, filter.limit).forEach(function (r, i) {
       var tr = el("tr");
-      tr.style.animationDelay = Math.min(i, 12) * 40 + "ms";
-      tr.appendChild(el("td", "task", r.task || "–"));
-      tr.appendChild(el("td", "model-name", r.model || "–"));
-      var st = String(r.status || "–").toUpperCase();
+      tr.style.animationDelay = Math.min(i, 12) * 35 + "ms";
+      tr.appendChild(el("td", "task", r.task));
+      tr.appendChild(el("td", "model-name", r.model));
       var td = el("td");
-      td.appendChild(el("span", "status" + (st === "PASS" ? " pass" : st === "FAIL" ? " fail" : ""), st));
+      td.appendChild(el("span", "status" + (r.status === "PASS" ? " pass" : r.status === "FAIL" ? " fail" : ""), r.status));
       tr.appendChild(td);
-      tr.appendChild(el("td", "secs", secs(r.secs)));
+      var time = el("td", "secs");
+      if (r.secs !== null && longest > 0) {
+        var bar = el("span", "dur"), inner = el("i");
+        inner.style.width = Math.max(4, (r.secs / longest) * 100) + "%";
+        bar.appendChild(inner); time.appendChild(bar);
+      }
+      time.appendChild(document.createTextNode(secs(r.secs)));
+      tr.appendChild(time);
       body.appendChild(tr);
     });
-    table.appendChild(body);
-    wrap.appendChild(table);
-    box.appendChild(wrap);
+    table.appendChild(body); wrap.appendChild(table); box.appendChild(wrap);
+
+    if (rows.length > filter.limit) {
+      var more = el("button", "more", "show " + Math.min(PAGE, rows.length - filter.limit) + " more");
+      more.type = "button";
+      more.addEventListener("click", function () { filter.limit += PAGE; paintRuns(); });
+      box.appendChild(more);
+    }
   }
 
-  // ----- timestamp -----
+  // ---------- header: timestamp, tab title, favicon ----------
   function ago(d) {
     var s = Math.round((Date.now() - d.getTime()) / 1000);
     if (s < 0) return "";
@@ -591,71 +907,106 @@
   }
 
   function paintStamp() {
-    if (document.body.classList.contains("sleeping")) {
-      $("stampText").textContent = "organism sleeping";
-      return;
-    }
-    if (updatedAt) {
-      var when = updatedAt.toLocaleString(undefined, {
+    var t = $("stampText");
+    if (!view) { t.textContent = "organism sleeping"; $("stamp").removeAttribute("title"); return; }
+    if (view.updatedAt) {
+      var when = view.updatedAt.toLocaleString(undefined, {
         day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit"
       });
-      var rel = ago(updatedAt);
-      $("stampText").textContent = "updated " + when + (rel ? " · " + rel : "");
-      $("stamp").title = updatedRaw;
+      var rel = ago(view.updatedAt);
+      t.textContent = "updated " + when + (rel ? " · " + rel : "");
+      $("stamp").title = view.updatedRaw;
     } else {
-      $("stampText").textContent = updatedRaw ? "updated " + updatedRaw : "awake";
+      t.textContent = view.updatedRaw ? "updated " + view.updatedRaw : "awake";
     }
   }
 
-  // ----- modes -----
-  function wake(data) {
+  function paintTab() {
+    var s = view ? view.health.state : "rest";
+    document.title = view
+      ? "AI9 · " + view.health.word + (view.passRate === null ? "" : " · " + pct(view.passRate))
+      : "AI9 · sleeping";
+    var c = "rgb(" + RGB[s] + ")";
+    var icon = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='#070B14'/>" +
+      "<g fill='" + c + "'><circle cx='16' cy='9' r='5'/><circle cx='23' cy='16' r='5'/><circle cx='16' cy='23' r='5'/><circle cx='9' cy='16' r='5'/></g>" +
+      "<circle cx='16' cy='16' r='2.6' fill='#070B14'/></svg>";
+    $("favicon").href = "data:image/svg+xml," + encodeURIComponent(icon);
+  }
+
+  // ---------- modes ----------
+  function wake(data, announce) {
+    view = understand(data);
+    remember(view);
     document.body.classList.remove("sleeping");
-    updatedRaw = data.updated ? String(data.updated) : "";
-    var d = updatedRaw ? new Date(updatedRaw) : null;
-    updatedAt = d && !isNaN(d.getTime()) ? d : null;
-    paintStamp();
-    paintOrgans(data.organs);
-    paintModels(data.models);
-    paintRuns(data.runs);
+    paintStamp(); paintTab();
+    paintVitals(view);
+    paintOrgans(view.organs, announce);
+    paintSignals();
+    paintModels(view);
+    paintFilters(); paintRuns();
+    paintMemoryLine();
   }
 
   function sleep() {
+    view = null;
     document.body.classList.add("sleeping");
-    updatedAt = null; updatedRaw = "";
-    paintStamp();
-    paintOrgans([]);
+    paintStamp(); paintTab();
+    paintVitals(null);
+    paintOrgans(null, false);
+    paintSignals();
+    paintFilters();
     $("models").textContent = "";
     $("models").appendChild(el("p", "quiet", "Resting. Scores will surface when the organism wakes."));
     $("runs").textContent = "";
     $("runs").appendChild(el("p", "quiet", "Quiet. No runs to show while sleeping."));
+    paintMemoryLine();
   }
 
-  var lastText = null;
+  // ---------- the pulse: read status.json, again and again ----------
+  var lastText = null, awakeOnce = false, countdown = REFRESH_S, busy = false;
+
   function refresh() {
-    fetch(SOURCE, { cache: "no-store" })
-      .then(function (res) {
-        if (!res.ok) throw new Error("no status");
-        return res.text();
-      })
+    if (busy) return;
+    busy = true; countdown = REFRESH_S;
+    var ctl = typeof AbortController === "function" ? new AbortController() : null;
+    var timer = ctl ? setTimeout(function () { ctl.abort(); }, FETCH_TIMEOUT_MS) : null;
+
+    fetch(SOURCE, { cache: "no-store", signal: ctl ? ctl.signal : undefined })
+      .then(function (res) { if (!res.ok) throw new Error("no status"); return res.text(); })
       .then(function (text) {
-        if (text === lastText) { paintStamp(); return; }   // nothing changed: don't re-animate
+        if (text === lastText) { paintStamp(); return; }      // unchanged: stay still
         var data = JSON.parse(text);
         if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("bad status");
         lastText = text;
-        wake(data);
+        wake(data, awakeOnce);
+        awakeOnce = true;
       })
-      .catch(function () {
-        lastText = null;
-        sleep();
-      });
+      .catch(function () { lastText = null; sleep(); })
+      .then(function () { busy = false; if (timer) clearTimeout(timer); });
   }
+
+  $("heart").addEventListener("click", function () {
+    var h = $("heart");
+    h.classList.remove("firing"); void h.offsetWidth; h.classList.add("firing");
+    refresh();
+  });
+  $("forget").addEventListener("click", function () {
+    memory.clear();
+    if (view) { remember(view); paintVitals(view); }
+    paintSignals(); paintMemoryLine();
+  });
+
+  setInterval(function () {
+    if (document.hidden) return;
+    countdown--;
+    if (countdown <= 0) refresh();
+    $("next").textContent = "next pulse in " + Math.max(countdown, 0) + "s · reads ./status.json · no keys · no servers";
+    if (countdown % 10 === 0) paintStamp();
+  }, 1000);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) refresh(); });
 
   sleep();
   refresh();
-  setInterval(refresh, REFRESH_MS);
-  document.addEventListener("visibilitychange", function () {
-    if (!document.hidden) refresh();
-  });
 })();
 </script>
 </body>
