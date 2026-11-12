@@ -121,7 +121,7 @@ python3 -m ai9lab.run_benchmark --system ai9 --pack frozen --repeat 3 \
   "model": {
     "backend": "openai-compatible",
     "model": "flint",
-    "base_url": "http://91.99.12.38:4000/v1",
+    "base_url": "http://<your-model-host>:4000/v1",
     "key_env": "AI9_MODEL_KEY",
     "price_per_m_in": 0.14,
     "price_per_m_out": 0.28,
