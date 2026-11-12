@@ -616,6 +616,13 @@
     if (sumTotal) { passRate = sumPass / sumTotal; passLine = sumPass + " / " + sumTotal + " tasks"; }
     else if (rPass + rFail) { passRate = rPass / (rPass + rFail); passLine = rPass + " / " + (rPass + rFail) + " runs"; }
 
+    // the back end may name its own headline (the organism's score, not an average of everything)
+    var head = data.headline, hp = head ? num(head.pass) : null, ht = head ? num(head.total) : null;
+    if (hp !== null && ht) {
+      passRate = Math.max(0, Math.min(1, hp / ht));
+      passLine = (head.label ? String(head.label) + " · " : "") + hp + " / " + ht;
+    }
+
     var tempo = null;
     if (timed) tempo = sumTime / timed;
     else {

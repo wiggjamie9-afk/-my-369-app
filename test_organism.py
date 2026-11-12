@@ -248,6 +248,137 @@ class Watching(Base):
         self.assertEqual(w.scan(), 1)
 
 
+class Harness(Base):
+    """Reading the AI9 validation harness's sqlite registry."""
+
+    SCHEMA = """CREATE TABLE runs(run_id TEXT PRIMARY KEY, task_id TEXT, task_version TEXT, pack TEXT,
+      system TEXT, config_json TEXT, model TEXT, model_backend TEXT, seed INTEGER, status TEXT,
+      repeat_index INTEGER, ts_queued INTEGER, ts_start INTEGER, ts_end INTEGER, budget_json TEXT,
+      usage_json TEXT, verified_success INTEGER, checks_json TEXT, failure_type TEXT,
+      human_interventions INTEGER DEFAULT 0, recovery_json TEXT, claims_total INTEGER DEFAULT 0,
+      claims_sourced INTEGER DEFAULT 0, ext_actions_requested INTEGER DEFAULT 0,
+      ext_actions_executed INTEGER DEFAULT 0, packet_count INTEGER DEFAULT 0,
+      duplicate_actions INTEGER DEFAULT 0, output_path TEXT, event_log_path TEXT,
+      reviewer_score TEXT, notes TEXT)"""
+    T0 = 1794500000
+
+    def make(self, rows, folder="results"):
+        import sqlite3
+        os.makedirs(os.path.join(self.dir, folder), exist_ok=True)
+        path = os.path.join(self.dir, folder, "results.db")
+        con = sqlite3.connect(path)
+        con.execute(self.SCHEMA)
+        for i, r in enumerate(rows):
+            row = {"run_id": "run-%d" % i, "pack": "dev", "model": "flint", "seed": 42, "status": "done",
+                   "repeat_index": 0, "ts_queued": self.T0, "ts_start": self.T0 + i, "ts_end": self.T0 + i + 9,
+                   "verified_success": 1, "claims_total": 4, "claims_sourced": 3, "packet_count": 8,
+                   "recovery_json": json.dumps({"attempted": False})}
+            row.update(r)
+            con.execute("INSERT INTO runs(%s) VALUES(%s)" % (",".join(row), ",".join("?" * len(row))),
+                        list(row.values()))
+        con.commit()
+        con.close()
+        return path
+
+    def rows(self):
+        return [
+            {"task_id": "DEV-R1", "system": "ai9"},
+            {"task_id": "DEV-M3", "system": "ai9", "recovery_json": json.dumps({"attempted": True, "result": "success"})},
+            {"task_id": "TREND-1", "system": "ai9", "verified_success": 0, "failure_type": "checks_failed",
+             "checks_json": json.dumps([{"ok": True, "detail": "a"}, {"ok": False, "detail": "contains_any ['trigger']"}])},
+            {"task_id": "DEV-R1", "system": "control"},
+            {"task_id": "DEV-M3", "system": "control", "verified_success": 0, "failure_type": "checks_failed"},
+            {"task_id": "TREND-1", "system": "control", "status": "failed", "verified_success": None,
+             "failure_type": "runner_crash", "notes": "connection refused"},
+        ]
+
+    def test_scores_match_the_harness_definition(self):
+        status = org.validate(org.harness_status(org.read_harness(self.make(self.rows())), {}))
+        got = {m["name"]: (m["pass"], m["total"], m["avg_sec"]) for m in status["models"]}
+        self.assertEqual(got, {"ai9 · flint": (2, 3, 9.0), "control · flint": (1, 2, 9.0)})   # crash not scored
+        self.assertEqual(status["headline"], {"label": "ai9 · dev pack", "pass": 2, "total": 3})
+        self.assertEqual([m["name"] for m in status["models"]][0], "ai9 · flint")
+        self.assertEqual(status["history"], [{"at": status["history"][0]["at"], "pass": 2, "total": 3}])
+        self.assertEqual(status["totals"], {"runs": 6, "pending": 0, "crashed": 1})
+
+    def test_run_log_carries_reasons_and_crashes(self):
+        runs = org.harness_status(org.read_harness(self.make(self.rows())), {})["runs"]
+        by = {(r["task"], r["model"]): r for r in runs}
+        self.assertEqual(by[("TREND-1", "ai9 · flint")]["reason"], "check failed: contains_any ['trigger']")
+        self.assertEqual(by[("TREND-1", "control · flint")]["status"], "CRASH")
+        self.assertEqual(by[("TREND-1", "control · flint")]["reason"], "runner crash: connection refused")
+        self.assertNotIn("reason", by[("DEV-R1", "ai9 · flint")])
+        self.assertEqual(by[("DEV-R1", "ai9 · flint")]["secs"], 9)
+
+    def test_organs_read_the_harness_measurements(self):
+        organs = {o["id"]: (o["state"], o["note"]) for o in
+                  org.harness_status(org.read_harness(self.make(self.rows())), {})["organs"]}
+        self.assertEqual(organs["sense"], ("ok", "9 of 12 claims carry a source"))
+        self.assertEqual(organs["decide"], ("ok", "0 external requests · 0 executed"))
+        self.assertEqual(organs["verify"], ("ok", "2 of 3 runs verified · 1 of 1 recoveries"))
+        self.assertEqual(organs["model"][0], "ok")
+
+    def test_safety_and_recovery_failures_turn_organs_down(self):
+        rows = self.rows()
+        rows[0]["ext_actions_executed"] = 1
+        rows[1]["recovery_json"] = json.dumps({"attempted": True, "result": "failed: boom"})
+        organs = {o["id"]: o["state"] for o in org.harness_status(org.read_harness(self.make(rows)), {})["organs"]}
+        self.assertEqual((organs["decide"], organs["verify"]), ("down", "down"))
+
+    def test_running_rows_mean_busy_but_stale_ones_do_not(self):
+        rows = self.rows() + [{"task_id": "DEV-N1", "system": "ai9", "status": "running",
+                               "verified_success": None, "ts_end": None, "ts_start": self.T0 + 50}]
+        data = org.read_harness(self.make(rows))
+        soon = datetime.fromtimestamp(self.T0 + 60, timezone.utc)
+        later = datetime.fromtimestamp(self.T0 + 7200, timezone.utc)
+        model = org.harness_status(data, {}, now=soon)["organs"][1]
+        self.assertEqual((model["state"], model["note"]), ("busy", "1 run in progress"))
+        model = org.harness_status(data, {}, now=later)["organs"][1]
+        self.assertEqual(model["state"], "ok")
+        self.assertIn("1 left queued by an interrupted batch", model["note"])
+
+    def test_packs_are_never_blended(self):
+        rows = self.rows() + [{"task_id": "RES-01", "system": "ai9", "pack": "frozen", "ts_end": self.T0 + 500}]
+        status = org.harness_status(org.read_harness(self.make(rows)), {})
+        self.assertIn("ai9 · flint · frozen", [m["name"] for m in status["models"]])
+        self.assertEqual(status["headline"], {"label": "ai9 · frozen pack", "pass": 1, "total": 1})
+
+    def test_database_is_found_left_untouched_and_wins(self):
+        path = self.make(self.rows())
+        before = open(path, "rb").read()
+        self.assertEqual(org.find_harness_db([self.dir]), path)
+        self.assertEqual(org.find_harness_db([os.path.join(self.dir, "results")]), path)
+        self.assertIsNone(org.find_harness_db([os.path.join(self.dir, "data")]))
+        args = ["--store", self.store.path, "--out", self.out]
+        self.assertEqual(org.main(["build", "--db", path] + args), 0)
+        with open(self.out, encoding="utf-8") as fh:
+            self.assertEqual(org.validate(json.load(fh))["source"], "harness")
+        self.assertEqual(open(path, "rb").read(), before)
+        self.assertEqual(org.main(["build", "--db", self.write("x.db", "junk")] + args), 2)
+
+    def test_watcher_follows_the_database_and_ignores_harness_files(self):
+        import sqlite3
+        path = self.make(self.rows())
+        with open(os.path.join(self.dir, "results", "scores.json"), "w") as fh:
+            json.dump([{"task": "A", "status": "PASS"}], fh)       # looks like results, but is the harness's own
+        self.store.db = path
+        log = []
+        self.write("pack.json", json.dumps({"frozen_count": 40}))   # harness files above the database too
+        w = org.Watcher(self.store, self.out, [self.dir], settle=0, log=log.append)
+        self.assertEqual(w.scan(), 0)
+        self.assertEqual(self.store.batches(), [])
+        self.assertEqual(log, [])
+        with open(self.out, encoding="utf-8") as fh:
+            self.assertEqual(json.load(fh)["headline"]["total"], 3)
+        con = sqlite3.connect(path)
+        con.execute("UPDATE runs SET verified_success=1 WHERE task_id='TREND-1' AND system='ai9'")
+        con.commit(); con.close()
+        os.utime(path, (2000000000, 2000000000))
+        w.scan()
+        with open(self.out, encoding="utf-8") as fh:
+            self.assertEqual(json.load(fh)["headline"]["pass"], 3)
+
+
 class Serving(Base):
     def test_only_the_console_is_served_and_changes_are_pushed(self):
         import functools

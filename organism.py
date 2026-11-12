@@ -11,6 +11,13 @@ Standard library only. No network calls, no keys. Python 3.8+.
     python3 organism.py connect [FOLDER ...]       watch folders for results, ingest them, serve the console
     python3 organism.py connect ~/harness/out --lan   same, and reachable from a phone on the same network
 
+If the AI9 validation harness's results database (results/results.db) is
+found, it is the source of truth: status.json is built straight from its runs
+table, opened read-only, and the numbers match the harness's own score.py
+(verified successes over completed runs). Pass --db to name it explicitly.
+
+    python3 organism.py connect /opt/ai9-validation --lan
+
 "connect" is the one command that joins everything up: point it at the folder
 the harness writes its results into (default: a "results" folder beside this
 script) and leave it running. New or changed results files are archived within
@@ -33,10 +40,12 @@ import io
 import json
 import os
 import socket
+import sqlite3
 import sys
 import tempfile
 import threading
 import time
+import urllib.parse
 from datetime import datetime, timezone
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
@@ -268,8 +277,9 @@ def parse_results(text, name="", default_model=None):
 class Store:
     """Append-only archive: runs.jsonl, batches.jsonl, heartbeats.json."""
 
-    def __init__(self, path):
+    def __init__(self, path, db=None):
         self.path = path
+        self.db = db                               # harness results.db, if there is one
 
     def _file(self, name):
         return os.path.join(self.path, name)
@@ -391,7 +401,230 @@ def tally(runs):
     return passed, failed, avg
 
 
+def finish_organs(derived, beats, now):
+    """The five organs in order: a live heartbeat wins, else the derived reading."""
+    organs, stamps = [], []
+    for oid, label in ORGANS:
+        beat = beats.get(oid)
+        if isinstance(beat, dict) and beat.get("state") in STATES:
+            state, note, at = beat["state"], str(beat.get("note") or ""), beat.get("at")
+            ttl, seen = as_float(beat.get("ttl")), parse_time(at)
+            if ttl and seen:
+                age = (now - datetime.fromisoformat(seen.replace("Z", "+00:00"))).total_seconds()
+                if age > ttl:
+                    state, note = "down", "no heartbeat for %s" % ago(age)
+            if seen:
+                stamps.append(seen)
+            organs.append({"id": oid, "label": label, "state": state, "note": note, "at": at, "source": "heartbeat"})
+        else:
+            state, note = derived.get(oid, ("rest", "no heartbeat yet"))
+            organs.append({"id": oid, "label": label, "state": state, "note": note, "source": "derived"})
+    return organs, stamps
+
+
+# ---------------------------------------------------------------- the validation harness database
+
+HARNESS_COLUMNS = ("run_id", "task_id", "pack", "system", "model", "seed", "status", "repeat_index",
+                   "ts_queued", "ts_start", "ts_end", "verified_success", "checks_json", "failure_type",
+                   "recovery_json", "claims_total", "claims_sourced", "ext_actions_requested",
+                   "ext_actions_executed", "packet_count", "duplicate_actions", "notes")
+HARNESS_NEEDS = {"run_id", "task_id", "system", "status", "verified_success"}
+PENDING_FRESH_S = 900          # a queued/running row older than this is an interrupted batch, not work in progress
+
+
+def read_harness(path):
+    """All rows of the harness runs table. Opens the database read-only; never writes to it."""
+    uri = "file:%s?mode=ro" % urllib.parse.quote(os.path.abspath(path))
+    try:
+        con = sqlite3.connect(uri, uri=True, timeout=5)
+    except sqlite3.Error as exc:
+        raise ValueError("cannot open %s: %s" % (path, exc))
+    try:
+        have = {r[1] for r in con.execute("PRAGMA table_info(runs)")}
+        if not HARNESS_NEEDS <= have:
+            raise ValueError("%s is not an AI9 harness results database" % path)
+        cols = [c for c in HARNESS_COLUMNS if c in have]
+        cur = con.execute("SELECT rowid, %s FROM runs ORDER BY rowid" % ", ".join(cols))
+        return [dict(zip(["_n"] + cols, row)) for row in cur]
+    except sqlite3.Error as exc:
+        raise ValueError("cannot read %s: %s" % (path, exc))
+    finally:
+        con.close()
+
+
+def is_harness_db(path):
+    try:
+        read_harness(path)
+        return True
+    except (ValueError, OSError):
+        return False
+
+
+def find_harness_db(folders):
+    """The first harness results.db in or just under the given folders, else None."""
+    for folder in folders:
+        for rel in ("results.db", os.path.join("results", "results.db")):
+            path = os.path.join(folder, rel)
+            if os.path.isfile(path) and is_harness_db(path):
+                return os.path.abspath(path)
+    return None
+
+
+def _loads(text):
+    try:
+        return json.loads(text) if text else None
+    except (TypeError, ValueError):
+        return None
+
+
+def harness_status(rows, beats, max_runs=200, max_history=120, now=None):
+    """status.json from harness rows. Scores count what score.py counts: completed runs."""
+    now = now or datetime.now(timezone.utc)
+    stamp = lambda ts: iso(datetime.fromtimestamp(ts, timezone.utc)) if ts else None
+    dur = lambda r: max(0, r["ts_end"] - r["ts_start"]) if r.get("ts_end") and r.get("ts_start") else None
+    done = [r for r in rows if r.get("status") == "done"]
+    crashed = [r for r in rows if r.get("status") == "failed"]
+    waiting = [r for r in rows if r.get("status") in ("queued", "running")]
+    fresh = [r for r in waiting
+             if now.timestamp() - (r.get("ts_start") or r.get("ts_queued") or 0) < PENDING_FRESH_S]
+
+    packs = {r.get("pack") or "?" for r in done + crashed}
+    def group_name(r):
+        name = "%s · %s" % (r.get("system") or "?", r.get("model") or "?")
+        return name + " · %s" % (r.get("pack") or "?") if len(packs) > 1 else name
+
+    groups = {}
+    for r in done:
+        groups.setdefault(group_name(r), []).append(r)
+    models = []
+    for name, runs in groups.items():
+        passed = sum(1 for r in runs if r.get("verified_success"))
+        times = [d for d in map(dur, runs) if d is not None]
+        repeated = len({r["task_id"] for r in runs}) < len(runs)
+        models.append({
+            "name": name, "pass": passed, "total": len(runs),
+            "avg_sec": round(sum(times) / len(times), 2) if times else None,
+            "at": stamp(max((r.get("ts_end") or 0) for r in runs)),
+            "system": runs[0].get("system"), "model": runs[0].get("model"), "pack": runs[0].get("pack"),
+            "tasks": [{"task": "%s · seed %s rep %s" % (r["task_id"], r.get("seed"), r.get("repeat_index"))
+                       if repeated else str(r["task_id"]),
+                       "status": "PASS" if r.get("verified_success") else "FAIL"} for r in runs],
+        })
+    models.sort(key=lambda m: (-(m["pass"] / m["total"]),
+                               m["avg_sec"] if m["avg_sec"] is not None else float("inf"), m["name"]))
+
+    def why(r):
+        if r.get("status") == "failed":
+            return " ".join(("runner crash: %s" % (r.get("notes") or r.get("failure_type") or "")).split())[:240]
+        if r.get("verified_success"):
+            return None
+        kind = str(r.get("failure_type") or "failed")
+        if kind == "checks_failed":
+            bad = [c.get("detail") for c in (_loads(r.get("checks_json")) or [])
+                   if isinstance(c, dict) and not c.get("ok") and c.get("detail")]
+            if bad:
+                kind = "check failed: " + str(bad[0])
+        return " ".join(kind.split())[:240]
+
+    finished = sorted(done + crashed, key=lambda r: (r.get("ts_end") or r.get("ts_start") or 0, r["_n"]))
+    runs_out = []
+    for r in finished:
+        out = {"task": str(r["task_id"]), "model": group_name(r),
+               "status": "CRASH" if r.get("status") == "failed" else
+                         "PASS" if r.get("verified_success") else "FAIL",
+               "secs": dur(r), "at": stamp(r.get("ts_end") or r.get("ts_start"))}
+        reason = why(r)
+        if reason:
+            out["reason"] = reason
+        runs_out.append(out)
+
+    # the headline is the organism itself, on the pack it ran most recently
+    ai9 = [r for r in done if r.get("system") == "ai9"]
+    headline, history = None, []
+    if ai9:
+        pack = max(ai9, key=lambda r: (r.get("ts_end") or 0, r["_n"])).get("pack")
+        mine = [r for r in ai9 if r.get("pack") == pack]
+        headline = {"label": "ai9 · %s pack" % pack,
+                    "pass": sum(1 for r in mine if r.get("verified_success")), "total": len(mine)}
+        days = {}
+        for r in mine:
+            if r.get("ts_end"):
+                day = datetime.fromtimestamp(r["ts_end"], timezone.utc).strftime("%Y-%m-%d")
+                days.setdefault(day, []).append(r)
+        for day in sorted(days):
+            history.append({"at": stamp(max(r["ts_end"] for r in days[day])),
+                            "pass": sum(1 for r in days[day] if r.get("verified_success")),
+                            "total": len(days[day])})
+        history = history[-max_history:]
+
+    # organs: each reads the measurement the harness logs for its stage
+    derived = {}
+    everything = [r for r in rows if r.get("system") == "ai9"]
+    if ai9 or [r for r in fresh if r.get("system") == "ai9"]:
+        claims = sum(r.get("claims_total") or 0 for r in ai9)
+        sourced = sum(r.get("claims_sourced") or 0 for r in ai9)
+        derived["sense"] = ("ok", "%d of %d claims carry a source" % (sourced, claims)) if claims \
+            else ("rest", "no claims logged yet")
+
+        latest = max([r for r in everything if r.get("status") in ("done", "failed")] or [None],
+                     key=lambda r: (r.get("ts_end") or 0, r["_n"]) if r else (0, 0))
+        times = [d for d in map(dur, ai9) if d is not None]
+        busy = [r for r in fresh if r.get("system") == "ai9"]
+        stuck = len([r for r in waiting if r.get("system") == "ai9"]) - len(busy)
+        if busy:
+            derived["model"] = ("busy", "%d run%s in progress" % (len(busy), "" if len(busy) == 1 else "s"))
+        elif latest and (latest.get("status") == "failed"
+                         or str(latest.get("failure_type") or "").startswith("model_error")):
+            derived["model"] = ("down", "last run: %s" % why(latest))
+        else:
+            note = "%s · %d runs%s" % (ai9[-1].get("model") or "?", len(ai9),
+                                       " · avg %.1fs" % (sum(times) / len(times)) if times else "")
+            if stuck:
+                note += " · %d left queued by an interrupted batch" % stuck
+            derived["model"] = ("ok", note)
+
+        asked = sum(r.get("ext_actions_requested") or 0 for r in ai9)
+        acted = sum(r.get("ext_actions_executed") or 0 for r in ai9)
+        derived["decide"] = ("down", "%d external action%s executed" % (acted, "" if acted == 1 else "s")) \
+            if acted else ("ok", "%d external request%s · 0 executed" % (asked, "" if asked == 1 else "s"))
+
+        recs = [_loads(r.get("recovery_json")) or {} for r in ai9]
+        tried = [x for x in recs if x.get("attempted")]
+        healed = [x for x in tried if x.get("result") == "success"]
+        verified = sum(1 for r in ai9 if r.get("verified_success"))
+        note = "%d of %d runs verified" % (verified, len(ai9))
+        if tried:
+            note += " · %d of %d recoveries" % (len(healed), len(tried))
+        derived["verify"] = ("down" if len(healed) < len(tried) else "ok", note) if ai9 \
+            else ("rest", "no verdicts yet")
+
+        dups = sum(r.get("duplicate_actions") or 0 for r in ai9)
+        derived["learn"] = ("ok", "%d runs logged · %d duplicate action%s" % (
+            len(ai9), dups, "" if dups == 1 else "s")) if ai9 else ("rest", "nothing logged yet")
+    else:
+        for oid in ORGAN_IDS:
+            derived[oid] = ("rest", "no organism runs yet")
+
+    organs, stamps = finish_organs(derived, beats, now)
+    stamps += [stamp(max(r.get("ts_end") or 0, r.get("ts_start") or 0, r.get("ts_queued") or 0)) for r in rows]
+    stamps = [x for x in stamps if x]
+    status = {
+        "updated": max(stamps) if stamps else iso(now),
+        "organs": organs,
+        "models": models,
+        "runs": runs_out[-max_runs:],
+        "history": history,
+        "totals": {"runs": len(finished), "pending": len(waiting), "crashed": len(crashed)},
+        "source": "harness",
+    }
+    if headline:
+        status["headline"] = headline
+    return status
+
+
 def build_status(store, max_runs=200, max_history=120, now=None):
+    if store.db and os.path.isfile(store.db):
+        return harness_status(read_harness(store.db), store.heartbeats(), max_runs, max_history, now)
     now = now or datetime.now(timezone.utc)
     batches = store.batches()
     gone = {b["replaces"] for b in batches if b.get("replaces")}
@@ -448,7 +681,6 @@ def build_status(store, max_runs=200, max_history=120, now=None):
     runs = runs[-max_runs:]
 
     # organs: a heartbeat wins; otherwise say only what the archive itself proves
-    beats = store.heartbeats()
     last = by_batch[batches[-1]["id"]] if batches else []
     l_pass, l_fail, l_avg = tally(last)
     derived = {
@@ -461,22 +693,8 @@ def build_status(store, max_runs=200, max_history=120, now=None):
             len(batches), "" if len(batches) == 1 else "es", total_runs)) if batches
                  else ("rest", "nothing archived yet"),
     }
-    organs, stamps = [], [b.get("at") for b in batches if b.get("at")]
-    for oid, label in ORGANS:
-        beat = beats.get(oid)
-        if isinstance(beat, dict) and beat.get("state") in STATES:
-            state, note, at = beat["state"], str(beat.get("note") or ""), beat.get("at")
-            ttl, seen = as_float(beat.get("ttl")), parse_time(at)
-            if ttl and seen:
-                age = (now - datetime.fromisoformat(seen.replace("Z", "+00:00"))).total_seconds()
-                if age > ttl:
-                    state, note = "down", "no heartbeat for %s" % ago(age)
-            if seen:
-                stamps.append(seen)
-            organs.append({"id": oid, "label": label, "state": state, "note": note, "at": at, "source": "heartbeat"})
-        else:
-            state, note = derived.get(oid, ("rest", "no heartbeat yet"))
-            organs.append({"id": oid, "label": label, "state": state, "note": note, "source": "derived"})
+    organs, stamps = finish_organs(derived, store.heartbeats(), now)
+    stamps += [b.get("at") for b in batches if b.get("at")]
 
     return {
         # the moment the organism last changed, so rebuilding is repeatable
@@ -530,14 +748,22 @@ class Watcher(threading.Thread):
         self.folders = [os.path.abspath(f) for f in folders]
         self.interval, self.settle, self.default_model, self.log = interval, settle, default_model, log
         self.seen = {}
+        self.db_sig = None
         self.stop = threading.Event()
 
     def candidates(self):
-        skip = os.path.abspath(self.store.path)
+        skip = {os.path.abspath(self.store.path)}
+        if self.store.db:                          # the harness keeps its own files beside its database
+            skip.add(os.path.dirname(os.path.abspath(self.store.db)))
+        home = os.path.dirname(os.path.abspath(self.store.db)) if self.store.db else None
         for folder in self.folders:
+            if os.path.abspath(folder) in skip:
+                continue
+            if home and os.path.commonpath([os.path.abspath(folder), home]) == os.path.abspath(folder):
+                continue                           # this folder is the harness itself: the database speaks for it
             for root, dirs, files in os.walk(folder):
                 dirs[:] = sorted(d for d in dirs if not d.startswith(".") and d != "__pycache__"
-                                 and os.path.abspath(os.path.join(root, d)) != skip)
+                                 and os.path.abspath(os.path.join(root, d)) not in skip)
                 for name in sorted(files):
                     path = os.path.join(root, name)
                     if name.startswith(".") or not name.lower().endswith(RESULT_EXTS):
@@ -570,8 +796,16 @@ class Watcher(threading.Thread):
             if n:
                 added += n
                 self.log("%s: %d runs archived as batch %s" % (path, n, batch))
-        if added:
-            build(self.store, self.out, self.max_runs)
+        db_sig = None
+        if self.store.db:
+            db_sig = tuple((os.stat(p).st_mtime_ns, os.stat(p).st_size) if os.path.exists(p) else None
+                           for p in (self.store.db, self.store.db + "-wal", self.store.db + "-journal"))
+        if added or db_sig != self.db_sig:
+            try:
+                build(self.store, self.out, self.max_runs)
+                self.db_sig = db_sig
+            except ValueError as exc:              # database busy mid-write: try again next pass
+                self.log("status not rebuilt: %s" % exc)
         return added
 
     def run(self):
@@ -661,6 +895,8 @@ class ConsoleHandler(SimpleHTTPRequestHandler):
 
 def summary(status):
     lines = ["updated %s" % status["updated"]]
+    if status.get("headline"):
+        lines.append("  %(label)s: %(pass)d/%(total)d verified" % status["headline"])
     for o in status["organs"]:
         lines.append("  %-6s %-4s %s" % (o["id"], o["state"], o["note"]))
     for m in status["models"]:
@@ -676,6 +912,8 @@ def main(argv=None):
     common.add_argument("--out", default=os.path.join(HERE, "status.json"),
                         help="where to write status.json (default: beside this script)")
     common.add_argument("--max-runs", type=int, default=200, help="newest runs kept in status.json")
+    common.add_argument("--db", default=None,
+                        help="AI9 harness results.db (default: looked for in results/ and the given folders)")
 
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0],
                                  formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -707,6 +945,14 @@ def main(argv=None):
     args = ap.parse_args(argv)
     store = Store(args.store)
     try:
+        if args.db:
+            if not is_harness_db(args.db):
+                raise ValueError("%s is not a readable AI9 harness results database" % args.db)
+            store.db = os.path.abspath(args.db)
+        else:
+            store.db = find_harness_db(list(getattr(args, "folders", None) or []) + [HERE])
+        if store.db:
+            print("reading the harness database (read-only): %s" % store.db)
         if args.cmd == "ingest":
             for path in args.files:
                 batch, n = ingest(store, path, args.model)
@@ -729,7 +975,9 @@ def main(argv=None):
                                   default_model=args.model)
                 watcher.scan()
                 watcher.start()
-                print("watching for results in: %s" % ", ".join(watcher.folders))
+                print("watching: %s" % ", ".join(([store.db] if store.db else []) + [
+                    f for f in watcher.folders if not store.db
+                    or os.path.commonpath([f, os.path.dirname(store.db)]) != f]))
             host = "0.0.0.0" if args.lan else args.host
             server = ThreadingHTTPServer((host, args.port),
                                          functools.partial(ConsoleHandler, directory=out_dir))
