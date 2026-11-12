@@ -295,6 +295,10 @@
   .status.fail { color: rgb(var(--down)); }
   tbody tr { animation: surface .6s ease both; transition: background .3s ease; }
   tbody tr:hover { background: rgba(var(--blue), .04); }
+  tr.why td {
+    padding: 0 0 13px 13px; border-top: 0; text-align: left;
+    font-size: 12px; color: var(--dim); overflow-wrap: anywhere;
+  }
   .more { display: block; margin: 22px auto 0; }
 
   footer {
@@ -506,8 +510,11 @@
 
     var models = (Array.isArray(data.models) ? data.models : []).filter(Boolean).map(function (m) {
       var pass = num(m.pass), total = num(m.total);
+      var tasks = (Array.isArray(m.tasks) ? m.tasks : []).filter(function (t) { return t && t.task != null; })
+        .map(function (t) { return { task: String(t.task), status: String(t.status || "").toUpperCase() }; });
       return {
         name: m.name ? String(m.name) : "unnamed model",
+        tasks: tasks,
         pass: pass, total: total, avg: num(m.avg_sec),
         ratio: pass !== null && total ? Math.max(0, Math.min(1, pass / total)) : null
       };
@@ -525,7 +532,9 @@
         task: r.task ? String(r.task) : "–",
         model: r.model ? String(r.model) : "–",
         status: String(r.status || "–").toUpperCase(),
-        secs: num(r.secs)
+        secs: num(r.secs),
+        at: r.at ? String(r.at) : "",
+        reason: r.reason ? String(r.reason) : ""
       };
     }).reverse();
 
@@ -552,12 +561,18 @@
       while (streak < runs.length && runs[streak].status === runs[0].status) streak++;
     }
 
+    // optional: the back end's own history, one point per batch
+    var trend = (Array.isArray(data.history) ? data.history : []).map(function (h) {
+      var p = h ? num(h.pass) : null, t = h ? num(h.total) : null;
+      return p !== null && t ? p / t : null;
+    }).filter(function (p) { return p !== null; });
+
     var raw = data.updated ? String(data.updated) : "";
     var d = raw ? new Date(raw) : null;
     return {
       updatedRaw: raw, updatedAt: d && !isNaN(d.getTime()) ? d : null,
       organs: o, health: health, models: models, runs: runs,
-      passRate: passRate, passLine: passLine, tempo: tempo,
+      passRate: passRate, passLine: passLine, tempo: tempo, trend: trend,
       runPass: rPass, runFail: rFail, streak: streak
     };
   }
@@ -682,9 +697,11 @@
     sPass.textContent = v.passLine;
     var past = memory.get("history", []);
     past = (Array.isArray(past) ? past : []).filter(function (h) { return h && typeof h.p === "number"; });
-    sparkline(past.map(function (h) { return h.p; }));
-    if (past.length >= 2) {
-      var delta = Math.round((past[past.length - 1].p - past[past.length - 2].p) * 100);
+    // prefer the archive's history; fall back to what this browser has seen
+    var line = v.trend.length >= 2 ? v.trend : past.map(function (h) { return h.p; });
+    sparkline(line.slice(-40));
+    if (line.length >= 2) {
+      var delta = Math.round((line[line.length - 1] - line[line.length - 2]) * 100);
       if (delta) {
         sPass.appendChild(document.createTextNode(" · "));
         sPass.appendChild(el("span", delta > 0 ? "up" : "dn", (delta > 0 ? "▲ " : "▼ ") + Math.abs(delta) + " pts"));
@@ -766,7 +783,20 @@
       var label = (m.pass === null ? "?" : m.pass) + " of " + (m.total === null ? "?" : m.total) + " passed";
       var whole = m.total !== null && m.pass !== null && m.total > 0 && m.total <= 100 &&
                   m.total % 1 === 0 && m.pass % 1 === 0 && m.pass >= 0 && m.pass <= m.total;
-      if (whole) {
+      if (m.tasks.length && m.tasks.length <= 100) {
+        // one cell per task, each in its real place
+        var real = el("div", "cells" + (m.tasks.length > 40 ? " dense" : ""));
+        real.style.gridTemplateColumns = "repeat(" + m.tasks.length + ", 1fr)";
+        real.setAttribute("role", "img"); real.setAttribute("aria-label", label);
+        m.tasks.forEach(function (t, i) {
+          var c = el("i");
+          c.title = t.task + " · " + (t.status || "?");
+          c.style.transitionDelay = i * 22 + "ms";
+          real.appendChild(c);
+          grow.push([c, t.status === "PASS" ? "on" : "off"]);
+        });
+        wrap.appendChild(real);
+      } else if (whole) {
         // one cell per task; failures are counted at the end, not located
         var cells = el("div", "cells" + (m.total > 40 ? " dense" : ""));
         cells.style.gridTemplateColumns = "repeat(" + m.total + ", 1fr)";
@@ -882,7 +912,15 @@
       }
       time.appendChild(document.createTextNode(secs(r.secs)));
       tr.appendChild(time);
+      if (r.at) tr.title = shortTime(r.at);
       body.appendChild(tr);
+      if (r.reason) {
+        var why = el("tr", "why");
+        var cell = el("td", "", r.reason);
+        cell.colSpan = 4;
+        why.appendChild(cell);
+        body.appendChild(why);
+      }
     });
     table.appendChild(body); wrap.appendChild(table); box.appendChild(wrap);
 
