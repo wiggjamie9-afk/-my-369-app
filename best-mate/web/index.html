@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#05070B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Best Mate">
+<title>The 48 — AI's Best Mate</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<link rel="icon" href="/icons/icon-192.png">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<header class="top">
+  <a href="/" data-link class="brand" aria-label="Quotes home">
+    <img src="/logo-mark.jpg" alt="" width="36" height="36">
+    <span><b>THE 48</b><small>AI'S BEST MATE</small></span>
+  </a>
+  <span class="net" id="net" hidden>offline</span>
+</header>
+<div class="offline" id="offline" hidden>You're offline. Showing the quotes saved on this phone. Changes need a connection.</div>
+<main id="view" tabindex="-1"></main>
+<nav class="tabs" id="tabs" aria-label="Main">
+  <a href="/" data-link data-tab="quotes"><i class="ico q"></i>Quotes</a>
+  <a href="/new" data-link data-tab="new"><i class="ico n"></i>New</a>
+  <a href="/voice" data-link data-tab="voice" class="jane"><i class="ico v"></i>Jane</a>
+  <a href="/parts" data-link data-tab="parts"><i class="ico p"></i>Parts</a>
+  <a href="/more" data-link data-tab="more"><i class="ico m"></i>More</a>
+</nav>
+<div class="toast" id="toast" role="status" hidden></div>
+<noscript><p class="pad">This app needs JavaScript.</p></noscript>
+<script type="module" src="/app.js"></script>
+</body>
+</html>

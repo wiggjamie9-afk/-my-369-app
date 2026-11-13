@@ -1,0 +1,14 @@
+{
+  "host": "127.0.0.1",
+  "port": "8048",
+  "db": "",
+  "app_password": "",
+  "session_secret": "",
+  "llm_base_url": "",
+  "llm_key": "",
+  "llm_model": "",
+  "voice_base_url": "",
+  "voice_key": "",
+  "voice_name": "jane",
+  "voice_stub_text": ""
+}

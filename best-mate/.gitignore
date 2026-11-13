@@ -1,0 +1,5 @@
+# created at run time, never committed
+data/
+config.json
+__pycache__/
+*.pyc
