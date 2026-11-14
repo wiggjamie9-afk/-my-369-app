@@ -12,7 +12,8 @@
     if (!c || typeof c !== "object") return ["config.js did not load. Check the file is in the folder and has no typos."];
     if (c.tier !== "lite" && c.tier !== "full") bad.push('tier must be "lite" or "full".');
     if (!c.business || !String(c.business.name || "").trim()) bad.push("business.name is empty.");
-    if (c.webhookUrl && !/^https?:\/\//i.test(c.webhookUrl)) bad.push("webhookUrl must start with https://");
+    // a full address, or a path on the same site (used when the app is hosted for you)
+    if (c.webhookUrl && !/^(https?:\/\/|\/)/i.test(c.webhookUrl)) bad.push("webhookUrl must start with https://");
     [["jobTypes", ["labourPerUnit", "materialPerUnit"]], ["difficulty", ["multiplier"]], ["sizes", ["min", "max"]]].forEach(function (group) {
       var list = c[group[0]];
       if (!Array.isArray(list) || !list.length) { bad.push(group[0] + " needs at least one entry."); return; }

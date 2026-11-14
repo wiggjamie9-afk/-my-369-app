@@ -1,0 +1,566 @@
+"""End to end through the real server. Run: python3 -m unittest discover -s tests -v   (standard library only)"""
+import csv
+import io
+import json
+import os
+import re
+import shutil
+import socketserver
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+import unittest
+import urllib.error
+import urllib.parse
+import urllib.request
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, ROOT)
+import server
+from qm import deliver
+from qm.estimate import check_config, estimate
+
+JPEG = b"\xff\xd8\xff\xe0" + b"photo-bytes" * 40
+PNG = b"\x89PNG\r\n\x1a\n" + b"logo-bytes" * 20
+GOOD = {"name": "Sam Sample", "phone": "0400 000 000", "email": "sam@example.com", "suburb": "Fremantle",
+        "type_id": "colorbond", "difficulty_id": "double", "size_id": "medium"}
+
+
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, *a, **k):
+        return None
+
+
+class Client:
+    """A tiny browser: keeps cookies per path, sends forms, never follows redirects on its own."""
+
+    def __init__(self, base):
+        self.base, self.jar = base, {}
+        self.opener = urllib.request.build_opener(NoRedirect)
+
+    def call(self, method, path, form=None, files=None, headers=None):
+        data, hdrs = None, dict(headers or {})
+        if files is not None:
+            boundary = "----test%d" % time.time_ns()
+            parts = []
+            for k, v in (form or {}).items():
+                parts.append(('--%s\r\nContent-Disposition: form-data; name="%s"\r\n\r\n%s\r\n' % (boundary, k, v)).encode())
+            for k, (fname, blob) in files.items():
+                parts.append(('--%s\r\nContent-Disposition: form-data; name="%s"; filename="%s"\r\nContent-Type: application/octet-stream\r\n\r\n'
+                              % (boundary, k, fname)).encode() + blob + b"\r\n")
+            data = b"".join(parts) + ("--%s--\r\n" % boundary).encode()
+            hdrs["Content-Type"] = "multipart/form-data; boundary=" + boundary
+        elif form is not None:
+            data = urllib.parse.urlencode(form).encode()
+            hdrs["Content-Type"] = "application/x-www-form-urlencoded"
+        cookies = "; ".join("%s=%s" % (n, v) for (n, p), v in self.jar.items() if path.startswith(p))
+        if cookies:
+            hdrs["Cookie"] = cookies
+        req = urllib.request.Request(self.base + path, data=data, method=method, headers=hdrs)
+        try:
+            with self.opener.open(req, timeout=10) as r:
+                status, h, body = r.status, r.headers, r.read()
+        except urllib.error.HTTPError as e:
+            status, h, body = e.code, e.headers, e.read()
+        for raw in h.get_all("Set-Cookie") or []:
+            name, _, value = raw.split(";")[0].partition("=")
+            self.jar[(name, re.search(r"Path=([^;]+)", raw).group(1))] = value
+        return status, body, h
+
+    def text(self, method, path, **kw):
+        status, body, h = self.call(method, path, **kw)
+        return status, body.decode("utf-8", "replace")
+
+
+class Base(unittest.TestCase):
+    ENV = {}
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        env = {"QM_DB": os.path.join(self.tmp.name, "data", "t.db"), "PORT": "0", "ADMIN_PASSWORD": "owner-pass", **self.ENV}
+        self.server = server.make_server(env)
+        threading.Thread(target=self.server.serve_forever, daemon=True).start()
+        self.app = self.server.RequestHandlerClass.app
+        self.store = self.app.store
+        self.base = "http://127.0.0.1:%d" % self.server.server_address[1]
+        self.c = Client(self.base)
+
+    def tearDown(self):
+        self.server.shutdown()
+        self.server.server_close()
+        self.tmp.cleanup()
+
+    def business(self, name="Acme Roofing", tier="lite", **kw):
+        tenant, password = self.store.create_tenant(name, tier=tier, **kw)
+        return tenant, password
+
+    def signed_in(self, tenant, password):
+        c = Client(self.base)
+        status, _, h = c.call("POST", "/q/%s/admin/login" % tenant["slug"], form={"password": password})
+        self.assertEqual(status, 303)
+        return c
+
+    def lead(self, slug, client=None, files=None, **changes):
+        return (client or self.c).call("POST", "/q/%s/lead" % slug, form={**GOOD, **changes}, files=files or {})
+
+    def wait_for(self, fn, seconds=5):
+        end = time.time() + seconds
+        while time.time() < end:
+            out = fn()
+            if out:
+                return out
+            time.sleep(0.05)
+        self.fail("timed out waiting")
+
+
+class QuotePage(Base):
+    def test_each_business_gets_its_own_page_and_its_own_rates(self):
+        a, _ = self.business("Acme Roofing")
+        b, _ = self.business("Brush Brothers", preset="painting", tier="full")
+        self.assertEqual(self.c.call("GET", "/q/acme-roofing")[0], 301)
+        status, page = self.c.text("GET", "/q/acme-roofing/")
+        self.assertEqual(status, 200)
+        self.assertIn('src="config.js"', page)
+
+        def config(slug):
+            js = self.c.text("GET", "/q/%s/config.js" % slug)[1]
+            return json.loads(js[js.index("{"):js.rindex("}") + 1])
+        ca, cb = config("acme-roofing"), config("brush-brothers")
+        self.assertEqual((ca["business"]["name"], ca["tier"], ca["webhookUrl"], ca["trade"]["unit"]), ("Acme Roofing", "lite", "/q/acme-roofing/lead", "m²"))
+        self.assertEqual((cb["business"]["name"], cb["tier"], cb["webhookUrl"], cb["trade"]["unit"]), ("Brush Brothers", "full", "/q/brush-brothers/lead", "room"))
+        self.assertFalse(ca["ratesConfirmed"])                    # new businesses start on example rates, and say so
+        self.assertNotIn("pw_hash", json.dumps(ca))
+        self.assertNotIn("notify", json.dumps(ca))
+
+    def test_the_plan_is_enforced_by_the_server(self):
+        self.business("Acme Roofing", tier="lite")
+        self.business("Top Roofs", tier="full")
+        lite = self.c.text("GET", "/q/acme-roofing/full.js")[1]
+        full = self.c.text("GET", "/q/top-roofs/full.js")[1]
+        self.assertNotIn("photos", lite)
+        self.assertIn("RQM.full", full)
+        # a lite business posting photos anyway gets none stored
+        self.assertEqual(self.lead("acme-roofing", files={"photo1": ("a.jpg", JPEG)})[0], 200)
+        self.assertEqual(self.store.leads(self.store.tenant("acme-roofing")["id"])[0]["photos"], 0)
+
+    def test_demo_is_there_and_keeps_nothing(self):
+        status, js = self.c.text("GET", "/q/demo/config.js")
+        self.assertEqual(status, 200)
+        self.assertIn("demoNotice", js)
+        self.assertIn('"webhookUrl": ""', js)
+        self.assertEqual(self.lead("demo")[0], 200)
+        self.assertEqual(self.store.leads(self.store.tenant("demo")["id"]), [])
+
+    def test_paused_business_shows_a_holding_page_and_takes_no_leads(self):
+        t, _ = self.business("Acme Roofing", phone="08 0000 0000")
+        self.store.update_tenant(t["id"], active=False)
+        status, page = self.c.text("GET", "/q/acme-roofing/")
+        self.assertIn("switched off right now", page)
+        self.assertIn("tel:0800000000", page)
+        self.assertEqual(self.lead("acme-roofing")[0], 403)
+        self.assertEqual(self.c.call("GET", "/q/nobody-here/")[0], 404)
+
+    def test_quote_tool_files_are_served_and_nothing_else(self):
+        self.business("Acme Roofing")
+        for name in ("app.js", "app.css", "estimate.js"):
+            self.assertEqual(self.c.call("GET", "/q/acme-roofing/" + name)[0], 200, name)
+        for path in ("/q/acme-roofing/test.js", "/q/acme-roofing/../server.py", "/server.py", "/data/t.db", "/q/acme-roofing/logo", "/qm/store.py"):
+            self.assertEqual(self.c.call("GET", path)[0], 404, path)
+        headers = self.c.call("GET", "/q/acme-roofing/")[2]
+        self.assertIn("script-src 'self'", headers["Content-Security-Policy"])
+
+
+class Leads(Base):
+    def test_a_lead_is_priced_by_the_server_not_the_browser(self):
+        t, _ = self.business("Acme Roofing")
+        status, body, _ = self.lead("acme-roofing", ballpark_low="1", ballpark_high="2", job_type="Free roof")
+        self.assertEqual((status, json.loads(body)), (200, {"ok": True}))
+        lead = self.store.leads(t["id"])[0]
+        self.assertEqual((lead["low"], lead["high"], lead["job_type"], lead["difficulty"], lead["size"]),
+                         (17800, 36300, "Colorbond", "Double storey", "Medium"))
+        self.assertEqual((lead["name"], lead["status"]), ("Sam Sample", "new"))
+
+    def test_bad_leads_are_refused(self):
+        t, _ = self.business("Acme Roofing")
+        for change in ({"name": "S"}, {"phone": "12"}, {"phone": "0400 000 000 ext <b>"}, {"email": "nope"}, {"suburb": ""},
+                       {"type_id": "gold"}, {"size_id": ""}, {"difficulty_id": "../x"}):
+            status, body, _ = self.lead("acme-roofing", **change)
+            self.assertEqual(status, 400, change)
+            self.assertIn("error", json.loads(body))
+        self.assertEqual(self.store.leads(t["id"]), [])
+
+    def test_bots_and_floods_are_stopped(self):
+        t, _ = self.business("Acme Roofing")
+        self.assertEqual(self.lead("acme-roofing", company="Spam Ltd")[0], 200)       # the hidden box was filled in
+        self.assertEqual(self.store.leads(t["id"]), [])
+        statuses = [self.lead("acme-roofing")[0] for _ in range(9)]
+        self.assertEqual(statuses.count(200), 7)                                       # 8 an hour per connection, one used above
+        self.assertEqual(statuses[-2:], [429, 429])
+        self.assertEqual(self.c.call("POST", "/q/acme-roofing/lead", form=GOOD, headers={"Origin": "https://evil.example"})[0], 403)
+
+    def test_full_plan_photos_are_checked_and_stored(self):
+        t, _ = self.business("Top Roofs", tier="full")
+        files = {"photo1": ("roof.jpg", JPEG), "photo2": ("evil.jpg", b"<script>alert(1)</script>"), "photo3": ("b.png", PNG),
+                 "photo4": ("c.jpg", JPEG), "photo5": ("d.jpg", JPEG), "photo6": ("e.svg", b"<svg onload=alert(1)>")}
+        self.assertEqual(self.lead("top-roofs", files=files)[0], 200)
+        lead = self.store.leads(t["id"])[0]
+        self.assertEqual(lead["photos"], 3)                        # first four fields considered; the fake one dropped
+        self.assertEqual(self.store.photo(t["id"], lead["id"], 1), (JPEG, "image/jpeg"))
+        self.assertEqual(self.store.photo(t["id"], lead["id"], 2), (PNG, "image/png"))
+        folder = os.path.join(self.store.photo_dir, str(t["id"]), str(lead["id"]))
+        self.assertEqual(sorted(os.listdir(folder)), ["1.jpg", "2.png", "3.jpg"])       # our names, never the uploader's
+
+
+class Inbox(Base):
+    def test_sign_in_and_work_a_lead(self):
+        t, pw = self.business("Top Roofs", tier="full")
+        self.lead("top-roofs", files={"photo1": ("roof.jpg", JPEG)})
+        self.assertIn("Sign in to Top Roofs", self.c.text("GET", "/q/top-roofs/admin")[1])
+        self.assertEqual(self.c.call("POST", "/q/top-roofs/admin/login", form={"password": "wrong"})[0], 401)
+        self.assertEqual(self.c.call("GET", "/q/top-roofs/admin/leads.csv")[0], 401)
+
+        c = self.signed_in(t, pw)
+        status, page = c.text("GET", "/q/top-roofs/admin")
+        self.assertEqual(status, 200)
+        for expected in ("Sam Sample", "$17,800 – $36,300", "Colorbond", "1 photo", self.base + "/q/top-roofs/", "example rates"):
+            self.assertIn(expected, page)
+        lead_id = self.store.leads(t["id"])[0]["id"]
+        status, page = c.text("GET", "/q/top-roofs/admin/lead/%d" % lead_id)
+        self.assertIn("tel:0400000000", page)
+        self.assertIn("/q/top-roofs/admin/photo/%d/1" % lead_id, page)
+        status, body, h = c.call("GET", "/q/top-roofs/admin/photo/%d/1" % lead_id)
+        self.assertEqual((status, body, h["Content-Type"]), (200, JPEG, "image/jpeg"))
+
+        status, page = c.text("POST", "/q/top-roofs/admin/lead/%d" % lead_id, form={"status": "quoted", "notes": "Rang, quoting Friday <b>"})
+        self.assertIn("Saved.", page)
+        self.assertIn("quoting Friday &lt;b&gt;", page)            # notes are escaped, never run
+        self.assertEqual(self.store.lead(t["id"], lead_id)["status"], "quoted")
+        self.assertEqual(c.call("POST", "/q/top-roofs/admin/lead/%d" % lead_id, form={"status": "stolen"})[0], 400)
+        self.assertIn("No new leads", c.text("GET", "/q/top-roofs/admin?status=new")[1])
+
+    def test_one_business_can_never_see_anothers_leads(self):
+        a, pa = self.business("Acme Roofing", tier="full")
+        b, pb = self.business("Brush Brothers", preset="painting", tier="full")
+        self.lead("acme-roofing", files={"photo1": ("roof.jpg", JPEG)})
+        secret = self.store.leads(a["id"])[0]["id"]
+        cb = self.signed_in(b, pb)
+        self.assertNotIn("Sam Sample", cb.text("GET", "/q/brush-brothers/admin")[1])
+        self.assertEqual(cb.call("GET", "/q/brush-brothers/admin/lead/%d" % secret)[0], 404)
+        self.assertEqual(cb.call("GET", "/q/brush-brothers/admin/photo/%d/1" % secret)[0], 404)
+        self.assertEqual(cb.call("POST", "/q/brush-brothers/admin/lead/%d" % secret, form={"status": "lost"})[0], 404)
+        # B's cookie is no use on A's pages, even moved there by hand
+        self.assertEqual(cb.call("GET", "/q/acme-roofing/admin/lead/%d" % secret)[0], 401)
+        stolen = Client(self.base)
+        (name, path), value = next(iter(cb.jar.items()))
+        stolen.jar[("qm_t%d" % a["id"], "/q/acme-roofing/admin")] = value
+        self.assertEqual(stolen.call("GET", "/q/acme-roofing/admin/lead/%d" % secret)[0], 401)
+        self.assertEqual(self.store.lead(a["id"], secret)["status"], "new")
+
+    def test_spreadsheet_export_is_complete_and_defused(self):
+        t, pw = self.business("Acme Roofing")
+        self.lead("acme-roofing")
+        self.lead("acme-roofing", name="=HYPERLINK(evil)", suburb="@home")
+        c = self.signed_in(t, pw)
+        status, body, h = c.call("GET", "/q/acme-roofing/admin/leads.csv")
+        self.assertEqual(status, 200)
+        rows = list(csv.reader(io.StringIO(body.decode("utf-8-sig"))))
+        self.assertEqual(rows[0][:5], ["Received", "Name", "Phone", "Email", "Suburb"])
+        self.assertEqual(len(rows), 3)
+        risky = next(r for r in rows if "HYPERLINK" in r[1])
+        self.assertEqual((risky[1], risky[4]), ("'=HYPERLINK(evil)", "'@home"))
+        self.assertEqual(rows[2][8:10], ["17800", "36300"])
+
+    def test_wrong_passwords_are_slowed_and_a_reset_signs_everyone_out(self):
+        t, pw = self.business("Acme Roofing")
+        c = self.signed_in(t, pw)
+        self.assertEqual(c.call("GET", "/q/acme-roofing/admin/settings")[0], 200)
+        new = self.store.reset_password(t["id"])
+        self.assertEqual(c.call("GET", "/q/acme-roofing/admin/settings")[0], 401)       # the old session died with the old password
+        guess = Client(self.base)
+        codes = [guess.call("POST", "/q/acme-roofing/admin/login", form={"password": "guess%d" % i})[0] for i in range(7)]
+        self.assertEqual(codes, [401] * 5 + [429] * 2)                 # six tries per five minutes; the sign-in above was the first
+        self.assertNotEqual(new, pw)
+
+
+class Settings(Base):
+    def form_for(self, tenant, **changes):
+        c = tenant["config"]
+        f = {"name": tenant["name"], "phone": "08 0000 0000", "licence": "EX1", "spread_pct": "10", "round_to": "100", "minimum_job": "3000",
+             "w_headline": c["words"]["headline"], "w_subline": c["words"]["subline"], "w_ballparkNote": c["words"]["ballparkNote"],
+             "w_thanksSub": c["words"]["thanksSub"], "notify_email": "", "forward_webhook": ""}
+        for j in c["jobTypes"]:
+            f.update({"jt_%s_label" % j["id"]: j["label"], "jt_%s_labour" % j["id"]: j["labourPerUnit"], "jt_%s_material" % j["id"]: j["materialPerUnit"]})
+        for d in c["difficulty"]:
+            f.update({"df_%s_label" % d["id"]: d["label"], "df_%s_mult" % d["id"]: d["multiplier"]})
+        for s in c["sizes"]:
+            f.update({"sz_%s_label" % s["id"]: s["label"], "sz_%s_min" % s["id"]: s["min"], "sz_%s_max" % s["id"]: s["max"]})
+        f.update(changes)
+        return f
+
+    def test_a_tradie_sets_their_own_rates_and_the_ballpark_follows(self):
+        t, pw = self.business("Acme Roofing")
+        c = self.signed_in(t, pw)
+        self.assertIn("Labour $ per m²", c.text("GET", "/q/acme-roofing/admin/settings")[1])
+        form = self.form_for(t, jt_colorbond_labour="80", jt_colorbond_material="70.50", rates_confirmed="1", name="Acme Roofing WA",
+                             w_headline="Need a new roof?", notify_email="boss@example.com")
+        self.assertEqual(c.call("POST", "/q/acme-roofing/admin/settings", form=form, files={})[0], 303)
+        t = self.store.tenant("acme-roofing")
+        self.assertEqual((t["name"], t["phone"], t["rates_confirmed"], t["notify_email"]), ("Acme Roofing WA", "08 0000 0000", 1, "boss@example.com"))
+        js = self.c.text("GET", "/q/acme-roofing/config.js")[1]
+        self.assertIn('"ratesConfirmed": true', js)
+        self.assertIn("Need a new roof?", js)
+        # $150.50/m2 x 1.25 = $188.125: low 120 x 188.125 x 0.9 x 1.1 = 22,349.25 -> 22,300 ; high 200 x 188.125 x 1.1 x 1.1 = 45,526.25 -> 45,600
+        self.lead("acme-roofing")
+        lead = self.store.leads(t["id"])[0]
+        self.assertEqual((lead["low"], lead["high"]), (22300, 45600))
+
+    def test_bad_settings_change_nothing(self):
+        t, pw = self.business("Acme Roofing")
+        c = self.signed_in(t, pw)
+        before = self.store.tenant("acme-roofing")["config"]
+        for change, expect in (({"jt_tile_labour": "lots"}, "must be a number"), ({"jt_tile_labour": "-5"}, "zero or more"),
+                               ({"sz_small_min": "500"}, "smaller than the smallest"), ({"df_single_mult": "0"}, "can&#x27;t be 0"),
+                               ({"spread_pct": "150"}, "between 0% and 99%"), ({"round_to": "0"}, "$1 or more"),
+                               ({"notify_email": "nope"}, "email address"), ({"forward_webhook": "http://example.com/x"}, "https://"),
+                               ({"forward_webhook": "https://127.0.0.1/internal"}, "public internet")):
+            status, page = c.text("POST", "/q/acme-roofing/admin/settings", form=self.form_for(t, **change), files={})
+            self.assertEqual(status, 400, change)
+            self.assertIn(expect, page, change)
+        self.assertEqual(self.store.tenant("acme-roofing")["config"], before)
+
+    def test_logo_upload_full_plan_only_and_images_only(self):
+        t, pw = self.business("Top Roofs", tier="full")
+        c = self.signed_in(t, pw)
+        post = lambda blob, **kw: c.call("POST", "/q/top-roofs/admin/settings", form=self.form_for(t, **kw), files={"logo": ("logo.png", blob)} if blob else {})
+        self.assertEqual(post(b"<svg xmlns='http://www.w3.org/2000/svg' onload='alert(1)'/>")[0], 400)
+        self.assertEqual(post(PNG + b"x" * (400 * 1024))[0], 400)
+        self.assertEqual(self.c.call("GET", "/q/top-roofs/logo")[0], 404)
+        self.assertEqual(post(PNG)[0], 303)
+        status, body, h = self.c.call("GET", "/q/top-roofs/logo")
+        self.assertEqual((status, body, h["Content-Type"]), (200, PNG, "image/png"))
+        self.assertEqual(post(None, remove_logo="1")[0], 303)
+        self.assertEqual(self.c.call("GET", "/q/top-roofs/logo")[0], 404)
+        lite, pw2 = self.business("Acme Roofing")
+        c2 = self.signed_in(lite, pw2)
+        self.assertEqual(c2.call("POST", "/q/acme-roofing/admin/settings", form=self.form_for(lite), files={"logo": ("l.png", PNG)})[0], 303)
+        self.assertEqual(self.c.call("GET", "/q/acme-roofing/logo")[0], 404)
+
+
+class Owner(Base):
+    def owner(self):
+        c = Client(self.base)
+        self.assertEqual(c.call("POST", "/admin/login", form={"password": "owner-pass"})[0], 303)
+        return c
+
+    def test_console_is_locked(self):
+        self.assertIn("Owner sign in", self.c.text("GET", "/admin")[1])
+        self.assertEqual(self.c.call("POST", "/admin/business", form={"name": "Sneaky"})[0], 401)
+        self.assertEqual(self.c.call("POST", "/admin/login", form={"password": "nope"})[0], 401)
+        t, pw = self.business("Acme Roofing")
+        tradie = self.signed_in(t, pw)
+        self.assertEqual(tradie.call("POST", "/admin/business", form={"name": "Sneaky"})[0], 401)   # a customer is not the owner
+        self.assertEqual(self.owner().call("POST", "/admin/business", form={"name": "X"}, headers={"Origin": "https://evil.example"})[0], 403)
+
+    def test_add_a_business_and_hand_over_its_password_once(self):
+        o = self.owner()
+        status, page = o.text("POST", "/admin/business", form={"name": "Kelly's Painting", "preset": "painting", "tier": "full",
+                                                                "contact_email": "kelly@example.com", "phone": "0411 111 111"})
+        self.assertEqual(status, 200)
+        self.assertIn("/q/kelly-s-painting/admin", page)
+        password = re.search(r'Password: <span class="mono">([^<]+)</span>', page).group(1)
+        t = self.store.tenant("kelly-s-painting")
+        self.assertTrue(self.store.check_password(t, password))
+        self.assertNotIn(password, o.text("GET", "/admin")[1])              # shown once, then gone
+        with open(self.store.path, "rb") as fh:
+            self.assertNotIn(password.encode(), fh.read())                 # and only a hash on disk
+        self.signed_in(t, password)
+        for bad in ({"name": "K"}, {"name": "Kelly's Painting"}, {"name": "Admin", "slug": "admin"}, {"name": "Good Name", "preset": "plumbing"},
+                    {"name": "Good Name", "tier": "platinum"}):
+            self.assertEqual(o.call("POST", "/admin/business", form=bad)[0], 400, bad)
+
+    def test_change_plan_record_payment_pause_and_reset(self):
+        t, pw = self.business("Acme Roofing")
+        o = self.owner()
+        status, page = o.text("POST", "/admin/business/%d" % t["id"], form={"tier": "full", "paid_until": "2020-01-31", "active": "1"})
+        self.assertIn("payment overdue", page)
+        self.assertEqual(self.store.tenant("acme-roofing")["tier"], "full")
+        self.assertEqual(self.c.call("GET", "/q/acme-roofing/")[0], 200)     # overdue is a flag for you; nothing switches off by itself
+        self.assertIn('"tier": "full"', self.c.text("GET", "/q/acme-roofing/config.js")[1])
+        o.call("POST", "/admin/business/%d" % t["id"], form={"tier": "full", "paid_until": "2020-01-31", "active": "0"})
+        self.assertIn("switched off", self.c.text("GET", "/q/acme-roofing/")[1])
+        self.assertEqual(o.call("POST", "/admin/business/%d" % t["id"], form={"tier": "full", "paid_until": "next week", "active": "1"})[0], 400)
+        status, page = o.text("POST", "/admin/business/%d" % t["id"], form={"reset_password": "1"})
+        new = re.search(r'Password: <span class="mono">([^<]+)</span>', page).group(1)
+        self.assertFalse(self.store.check_password(self.store.tenant("acme-roofing"), pw))
+        self.assertTrue(self.store.check_password(self.store.tenant("acme-roofing"), new))
+
+    def test_sales_page_and_enquiries(self):
+        status, page = self.c.text("GET", "/")
+        self.assertEqual(status, 200)
+        self.assertIn("Ask for pricing", page)                               # no price is invented for you
+        self.assertIn("/q/demo/", page)
+        o = self.owner()
+        o.call("POST", "/admin/site", form={"service_name": "Quote Mate WA", "price_lite": "$49 a month", "price_full": "$89 a month",
+                                            "owner_phone": "08 0000 0000", "tagline": "<script>x</script>"})
+        page = self.c.text("GET", "/")[1]
+        for expected in ("Quote Mate WA", "$49 a month", "$89 a month", "tel:0800000000", "&lt;script&gt;x&lt;/script&gt;"):
+            self.assertIn(expected, page)
+        self.assertNotIn("<script>x", page)
+
+        good = {"name": "Kelly", "business": "Kelly's Painting", "trade": "Painting", "phone": "0411 111 111", "email": "kelly@example.com", "message": "Keen"}
+        status, page = self.c.text("POST", "/enquire", form={**good, "email": "nope"})
+        self.assertEqual(status, 400)
+        self.assertIn('value="Kelly&#x27;s Painting"', page)                 # what they typed is kept
+        self.assertEqual(self.c.call("POST", "/enquire", form={**good, "website": "http://spam"})[0], 303)
+        self.assertEqual(self.store.enquiries(), [])
+        self.assertEqual(self.c.call("POST", "/enquire", form=good)[0], 303)
+        self.assertIn("We&#x27;ve got your details", self.c.text("GET", "/?sent=1")[1])
+        page = o.text("GET", "/admin")[1]
+        self.assertIn("Kelly&#x27;s Painting · Painting", page)
+        enquiry = self.store.enquiries()[0]
+        o.call("POST", "/admin/enquiry/%d" % enquiry["id"], form={"handled": "1"})
+        self.assertEqual(self.store.enquiries()[0]["handled"], 1)
+
+    def test_console_is_off_without_an_owner_password(self):
+        self.app.admin_password = ""
+        self.assertEqual(self.c.call("GET", "/admin")[0], 503)
+
+
+class FakeSmtp(socketserver.StreamRequestHandler):
+    """Speaks just enough SMTP to receive one message."""
+    inbox = []
+
+    def handle(self):
+        self.wfile.write(b"220 test ESMTP\r\n")
+        data, in_data = [], False
+        for raw in self.rfile:
+            line = raw.decode("utf-8", "replace")
+            if in_data:
+                if line == ".\r\n":
+                    FakeSmtp.inbox.append("".join(data))
+                    in_data = False
+                    self.wfile.write(b"250 queued\r\n")
+                else:
+                    data.append(line)
+            elif line[:4].upper() == "DATA":
+                in_data = True
+                self.wfile.write(b"354 go on\r\n")
+            elif line[:4].upper() == "QUIT":
+                self.wfile.write(b"221 bye\r\n")
+                return
+            else:
+                self.wfile.write(b"250 ok\r\n")
+
+
+class Hook(BaseHTTPRequestHandler):
+    got = []
+
+    def do_POST(self):
+        Hook.got.append(json.loads(self.rfile.read(int(self.headers["Content-Length"]))))
+        self.send_response(200)
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
+    def log_message(self, *a):
+        pass
+
+
+class Delivery(Base):
+    def setUp(self):
+        FakeSmtp.inbox, Hook.got = [], []
+        self.smtp = socketserver.ThreadingTCPServer(("127.0.0.1", 0), FakeSmtp)
+        self.hook = HTTPServer(("127.0.0.1", 0), Hook)
+        for s in (self.smtp, self.hook):
+            threading.Thread(target=s.serve_forever, daemon=True).start()
+        self.ENV = {"SMTP_HOST": "127.0.0.1", "SMTP_PORT": str(self.smtp.server_address[1]), "SMTP_FROM": "leads@quotemate.example",
+                    "SMTP_TLS": "none", "QM_ALLOW_PRIVATE_FORWARD": "1", "PUBLIC_URL": "https://quotes.example.com"}
+        super().setUp()
+
+    def tearDown(self):
+        super().tearDown()
+        for s in (self.smtp, self.hook):
+            s.shutdown()
+            s.server_close()
+
+    def test_a_new_lead_is_emailed_and_copied_to_the_tradies_webhook(self):
+        t, _ = self.business("Acme Roofing")
+        self.store.update_tenant(t["id"], notify_email="boss@acme.example")
+        with self.store.tx() as c:                                    # test-only: a local address, normally refused by the settings page
+            c.execute("UPDATE tenants SET forward_webhook=? WHERE id=?", ("http://127.0.0.1:%d/hook" % self.hook.server_address[1], t["id"]))
+        self.assertEqual(self.lead("acme-roofing", name="Sam\r\nBcc: everyone@evil.example")[0], 200)
+        lead = self.wait_for(lambda: next((l for l in self.store.leads(t["id"]) if l["email_status"] and l["forward_status"]), None))
+        self.assertEqual((lead["email_status"], lead["forward_status"]), ("sent", "sent"))
+        mail = FakeSmtp.inbox[0]
+        for expected in ("To: boss@acme.example", "From: leads@quotemate.example", "Reply-To: sam@example.com", "0400 000 000",
+                         "$17,800 to $36,300 inc GST", "https://quotes.example.com/q/acme-roofing/admin/lead/%d" % lead["id"]):
+            self.assertIn(expected, mail)
+        headers = mail.split("\r\n\r\n")[0]
+        self.assertFalse([h for h in headers.split("\r\n") if h.lower().startswith("bcc")])   # a name can't smuggle in a mail header
+        self.assertIn("Subject: New quote request: Sam Bcc: everyone@evil.example, Fremantle", headers)   # it stays inside the subject text
+        self.assertEqual((Hook.got[0]["name"], Hook.got[0]["low"], Hook.got[0]["business"]), ("Sam Bcc: everyone@evil.example", 17800, "Acme Roofing"))
+
+    def test_a_dead_mail_server_never_loses_the_lead(self):
+        t, _ = self.business("Acme Roofing")
+        self.store.update_tenant(t["id"], notify_email="boss@acme.example")
+        self.app.smtp["port"] = 1                                      # nothing is listening there
+        self.assertEqual(self.lead("acme-roofing")[0], 200)
+        lead = self.wait_for(lambda: next((l for l in self.store.leads(t["id"]) if l["email_status"]), None))
+        self.assertTrue(lead["email_status"].startswith("failed"))
+        self.assertEqual(lead["name"], "Sam Sample")
+
+
+class Guards(unittest.TestCase):
+    def test_webhook_addresses_must_be_public_https(self):
+        for bad in ("http://example.com/x", "https://127.0.0.1/x", "https://localhost/x", "https://10.0.0.5/x", "https://169.254.169.254/latest",
+                    "https://[::1]/x", "https://user:pw@example.com/x", "ftp://example.com", "https:///nohost", "file:///etc/passwd"):
+            with self.assertRaises(ValueError, msg=bad):
+                deliver.safe_public_url(bad)
+
+    def test_image_sniffing_ignores_names(self):
+        self.assertEqual(server.image_kind(JPEG), ("jpg", "image/jpeg"))
+        self.assertEqual(server.image_kind(PNG), ("png", "image/png"))
+        self.assertEqual(server.image_kind(b"RIFF\x00\x00\x00\x00WEBPVP8 "), ("webp", "image/webp"))
+        for bad in (b"<svg onload=alert(1)>", b"GIF89a", b"%PDF-1.4", b"", b"<html>"):
+            self.assertIsNone(server.image_kind(bad))
+
+
+class PricingAgreesWithTheBrowser(unittest.TestCase):
+    """The server's sum and the quote tool's sum must give the same range for every choice."""
+
+    def test_presets_are_valid(self):
+        for name in ("roofing", "painting"):
+            with open(os.path.join(ROOT, "presets", name + ".json"), encoding="utf-8") as fh:
+                self.assertEqual(check_config(json.load(fh)), [], name)
+
+    @unittest.skipUnless(shutil.which("node"), "node is not installed")
+    def test_every_combination_matches_estimate_js(self):
+        tool = os.path.join(os.path.dirname(ROOT), "roof-quote-mate", "estimate.js")
+        script = ("const {estimate} = require(process.argv[1]); const c = JSON.parse(require('fs').readFileSync(process.argv[2], 'utf8'));"
+                  "const out = []; for (const t of c.jobTypes) for (const d of c.difficulty) for (const s of c.sizes) {"
+                  "const e = estimate(c, {type: t.id, difficulty: d.id, size: s.id}); out.push([t.id, d.id, s.id, e.low, e.high]); }"
+                  "console.log(JSON.stringify(out));")
+        checked = 0
+        for name, tweak in (("roofing", {}), ("painting", {}), ("roofing", {"spread": 0.075, "roundTo": 1, "minimumJob": 0, "ratesIncludeGst": True}),
+                            ("painting", {"spread": 0.333, "roundTo": 25, "gstRate": 0.125})):
+            with open(os.path.join(ROOT, "presets", name + ".json"), encoding="utf-8") as fh:
+                cfg = json.load(fh)
+            cfg["pricing"].update(tweak)
+            cfg["jobTypes"][0]["labourPerUnit"] = 61.37
+            with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as fh:
+                json.dump(cfg, fh)
+            try:
+                rows = json.loads(subprocess.run(["node", "-e", script, tool, fh.name], capture_output=True, text=True, check=True).stdout)
+            finally:
+                os.unlink(fh.name)
+            for t, d, s, low, high in rows:
+                e = estimate(cfg, t, d, s)
+                self.assertEqual((e["low"], e["high"]), (low, high), (name, tweak, t, d, s))
+                checked += 1
+        self.assertEqual(checked, 4 * 36)
+
+
+if __name__ == "__main__":
+    unittest.main()

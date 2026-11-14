@@ -37,13 +37,14 @@
   if (!full) document.title = config.trade.productName + " | Instant ballpark";
 
   var todo = [];
-  if (!config.ratesConfirmed) todo.push("These are example rates, not real prices. Put yours in config.js, then set ratesConfirmed to true.");
-  if (demo) todo.push("Demo mode: no webhook set, so leads are not sent anywhere. Add webhookUrl in config.js.");
+  if (config.demoNotice) todo.push(config.demoNotice);                  // a hosted demo: say so, and nothing else
+  else if (!config.ratesConfirmed) todo.push("These are example rates, not real prices. Put yours in config.js, then set ratesConfirmed to true.");
+  if (demo && !config.demoNotice) todo.push("Demo mode: no webhook set, so leads are not sent anywhere. Add webhookUrl in config.js.");
   if (config.tier === "full" && !RQM.full) todo.push('tier is "full" but full.js is missing, so this is running as lite.');
   if (todo.length) {
     var setup = document.getElementById("setup");
     setup.hidden = false;
-    setup.appendChild(el("b", { text: "Setup notice (your customers will see this until it's fixed)" }));
+    setup.appendChild(el("b", { text: config.demoNotice ? "Demo" : "Setup notice (your customers will see this until it's fixed)" }));
     setup.appendChild(el("ul", {}, todo.map(function (t) { return el("li", { text: t }); })));
   }
   document.getElementById("foot").textContent = "Ballpark prices only. " + biz.name + (biz.licence ? " · Licence " + biz.licence : "");
@@ -129,6 +130,7 @@
         var lead = {
           name: name, phone: phone, email: email, suburb: picks.suburb,
           job_type: est.type.label, difficulty: est.difficulty.label, size: est.size.label,
+          type_id: est.type.id, difficulty_id: est.difficulty.id, size_id: est.size.id,
           size_min: est.size.min, size_max: est.size.max, unit: config.trade.unit,
           ballpark_low: est.low, ballpark_high: est.high, ballpark: range + " inc GST",
           photos: files.length, business: biz.name, tier: full ? "full" : "lite",

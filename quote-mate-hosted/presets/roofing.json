@@ -1,0 +1,39 @@
+{
+  "trade": {"productName": "Roof Quote Mate", "jobName": "new roof", "unit": "m²"},
+  "jobTypes": [
+    {"id": "tile", "label": "Tile", "hint": "Concrete or terracotta", "labourPerUnit": 60, "materialPerUnit": 70},
+    {"id": "colorbond", "label": "Colorbond", "hint": "Steel sheet roofing", "labourPerUnit": 55, "materialPerUnit": 65},
+    {"id": "tin", "label": "Tin", "hint": "Corrugated iron", "labourPerUnit": 45, "materialPerUnit": 40}
+  ],
+  "difficulty": [
+    {"id": "single", "label": "Single storey", "hint": "Ground floor only", "multiplier": 1},
+    {"id": "double", "label": "Double storey", "hint": "Two levels", "multiplier": 1.25},
+    {"id": "triple", "label": "Three or more", "hint": "Or a very steep roof", "multiplier": 1.5}
+  ],
+  "sizes": [
+    {"id": "small", "label": "Small", "hint": "Up to 120 m² · 2 to 3 bedrooms", "min": 80, "max": 120},
+    {"id": "medium", "label": "Medium", "hint": "120 to 200 m² · 3 to 4 bedrooms", "min": 120, "max": 200},
+    {"id": "large", "label": "Large", "hint": "200 to 320 m² · 5 bedrooms plus", "min": 200, "max": 320},
+    {"id": "unsure", "label": "Not sure", "hint": "We'll work it out on site", "min": 80, "max": 320}
+  ],
+  "pricing": {"ratesIncludeGst": false, "gstRate": 0.1, "spread": 0.1, "roundTo": 100, "minimumJob": 3000},
+  "photos": {"max": 4, "maxEdgePx": 1600, "quality": 0.82},
+  "words": {
+    "headline": "What's a new roof going to cost?",
+    "subline": "Four quick taps. Ballpark price straight away.",
+    "askType": "What's on your roof now?",
+    "askDifficulty": "How tall is the house?",
+    "askSize": "Roughly how big is the roof?",
+    "askSuburb": "What suburb is the job in?",
+    "suburbPlaceholder": "e.g. Fremantle",
+    "ballparkTitle": "Your ballpark",
+    "ballparkNote": "Ballpark only. The exact price depends on the roof's condition, pitch and access.",
+    "leadTitle": "Want the exact quote?",
+    "leadSub": "Tell us where to send it. No spam, no call centres.",
+    "photosTitle": "Add up to 4 photos of the roof",
+    "photosSub": "Optional, but it gets you a sharper quote.",
+    "sendButton": "Send me the exact quote",
+    "thanksTitle": "Got it. Thanks, mate.",
+    "thanksSub": "We'll be in touch with your exact quote."
+  }
+}

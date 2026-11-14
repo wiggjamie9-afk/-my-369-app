@@ -1,0 +1,4 @@
+# created at run time, never committed: the database, customers' photos, the session secret
+data/
+__pycache__/
+*.pyc

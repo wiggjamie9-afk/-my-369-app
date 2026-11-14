@@ -86,6 +86,12 @@ test("a broken config is explained, not crashed on", () => {
   assert.throws(() => estimate(config, { type: "slate", difficulty: "single", size: "small" }), /Unknown choice/);
 });
 
+test("a lead address can be a full URL or a path on the same site", () => {
+  const c = clone(config);
+  for (const ok of ["https://hooks.example.com/abc", "/q/acme/lead", ""]) { c.webhookUrl = ok; assert.deepStrictEqual(checkConfig(c), [], ok); }
+  for (const bad of ["hooks.example.com/abc", "javascript:alert(1)", "ftp://x"]) { c.webhookUrl = bad; assert.strictEqual(checkConfig(c).length, 1, bad); }
+});
+
 test("money formatting", () => {
   assert.deepStrictEqual([money(17800), money(950), money(1234567)], ["$17,800", "$950", "$1,234,567"]);
 });
