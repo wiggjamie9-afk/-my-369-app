@@ -28,6 +28,7 @@
         });
         if (group[0] === "sizes" && isNum(item.min) && isNum(item.max) && item.max < item.min) bad.push(where + ": max is smaller than min.");
         if (group[0] === "difficulty" && item.multiplier === 0) bad.push(where + ": multiplier can't be 0.");
+        if (item.watch != null && (typeof item.watch !== "string" || item.watch.length > 300)) bad.push(where + ": watch must be text under 300 letters.");
       });
     });
     var p = c.pricing || {};
@@ -53,23 +54,34 @@
     throw new Error("Unknown choice: " + id);
   }
 
-  /* A rebate that depends on size, e.g. so many dollars off per kWh, paid in full on the first
-     band of units and at a smaller share on the next. Returns cents. No rebate set = 0. */
-  function rebateCents(c, units) {
+  /* ---- exact arithmetic ----
+     Browsers do sums in floating point, where 15 x 55 x 1.4 x 0.9 can land a hair under 1039.5 and
+     round the wrong way. A price must match what the server records, to the dollar, so every
+     figure here is scaled to a whole number (6 decimal places) and worked in BigInt. */
+  var M = 1000000n;
+  function scale(x) { return BigInt(Math.round(x * 1e6)); }
+  function halfUp(n, d) { return (2n * n + d) / (2n * d); }          // n / d rounded to the nearest, halves going up (n >= 0)
+
+  /* A rebate that depends on size, e.g. so many dollars off per unit, paid in full on the first
+     band of units and at a smaller share on the next. Returns dollars x 1e26 (the same scale the price sum uses). */
+  function rebateScaled(c, units) {
     var r = c.pricing.rebate;
-    if (!r) return 0;
-    var from = 0, counted = 0;
+    if (!r) return 0n;
+    var u = scale(units), from = 0n, counted = 0n;                    // counted: units x share, scaled 1e12
     r.bands.forEach(function (band) {
-      counted += Math.max(0, Math.min(units, band.upTo) - from) * band.share;
-      from = band.upTo;
+      var upTo = scale(band.upTo), top = u < upTo ? u : upTo;
+      if (top > from) counted += (top - from) * scale(band.share);
+      from = upTo;
     });
-    return counted * Math.round(r.perUnit * 100);
+    var perUnitCents = halfUp(scale(r.perUnit) * 100n, M);
+    return counted * perUnitCents * M * M;                            // (counted / 1e12 x cents / 100 dollars) x 1e26
   }
 
   /* The few words that go under a price: "including GST", "after the rebate", both, or nothing
      (a business that isn't registered for GST must not say it charges GST). */
   function priceNote(c) {
     var bits = [];
+    if (c.pricing.priceSuffix) bits.push(c.pricing.priceSuffix);          // e.g. "per week"
     if (c.pricing.gstRegistered !== false) bits.push("including GST");
     if (c.pricing.rebate) bits.push("after the rebate");
     return bits.join(", ");
@@ -78,28 +90,36 @@
   /* picks = { type, difficulty, size } (ids from the config)
      -> { low, high } in whole dollars: what the customer pays, GST included where it applies and
      any rebate taken off. Also grossLow/grossHigh (before the rebate) and rebateLow/rebateHigh.
-     All sums are done in cents so 0.1 + 0.2 style errors can't creep in. */
+     The server (qm/estimate.py) does the same sum and a test checks they agree on every choice. */
   function estimate(c, picks) {
     var type = find(c.jobTypes, picks.type);
     var diff = find(c.difficulty, picks.difficulty);
     var size = find(c.sizes, picks.size);
     var p = c.pricing;
 
-    var rateCents = Math.round((type.labourPerUnit + type.materialPerUnit) * 100);
-    var gst = (p.gstRegistered === false || p.ratesIncludeGst) ? 1 : 1 + p.gstRate;
-    var grossLow = size.min * rateCents * diff.multiplier * (1 - p.spread) * gst / 100;
-    var grossHigh = size.max * rateCents * diff.multiplier * (1 + p.spread) * gst / 100;
-    var offLow = rebateCents(c, size.min) / 100, offHigh = rebateCents(c, size.max) / 100;
+    var rateCents = halfUp((scale(type.labourPerUnit) + scale(type.materialPerUnit)) * 100n, M);
+    var taxed = !(p.gstRegistered === false || p.ratesIncludeGst);
+    var gst = M + (taxed ? scale(p.gstRate) : 0n);
+    var mult = scale(diff.multiplier);
+    var S = 100n * M * M * M * M;                                     // price sum is dollars x 1e26: 100 cents, four 1e6 factors
+    var gross = function (units, spreadSign) {
+      var spread = spreadSign < 0 ? M - scale(p.spread) : M + scale(p.spread);
+      return scale(units) * rateCents * mult * spread * gst;
+    };
+    var step = scale(p.roundTo);
+    var whole = function (n) { return n < 0n ? 0n : halfUp(n, S) * M; };           // whole dollars, x 1e6
+    var down = function (n) { return (whole(n) / step) * step; };
+    var up = function (n) { var w = whole(n); return ((w + step - 1n) / step) * step; };
+    var near = function (n) { return halfUp(whole(n), step) * step; };
+    var dollars = function (n) { return Number(n) / 1e6; };
 
-    var step = p.roundTo;
-    var down = function (v) { return Math.floor(Math.round(v) / step) * step; };
-    var up = function (v) { return Math.ceil(Math.round(v) / step) * step; };
-    var near = function (v) { return Math.round(Math.round(v) / step) * step; };
-    var low = down(grossLow - offLow), high = up(grossHigh - offHigh);
+    var grossLow = gross(size.min, -1), grossHigh = gross(size.max, 1);
+    var offLow = rebateScaled(c, size.min), offHigh = rebateScaled(c, size.max);
+    var low = dollars(down(grossLow - offLow)), high = dollars(up(grossHigh - offHigh));
     if (low < p.minimumJob) low = p.minimumJob;
     if (high < low) high = low;
-    return { low: low, high: high, grossLow: down(grossLow), grossHigh: up(grossHigh),
-             rebateLow: near(offLow), rebateHigh: near(offHigh), type: type, difficulty: diff, size: size };
+    return { low: low, high: high, grossLow: dollars(down(grossLow)), grossHigh: dollars(up(grossHigh)),
+             rebateLow: dollars(near(offLow)), rebateHigh: dollars(near(offHigh)), type: type, difficulty: diff, size: size };
   }
 
   function money(dollars) {

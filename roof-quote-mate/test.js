@@ -121,6 +121,41 @@ test("a banded rebate comes off the price - worked by hand", () => {
   assert.ok(checkConfig(c).join(" ").includes("share must be between 0 and 1"));
 });
 
+test("an option can carry a watch line, and a bad one is refused", () => {
+  const c = clone(config);
+  c.difficulty[0].watch = "Check this before you go ahead.";
+  assert.deepStrictEqual(checkConfig(c), []);
+  c.difficulty[0].watch = 5;
+  assert.ok(checkConfig(c).join(" ").includes("watch must be text"));
+  c.difficulty[0].watch = "x".repeat(301);
+  assert.ok(checkConfig(c).join(" ").includes("watch must be text"));
+});
+
+test("a price can be labelled, e.g. per week", () => {
+  const c = clone(config); c.pricing.priceSuffix = "per week"; c.pricing.gstRegistered = false;
+  assert.strictEqual(priceNote(c), "per week");
+  c.pricing.gstRegistered = true;
+  assert.strictEqual(priceNote(c), "per week, including GST");
+});
+
+test("sums are exact: a half-dollar rounds up, never down by a floating-point hair", () => {
+  // 15 hours x $55 x 1.4 x 0.9 is exactly $1,039.50. In floating point it can come out at 1039.4999999999998.
+  const c = clone(config);
+  c.jobTypes = [{ id: "a", label: "A", labourPerUnit: 55, materialPerUnit: 0 }];
+  c.difficulty = [{ id: "d", label: "D", multiplier: 1.4 }];
+  c.sizes = [{ id: "s", label: "S", min: 15, max: 25 }];
+  c.pricing = { gstRegistered: false, ratesIncludeGst: false, gstRate: 0.1, spread: 0.1, roundTo: 1, minimumJob: 0, rebate: null };
+  let e = estimate(c, { type: "a", difficulty: "d", size: "s" });
+  assert.deepStrictEqual([e.low, e.high], [1040, 2118]);            // 1,039.50 -> 1,040 ; 25 x 77 x 1.1 = 2,117.50 -> 2,118
+  c.pricing.roundTo = 5;
+  e = estimate(c, { type: "a", difficulty: "d", size: "s" });
+  assert.deepStrictEqual([e.low, e.high], [1040, 2120]);            // the whole-dollar figure is rounded first, then taken down or up to a 5
+  c.jobTypes[0].labourPerUnit = 1.005;                              // a rate with a half-cent: $1.005 -> 101 cents, not 100
+  c.sizes[0].min = c.sizes[0].max = 1000; c.difficulty[0].multiplier = 1; c.pricing.spread = 0; c.pricing.roundTo = 1;
+  e = estimate(c, { type: "a", difficulty: "d", size: "s" });
+  assert.deepStrictEqual([e.low, e.high], [1010, 1010]);
+});
+
 test("money formatting", () => {
   assert.deepStrictEqual([money(17800), money(950), money(1234567)], ["$17,800", "$950", "$1,234,567"]);
 });

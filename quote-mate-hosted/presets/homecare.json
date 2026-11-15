@@ -1,0 +1,139 @@
+{
+  "trade": {
+    "productName": "Care Quote Mate",
+    "jobName": "weekly help",
+    "unit": "hour"
+  },
+  "jobTypes": [
+    {
+      "id": "home",
+      "label": "Cleaning and home help",
+      "hint": "Cleaning, laundry, light jobs",
+      "labourPerUnit": 55,
+      "materialPerUnit": 0
+    },
+    {
+      "id": "personal",
+      "label": "Personal care",
+      "hint": "Showering, dressing, getting about",
+      "labourPerUnit": 68,
+      "materialPerUnit": 0
+    },
+    {
+      "id": "meals",
+      "label": "Meals and shopping",
+      "hint": "Meal prep, shopping, errands",
+      "labourPerUnit": 55,
+      "materialPerUnit": 0
+    },
+    {
+      "id": "transport",
+      "label": "Transport and outings",
+      "hint": "Appointments, visits, social outings",
+      "labourPerUnit": 60,
+      "materialPerUnit": 0
+    },
+    {
+      "id": "mix",
+      "label": "A bit of everything",
+      "hint": "We'll work out the right mix",
+      "labourPerUnit": 60,
+      "materialPerUnit": 0
+    }
+  ],
+  "difficulty": [
+    {
+      "id": "weekday",
+      "label": "Weekdays, daytime",
+      "hint": "Monday to Friday",
+      "multiplier": 1
+    },
+    {
+      "id": "evening",
+      "label": "Evenings",
+      "hint": "After 6pm",
+      "multiplier": 1.2
+    },
+    {
+      "id": "weekend",
+      "label": "Weekends",
+      "hint": "Saturday and Sunday",
+      "multiplier": 1.4
+    },
+    {
+      "id": "mix",
+      "label": "A mix of times",
+      "hint": "",
+      "multiplier": 1.2
+    }
+  ],
+  "sizes": [
+    {
+      "id": "few",
+      "label": "1 to 3 hours a week",
+      "hint": "A little help",
+      "min": 1,
+      "max": 3
+    },
+    {
+      "id": "some",
+      "label": "4 to 7 hours a week",
+      "hint": "Regular help",
+      "min": 4,
+      "max": 7
+    },
+    {
+      "id": "lots",
+      "label": "8 to 14 hours a week",
+      "hint": "Help most days",
+      "min": 8,
+      "max": 14
+    },
+    {
+      "id": "daily",
+      "label": "15 hours or more a week",
+      "hint": "Daily support",
+      "min": 15,
+      "max": 25
+    },
+    {
+      "id": "unsure",
+      "label": "Not sure",
+      "hint": "We'll talk it through",
+      "min": 2,
+      "max": 14
+    }
+  ],
+  "pricing": {
+    "gstRegistered": false,
+    "ratesIncludeGst": false,
+    "gstRate": 0.1,
+    "spread": 0.1,
+    "roundTo": 5,
+    "minimumJob": 55,
+    "priceSuffix": "per week",
+    "rebate": null
+  },
+  "photos": {
+    "max": 0,
+    "maxEdgePx": 1600,
+    "quality": 0.82
+  },
+  "words": {
+    "askSuburb": "What suburb does the person live in?",
+    "suburbPlaceholder": "e.g. Fremantle",
+    "ballparkTitle": "Your ballpark",
+    "headline": "What does home help cost each week?",
+    "subline": "Four quick taps. A weekly price range, straight away.",
+    "askType": "What kind of help?",
+    "askDifficulty": "When is help needed?",
+    "askSize": "About how many hours a week?",
+    "ballparkNote": "A guide to what this costs if you pay privately. Many people have government funding (Support at Home) that covers part or all of it. We'll go through what applies when we call.",
+    "leadTitle": "Want to talk it through?",
+    "leadSub": "Leave your details and we'll call you. No pressure, no obligation.",
+    "sendButton": "Call me back",
+    "thanksTitle": "Thanks. We'll call you.",
+    "thanksSub": "Someone from our team will ring to talk through the options.",
+    "privacyNote": "Your details go to {business} so they can call you back. We don't ask for any health information here."
+  }
+}

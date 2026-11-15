@@ -29,6 +29,15 @@ in each tradie's inbox, but they won't be told by email.
   1 January 2027.**
 - **Pet grooming.** The preset assumes the groomer does *not* charge GST (many small ones aren't registered). A groomer who
   is registered ticks one box in Settings and the page adds GST and says so.
+- **Home care.** The rates are made-up examples. This is the most sensitive trade: someone asking about care for a relative
+  is giving you personal information, even though the form asks for no health details and takes no photos. Get privacy
+  advice before selling it, and have each provider confirm the wording about government funding (Support at Home) and
+  how they're allowed to advertise. The price shown is a private-pay weekly estimate only.
+- **Bookkeeping (Payday Check).** The seven-business-day rule on the page is from the ATO: super must be *received by
+  the fund* within 7 business days of payday (20 for a new employee's or a new fund's first payment). The line about the
+  free clearing house says only that the ATO told employers to move off it before July 2026, because I couldn't confirm
+  the exact closure date. The page says it is general information, not advice. Check what a bookkeeper may say under
+  their own registration (for example, tax and BAS agent rules) before they use it.
 - **All trades.** Every preset's rates are made up examples. Each business's quote page says "example rates" until that
   business enters its own and confirms them.
 

@@ -455,12 +455,46 @@ class Trades(Base):
     def test_every_trade_has_a_public_demo_and_the_sales_page_links_to_them(self):
         page = self.c.text("GET", "/")[1]
         for slug, product in (("demo", "Roof Quote Mate"), ("demo-painting", "Paint Quote Mate"), ("demo-pets", "Pet Quote Mate"),
-                              ("demo-batteries", "Battery Quote Mate")):
+                              ("demo-batteries", "Battery Quote Mate"), ("demo-homecare", "Care Quote Mate"),
+                              ("demo-bookkeeping", "Payday Check")):
             self.assertIn('href="/q/%s/"' % slug, page)
             self.assertIn(product, page)
             self.assertEqual(self.c.call("GET", "/q/%s/" % slug)[0], 200)
             self.assertIn("demoNotice", self.c.text("GET", "/q/%s/config.js" % slug)[1])
             self.assertEqual(self.lead(slug)[0] if slug == "demo" else 200, 200)
+
+    def test_home_care_is_a_weekly_price_that_takes_no_photos_and_no_health_details(self):
+        t, pw = self.business("Kind Hands Home Care", preset="homecare", tier="full")
+        self.store.update_tenant(t["id"], notify_email="boss@example.com")
+        js = self.c.text("GET", "/q/kind-hands-home-care/config.js")[1]
+        cfg = json.loads(js[js.index("{"):js.rindex("}") + 1])
+        self.assertEqual((cfg["pricing"]["priceSuffix"], cfg["photos"]["max"], cfg["tier"]), ("per week", 0, "full"))
+        self.assertIn("We don't ask for any health information", cfg["words"]["privacyNote"])
+        # 4 to 7 hours of personal care on weekends: $68 x 1.4 = $95.20 an hour -> 342.72 to 733.04 -> $340 to $735
+        files = {"photo1": ("a.jpg", JPEG)}
+        self.assertEqual(self.lead("kind-hands-home-care", type_id="personal", difficulty_id="weekend", size_id="some", files=files)[0], 200)
+        lead = self.store.leads(t["id"])[0]
+        self.assertEqual((lead["low"], lead["high"], lead["photos"]), (340, 735, 0))        # a photo sent anyway is not kept
+        self.assertFalse(os.path.exists(os.path.join(self.store.photo_dir, str(t["id"]))))
+        c = self.signed_in(t, pw)
+        self.assertIn("per week", c.text("GET", "/q/kind-hands-home-care/admin/lead/%d" % lead["id"])[1])
+        from qm import deliver
+        self.assertIn("Ballpark: $340 to $735 per week (what they were shown)", deliver.lead_email(self.store.tenant("kind-hands-home-care"), lead, "https://x/y")[1])
+
+    def test_payday_check_lists_what_to_check_for_the_options_picked(self):
+        self.business("Ledger & Co Bookkeeping", preset="bookkeeping")
+        js = self.c.text("GET", "/q/ledger-co-bookkeeping/config.js")[1]
+        cfg = json.loads(js[js.index("{"):js.rindex("}") + 1])
+        for item in cfg["jobTypes"]:
+            self.assertIn("within 7 business days of payday", item["watch"])                 # the rule is shown whatever they pick
+            self.assertIn("not when you send it", item["watch"])
+        sheets = next(d for d in cfg["difficulty"] if d["id"] == "sheets")
+        self.assertIn("can't send super to each fund", sheets["watch"])
+        self.assertIn("not tax or payroll advice", cfg["words"]["ballparkNote"])
+        t = self.store.tenant("ledger-co-bookkeeping")
+        self.lead("ledger-co-bookkeeping", type_id="setup", difficulty_id="sheets", size_id="small")
+        lead = self.store.leads(t["id"])[0]
+        self.assertEqual((lead["low"], lead["high"], lead["difficulty"]), (500, 1750, "Spreadsheets or paper"))   # $85 x 1.6 = $136 each, GST added
 
     def test_pet_grooming_never_mentions_gst(self):
         t, pw = self.business("Paws Mobile Grooming", preset="pets")
@@ -610,7 +644,7 @@ class PricingAgreesWithTheBrowser(unittest.TestCase):
     """The server's sum and the quote tool's sum must give the same range for every choice."""
 
     def test_presets_are_valid(self):
-        for name in ("roofing", "painting", "pets", "batteries"):
+        for name in ("roofing", "painting", "pets", "batteries", "homecare", "bookkeeping"):
             with open(os.path.join(ROOT, "presets", name + ".json"), encoding="utf-8") as fh:
                 self.assertEqual(check_config(json.load(fh)), [], name)
 
@@ -622,7 +656,8 @@ class PricingAgreesWithTheBrowser(unittest.TestCase):
                   "const e = estimate(c, {type: t.id, difficulty: d.id, size: s.id}); out.push([t.id, d.id, s.id, e.low, e.high]); }"
                   "console.log(JSON.stringify(out));")
         checked = 0
-        for name, tweak in (("roofing", {}), ("painting", {}), ("pets", {}), ("batteries", {}),
+        for name, tweak in (("roofing", {}), ("painting", {}), ("pets", {}), ("batteries", {}), ("homecare", {}), ("bookkeeping", {}),
+                            ("homecare", {"gstRegistered": True, "ratesIncludeGst": True, "roundTo": 1}),
                             ("roofing", {"spread": 0.075, "roundTo": 1, "minimumJob": 0, "ratesIncludeGst": True}),
                             ("painting", {"spread": 0.333, "roundTo": 25, "gstRate": 0.125}),
                             ("pets", {"gstRegistered": True, "roundTo": 1}),
@@ -643,7 +678,7 @@ class PricingAgreesWithTheBrowser(unittest.TestCase):
                 e = estimate(cfg, t, d, s)
                 self.assertEqual((e["low"], e["high"]), (low, high), (name, tweak, t, d, s))
                 checked += 1
-        self.assertGreater(checked, 9 * 12)
+        self.assertGreater(checked, 11 * 12)
 
 
 if __name__ == "__main__":

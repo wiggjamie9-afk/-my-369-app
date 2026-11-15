@@ -100,6 +100,10 @@
     var range = RQM.money(est.low) + " – " + RQM.money(est.high);
     var summary = [est.type.label, est.difficulty.label, est.size.label, picks.suburb].join(" · ");
     var note = RQM.priceNote(config), rebate = config.pricing.rebate;
+    // things worth knowing, taken from the options they picked (a trade can attach a "watch" line to any option)
+    var watching = [est.type, est.difficulty, est.size].map(function (o) { return o.watch; }).filter(Boolean);
+    var watchBox = watching.length ? el("div", { className: "watch" }, [el("b", { text: words.watchTitle || "Worth checking" }),
+      el("ul", {}, watching.map(function (w) { return el("li", { text: w }); }))]) : null;
     var rebateLines = rebate && est.rebateHigh > 0 ? el("div", { className: "sums" }, [
       el("div", {}, [el("span", { text: "Before the rebate" }), el("b", { text: RQM.money(est.grossLow) + " – " + RQM.money(est.grossHigh) })]),
       el("div", {}, [el("span", { text: rebate.label || "Rebate" }), el("b", { text: "about " + (est.rebateLow === est.rebateHigh ? RQM.money(est.rebateHigh)
@@ -114,7 +118,7 @@
     var trap = el("input", { type: "text", name: "company", tabIndex: -1, autocomplete: "off", className: "trap", "aria-hidden": "true" });
     var err = el("p", { className: "error", role: "alert", hidden: true });
     var send = el("button", { type: "submit", className: "btn", text: words.sendButton });
-    var photoBox = full ? full.photos(config) : null;
+    var photoBox = full && config.photos.max >= 1 ? full.photos(config) : null;      // max 0 = this trade takes no photos
 
     function fail(input, message) {
       Object.keys(f).forEach(function (k) { f[k].removeAttribute("aria-invalid"); });
@@ -154,7 +158,8 @@
       field("phone", "Mobile", "tel", "tel", "tel"),
       field("email", "Email", "email", "email", "email"),
       trap, photoBox ? photoBox.node : null, err, send,
-      el("p", { className: "small", text: "Your details go to " + biz.name + " for this quote only." })
+      el("p", { className: "small", text: words.privacyNote ? words.privacyNote.replace("{business}", biz.name)
+        : "Your details go to " + biz.name + " for this quote only." })
     ]);
 
     show([progress(STEPS.length), backButton(function () { step(STEPS.length - 1); }),
@@ -162,6 +167,7 @@
         el("div", { className: "k", text: words.ballparkTitle + " for your " + config.trade.jobName }),
         el("div", { className: "price" }, [range, note ? el("small", { text: note }) : null]),
         rebateLines,
+        watchBox,
         el("p", { className: "small", text: words.ballparkNote }),
         el("div", { className: "picked" }, [summary + "  ", el("button", { type: "button", text: "Change", onclick: function () { step(0); } })])
       ]),

@@ -71,6 +71,9 @@ label.field input[aria-invalid=true] { border-color: var(--red); }
 .sums { margin: 12px 0; padding: 12px 0 2px; border-top: 2px solid var(--edge); }
 .sums div { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; font-size: 16px; color: var(--dim); }
 .sums b { color: var(--ink); white-space: nowrap; }
+.watch { margin: 12px 0; padding: 12px 14px; border-radius: 10px; background: #1B1D21; border: 2px solid var(--edge); font-size: 16px; }
+.watch b { display: block; margin-bottom: 4px; color: var(--gold); font-size: 14px; letter-spacing: .08em; text-transform: uppercase; }
+.watch ul { margin: 0; padding-left: 20px; } .watch li { margin: 0 0 6px; }
 .picked { margin: 12px 0 0; padding: 12px 0 0; border-top: 2px solid var(--edge); font-size: 16px; color: var(--dim); }
 .picked button { border: 0; background: none; color: var(--gold); font: inherit; font-weight: 700; padding: 8px 0; cursor: pointer; text-decoration: underline; }
 

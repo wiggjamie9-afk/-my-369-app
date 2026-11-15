@@ -1,0 +1,123 @@
+{
+  "trade": {
+    "productName": "Payday Check",
+    "jobName": "Payday Super help",
+    "unit": "employee"
+  },
+  "jobTypes": [
+    {
+      "id": "check",
+      "label": "Check what I'm doing now",
+      "hint": "A review, with a list of what to fix",
+      "labourPerUnit": 45,
+      "materialPerUnit": 0,
+      "watch": "Super now has to reach each employee's fund within 7 business days of payday. It counts when the fund receives it, not when you send it."
+    },
+    {
+      "id": "setup",
+      "label": "Get me set up for Payday Super",
+      "hint": "Software, settings and fund details sorted",
+      "labourPerUnit": 85,
+      "materialPerUnit": 0,
+      "watch": "Super now has to reach each employee's fund within 7 business days of payday. It counts when the fund receives it, not when you send it."
+    },
+    {
+      "id": "run",
+      "label": "Take over my payroll",
+      "hint": "We run your pay runs and super",
+      "labourPerUnit": 120,
+      "materialPerUnit": 0,
+      "watch": "Super now has to reach each employee's fund within 7 business days of payday. It counts when the fund receives it, not when you send it."
+    }
+  ],
+  "difficulty": [
+    {
+      "id": "software",
+      "label": "Payroll software",
+      "hint": "Xero, MYOB, QuickBooks, Employment Hero and others",
+      "multiplier": 1,
+      "watch": "Ask your software provider whether Payday Super is switched on for you, and check every employee's super fund details are right."
+    },
+    {
+      "id": "sheets",
+      "label": "Spreadsheets or paper",
+      "hint": "No payroll software",
+      "multiplier": 1.6,
+      "watch": "A spreadsheet can't send super to each fund with every pay run. You'll need payroll software that can."
+    },
+    {
+      "id": "clearing",
+      "label": "The ATO's free super clearing house",
+      "hint": "The small business clearing house",
+      "multiplier": 1.3,
+      "watch": "The ATO told employers to move off the free clearing house before July 2026, so you'll need another way to pay super."
+    },
+    {
+      "id": "unsure",
+      "label": "Not sure",
+      "hint": "That's fine, we'd check first",
+      "multiplier": 1.2,
+      "watch": "Not knowing is common. How your pay and super are sent now is the first thing to check."
+    }
+  ],
+  "sizes": [
+    {
+      "id": "tiny",
+      "label": "1 to 3 employees",
+      "hint": "",
+      "min": 1,
+      "max": 3
+    },
+    {
+      "id": "small",
+      "label": "4 to 10 employees",
+      "hint": "",
+      "min": 4,
+      "max": 10
+    },
+    {
+      "id": "mid",
+      "label": "11 to 25 employees",
+      "hint": "",
+      "min": 11,
+      "max": 25
+    },
+    {
+      "id": "unsure",
+      "label": "Not sure",
+      "hint": "",
+      "min": 1,
+      "max": 25
+    }
+  ],
+  "pricing": {
+    "gstRegistered": true,
+    "ratesIncludeGst": false,
+    "gstRate": 0.1,
+    "spread": 0.15,
+    "roundTo": 50,
+    "minimumJob": 250,
+    "rebate": null
+  },
+  "photos": {
+    "max": 0,
+    "maxEdgePx": 1600,
+    "quality": 0.82
+  },
+  "words": {
+    "askSuburb": "What suburb is the business in?",
+    "suburbPlaceholder": "e.g. Fremantle",
+    "ballparkTitle": "Your ballpark",
+    "headline": "Are you ready for Payday Super?",
+    "subline": "Four quick taps. What to check, and a price range to sort it.",
+    "askType": "What do you need?",
+    "askDifficulty": "How do you pay your staff now?",
+    "askSize": "How many employees?",
+    "ballparkNote": "General information only, not tax or payroll advice. We'll confirm what applies to your business, with a fixed price.",
+    "watchTitle": "Worth checking",
+    "leadTitle": "Want it sorted?",
+    "leadSub": "Leave your details and we'll call you with a fixed price.",
+    "sendButton": "Get my fixed price",
+    "thanksSub": "We'll call you with what to check and a fixed price."
+  }
+}

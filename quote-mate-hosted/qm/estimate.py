@@ -35,6 +35,8 @@ def check_config(c):
                 bad.append("%s: the largest size is smaller than the smallest" % where)
             if group == "difficulty" and item.get("multiplier") == 0:
                 bad.append("%s: the multiplier can't be 0" % where)
+            if item.get("watch") is not None and (not isinstance(item["watch"], str) or len(item["watch"]) > 300):
+                bad.append("%s: the note must be text under 300 letters" % where)
     p = c.get("pricing") or {}
     if not _num(p.get("gstRate")) or not 0 <= p["gstRate"] <= 1:
         bad.append("GST rate should be like 0.10")
@@ -88,6 +90,8 @@ def rebate_cents(c, units):
 def price_note(c):
     """The words under a price: GST is only mentioned by a business that charges it."""
     bits = []
+    if c["pricing"].get("priceSuffix"):
+        bits.append(str(c["pricing"]["priceSuffix"]))
     if c["pricing"].get("gstRegistered") is not False:
         bits.append("including GST")
     if c["pricing"].get("rebate"):

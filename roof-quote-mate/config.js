@@ -102,6 +102,9 @@ window.RQM_CONFIG = {
     photosTitle: "Add up to 4 photos of the roof",
     photosSub: "Optional, but it gets you a sharper quote.",
     sendButton: "Send me the exact quote",
+    // optional: privacyNote (use {business} for your name) and watchTitle; any job type, difficulty or size
+    // can carry a  watch: "..."  line that is listed under the ballpark when the customer picks it
+
     thanksTitle: "Got it. Thanks, mate.",
     thanksSub: "We'll be in touch with your exact quote."
   }
