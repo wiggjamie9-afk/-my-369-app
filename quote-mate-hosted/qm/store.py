@@ -159,6 +159,12 @@ class Store:
         t["config"] = json.loads(t.pop("config_json"))
         return t
 
+    def demos(self):
+        """[(slug, product name)] for the public demos, one per trade, for the sales page."""
+        with self.tx() as c:
+            rows = c.execute("SELECT slug, config_json FROM tenants WHERE demo=1 AND active=1 ORDER BY slug").fetchall()
+        return [(r["slug"], json.loads(r["config_json"])["trade"]["productName"]) for r in rows]
+
     def tenants(self):
         since = now() - 30 * 86400
         with self.tx() as c:

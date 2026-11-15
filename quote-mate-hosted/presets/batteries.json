@@ -1,0 +1,130 @@
+{
+  "trade": {
+    "productName": "Battery Quote Mate",
+    "jobName": "home battery",
+    "unit": "kWh"
+  },
+  "jobTypes": [
+    {
+      "id": "add",
+      "label": "Add a battery to my solar",
+      "hint": "You already have panels",
+      "labourPerUnit": 200,
+      "materialPerUnit": 650
+    },
+    {
+      "id": "backup",
+      "label": "Battery with blackout backup",
+      "hint": "Keeps the lights on in an outage",
+      "labourPerUnit": 260,
+      "materialPerUnit": 700
+    },
+    {
+      "id": "unsure",
+      "label": "Not sure yet",
+      "hint": "We'll recommend one",
+      "labourPerUnit": 230,
+      "materialPerUnit": 680
+    }
+  ],
+  "difficulty": [
+    {
+      "id": "single",
+      "label": "Single-phase home",
+      "hint": "Most houses",
+      "multiplier": 1
+    },
+    {
+      "id": "three",
+      "label": "Three-phase home",
+      "hint": "Bigger homes, ducted air, pools",
+      "multiplier": 1.1
+    },
+    {
+      "id": "unsure",
+      "label": "Not sure",
+      "hint": "We'll check your switchboard",
+      "multiplier": 1.05
+    }
+  ],
+  "sizes": [
+    {
+      "id": "small",
+      "label": "Small",
+      "hint": "5 to 8 kWh · low bills, 1 to 2 people",
+      "min": 5,
+      "max": 8
+    },
+    {
+      "id": "medium",
+      "label": "Medium",
+      "hint": "10 to 15 kWh · most families",
+      "min": 10,
+      "max": 15
+    },
+    {
+      "id": "large",
+      "label": "Large",
+      "hint": "16 to 28 kWh · big bills, EV, pool",
+      "min": 16,
+      "max": 28
+    },
+    {
+      "id": "unsure",
+      "label": "Not sure",
+      "hint": "We'll size it from your bill",
+      "min": 5,
+      "max": 28
+    }
+  ],
+  "pricing": {
+    "gstRegistered": true,
+    "ratesIncludeGst": true,
+    "gstRate": 0.1,
+    "spread": 0.08,
+    "roundTo": 100,
+    "minimumJob": 3000,
+    "rebate": {
+      "label": "Federal battery rebate",
+      "perUnit": 250,
+      "note": "Estimate only. The rebate depends on your battery and install date, and is taken off your invoice.",
+      "bands": [
+        {
+          "upTo": 14,
+          "share": 1
+        },
+        {
+          "upTo": 28,
+          "share": 0.6
+        },
+        {
+          "upTo": 50,
+          "share": 0.15
+        }
+      ]
+    }
+  },
+  "photos": {
+    "max": 4,
+    "maxEdgePx": 1600,
+    "quality": 0.82
+  },
+  "words": {
+    "askSuburb": "What suburb is the home in?",
+    "suburbPlaceholder": "e.g. Fremantle",
+    "ballparkTitle": "Your ballpark",
+    "leadSub": "Tell us where to send it. No spam, no call centres.",
+    "thanksTitle": "Got it. Thanks, mate.",
+    "headline": "What's a home battery going to cost?",
+    "subline": "Four quick taps. Price after the rebate, straight away.",
+    "askType": "What are you after?",
+    "askDifficulty": "What power does the house have?",
+    "askSize": "How big a battery?",
+    "ballparkNote": "Ballpark only. The exact price depends on your switchboard, battery brand and where it's mounted.",
+    "leadTitle": "Want a firm price and an install date?",
+    "photosTitle": "Add up to 4 photos",
+    "photosSub": "Your switchboard, inverter and a recent power bill help most.",
+    "sendButton": "Send me a firm price",
+    "thanksSub": "We'll be in touch with a firm price and our next install dates."
+  }
+}

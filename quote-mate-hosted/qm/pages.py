@@ -3,7 +3,7 @@ Plain HTML strings; every value that came from a person goes through e() first. 
 import html
 import time
 
-from .estimate import money
+from .estimate import money, price_note
 from .store import LEAD_STATES
 
 
@@ -33,7 +33,7 @@ def flash(message, bad=False):
 
 # ---------------------------------------------------------------- the sales page
 
-def sales(site, sent=False, error="", form=None):
+def sales(site, sent=False, error="", form=None, demos=()):
     form = form or {}
     name = e(site["service_name"])
     price = lambda v: e(v) if v else "Ask for pricing"
@@ -46,6 +46,7 @@ def sales(site, sent=False, error="", form=None):
   <h1>Homeowners want a price. Give them one in 20 seconds.</h1>
   <p class="lead">%(tagline)s</p>
   <p class="row"><a class="btn" href="/q/demo/">Try the demo</a><a class="btn ghost" href="#start">Get it for my business</a></p>
+  %(demos)s
 </header>
 
 <section>
@@ -88,7 +89,9 @@ def sales(site, sent=False, error="", form=None):
         "f_trade": field("Trade", "trade", form.get("trade", ""), extra="required maxlength=\"60\" placeholder=\"Roofing, painting, fencing…\""),
         "f_phone": field("Mobile", "phone", form.get("phone", ""), "tel", extra="required maxlength=\"30\" autocomplete=\"tel\""),
         "f_email": field("Email", "email", form.get("email", ""), "email", extra="required maxlength=\"120\" autocomplete=\"email\""),
-        "message": e(form.get("message", "")), "contact": contact}
+        "message": e(form.get("message", "")), "contact": contact,
+        "demos": ("<p class=\"small\">See it for your trade: %s</p>" % " · ".join(
+            "<a href=\"/q/%s/\">%s</a>" % (e(slug), e(name)) for slug, name in demos)) if len(demos) > 1 else ""}
     return layout("%s | Instant ballpark quotes for tradies" % site["service_name"], body)
 
 
@@ -158,7 +161,7 @@ def lead_detail(tenant, lead, saved=False):
 %(saved)s
 <div class="card">
   <p class="k">They were shown</p>
-  <p class="big">%(low)s – %(high)s <small>inc GST</small></p>
+  <p class="big">%(low)s – %(high)s <small>%(note)s</small></p>
   <p class="row"><a class="btn" href="tel:%(tel)s">Call %(phone)s</a><a class="btn ghost" href="mailto:%(email)s">Email</a></p>
   <p class="small">%(email)s · received %(when)s%(delivery)s</p>
 </div>
@@ -169,6 +172,7 @@ def lead_detail(tenant, lead, saved=False):
   <label class="f">Your notes<textarea name="notes" maxlength="2000">%(notes)s</textarea></label>
   <button class="btn" type="submit">Save</button>
 </form>""" % {
+        "note": e(price_note(tenant["config"])),
         "base": base, "id": lead["id"], "name": e(lead["name"]), "job": e(lead["job_type"]), "diff": e(lead["difficulty"]),
         "size": e(lead["size"]), "suburb": e(lead["suburb"]), "low": money(lead["low"]), "high": money(lead["high"]),
         "tel": e(tel), "phone": e(lead["phone"]), "email": e(lead["email"]), "when": when(lead["created_at"]),
@@ -198,6 +202,10 @@ def tenant_settings(tenant, message="", error="", mail_on=False):
         cell("sz_%s_max" % s["id"], s["max"], "To (" + c["trade"]["unit"] + ")")) for s in c["sizes"])
     p, w = c["pricing"], c["words"]
     full = tenant["tier"] == "full"
+    r = p.get("rebate")
+    rebate_cell = ("<div class=\"grid\">%s</div><p class=\"small\">The rebate comes off the price the customer sees. Check this figure whenever the rules or the "
+                   "market price change, because every ballpark on your page uses it. It is shown to the customer as an estimate.</p>"
+                   % cell("rebate_per_unit", r["perUnit"], "Rebate $ per %s (full rate)" % c["trade"]["unit"])) if r else ""
     logo = ("<h2>Your logo</h2><div class=\"card\">%s<label class=\"f\">Upload a logo (PNG or JPG, under 400 KB)<input type=\"file\" name=\"logo\" accept=\"image/png,image/jpeg,image/webp\"></label>%s</div>"
             % ("<p><img class=\"logo-now\" src=\"/q/%s/logo\" alt=\"Your current logo\"></p>" % e(tenant["slug"]) if tenant["logo"] else "<p class=\"small\">No logo yet. Your business name is shown on its own.</p>",
                "<label class=\"check\"><input type=\"checkbox\" name=\"remove_logo\" value=\"1\"> Remove my logo</label>" if tenant["logo"] else "")) if full else \
@@ -215,7 +223,9 @@ def tenant_settings(tenant, message="", error="", mail_on=False):
 <h2>Job sizes</h2><div class="card">%(sizes)s</div>
 <h2>How the ballpark is shown</h2>
 <div class="card">
+  <label class="check"><input type="checkbox" name="gst_registered" value="1"%(gst_reg)s> I'm registered for GST (the quote page will say prices include GST)</label>
   <label class="check"><input type="checkbox" name="gst_included" value="1"%(gst_checked)s> My rates above already include GST</label>
+  %(rebate)s
   <div class="grid">%(spread)s%(round_to)s%(minimum)s</div>
   <label class="check strong"><input type="checkbox" name="rates_confirmed" value="1"%(confirmed)s> These are my real rates. Take the "example rates" notice off my quote page.</label>
 </div>
@@ -226,11 +236,12 @@ def tenant_settings(tenant, message="", error="", mail_on=False):
 <p><button class="btn" type="submit">Save settings</button></p>
 </form>""" % {
         "base": base, "message": flash(message), "error": flash(error, True), "unit": unit,
-        "gst_note": "including GST" if p.get("ratesIncludeGst") else "before GST (the app adds it)",
+        "gst_note": "with no GST" if p.get("gstRegistered") is False else "including GST" if p.get("ratesIncludeGst") else "before GST (the app adds it)",
         "f_name": field("Business name", "name", tenant["name"], extra="required maxlength=\"80\""),
         "f_phone": field("Phone customers can call", "phone", tenant["phone"], "tel", extra="maxlength=\"40\""),
         "f_licence": field("Licence number (optional)", "licence", tenant["licence"], extra="maxlength=\"40\""),
         "logo": logo, "job_types": job_types, "difficulty": difficulty, "sizes": sizes,
+        "gst_reg": "" if p.get("gstRegistered") is False else " checked", "rebate": rebate_cell,
         "gst_checked": " checked" if p.get("ratesIncludeGst") else "", "confirmed": " checked" if tenant["rates_confirmed"] else "",
         "spread": cell("spread_pct", round(p["spread"] * 100, 4), "Widen the range by (%) each way"),
         "round_to": cell("round_to", p["roundTo"], "Round to the nearest ($)", "1"), "minimum": cell("minimum_job", p["minimumJob"], "Smallest job you'd show ($)"),

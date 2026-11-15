@@ -68,6 +68,9 @@ label.field input[aria-invalid=true] { border-color: var(--red); }
 .ballpark .k { font-size: 14px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
 .ballpark .price { margin: 4px 0; font-size: 40px; line-height: 1.05; font-weight: 900; letter-spacing: -.02em; }
 .ballpark .price small { display: block; font-size: 16px; font-weight: 600; letter-spacing: 0; color: var(--dim); margin-top: 4px; }
+.sums { margin: 12px 0; padding: 12px 0 2px; border-top: 2px solid var(--edge); }
+.sums div { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; font-size: 16px; color: var(--dim); }
+.sums b { color: var(--ink); white-space: nowrap; }
 .picked { margin: 12px 0 0; padding: 12px 0 0; border-top: 2px solid var(--edge); font-size: 16px; color: var(--dim); }
 .picked button { border: 0; background: none; color: var(--gold); font: inherit; font-weight: 700; padding: 8px 0; cursor: pointer; text-decoration: underline; }
 

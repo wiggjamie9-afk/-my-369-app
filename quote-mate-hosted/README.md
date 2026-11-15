@@ -2,7 +2,7 @@
 
 One small server that lets you sell the quote tool to many tradies as a monthly service.
 
-- **Sales page** at `/` with a live demo and an enquiry form.
+- **Sales page** at `/` with a live demo for each trade (roofing, painting, pet grooming, home batteries) and an enquiry form.
 - **Each business** gets its own quote page at `/q/<name>/`, priced from its own rates,
   and a lead inbox at `/q/<name>/admin` (leads, photos, status, notes, spreadsheet export,
   its own rates and wording).
@@ -17,7 +17,7 @@ is the tool in `../roof-quote-mate/`, served unchanged; this server supplies eac
 
 ```bash
 cd quote-mate-hosted
-python3 -m unittest discover -s tests          # 27 tests
+python3 -m unittest discover -s tests          # 32 tests
 ADMIN_PASSWORD='pick-a-long-one' python3 server.py
 # http://127.0.0.1:8090/        sales page
 # http://127.0.0.1:8090/admin   owner console
@@ -60,6 +60,7 @@ and `PUBLIC_URL=https://your-domain`. Keep both folders (`quote-mate-hosted` and
   can rename and re-price its options but not add or remove them from its settings page.
 - **Example rates.** The presets carry made-up rates. Each business's page says so until
   that business confirms its own.
+- **The battery rebate figure is unverified.** See `LAUNCH.md` before selling to installers.
 - **Privacy.** You will be holding homeowners' names, phones, emails and photos for your
   customers. Get proper advice on a privacy policy and terms before selling this.
 
@@ -86,7 +87,9 @@ quote-mate-hosted/
 │   ├── estimate.py    the pricing sum (matches ../roof-quote-mate/estimate.js; tested)
 │   ├── deliver.py     lead emails and webhook copies
 │   └── pages.py       every server-rendered page
-├── presets/           one JSON file per trade (roofing, painting)
+├── presets/           one JSON file per trade (roofing, painting, pets, batteries)
+├── deploy.sh          one-command deploy
+├── LAUNCH.md          what's left to do on your side, in order
 ├── static/site.css
 └── tests/test_hosted.py
 ```

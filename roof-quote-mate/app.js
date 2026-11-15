@@ -99,6 +99,12 @@
     var est = RQM.estimate(config, picks);
     var range = RQM.money(est.low) + " – " + RQM.money(est.high);
     var summary = [est.type.label, est.difficulty.label, est.size.label, picks.suburb].join(" · ");
+    var note = RQM.priceNote(config), rebate = config.pricing.rebate;
+    var rebateLines = rebate && est.rebateHigh > 0 ? el("div", { className: "sums" }, [
+      el("div", {}, [el("span", { text: "Before the rebate" }), el("b", { text: RQM.money(est.grossLow) + " – " + RQM.money(est.grossHigh) })]),
+      el("div", {}, [el("span", { text: rebate.label || "Rebate" }), el("b", { text: "about " + (est.rebateLow === est.rebateHigh ? RQM.money(est.rebateHigh)
+        : RQM.money(est.rebateLow) + " – " + RQM.money(est.rebateHigh)) + " off" })]),
+      rebate.note ? el("p", { className: "small", text: rebate.note }) : null]) : null;
 
     var f = {};
     function field(key, label, type, auto, mode) {
@@ -132,7 +138,7 @@
           job_type: est.type.label, difficulty: est.difficulty.label, size: est.size.label,
           type_id: est.type.id, difficulty_id: est.difficulty.id, size_id: est.size.id,
           size_min: est.size.min, size_max: est.size.max, unit: config.trade.unit,
-          ballpark_low: est.low, ballpark_high: est.high, ballpark: range + " inc GST",
+          ballpark_low: est.low, ballpark_high: est.high, ballpark: range + (note ? " " + note : ""),
           photos: files.length, business: biz.name, tier: full ? "full" : "lite",
           submitted_at: new Date().toISOString(), page: location.href.split("#")[0]
         };
@@ -154,7 +160,8 @@
     show([progress(STEPS.length), backButton(function () { step(STEPS.length - 1); }),
       el("div", { className: "ballpark" }, [
         el("div", { className: "k", text: words.ballparkTitle + " for your " + config.trade.jobName }),
-        el("div", { className: "price" }, [range, el("small", { text: "including GST" })]),
+        el("div", { className: "price" }, [range, note ? el("small", { text: note }) : null]),
+        rebateLines,
         el("p", { className: "small", text: words.ballparkNote }),
         el("div", { className: "picked" }, [summary + "  ", el("button", { type: "button", text: "Change", onclick: function () { step(0); } })])
       ]),

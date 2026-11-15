@@ -44,6 +44,21 @@ def check_config(c):
         bad.append("rounding must be $1 or more")
     if not _num(p.get("minimumJob")) or p["minimumJob"] < 0:
         bad.append("the minimum job must be zero or more")
+    r = p.get("rebate")
+    if r:
+        if not _num(r.get("perUnit")) or r["perUnit"] < 0:
+            bad.append("the rebate amount must be zero or more")
+        bands, last = r.get("bands"), 0
+        if not isinstance(bands, list) or not bands:
+            bad.append("the rebate needs at least one band")
+        else:
+            for i, band in enumerate(bands, 1):
+                if not isinstance(band, dict) or not _num(band.get("upTo")) or band["upTo"] <= last:
+                    bad.append("rebate band %d: its limit must be bigger than the band before it" % i)
+                else:
+                    last = band["upTo"]
+                if not isinstance(band, dict) or not _num(band.get("share")) or not 0 <= band["share"] <= 1:
+                    bad.append("rebate band %d: its share must be between 0% and 100%%" % i)
     return bad
 
 
@@ -54,22 +69,52 @@ def _find(items, wanted):
     raise ValueError("unknown choice: %r" % (wanted,))
 
 
+def _d(v):
+    return Decimal(str(v))
+
+
+def rebate_cents(c, units):
+    """A size-based rebate (so many dollars off per unit, tapering by band). Cents; 0 when there is none."""
+    r = c["pricing"].get("rebate")
+    if not r:
+        return Decimal(0)
+    start, counted = Decimal(0), Decimal(0)
+    for band in r["bands"]:
+        counted += max(Decimal(0), min(_d(units), _d(band["upTo"])) - start) * _d(band["share"])
+        start = _d(band["upTo"])
+    return counted * (_d(r["perUnit"]) * 100).quantize(Decimal(1), ROUND_HALF_UP)
+
+
+def price_note(c):
+    """The words under a price: GST is only mentioned by a business that charges it."""
+    bits = []
+    if c["pricing"].get("gstRegistered") is not False:
+        bits.append("including GST")
+    if c["pricing"].get("rebate"):
+        bits.append("after the rebate")
+    return ", ".join(bits)
+
+
 def estimate(c, type_id, difficulty_id, size_id):
-    """-> dict(low, high, type, difficulty, size); whole dollars, GST included."""
+    """-> dict(low, high, gross_low, gross_high, rebate_low, rebate_high, type, difficulty, size) in whole dollars.
+    low/high is what the customer pays: GST included where it applies, any rebate taken off."""
     kind, diff, size = _find(c["jobTypes"], type_id), _find(c["difficulty"], difficulty_id), _find(c["sizes"], size_id)
     p = c["pricing"]
-    d = lambda v: Decimal(str(v))
-    rate_cents = ((d(kind["labourPerUnit"]) + d(kind["materialPerUnit"])) * 100).quantize(Decimal(1), ROUND_HALF_UP)
-    gst = Decimal(1) if p.get("ratesIncludeGst") else 1 + d(p["gstRate"])
-    step = d(p["roundTo"])
-    low = (d(size["min"]) * rate_cents * d(diff["multiplier"]) * (1 - d(p["spread"])) * gst / 100).quantize(Decimal(1), ROUND_HALF_UP)
-    high = (d(size["max"]) * rate_cents * d(diff["multiplier"]) * (1 + d(p["spread"])) * gst / 100).quantize(Decimal(1), ROUND_HALF_UP)
-    low = (low / step).to_integral_value(ROUND_FLOOR) * step
-    high = (high / step).to_integral_value(ROUND_CEILING) * step
-    low = max(low, d(p["minimumJob"]))
-    high = max(high, low)
+    whole = lambda v: v.quantize(Decimal(1), ROUND_HALF_UP)
+    rate_cents = whole((_d(kind["labourPerUnit"]) + _d(kind["materialPerUnit"])) * 100)
+    gst = Decimal(1) if (p.get("gstRegistered") is False or p.get("ratesIncludeGst")) else 1 + _d(p["gstRate"])
+    step = _d(p["roundTo"])
+    gross_low = _d(size["min"]) * rate_cents * _d(diff["multiplier"]) * (1 - _d(p["spread"])) * gst / 100
+    gross_high = _d(size["max"]) * rate_cents * _d(diff["multiplier"]) * (1 + _d(p["spread"])) * gst / 100
+    off_low, off_high = rebate_cents(c, size["min"]) / 100, rebate_cents(c, size["max"]) / 100
+    down = lambda v: (whole(v) / step).to_integral_value(ROUND_FLOOR) * step
+    up = lambda v: (whole(v) / step).to_integral_value(ROUND_CEILING) * step
+    near = lambda v: (whole(v) / step).quantize(Decimal(1), ROUND_HALF_UP) * step
+    low = max(down(gross_low - off_low), _d(p["minimumJob"]))
+    high = max(up(gross_high - off_high), low)
     as_int = lambda v: int(v) if v == v.to_integral_value() else float(v)
-    return {"low": as_int(low), "high": as_int(high), "type": kind, "difficulty": diff, "size": size}
+    return {"low": as_int(low), "high": as_int(high), "gross_low": as_int(down(gross_low)), "gross_high": as_int(up(gross_high)),
+            "rebate_low": as_int(near(off_low)), "rebate_high": as_int(near(off_high)), "type": kind, "difficulty": diff, "size": size}
 
 
 def money(dollars):

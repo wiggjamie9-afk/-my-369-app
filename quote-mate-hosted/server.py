@@ -91,8 +91,10 @@ class App:
             with os.fdopen(fd, "w") as fh:
                 fh.write(secret)
         self.secret = secret.encode()
-        if not self.store.tenant("demo"):              # the public demo linked from the sales page
-            self.store.create_tenant("Demo Roofing", "demo", "roofing", "full", demo=True)
+        for preset in self.store.presets():            # a public demo for each trade, linked from the sales page
+            slug = "demo" if preset == "roofing" else "demo-" + preset
+            if not self.store.tenant(slug):
+                self.store.create_tenant("Demo " + preset.capitalize(), slug, preset, "full", demo=True)
 
     # ---- signed session cookies
     def sign(self, scope):
@@ -268,7 +270,7 @@ class Handler(BaseHTTPRequestHandler):
             self.same_origin()
 
         if path == "/" and m in ("GET", "HEAD"):
-            return self.send(200, pages.sales(store.site(), sent=self.query().get("sent") == "1"))
+            return self.send(200, pages.sales(store.site(), sent=self.query().get("sent") == "1", demos=store.demos()))
         if path == "/enquire" and m == "POST":
             return self.enquire()
         if path == "/static/site.css" and m in ("GET", "HEAD"):
@@ -361,7 +363,8 @@ class Handler(BaseHTTPRequestHandler):
         if fields.get("website"):                                 # hidden box only a bot fills in
             return self.redirect("/?sent=1#start")
         if len(e["name"]) < 2 or len(e["business"]) < 2 or len(e["trade"]) < 2 or len(re.sub(r"\D", "", e["phone"])) < 8 or not EMAIL.match(e["email"]):
-            return self.send(400, pages.sales(site, error="Please fill in your name, business, trade, a phone number and an email.", form=e))
+            return self.send(400, pages.sales(site, error="Please fill in your name, business, trade, a phone number and an email.", form=e,
+                                              demos=app.store.demos()))
         if not app.allow("enquiry", self.visitor(), 5, 3600):
             raise Halt(429, "Too many requests from this connection. Please call instead.")
         app.store.add_enquiry(e)
@@ -463,7 +466,10 @@ class Handler(BaseHTTPRequestHandler):
                 s["label"] = text("sz_%s_label" % s["id"], s["label"])
                 s["min"], s["max"] = number("sz_%s_min" % s["id"], s["label"] + " from"), number("sz_%s_max" % s["id"], s["label"] + " to")
             p = cfg["pricing"]
+            p["gstRegistered"] = fields.get("gst_registered") == "1"
             p["ratesIncludeGst"] = fields.get("gst_included") == "1"
+            if p.get("rebate"):
+                p["rebate"]["perUnit"] = number("rebate_per_unit", "The rebate amount")
             p["spread"] = number("spread_pct", "The range spread") / 100
             p["roundTo"], p["minimumJob"] = number("round_to", "Rounding"), number("minimum_job", "The smallest job")
             for key, n in (("headline", 90), ("subline", 140), ("ballparkNote", 200), ("thanksSub", 140)):

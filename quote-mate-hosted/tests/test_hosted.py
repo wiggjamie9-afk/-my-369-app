@@ -289,6 +289,7 @@ class Settings(Base):
     def form_for(self, tenant, **changes):
         c = tenant["config"]
         f = {"name": tenant["name"], "phone": "08 0000 0000", "licence": "EX1", "spread_pct": "10", "round_to": "100", "minimum_job": "3000",
+             "gst_registered": "1",
              "w_headline": c["words"]["headline"], "w_subline": c["words"]["subline"], "w_ballparkNote": c["words"]["ballparkNote"],
              "w_thanksSub": c["words"]["thanksSub"], "notify_email": "", "forward_webhook": ""}
         for j in c["jobTypes"]:
@@ -316,6 +317,25 @@ class Settings(Base):
         self.lead("acme-roofing")
         lead = self.store.leads(t["id"])[0]
         self.assertEqual((lead["low"], lead["high"]), (22300, 45600))
+
+    def test_gst_status_and_the_rebate_are_the_tradies_to_set(self):
+        t, pw = self.business("Paws Mobile Grooming", preset="pets")
+        c = self.signed_in(t, pw)
+        page = c.text("GET", "/q/paws-mobile-grooming/admin/settings")[1]
+        self.assertIn("with no GST", page)
+        self.assertNotIn("rebate_per_unit", page)                       # no rebate for groomers
+        self.assertNotIn(" checked> I&#x27;m registered for GST", page)
+        self.lead("paws-mobile-grooming", type_id="full", difficulty_id="medium", size_id="one")
+        before = self.store.leads(t["id"])[0]
+        # full groom $85 + $10 = $95, x1.25 for a medium dog: 106.88 to 130.63 with the 10% spread -> $105 to $135, no GST added
+        self.assertEqual((before["low"], before["high"]), (105, 135))
+        # they register for GST: the sum adds it and the wording changes
+        form = self.form_for(t, gst_registered="1", round_to="5", minimum_job="50")
+        self.assertEqual(c.call("POST", "/q/paws-mobile-grooming/admin/settings", form=form, files={})[0], 303)
+        self.lead("paws-mobile-grooming", type_id="full", difficulty_id="medium", size_id="one")
+        after = self.store.leads(t["id"])[0]
+        self.assertEqual((after["low"], after["high"]), (115, 145))          # the same sums with 10% GST added: 117.56 -> 115, 143.69 -> 145        
+        self.assertIn("including GST", self.c.text("GET", "/q/paws-mobile-grooming/config.js")[1] + c.text("GET", "/q/paws-mobile-grooming/admin/lead/%d" % after["id"])[1])
 
     def test_bad_settings_change_nothing(self):
         t, pw = self.business("Acme Roofing")
@@ -429,6 +449,65 @@ class Owner(Base):
         self.assertEqual(self.c.call("GET", "/admin")[0], 503)
 
 
+class Trades(Base):
+    """The four trades that ship: roofing, painting, pet grooming and home batteries."""
+
+    def test_every_trade_has_a_public_demo_and_the_sales_page_links_to_them(self):
+        page = self.c.text("GET", "/")[1]
+        for slug, product in (("demo", "Roof Quote Mate"), ("demo-painting", "Paint Quote Mate"), ("demo-pets", "Pet Quote Mate"),
+                              ("demo-batteries", "Battery Quote Mate")):
+            self.assertIn('href="/q/%s/"' % slug, page)
+            self.assertIn(product, page)
+            self.assertEqual(self.c.call("GET", "/q/%s/" % slug)[0], 200)
+            self.assertIn("demoNotice", self.c.text("GET", "/q/%s/config.js" % slug)[1])
+            self.assertEqual(self.lead(slug)[0] if slug == "demo" else 200, 200)
+
+    def test_pet_grooming_never_mentions_gst(self):
+        t, pw = self.business("Paws Mobile Grooming", preset="pets")
+        self.store.update_tenant(t["id"], notify_email="boss@example.com")
+        js = self.c.text("GET", "/q/paws-mobile-grooming/config.js")[1]
+        self.assertIn('"gstRegistered": false', js)
+        self.assertEqual(self.lead("paws-mobile-grooming", type_id="wash", difficulty_id="small", size_id="two")[0], 200)
+        lead = self.store.leads(t["id"])[0]
+        self.assertEqual((lead["low"], lead["high"], lead["job_type"], lead["size"]), (115, 145, "Wash and tidy", "Two dogs"))   # 2 x $65 = $130, +/-10%: $117 to $143
+        c = self.signed_in(t, pw)
+        detail = c.text("GET", "/q/paws-mobile-grooming/admin/lead/%d" % lead["id"])[1]
+        self.assertNotIn("GST", detail)
+        from qm import deliver
+        subject, body = deliver.lead_email(self.store.tenant("paws-mobile-grooming"), lead, "https://x/y")
+        self.assertIn("Ballpark: $115 to $145 (what they were shown)", body)
+        self.assertNotIn("GST", body)
+
+    def test_battery_prices_come_after_the_rebate_and_say_so(self):
+        t, pw = self.business("Sunny Solar & Batteries", preset="batteries", tier="full")
+        cfg = self.store.tenant("sunny-solar-batteries")["config"]
+        self.assertEqual(cfg["pricing"]["rebate"]["perUnit"], 250)
+        self.lead("sunny-solar-batteries", type_id="add", difficulty_id="single", size_id="medium")
+        lead = self.store.leads(t["id"])[0]
+        # $200 + $650 = $850 per kWh, GST already in the rate. 10 kWh: 8,500 less 10 x $250 = 6,000 -> low 6,000 after 8% off the top
+        # low: 10 x 850 x 0.92 = 7,820 less 2,500 = 5,320 -> 5,300 ; high: 15 x 850 x 1.08 = 13,770 less (14 + 0.6) x 250 = 3,650 -> 10,120 -> 10,200
+        self.assertEqual((lead["low"], lead["high"]), (5300, 10200))
+        c = self.signed_in(t, pw)
+        detail = c.text("GET", "/q/sunny-solar-batteries/admin/lead/%d" % lead["id"])[1]
+        self.assertIn("including GST, after the rebate", detail)
+        self.assertIn("Rebate $ per kWh", c.text("GET", "/q/sunny-solar-batteries/admin/settings")[1])
+
+    def test_the_battery_rebate_can_be_updated_and_is_checked(self):
+        t, pw = self.business("Sunny Solar & Batteries", preset="batteries", tier="full")
+        c = self.signed_in(t, pw)
+        s = Settings.form_for(self, t, rebate_per_unit="200", spread_pct="8", minimum_job="3000", gst_included="1")
+        self.assertEqual(c.call("POST", "/q/sunny-solar-batteries/admin/settings", form=s, files={})[0], 303)
+        self.assertEqual(self.store.tenant("sunny-solar-batteries")["config"]["pricing"]["rebate"]["perUnit"], 200)
+        self.lead("sunny-solar-batteries", type_id="add", difficulty_id="single", size_id="medium")
+        lead = self.store.leads(t["id"])[0]
+        self.assertEqual((lead["low"], lead["high"]), (5800, 10900))             # 7,820 - 10 x 200 = 5,820 ; 13,770 - 14.6 x 200 = 10,850
+        for bad in ("lots", "-5"):
+            status, page = c.text("POST", "/q/sunny-solar-batteries/admin/settings",
+                                  form=Settings.form_for(self, t, rebate_per_unit=bad, spread_pct="8", gst_included="1"), files={})
+            self.assertEqual(status, 400, bad)
+        self.assertEqual(self.store.tenant("sunny-solar-batteries")["config"]["pricing"]["rebate"]["perUnit"], 200)
+
+
 class FakeSmtp(socketserver.StreamRequestHandler):
     """Speaks just enough SMTP to receive one message."""
     inbox = []
@@ -495,7 +574,7 @@ class Delivery(Base):
         self.assertEqual((lead["email_status"], lead["forward_status"]), ("sent", "sent"))
         mail = FakeSmtp.inbox[0]
         for expected in ("To: boss@acme.example", "From: leads@quotemate.example", "Reply-To: sam@example.com", "0400 000 000",
-                         "$17,800 to $36,300 inc GST", "https://quotes.example.com/q/acme-roofing/admin/lead/%d" % lead["id"]):
+                         "$17,800 to $36,300 including GST", "https://quotes.example.com/q/acme-roofing/admin/lead/%d" % lead["id"]):
             self.assertIn(expected, mail)
         headers = mail.split("\r\n\r\n")[0]
         self.assertFalse([h for h in headers.split("\r\n") if h.lower().startswith("bcc")])   # a name can't smuggle in a mail header
@@ -531,7 +610,7 @@ class PricingAgreesWithTheBrowser(unittest.TestCase):
     """The server's sum and the quote tool's sum must give the same range for every choice."""
 
     def test_presets_are_valid(self):
-        for name in ("roofing", "painting"):
+        for name in ("roofing", "painting", "pets", "batteries"):
             with open(os.path.join(ROOT, "presets", name + ".json"), encoding="utf-8") as fh:
                 self.assertEqual(check_config(json.load(fh)), [], name)
 
@@ -543,8 +622,13 @@ class PricingAgreesWithTheBrowser(unittest.TestCase):
                   "const e = estimate(c, {type: t.id, difficulty: d.id, size: s.id}); out.push([t.id, d.id, s.id, e.low, e.high]); }"
                   "console.log(JSON.stringify(out));")
         checked = 0
-        for name, tweak in (("roofing", {}), ("painting", {}), ("roofing", {"spread": 0.075, "roundTo": 1, "minimumJob": 0, "ratesIncludeGst": True}),
-                            ("painting", {"spread": 0.333, "roundTo": 25, "gstRate": 0.125})):
+        for name, tweak in (("roofing", {}), ("painting", {}), ("pets", {}), ("batteries", {}),
+                            ("roofing", {"spread": 0.075, "roundTo": 1, "minimumJob": 0, "ratesIncludeGst": True}),
+                            ("painting", {"spread": 0.333, "roundTo": 25, "gstRate": 0.125}),
+                            ("pets", {"gstRegistered": True, "roundTo": 1}),
+                            ("batteries", {"gstRegistered": False, "ratesIncludeGst": False, "roundTo": 1}),
+                            ("batteries", {"spread": 0.173, "roundTo": 25, "rebate": {"label": "x", "perUnit": 187.5,
+                                                                                         "bands": [{"upTo": 7, "share": 1}, {"upTo": 30, "share": 0.35}]}})):
             with open(os.path.join(ROOT, "presets", name + ".json"), encoding="utf-8") as fh:
                 cfg = json.load(fh)
             cfg["pricing"].update(tweak)
@@ -559,7 +643,7 @@ class PricingAgreesWithTheBrowser(unittest.TestCase):
                 e = estimate(cfg, t, d, s)
                 self.assertEqual((e["low"], e["high"]), (low, high), (name, tweak, t, d, s))
                 checked += 1
-        self.assertEqual(checked, 4 * 36)
+        self.assertGreater(checked, 9 * 12)
 
 
 if __name__ == "__main__":

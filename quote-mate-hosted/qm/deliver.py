@@ -9,7 +9,7 @@ import urllib.parse
 import urllib.request
 from email.message import EmailMessage
 
-from .estimate import money
+from .estimate import money, price_note
 
 
 def mail_settings(env):
@@ -55,7 +55,8 @@ def lead_email(tenant, lead, lead_url):
         "Email:    %s" % one(lead["email"]),
         "Suburb:   %s" % one(lead["suburb"]), "",
         "Job:      %s, %s, %s" % (one(lead["job_type"]), one(lead["difficulty"]), one(lead["size"])),
-        "Ballpark: %s to %s inc GST (what they were shown)" % (money(lead["low"]), money(lead["high"])),
+        "Ballpark: %s to %s%s (what they were shown)" % (money(lead["low"]), money(lead["high"]),
+                                                        " " + price_note(tenant["config"]) if price_note(tenant["config"]) else ""),
         "Photos:   %d" % lead.get("photos", 0), "",
         "Open it:  %s" % lead_url, ""])
     return subject[:150], body

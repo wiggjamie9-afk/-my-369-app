@@ -2,7 +2,7 @@
 const assert = require("assert");
 global.window = {};
 require("./config.js");
-const { estimate, checkConfig, money } = require("./estimate.js");
+const { estimate, checkConfig, money, priceNote } = require("./estimate.js");
 const config = global.window.RQM_CONFIG;
 const clone = (o) => JSON.parse(JSON.stringify(o));
 let n = 0;
@@ -90,6 +90,35 @@ test("a lead address can be a full URL or a path on the same site", () => {
   const c = clone(config);
   for (const ok of ["https://hooks.example.com/abc", "/q/acme/lead", ""]) { c.webhookUrl = ok; assert.deepStrictEqual(checkConfig(c), [], ok); }
   for (const bad of ["hooks.example.com/abc", "javascript:alert(1)", "ftp://x"]) { c.webhookUrl = bad; assert.strictEqual(checkConfig(c).length, 1, bad); }
+});
+
+test("a business not registered for GST adds none and never mentions it", () => {
+  const c = clone(config); c.pricing.gstRegistered = false; c.pricing.spread = 0;
+  const e = estimate(c, { type: "tile", difficulty: "single", size: "medium" });
+  assert.deepStrictEqual([e.low, e.high], [120 * 130, 200 * 130]);
+  assert.strictEqual(priceNote(c), "");
+  assert.strictEqual(priceNote(config), "including GST");
+});
+
+test("a banded rebate comes off the price - worked by hand", () => {
+  const c = clone(config);
+  c.jobTypes = [{ id: "bat", label: "Battery", labourPerUnit: 200, materialPerUnit: 700 }];         // $900 per kWh
+  c.difficulty = [{ id: "std", label: "Standard", multiplier: 1 }];
+  c.sizes = [{ id: "family", label: "Family", min: 10, max: 20 }, { id: "huge", label: "Huge", min: 30, max: 60 }];
+  c.pricing = { gstRegistered: true, ratesIncludeGst: true, gstRate: 0.1, spread: 0, roundTo: 100, minimumJob: 0,
+                rebate: { label: "Battery rebate", perUnit: 250, bands: [{ upTo: 14, share: 1 }, { upTo: 28, share: 0.6 }, { upTo: 50, share: 0.15 }] } };
+  assert.deepStrictEqual(checkConfig(c), []);
+  // 10 kWh: 9,000 less 10 x 250 = 2,500 -> 6,500.   20 kWh: 18,000 less (14 + 6 x 0.6 = 17.6) x 250 = 4,400 -> 13,600
+  let e = estimate(c, { type: "bat", difficulty: "std", size: "family" });
+  assert.deepStrictEqual([e.low, e.high, e.grossLow, e.grossHigh, e.rebateLow, e.rebateHigh], [6500, 13600, 9000, 18000, 2500, 4400]);
+  // 30 kWh: (14 + 8.4 + 2 x 0.15 = 22.7) x 250 = 5,675.   60 kWh: capped at 50 -> (14 + 8.4 + 3.3 = 25.7) x 250 = 6,425
+  e = estimate(c, { type: "bat", difficulty: "std", size: "huge" });
+  assert.deepStrictEqual([e.low, e.high, e.rebateLow, e.rebateHigh], [21300, 47600, 5700, 6400]);
+  assert.strictEqual(priceNote(c), "including GST, after the rebate");
+  c.pricing.rebate.bands[1].upTo = 10;
+  assert.ok(checkConfig(c).join(" ").includes("bigger than the band before it"));
+  c.pricing.rebate.bands[1] = { upTo: 28, share: 1.5 };
+  assert.ok(checkConfig(c).join(" ").includes("share must be between 0 and 1"));
 });
 
 test("money formatting", () => {

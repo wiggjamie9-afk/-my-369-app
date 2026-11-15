@@ -1,0 +1,111 @@
+{
+  "trade": {
+    "productName": "Pet Quote Mate",
+    "jobName": "groom",
+    "unit": "dog"
+  },
+  "jobTypes": [
+    {
+      "id": "wash",
+      "label": "Wash and tidy",
+      "hint": "Bath, dry, nails, ears",
+      "labourPerUnit": 55,
+      "materialPerUnit": 10
+    },
+    {
+      "id": "full",
+      "label": "Full groom",
+      "hint": "Wash plus a clip or scissor cut",
+      "labourPerUnit": 85,
+      "materialPerUnit": 10
+    },
+    {
+      "id": "deshed",
+      "label": "De-shed",
+      "hint": "For thick, double coats",
+      "labourPerUnit": 75,
+      "materialPerUnit": 15
+    }
+  ],
+  "difficulty": [
+    {
+      "id": "small",
+      "label": "Small dog",
+      "hint": "Under 10 kg",
+      "multiplier": 1
+    },
+    {
+      "id": "medium",
+      "label": "Medium dog",
+      "hint": "10 to 25 kg",
+      "multiplier": 1.25
+    },
+    {
+      "id": "large",
+      "label": "Large dog",
+      "hint": "25 to 40 kg",
+      "multiplier": 1.6
+    },
+    {
+      "id": "giant",
+      "label": "Giant dog",
+      "hint": "Over 40 kg",
+      "multiplier": 2
+    }
+  ],
+  "sizes": [
+    {
+      "id": "one",
+      "label": "One dog",
+      "hint": "",
+      "min": 1,
+      "max": 1
+    },
+    {
+      "id": "two",
+      "label": "Two dogs",
+      "hint": "Same visit",
+      "min": 2,
+      "max": 2
+    },
+    {
+      "id": "more",
+      "label": "Three or more",
+      "hint": "We'll confirm when we call",
+      "min": 3,
+      "max": 4
+    }
+  ],
+  "pricing": {
+    "gstRegistered": false,
+    "ratesIncludeGst": false,
+    "gstRate": 0.1,
+    "spread": 0.1,
+    "roundTo": 5,
+    "minimumJob": 50,
+    "rebate": null
+  },
+  "photos": {
+    "max": 4,
+    "maxEdgePx": 1600,
+    "quality": 0.82
+  },
+  "words": {
+    "askSuburb": "What suburb are you in?",
+    "suburbPlaceholder": "e.g. Fremantle",
+    "ballparkTitle": "Your ballpark",
+    "leadSub": "Tell us where to send it. No spam, no call centres.",
+    "thanksTitle": "Got it. Thanks, mate.",
+    "headline": "What's a groom going to cost?",
+    "subline": "Four quick taps. Price range straight away.",
+    "askType": "What does your dog need?",
+    "askDifficulty": "How big is your dog?",
+    "askSize": "How many dogs?",
+    "ballparkNote": "A guide only. Matted coats, nervous dogs and extras can change the price.",
+    "leadTitle": "Want to book in?",
+    "photosTitle": "Add up to 4 photos of your dog",
+    "photosSub": "Optional, but it helps us see the coat.",
+    "sendButton": "Request a booking",
+    "thanksSub": "We'll be in touch to lock in a time."
+  }
+}

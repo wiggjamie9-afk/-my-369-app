@@ -66,11 +66,17 @@ window.RQM_CONFIG = {
   ],
 
   pricing: {
-    ratesIncludeGst: false,   // false = the app adds GST and shows prices "inc GST"
+    gstRegistered: true,      // false = you don't charge GST: nothing is added and GST is never mentioned
+    ratesIncludeGst: false,   // false = the app adds GST and shows prices "including GST"
     gstRate: 0.10,
     spread: 0.10,             // widen the range 10% each way to cover unknowns
     roundTo: 100,             // round to the nearest $100 (low end down, high end up)
-    minimumJob: 3000          // never show a ballpark below this, inc GST
+    minimumJob: 3000,         // never show a ballpark below this
+    /* Optional: a rebate taken off the price, sized by the job. Leave as null if there isn't one.
+       Example for a trade with a per-unit subsidy that tapers on bigger jobs:
+         rebate: { label: "Government rebate", perUnit: 250, note: "Paid as a discount on your invoice.",
+                   bands: [ { upTo: 14, share: 1 }, { upTo: 28, share: 0.6 }, { upTo: 50, share: 0.15 } ] }  */
+    rebate: null
   },
 
   /* Full tier only. */
