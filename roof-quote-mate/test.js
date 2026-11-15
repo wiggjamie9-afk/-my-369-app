@@ -156,6 +156,18 @@ test("sums are exact: a half-dollar rounds up, never down by a floating-point ha
   assert.deepStrictEqual([e.low, e.high], [1010, 1010]);
 });
 
+test("a product brand is optional and checked", () => {
+  const c = clone(config);
+  c.brand = { name: "48 AI Crew Quoting", logoPath: "/static/logo.png" };
+  assert.deepStrictEqual(checkConfig(c), []);
+  c.brand = { name: "No logo is fine" };
+  assert.deepStrictEqual(checkConfig(c), []);
+  for (const bad of [{ name: " " }, { logoPath: "x.png" }, { name: "x", logoPath: 5 }, "text"]) {
+    c.brand = bad;
+    assert.ok(checkConfig(c).join(" ").includes("brand needs a name"), JSON.stringify(bad));
+  }
+});
+
 test("money formatting", () => {
   assert.deepStrictEqual([money(17800), money(950), money(1234567)], ["$17,800", "$950", "$1,234,567"]);
 });

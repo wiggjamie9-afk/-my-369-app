@@ -28,6 +28,15 @@ window.RQM_CONFIG = {
     licence: ""                    // optional, shown in the small print
   },
 
+  /* Optional wording for the yellow notice shown while rates are unconfirmed:
+       noticeTitle: "Heads up", ratesNotice: "Example prices only. ...",
+     (a hosted service sets these so a homeowner never sees instructions meant for the owner) */
+
+  /* Optional. In "lite" mode the page shows this name and logo instead of yours (a company that
+     sells Roof Quote Mate under its own brand puts its name here). In "full" mode your own
+     business name and logo are used, whatever this says.
+       brand: { name: "Your Quote Brand", logoPath: "brand-logo.png" },  */
+
   /* Where leads are sent. Leave empty and the app runs in demo mode:
      it works end to end but sends nothing, and says so. */
   webhookUrl: "",

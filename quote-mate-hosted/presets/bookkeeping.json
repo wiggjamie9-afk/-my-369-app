@@ -1,8 +1,9 @@
 {
   "trade": {
-    "productName": "Payday Check",
+    "productName": "48 AI Crew Quoting",
     "jobName": "Payday Super help",
-    "unit": "employee"
+    "unit": "employee",
+    "label": "Bookkeeping (Payday Check)"
   },
   "jobTypes": [
     {

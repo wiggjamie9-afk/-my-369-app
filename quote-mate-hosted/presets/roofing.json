@@ -1,8 +1,9 @@
 {
   "trade": {
-    "productName": "Roof Quote Mate",
+    "productName": "48 AI Crew Quoting",
     "jobName": "new roof",
-    "unit": "m²"
+    "unit": "m²",
+    "label": "Roofing"
   },
   "jobTypes": [
     {

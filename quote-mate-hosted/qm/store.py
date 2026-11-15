@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS enquiries(
 """
 
 SITE_DEFAULTS = {
-    "service_name": "Quote Mate",
+    "service_name": "48 AI Crew Quoting",
     "tagline": "Turn website visitors into quote requests while you're on the tools.",
     "owner_name": "", "owner_phone": "", "owner_email": "",
     "price_lite": "", "price_full": "",          # shown as written; empty = "Ask for pricing"
@@ -163,7 +163,8 @@ class Store:
         """[(slug, product name)] for the public demos, one per trade, for the sales page."""
         with self.tx() as c:
             rows = c.execute("SELECT slug, config_json FROM tenants WHERE demo=1 AND active=1 ORDER BY slug").fetchall()
-        return [(r["slug"], json.loads(r["config_json"])["trade"]["productName"]) for r in rows]
+        trades = [json.loads(r["config_json"])["trade"] for r in rows]
+        return [(r["slug"], t.get("label") or t["productName"]) for r, t in zip(rows, trades)]
 
     def tenants(self):
         since = now() - 30 * 86400
@@ -230,6 +231,11 @@ class Store:
             "webhookUrl": "" if tenant["demo"] else lead_path,
             "ratesConfirmed": bool(tenant["rates_confirmed"]),
         })
+        if tenant["tier"] != "full":      # lite pages carry the product's brand; full pages carry the business's own
+            cfg["brand"] = {"name": self.site()["service_name"], "logoPath": "/static/48-ai-crew-icon.png"}
+        if not tenant["demo"]:            # a homeowner sees this until the business confirms its own rates
+            cfg["noticeTitle"] = "Heads up"
+            cfg["ratesNotice"] = "Example prices only. This business is still putting in its own rates, so treat these as a rough guide."
         if tenant["demo"]:
             cfg["demoNotice"] = "This is a demo with example prices. Nothing you enter here is sent anywhere."
         return cfg

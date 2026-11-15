@@ -1,8 +1,9 @@
 {
   "trade": {
-    "productName": "Care Quote Mate",
+    "productName": "48 AI Crew Quoting",
     "jobName": "weekly help",
-    "unit": "hour"
+    "unit": "hour",
+    "label": "Home care"
   },
   "jobTypes": [
     {

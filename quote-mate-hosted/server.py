@@ -41,6 +41,9 @@ from qm.store import Store, LEAD_STATES          # noqa: E402
 VERSION = "1.0.0"
 TOOL_FILES = {"app.css": "text/css; charset=utf-8", "app.js": "text/javascript; charset=utf-8",
               "estimate.js": "text/javascript; charset=utf-8", "full.js": "text/javascript; charset=utf-8"}
+STATIC_FILES = {"/static/site.css": ("site.css", "text/css; charset=utf-8", "no-cache"),
+                "/static/48-ai-crew-logo.png": ("48-ai-crew-logo.png", "image/png", "public, max-age=86400"),
+                "/static/48-ai-crew-icon.png": ("48-ai-crew-icon.png", "image/png", "public, max-age=86400")}
 CSP = ("default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; connect-src 'self'; "
        "base-uri 'none'; form-action 'self'; frame-ancestors 'self'")
 MAX_FORM, MAX_LEAD, MAX_PHOTO, MAX_LOGO = 64 * 1024, 18 * 1024 * 1024, 4 * 1024 * 1024, 400 * 1024
@@ -94,7 +97,9 @@ class App:
         for preset in self.store.presets():            # a public demo for each trade, linked from the sales page
             slug = "demo" if preset == "roofing" else "demo-" + preset
             if not self.store.tenant(slug):
-                self.store.create_tenant("Demo " + preset.capitalize(), slug, preset, "full", demo=True)
+                demo, _ = self.store.create_tenant("Demo " + preset.capitalize(), slug, preset, "full", demo=True)
+                with open(os.path.join(ROOT, "static", "48-ai-crew-icon.png"), "rb") as fh:
+                    self.store.set_logo(demo["id"], fh.read(), "image/png")      # shows the full plan's own-logo feature
 
     # ---- signed session cookies
     def sign(self, scope):
@@ -273,9 +278,10 @@ class Handler(BaseHTTPRequestHandler):
             return self.send(200, pages.sales(store.site(), sent=self.query().get("sent") == "1", demos=store.demos()))
         if path == "/enquire" and m == "POST":
             return self.enquire()
-        if path == "/static/site.css" and m in ("GET", "HEAD"):
-            with open(os.path.join(ROOT, "static", "site.css"), "rb") as fh:
-                return self.send(200, fh.read(), "text/css; charset=utf-8", cache="no-cache")
+        if path in STATIC_FILES and m in ("GET", "HEAD"):
+            name, ctype, cache = STATIC_FILES[path]
+            with open(os.path.join(ROOT, "static", name), "rb") as fh:
+                return self.send(200, fh.read(), ctype, cache=cache)
         if path == "/healthz":
             return self.json(200, {"ok": True, "version": VERSION})
         if path == "/admin" or path.startswith("/admin/"):

@@ -33,18 +33,29 @@
 
   // ---------------------------------------------------------------- header, setup notice, footer
   if (full) full.brand(document.getElementById("brand"), config);
-  else document.querySelector("#brand .brand-name").textContent = config.trade.productName;
-  if (!full) document.title = config.trade.productName + " | Instant ballpark";
+  else {
+    // lite: the product's own name and logo (config.brand, if given), not the business's
+    var product = config.brand || { name: config.trade.productName };
+    var bar = document.getElementById("brand");
+    bar.textContent = "";
+    if (product.logoPath) {
+      var logo = el("img", { src: product.logoPath, alt: "", className: "brand-logo" });
+      logo.addEventListener("error", function () { logo.remove(); });
+      bar.appendChild(logo);
+    }
+    bar.appendChild(el("span", { className: "brand-name", text: product.name }));
+    document.title = product.name + " | Instant ballpark";
+  }
 
   var todo = [];
   if (config.demoNotice) todo.push(config.demoNotice);                  // a hosted demo: say so, and nothing else
-  else if (!config.ratesConfirmed) todo.push("These are example rates, not real prices. Put yours in config.js, then set ratesConfirmed to true.");
+  else if (!config.ratesConfirmed) todo.push(config.ratesNotice || "These are example rates, not real prices. Put yours in config.js, then set ratesConfirmed to true.");
   if (demo && !config.demoNotice) todo.push("Demo mode: no webhook set, so leads are not sent anywhere. Add webhookUrl in config.js.");
   if (config.tier === "full" && !RQM.full) todo.push('tier is "full" but full.js is missing, so this is running as lite.');
   if (todo.length) {
     var setup = document.getElementById("setup");
     setup.hidden = false;
-    setup.appendChild(el("b", { text: config.demoNotice ? "Demo" : "Setup notice (your customers will see this until it's fixed)" }));
+    setup.appendChild(el("b", { text: config.noticeTitle || (config.demoNotice ? "Demo" : "Setup notice (your customers will see this until it's fixed)") }));
     setup.appendChild(el("ul", {}, todo.map(function (t) { return el("li", { text: t }); })));
   }
   document.getElementById("foot").textContent = "Ballpark prices only. " + biz.name + (biz.licence ? " · Licence " + biz.licence : "");

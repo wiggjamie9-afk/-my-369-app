@@ -1,8 +1,9 @@
 {
   "trade": {
-    "productName": "Pet Quote Mate",
+    "productName": "48 AI Crew Quoting",
     "jobName": "groom",
-    "unit": "dog"
+    "unit": "dog",
+    "label": "Pet grooming"
   },
   "jobTypes": [
     {

@@ -15,11 +15,21 @@ def when(ts):
     return time.strftime("%d %b %Y, %I:%M %p", time.localtime(ts)).lstrip("0")
 
 
-def layout(title, body, nav=""):
+LOGO = "/static/48-ai-crew-logo.png"
+ICON = "/static/48-ai-crew-icon.png"
+
+
+def layout(title, body, nav="", brandbar=True):
+    """Every page: the crew's icon in the browser tab; a brand bar on pages with no business nav; a small
+    "Powered by" line under a business's own pages."""
+    top = nav or ("<header class=\"brandbar\"><img src=\"%s\" alt=\"\" width=\"40\" height=\"40\"><b>The 48 AI Crew</b></header>" % ICON
+                  if brandbar else "")
+    foot = ("<footer class=\"powered\"><img src=\"%s\" alt=\"\" width=\"20\" height=\"20\"> Powered by The 48 AI Crew</footer>" % ICON) if nav else ""
     return ("<!doctype html><html lang=\"en-AU\"><head><meta charset=\"utf-8\">"
             "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><meta name=\"theme-color\" content=\"#1B1D21\">"
+            "<link rel=\"icon\" type=\"image/png\" href=\"%s\"><link rel=\"apple-touch-icon\" href=\"%s\">"
             "<title>%s</title><link rel=\"stylesheet\" href=\"/static/site.css\"></head><body>"
-            "<div class=\"stripe\" aria-hidden=\"true\"></div>%s<main class=\"wrap\">%s</main></body></html>") % (e(title), nav, body)
+            "<div class=\"stripe\" aria-hidden=\"true\"></div>%s<main class=\"wrap\">%s</main>%s</body></html>") % (ICON, LOGO, e(title), top, body, foot)
 
 
 def field(label, name, value="", kind="text", hint="", extra=""):
@@ -42,6 +52,7 @@ def sales(site, sent=False, error="", form=None, demos=()):
         "Email <a href=\"mailto:%s\">%s</a>." % (e(site["owner_email"]), e(site["owner_email"])) if site["owner_email"] else "") if x)
     body = """
 <header class="hero">
+  <img class="hero-logo" src="/static/48-ai-crew-logo.png" alt="The 48 AI Crew" width="148" height="148">
   <p class="eyebrow">%(name)s</p>
   <h1>Homeowners want a price. Give them one in 20 seconds.</h1>
   <p class="lead">%(tagline)s</p>
@@ -92,7 +103,7 @@ def sales(site, sent=False, error="", form=None, demos=()):
         "message": e(form.get("message", "")), "contact": contact,
         "demos": ("<p class=\"small\">See it for your trade: %s</p>" % " · ".join(
             "<a href=\"/q/%s/\">%s</a>" % (e(slug), e(name)) for slug, name in demos)) if len(demos) > 1 else ""}
-    return layout("%s | Instant ballpark quotes for tradies" % site["service_name"], body)
+    return layout("%s | Instant ballpark quotes for tradies" % site["service_name"], body, brandbar=False)
 
 
 def paused(tenant):

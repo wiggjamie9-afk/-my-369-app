@@ -1,8 +1,9 @@
 {
   "trade": {
-    "productName": "Paint Quote Mate",
+    "productName": "48 AI Crew Quoting",
     "jobName": "repaint",
-    "unit": "room"
+    "unit": "room",
+    "label": "Painting"
   },
   "jobTypes": [
     {

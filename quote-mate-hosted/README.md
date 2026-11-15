@@ -28,6 +28,17 @@ To put it on the internet, run it behind Caddy or nginx with HTTPS and set `TRUS
 and `PUBLIC_URL=https://your-domain`. Keep both folders (`quote-mate-hosted` and
 `roof-quote-mate`) side by side, or point `QM_TOOL_DIR` at the quote tool.
 
+## Branding
+
+The service ships as **48 AI Crew Quoting** with the 48 AI Crew logo:
+
+- The name is a setting: `/admin` > "Sales page details" > Service name. It shows on the sales page, in the browser tab and
+  on every lite-plan quote page.
+- The logo is two files in `static/`: `48-ai-crew-logo.png` (256 px, the sales page) and `48-ai-crew-icon.png` (96 px,
+  headers, browser tab, home-screen icon). Replace both, keeping the file names, to rebrand.
+- Plans: a **lite** business's quote page shows this brand. A **full** business's page shows only that business's own name
+  and logo, never yours (its logo is uploaded under its Settings).
+
 ## Settings (environment variables)
 
 | Variable | What it does |

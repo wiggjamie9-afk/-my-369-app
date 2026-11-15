@@ -1,8 +1,9 @@
 {
   "trade": {
-    "productName": "Battery Quote Mate",
+    "productName": "48 AI Crew Quoting",
     "jobName": "home battery",
-    "unit": "kWh"
+    "unit": "kWh",
+    "label": "Home batteries"
   },
   "jobTypes": [
     {

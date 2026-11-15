@@ -13,6 +13,8 @@
     if (c.tier !== "lite" && c.tier !== "full") bad.push('tier must be "lite" or "full".');
     if (!c.business || !String(c.business.name || "").trim()) bad.push("business.name is empty.");
     // a full address, or a path on the same site (used when the app is hosted for you)
+    if (c.brand != null && (typeof c.brand !== "object" || !String(c.brand.name || "").trim() ||
+        (c.brand.logoPath != null && typeof c.brand.logoPath !== "string"))) bad.push("brand needs a name, and logoPath (if given) must be text.");
     if (c.webhookUrl && !/^(https?:\/\/|\/)/i.test(c.webhookUrl)) bad.push("webhookUrl must start with https://");
     [["jobTypes", ["labourPerUnit", "materialPerUnit"]], ["difficulty", ["multiplier"]], ["sizes", ["min", "max"]]].forEach(function (group) {
       var list = c[group[0]];

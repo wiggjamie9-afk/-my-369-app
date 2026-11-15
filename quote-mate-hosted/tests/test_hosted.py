@@ -449,14 +449,72 @@ class Owner(Base):
         self.assertEqual(self.c.call("GET", "/admin")[0], 503)
 
 
+class Branding(Base):
+    """The 48 AI Crew brand: the name, the logo, and who gets to see it where."""
+
+    def test_the_logo_is_served_and_the_service_has_the_crew_name(self):
+        for path, size in (("/static/48-ai-crew-logo.png", 256), ("/static/48-ai-crew-icon.png", 96)):
+            status, body, h = self.c.call("GET", path)
+            self.assertEqual((status, h["Content-Type"], body[:8]), (200, "image/png", b"\x89PNG\r\n\x1a\n"), path)
+        self.assertEqual(self.store.site()["service_name"], "48 AI Crew Quoting")
+        sales = self.c.text("GET", "/")[1]
+        self.assertIn('class="hero-logo" src="/static/48-ai-crew-logo.png"', sales)
+        self.assertIn('rel="icon" type="image/png" href="/static/48-ai-crew-icon.png"', sales)
+        self.assertIn("48 AI Crew Quoting | Instant ballpark quotes for tradies", sales)
+
+    def test_every_page_carries_the_brand(self):
+        t, pw = self.business("Acme Roofing")
+        login = self.c.text("GET", "/admin")[1]
+        self.assertIn("The 48 AI Crew</b>", login)                          # sign-in and console pages get the brand bar
+        inbox = self.signed_in(t, pw).text("GET", "/q/acme-roofing/admin")[1]
+        self.assertIn("Powered by The 48 AI Crew", inbox)                  # a business's own pages say who powers them
+        self.assertIn('rel="icon"', inbox)
+
+    def test_lite_pages_carry_the_crew_brand_and_full_pages_the_businesses_own(self):
+        self.business("Acme Roofing", tier="lite")
+        self.business("Top Roofs", tier="full")
+
+        def config(slug):
+            js = self.c.text("GET", "/q/%s/config.js" % slug)[1]
+            return json.loads(js[js.index("{"):js.rindex("}") + 1])
+        lite, full = config("acme-roofing"), config("top-roofs")
+        self.assertEqual(lite["brand"], {"name": "48 AI Crew Quoting", "logoPath": "/static/48-ai-crew-icon.png"})
+        self.assertNotIn("brand", full)                                       # a full plan shows only the business's own name and logo
+        self.assertEqual(full["business"]["name"], "Top Roofs")
+        self.assertEqual(self.c.call("GET", "/q/acme-roofing/logo")[0], 404)  # a lite business has no logo of its own
+
+    def test_a_homeowner_never_sees_instructions_meant_for_the_owner(self):
+        self.business("Acme Roofing", tier="lite")
+        js = self.c.text("GET", "/q/acme-roofing/config.js")[1]
+        cfg = json.loads(js[js.index("{"):js.rindex("}") + 1])
+        self.assertFalse(cfg["ratesConfirmed"])
+        self.assertIn("still putting in its own rates", cfg["ratesNotice"])
+        self.assertEqual(cfg["noticeTitle"], "Heads up")
+        for text in (cfg["ratesNotice"], cfg["noticeTitle"]):
+            self.assertNotIn("config.js", text)
+
+    def test_a_renamed_service_flows_through_to_the_lite_pages(self):
+        self.business("Acme Roofing", tier="lite")
+        self.store.save_site({"service_name": "Crew Quotes WA"})
+        js = self.c.text("GET", "/q/acme-roofing/config.js")[1]
+        self.assertIn('"name": "Crew Quotes WA"', js)
+
+    def test_the_demos_show_the_full_plans_own_logo_feature_with_the_crew_logo(self):
+        status, body, h = self.c.call("GET", "/q/demo/logo")
+        self.assertEqual((status, h["Content-Type"], body[:4]), (200, "image/png", b"\x89PNG"))
+        js = self.c.text("GET", "/q/demo/config.js")[1]
+        self.assertIn('"logoPath": "logo"', js)
+        self.assertNotIn('"brand"', js)
+
+
 class Trades(Base):
     """The four trades that ship: roofing, painting, pet grooming and home batteries."""
 
     def test_every_trade_has_a_public_demo_and_the_sales_page_links_to_them(self):
         page = self.c.text("GET", "/")[1]
-        for slug, product in (("demo", "Roof Quote Mate"), ("demo-painting", "Paint Quote Mate"), ("demo-pets", "Pet Quote Mate"),
-                              ("demo-batteries", "Battery Quote Mate"), ("demo-homecare", "Care Quote Mate"),
-                              ("demo-bookkeeping", "Payday Check")):
+        for slug, product in (("demo", "Roofing"), ("demo-painting", "Painting"), ("demo-pets", "Pet grooming"),
+                              ("demo-batteries", "Home batteries"), ("demo-homecare", "Home care"),
+                              ("demo-bookkeeping", "Bookkeeping (Payday Check)")):
             self.assertIn('href="/q/%s/"' % slug, page)
             self.assertIn(product, page)
             self.assertEqual(self.c.call("GET", "/q/%s/" % slug)[0], 200)
