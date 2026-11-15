@@ -47,19 +47,39 @@ def send_email(smtp, to, subject, body, reply_to=""):
 def lead_email(tenant, lead, lead_url):
     """(subject, body) for the new-lead email. No header can be injected: every value is single-line."""
     one = lambda v: " ".join(str(v).split())
-    subject = "New quote request: %s, %s" % (one(lead["name"]), one(lead["suburb"]))
+    subject = "%sNew quote request: %s, %s" % ("HOT: " if lead.get("hot") else "", one(lead["name"]), one(lead["suburb"]))
+    wants = [x for x in (("Wants it:  " + one(lead["urgency"])) if lead.get("urgency") else "",
+                         ("Best time to call:  " + one(lead["contact_time"])) if lead.get("contact_time") else "",
+                         ("Repeat:   this number asked before (lead #%d)" % lead["repeat_of"]) if lead.get("repeat_of") else "") if x]
     body = "\n".join([
         "New quote request for %s" % one(tenant["name"]), "",
         "Name:     %s" % one(lead["name"]),
         "Phone:    %s" % one(lead["phone"]),
         "Email:    %s" % one(lead["email"]),
-        "Suburb:   %s" % one(lead["suburb"]), "",
+        "Suburb:   %s" % one(lead["suburb"]), ""] + wants + [
         "Job:      %s, %s, %s" % (one(lead["job_type"]), one(lead["difficulty"]), one(lead["size"])),
         "Ballpark: %s to %s%s (what they were shown)" % (money(lead["low"]), money(lead["high"]),
                                                         " " + price_note(tenant["config"]) if price_note(tenant["config"]) else ""),
         "Photos:   %d" % lead.get("photos", 0), "",
         "Open it:  %s" % lead_url, ""])
     return subject[:150], body
+
+
+def reply_email(tenant, lead):
+    """(subject, body) confirming the request to the homeowner, with what they were shown and who will be in touch."""
+    one = lambda v: " ".join(str(v).split())
+    first = one(lead["name"]).split(" ")[0]
+    note = price_note(tenant["config"])
+    lines = ["Hi %s," % first, "",
+             "Thanks for asking about a quote from %s. We've got your details." % one(tenant["name"]), "",
+             "The ballpark you were shown: %s to %s%s." % (money(lead["low"]), money(lead["high"]), " " + note if note else ""),
+             "That's a guide only. %s will contact you with an exact price." % one(tenant["name"])]
+    if lead.get("contact_time"):
+        lines.append("You said the best time to call is: %s." % one(lead["contact_time"]).lower())
+    if tenant.get("phone"):
+        lines += ["", "In a hurry? Call %s." % one(tenant["phone"])]
+    lines += ["", "You're getting this one email because you asked for a quote on their website. If that wasn't you, you can ignore it.", ""]
+    return ("Your quote request to %s" % one(tenant["name"]))[:150], "\n".join(lines)
 
 
 def safe_public_url(url, allow_private=False):

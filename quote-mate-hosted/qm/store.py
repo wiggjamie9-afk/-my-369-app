@@ -10,6 +10,7 @@ import sqlite3
 import time
 from contextlib import contextmanager
 
+from .colour import check_accent, on_accent
 from .estimate import check_config
 
 SCHEMA = """
@@ -43,9 +44,18 @@ CREATE TABLE IF NOT EXISTS leads(
   photos INTEGER NOT NULL DEFAULT 0,
   status TEXT NOT NULL DEFAULT 'new',         -- new | contacted | quoted | won | lost
   notes TEXT NOT NULL DEFAULT '',
-  email_status TEXT NOT NULL DEFAULT '', forward_status TEXT NOT NULL DEFAULT ''
+  email_status TEXT NOT NULL DEFAULT '', forward_status TEXT NOT NULL DEFAULT '',
+  reply_status TEXT NOT NULL DEFAULT '',      -- the confirmation email sent to the homeowner
+  urgency TEXT NOT NULL DEFAULT '', contact_time TEXT NOT NULL DEFAULT '',
+  hot INTEGER NOT NULL DEFAULT 0,             -- 1 = they want it done as soon as possible
+  phone_key TEXT NOT NULL DEFAULT '',         -- digits only, to spot the same person asking twice
+  repeat_of INTEGER NOT NULL DEFAULT 0        -- id of an earlier enquiry from the same number
 );
 CREATE INDEX IF NOT EXISTS leads_tenant ON leads(tenant_id, created_at);
+CREATE TABLE IF NOT EXISTS funnel(            -- anonymous counts only: no cookies, no personal data
+  tenant_id INTEGER NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  day TEXT NOT NULL, kind TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (tenant_id, day, kind));
 CREATE TABLE IF NOT EXISTS enquiries(
   id INTEGER PRIMARY KEY AUTOINCREMENT, created_at INTEGER NOT NULL,
   name TEXT NOT NULL, business TEXT NOT NULL, trade TEXT NOT NULL, phone TEXT NOT NULL, email TEXT NOT NULL,
@@ -79,6 +89,26 @@ def hash_password(password, salt=None):
     return hashlib.scrypt(str(password).encode(), salt=salt, n=2 ** 14, r=8, p=1, dklen=32), salt
 
 
+# columns added after the first release: older databases gain them on start-up, nothing else is touched
+MIGRATIONS = (
+    ("leads", "reply_status", "TEXT NOT NULL DEFAULT ''"), ("leads", "urgency", "TEXT NOT NULL DEFAULT ''"),
+    ("leads", "contact_time", "TEXT NOT NULL DEFAULT ''"), ("leads", "hot", "INTEGER NOT NULL DEFAULT 0"),
+    ("leads", "phone_key", "TEXT NOT NULL DEFAULT ''"), ("leads", "repeat_of", "INTEGER NOT NULL DEFAULT 0"),
+    ("tenants", "accent", "TEXT NOT NULL DEFAULT ''"), ("tenants", "auto_reply", "INTEGER NOT NULL DEFAULT 1"),
+)
+
+# The two questions asked under the price. A preset may replace them with a "leadQuestions" entry of its own.
+# An option marked "hot" makes the lead stand out in the tradie's inbox.
+LEAD_QUESTIONS = {
+    "urgency": {"label": "When do you want it done?", "options": [
+        {"id": "asap", "label": "As soon as possible", "hot": True}, {"id": "month", "label": "Within a month"},
+        {"id": "later", "label": "Just exploring"}]},
+    "contactTime": {"label": "Best time to call?", "options": [
+        {"id": "morning", "label": "Morning"}, {"id": "afternoon", "label": "Afternoon"},
+        {"id": "evening", "label": "Evening"}, {"id": "any", "label": "Anytime"}]},
+}
+
+
 class Store:
     def __init__(self, path, presets_dir):
         self.path, self.presets_dir = path, presets_dir
@@ -86,6 +116,10 @@ class Store:
         self.photo_dir = os.path.join(os.path.dirname(os.path.abspath(path)), "photos")
         with self.tx() as c:
             c.executescript(SCHEMA)
+            for table, column, ddl in MIGRATIONS:
+                if column not in {r[1] for r in c.execute("PRAGMA table_info(%s)" % table)}:
+                    c.execute("ALTER TABLE %s ADD COLUMN %s %s" % (table, column, ddl))
+            c.execute("CREATE INDEX IF NOT EXISTS leads_phone ON leads(tenant_id, phone_key)")
 
     @contextmanager
     def tx(self):
@@ -182,7 +216,7 @@ class Store:
 
     def update_tenant(self, tenant_id, **changes):
         allowed = {"name", "tier", "active", "paid_until", "phone", "licence", "contact_email", "notify_email",
-                   "forward_webhook", "rates_confirmed"}
+                   "forward_webhook", "rates_confirmed", "accent", "auto_reply"}
         sets, args = [], []
         for k, v in changes.items():
             if k not in allowed:
@@ -197,8 +231,10 @@ class Store:
                 raise ValueError("that email address doesn't look right")
             if k == "forward_webhook" and v and not re.match(r"^https://[^\s]+$", str(v)):
                 raise ValueError("the webhook address must start with https://")
+            if k == "accent":
+                v = check_accent(v)
             sets.append(k + "=?")
-            args.append(int(bool(v)) if k in ("active", "rates_confirmed") else " ".join(str(v).split())[:300])
+            args.append(int(bool(v)) if k in ("active", "rates_confirmed", "auto_reply") else " ".join(str(v).split())[:300])
         if sets:
             with self.tx() as c:
                 c.execute("UPDATE tenants SET %s WHERE id=?" % ", ".join(sets), args + [tenant_id])
@@ -235,6 +271,11 @@ class Store:
             "ratesConfirmed": bool(tenant["rates_confirmed"]),
         })
         cfg["theme"] = dict(THEME)
+        if tenant["tier"] == "full" and tenant["accent"]:          # a full plan can wear its own colour
+            cfg["theme"] = {"accent": tenant["accent"], "onAccent": on_accent(tenant["accent"])}
+        cfg["leadQuestions"] = cfg.get("leadQuestions") or copy.deepcopy(LEAD_QUESTIONS)
+        if not tenant["demo"]:                                     # anonymous funnel counts; the public demos aren't counted
+            cfg["eventsUrl"] = lead_path.rsplit("/", 1)[0] + "/event"
         if tenant["tier"] != "full":      # lite pages carry the product's brand; full pages carry the business's own
             cfg["brand"] = {"name": self.site()["service_name"], "logoPath": "/static/48-ai-crew-icon.png"}
         if not tenant["demo"]:            # a homeowner sees this until the business confirms its own rates
@@ -246,12 +287,17 @@ class Store:
 
     # ---------------------------------------------------------------- leads
     def add_lead(self, tenant_id, lead, photos=()):
+        key = re.sub(r"\D", "", lead["phone"])[-9:]                # the last nine digits: the same mobile written two ways matches
         with self.tx() as c:
+            earlier = c.execute("SELECT id FROM leads WHERE tenant_id=? AND phone_key=? AND created_at>? ORDER BY id LIMIT 1",
+                                (tenant_id, key, now() - 14 * 86400)).fetchone() if key else None
             cur = c.execute(
-                "INSERT INTO leads(tenant_id,created_at,name,phone,email,suburb,job_type,difficulty,size,low,high,photos)"
-                " VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+                "INSERT INTO leads(tenant_id,created_at,name,phone,email,suburb,job_type,difficulty,size,low,high,photos,"
+                "urgency,contact_time,hot,phone_key,repeat_of) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (tenant_id, now(), lead["name"], lead["phone"], lead["email"], lead["suburb"], lead["job_type"],
-                 lead["difficulty"], lead["size"], lead["low"], lead["high"], len(photos)))
+                 lead["difficulty"], lead["size"], lead["low"], lead["high"], len(photos),
+                 lead.get("urgency", ""), lead.get("contact_time", ""), 1 if lead.get("hot") else 0, key,
+                 earlier["id"] if earlier else 0))
             lead_id = cur.lastrowid
         if photos:
             folder = os.path.join(self.photo_dir, str(tenant_id), str(lead_id))
@@ -270,29 +316,68 @@ class Store:
                     return fh.read(), ctype
         return None
 
-    def leads(self, tenant_id, status=""):
-        sql = "SELECT * FROM leads WHERE tenant_id=?" + (" AND status=?" if status else "") + " ORDER BY created_at DESC, id DESC LIMIT 500"
+    def leads(self, tenant_id, status="", hot=False):
+        sql = ("SELECT * FROM leads WHERE tenant_id=?" + (" AND status=?" if status else "") + (" AND hot=1" if hot else "")
+               + " ORDER BY created_at DESC, id DESC LIMIT 500")
         with self.tx() as c:
             return [dict(r) for r in c.execute(sql, (tenant_id, status) if status else (tenant_id,))]
+
+    def hot_open(self, tenant_id):
+        """Hot leads still being worked: not won, not lost."""
+        with self.tx() as c:
+            return c.execute("SELECT COUNT(*) FROM leads WHERE tenant_id=? AND hot=1 AND status NOT IN ('won','lost')", (tenant_id,)).fetchone()[0]
 
     def lead(self, tenant_id, lead_id):
         with self.tx() as c:
             r = c.execute("SELECT * FROM leads WHERE id=? AND tenant_id=?", (lead_id, tenant_id)).fetchone()
         return dict(r) if r else None
 
-    def update_lead(self, tenant_id, lead_id, status=None, notes=None, email_status=None, forward_status=None):
+    def update_lead(self, tenant_id, lead_id, status=None, notes=None, email_status=None, forward_status=None, reply_status=None):
         sets, args = [], []
         if status is not None:
             if status not in LEAD_STATES:
                 raise ValueError("unknown status")
             sets.append("status=?"); args.append(status)
-        for col, val in (("notes", notes), ("email_status", email_status), ("forward_status", forward_status)):
+        for col, val in (("notes", notes), ("email_status", email_status), ("forward_status", forward_status), ("reply_status", reply_status)):
             if val is not None:
                 sets.append(col + "=?"); args.append(str(val)[:2000])
         if sets:
             with self.tx() as c:
                 c.execute("UPDATE leads SET %s WHERE id=? AND tenant_id=?" % ", ".join(sets), args + [lead_id, tenant_id])
         return self.lead(tenant_id, lead_id)
+
+    def waiting(self, tenant_id, hours=24):
+        """Leads still marked 'new' after this many hours: the ones a customer is waiting on."""
+        with self.tx() as c:
+            return c.execute("SELECT COUNT(*) FROM leads WHERE tenant_id=? AND status='new' AND created_at<?",
+                             (tenant_id, now() - hours * 3600)).fetchone()[0]
+
+    # ---------------------------------------------------------------- anonymous funnel counts
+    FUNNEL_KINDS = ("view", "start", "price")
+
+    def track(self, tenant_id, kind, option=None):
+        """Count one step of the quote page. No cookies, no addresses, no personal data: a number per day."""
+        kinds = [kind] + (["type:%s" % option] if kind == "price" and option else [])
+        day = time.strftime("%Y-%m-%d")
+        with self.tx() as c:
+            for k in kinds:
+                c.execute("INSERT INTO funnel VALUES(?,?,?,1) ON CONFLICT(tenant_id, day, kind) DO UPDATE SET n=n+1", (tenant_id, day, k))
+
+    def funnel(self, tenant_id, days=30):
+        """{'view','start','price','lead', 'types': {id: n}} for the last `days` days."""
+        since = time.strftime("%Y-%m-%d", time.localtime(now() - days * 86400))
+        out = {"view": 0, "start": 0, "price": 0, "types": {}}
+        with self.tx() as c:
+            for r in c.execute("SELECT kind, SUM(n) AS n FROM funnel WHERE tenant_id=? AND day>=? GROUP BY kind", (tenant_id, since)):
+                if r["kind"].startswith("type:"):
+                    out["types"][r["kind"][5:]] = r["n"]
+                else:
+                    out[r["kind"]] = r["n"]
+            out["lead"] = c.execute("SELECT COUNT(*) FROM leads WHERE tenant_id=? AND created_at>=?",
+                                    (tenant_id, now() - days * 86400)).fetchone()[0]
+            out["hot"] = c.execute("SELECT COUNT(*) FROM leads WHERE tenant_id=? AND hot=1 AND created_at>=?",
+                                   (tenant_id, now() - days * 86400)).fetchone()[0]
+        return out
 
     def lead_counts(self, tenant_id):
         with self.tx() as c:

@@ -74,6 +74,15 @@ label.field input[aria-invalid=true] { border-color: var(--red); }
 .watch { margin: 12px 0; padding: 12px 14px; border-radius: 10px; background: #1B1D21; border: 2px solid var(--edge); font-size: 16px; }
 .watch b { display: block; margin-bottom: 4px; color: var(--accent); font-size: 14px; letter-spacing: .08em; text-transform: uppercase; }
 .watch ul { margin: 0; padding-left: 20px; } .watch li { margin: 0 0 6px; }
+.ask { margin: 0 0 16px; }
+.ask b { display: block; margin-bottom: 8px; font-size: 16px; }
+.pills { display: flex; flex-wrap: wrap; gap: 10px; }
+.pill { min-height: 52px; padding: 8px 18px; border-radius: 26px; border: 3px solid var(--edge); background: var(--panel); color: var(--ink);
+        font: inherit; font-size: 17px; font-weight: 700; cursor: pointer; }
+.pill[aria-pressed=true] { border-color: var(--accent); color: var(--accent); }
+body.embed { min-height: 0; }
+body.embed .stripe, body.embed .brand { display: none; }       /* on someone's own website, their page is the frame */
+body.embed main { padding-top: 12px; }
 .picked { margin: 12px 0 0; padding: 12px 0 0; border-top: 2px solid var(--edge); font-size: 16px; color: var(--dim); }
 .picked button { border: 0; background: none; color: var(--accent); font: inherit; font-weight: 700; padding: 8px 0; cursor: pointer; text-decoration: underline; }
 

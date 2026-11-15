@@ -17,7 +17,31 @@
     (kids || []).forEach(function (kid) { if (kid) n.appendChild(typeof kid === "string" ? document.createTextNode(kid) : kid); });
     return n;
   }
-  function show(nodes) { app.textContent = ""; nodes.forEach(function (n) { if (n) app.appendChild(n); }); app.focus({ preventScroll: true }); window.scrollTo(0, 0); }
+  // Embedded on someone's website (a hosted service shows it in an iframe): fit the frame, and tell the page how tall we are
+  var embedded = /[?&]embed=1\b/.test(location.search) && window.parent !== window;
+  if (embedded) document.body.classList.add("embed");
+  function tellParent(message) { try { window.parent.postMessage(message, "*"); } catch (e) { /* not allowed: ignore */ } }
+  function reportHeight() { if (embedded) tellParent({ qm: "height", h: Math.ceil(document.body.getBoundingClientRect().height) }); }
+  if (embedded && typeof ResizeObserver === "function") new ResizeObserver(reportHeight).observe(document.body);
+
+  function show(nodes) {
+    app.textContent = ""; nodes.forEach(function (n) { if (n) app.appendChild(n); });
+    app.focus({ preventScroll: true }); window.scrollTo(0, 0);
+    if (embedded) { tellParent({ qm: "top" }); reportHeight(); }
+  }
+
+  // Anonymous counts for the business (views, starts, prices shown): a hosted service sets config.eventsUrl.
+  // Nothing personal is sent, no cookies are set, and each step is counted once per page load.
+  var counted = {};
+  function track(kind, option) {
+    if (!config.eventsUrl || counted[kind]) return;
+    counted[kind] = true;
+    var body = JSON.stringify({ k: kind, o: option || "" });
+    try {
+      if (navigator.sendBeacon) navigator.sendBeacon(config.eventsUrl, new Blob([body], { type: "application/json" }));
+      else fetch(config.eventsUrl, { method: "POST", body: body, keepalive: true });
+    } catch (e) { /* counting must never get in the way of a customer */ }
+  }
 
   // ---------------------------------------------------------------- can we run at all?
   var problems = RQM.checkConfig(config);
@@ -83,7 +107,7 @@
 
   function start() {
     show([el("h1", { text: words.headline }), el("p", { className: "lead-in", text: words.subline }),
-      el("button", { type: "button", className: "btn", text: "Get my ballpark", onclick: function () { step(0); } })]);
+      el("button", { type: "button", className: "btn", text: "Get my ballpark", onclick: function () { track("start"); step(0); } })]);
   }
 
   function step(i) {
@@ -114,6 +138,7 @@
   // ---------------------------------------------------------------- ballpark + lead form
   function result() {
     var est = RQM.estimate(config, picks);
+    track("price", est.type.id);
     var range = RQM.money(est.low) + " – " + RQM.money(est.high);
     var summary = [est.type.label, est.difficulty.label, est.size.label, picks.suburb].join(" · ");
     var note = RQM.priceNote(config), rebate = config.pricing.rebate;
@@ -137,6 +162,22 @@
     var send = el("button", { type: "submit", className: "btn", text: words.sendButton });
     var photoBox = full && config.photos.max >= 1 ? full.photos(config) : null;      // max 0 = this trade takes no photos
 
+    // optional questions under the price: how soon, and when to call (config.leadQuestions)
+    var answers = {};
+    function question(key) {
+      var q = config.leadQuestions && config.leadQuestions[key];
+      if (!q) return null;
+      var row = el("div", { className: "pills" }), buttons = [];
+      q.options.forEach(function (o) {
+        var b = el("button", { type: "button", className: "pill", "aria-pressed": "false", text: o.label, onclick: function () {
+          answers[key] = answers[key] === o ? null : o;                           // tapping the chosen one again clears it
+          buttons.forEach(function (x, i) { x.setAttribute("aria-pressed", String(answers[key] === q.options[i])); });
+        } });
+        buttons.push(b); row.appendChild(b);
+      });
+      return el("div", { className: "ask", role: "group", "aria-label": q.label }, [el("b", { text: q.label }), row]);
+    }
+    var askUrgency = question("urgency"), askTime = question("contactTime");
     function fail(input, message) {
       Object.keys(f).forEach(function (k) { f[k].removeAttribute("aria-invalid"); });
       err.textContent = message; err.hidden = false;
@@ -160,6 +201,8 @@
           type_id: est.type.id, difficulty_id: est.difficulty.id, size_id: est.size.id,
           size_min: est.size.min, size_max: est.size.max, unit: config.trade.unit,
           ballpark_low: est.low, ballpark_high: est.high, ballpark: range + (note ? " " + note : ""),
+          urgency: answers.urgency ? answers.urgency.id : "", urgency_label: answers.urgency ? answers.urgency.label : "",
+          contact_time: answers.contactTime ? answers.contactTime.id : "", contact_time_label: answers.contactTime ? answers.contactTime.label : "",
           photos: files.length, business: biz.name, tier: full ? "full" : "lite",
           submitted_at: new Date().toISOString(), page: location.href.split("#")[0]
         };
@@ -174,7 +217,7 @@
       field("name", "Your name", "text", "name"),
       field("phone", "Mobile", "tel", "tel", "tel"),
       field("email", "Email", "email", "email", "email"),
-      trap, photoBox ? photoBox.node : null, err, send,
+      askUrgency, askTime, trap, photoBox ? photoBox.node : null, err, send,
       el("p", { className: "small", text: words.privacyNote ? words.privacyNote.replace("{business}", biz.name)
         : "Your details go to " + biz.name + " for this quote only." })
     ]);
@@ -217,5 +260,6 @@
         picks = { type: null, difficulty: null, size: null, suburb: "" }; start(); } })]);
   }
 
+  track("view");
   start();
 })();

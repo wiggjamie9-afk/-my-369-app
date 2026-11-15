@@ -180,6 +180,18 @@ test("theme colours are optional and must be real colours", () => {
   }
 });
 
+test("lead questions are optional and must be well formed", () => {
+  const c = clone(config);
+  c.leadQuestions = { urgency: { label: "When?", options: [{ id: "asap", label: "Soon", hot: true }] }, contactTime: { label: "Call when?", options: [{ id: "am", label: "Morning" }] } };
+  assert.deepStrictEqual(checkConfig(c), []);
+  c.leadQuestions = { urgency: { label: "When?", options: [] } };
+  assert.ok(checkConfig(c).join(" ").includes("leadQuestions.urgency"));
+  c.leadQuestions = { contactTime: { label: "", options: [{ id: "a", label: "A" }] } };
+  assert.ok(checkConfig(c).join(" ").includes("leadQuestions.contactTime"));
+  c.leadQuestions = { urgency: { label: "When?", options: [{ id: "a" }] } };
+  assert.ok(checkConfig(c).join(" ").includes("leadQuestions.urgency"));
+});
+
 test("money formatting", () => {
   assert.deepStrictEqual([money(17800), money(950), money(1234567)], ["$17,800", "$950", "$1,234,567"]);
 });

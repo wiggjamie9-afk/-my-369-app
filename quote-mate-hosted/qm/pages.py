@@ -73,9 +73,12 @@ def sales(site, sent=False, error="", form=None, demos=()):
   <h2>What you get</h2>
   <div class="plans">
     <div class="plan"><h3>Lite</h3><p class="price">%(lite)s</p>
-      <ul><li>Your own quote link</li><li>Instant ballpark from your rates</li><li>Lead inbox on your phone</li><li>Leads emailed to you</li></ul></div>
+      <ul><li>Your own quote link, or put it on your website with one line of code</li><li>Instant ballpark from your rates</li>
+      <li>Lead inbox on your phone, with hot leads flagged and repeat enquiries spotted</li>
+      <li>Leads emailed to you, and an instant confirmation to the customer</li>
+      <li>See how many people started, saw a price and sent their details</li></ul></div>
     <div class="plan best"><h3>Full</h3><p class="price">%(full)s</p>
-      <ul><li>Everything in Lite</li><li>Your name and logo on every screen</li><li>Customers add up to 4 photos of the job</li></ul></div>
+      <ul><li>Everything in Lite</li><li>Your name, logo and brand colour on every screen</li><li>Customers add up to 4 photos of the job</li></ul></div>
   </div>
   <p class="small">You set your own rates and can change them any time. Ballparks are a guide for the homeowner, not a fixed quote.</p>
 </section>
@@ -133,27 +136,48 @@ def login(title, action, error="", note=""):
                   % (e(title), "<p class=\"lead\">%s</p>" % e(note) if note else "", flash(error, True), e(action)))
 
 
-def leads_list(tenant, leads, counts, status, link, notes):
+def funnel_card(tenant, f):
+    """How the quote page is doing: anonymous counts for the last 30 days, each step against the one before."""
+    if not f or not (f["view"] or f["lead"]):
+        return ("<div class=\"card\"><h3>Last 30 days</h3><p class=\"small\">No visits yet. Put your quote link, or the embed code from "
+                "Settings, on your website and the numbers will build up here.</p></div>")
+    steps = [("Opened your quote page", f["view"], None), ("Started", f["start"], f["view"]),
+             ("Saw a price", f["price"], f["start"]), ("Sent their details", f["lead"], f["price"])]
+    rows = ""
+    for label, n, prev in steps:
+        share = " <small>%d%% of the step before</small>" % round(100 * n / prev) if prev else ""
+        rows += "<li><span>%s</span><b>%d</b>%s<progress max=\"%d\" value=\"%d\"></progress></li>" % (e(label), n, share, max(f["view"], f["lead"], 1), n)
+    names = {j["id"]: j["label"] for j in tenant["config"]["jobTypes"]}
+    top = sorted(((names.get(k, k), n) for k, n in f["types"].items()), key=lambda x: -x[1])[:3]
+    asked = "<p class=\"small\">Most asked about: %s</p>" % e(", ".join("%s (%d)" % t for t in top)) if top else ""
+    return ("<div class=\"card\"><h3>Last 30 days</h3><ul class=\"funnel\">%s</ul>%s"
+            "<p class=\"small\">Anonymous counts only. No cookies and nothing personal is recorded.</p></div>" % (rows, asked))
+
+
+def leads_list(tenant, leads, counts, status, link, notes, funnel=None, hot_only=False, hot_open=0):
     base = "/q/%s/admin" % e(tenant["slug"])
     total = sum(counts.values())
     chips = "".join("<a class=\"chip\" href=\"%s%s\"%s>%s <span>%d</span></a>" % (
-        base, "?status=" + s if s else "", " aria-current=\"true\"" if status == s else "", label, n)
+        base, "?status=" + s if s else "", " aria-current=\"true\"" if status == s and not hot_only else "", label, n)
         for s, label, n in [("", "All", total)] + [(s, s.capitalize(), counts.get(s, 0)) for s in LEAD_STATES])
+    chips += "<a class=\"chip\" href=\"%s?hot=1\"%s>Hot <span>%d</span></a>" % (base, " aria-current=\"true\"" if hot_only else "", hot_open)
     if leads:
         rows = "".join(
-            "<a class=\"lead-row\" href=\"%s/lead/%d\"><span class=\"who\">%s</span><span class=\"badge %s\">%s</span>"
-            "<span class=\"what\">%s · %s · %s</span><span class=\"amt\">%s – %s</span><span class=\"when\">%s%s</span></a>" % (
-                base, l["id"], e(l["name"]), e(l["status"]), e(l["status"]), e(l["job_type"]), e(l["size"]), e(l["suburb"]),
-                money(l["low"]), money(l["high"]), when(l["created_at"]), " · %d photo%s" % (l["photos"], "" if l["photos"] == 1 else "s") if l["photos"] else "")
+            "<a class=\"lead-row\" href=\"%s/lead/%d\"><span class=\"who\">%s</span><span class=\"badges\">%s<span class=\"badge %s\">%s</span></span>"
+            "<span class=\"what\">%s · %s · %s</span><span class=\"amt\">%s – %s</span><span class=\"when\">%s%s%s</span></a>" % (
+                base, l["id"], e(l["name"]), "<span class=\"badge hot\">Hot</span>" if l.get("hot") else "", e(l["status"]), e(l["status"]),
+                e(l["job_type"]), e(l["size"]), e(l["suburb"]),
+                money(l["low"]), money(l["high"]), when(l["created_at"]), " · %d photo%s" % (l["photos"], "" if l["photos"] == 1 else "s") if l["photos"] else "",
+                " · wants it " + e(l["urgency"]).lower() if l.get("urgency") else "")
             for l in leads)
     else:
-        rows = "<p class=\"empty\">%s</p>" % ("No %s leads." % e(status) if status else "No leads yet. Share your quote link and they'll land here.")
+        rows = "<p class=\"empty\">%s</p>" % ("No hot leads right now." if hot_only else "No %s leads." % e(status) if status else "No leads yet. Share your quote link and they'll land here.")
     share = ("<div class=\"card\"><h3>Your quote link</h3><p class=\"mono\">%s</p>"
              "<p class=\"small\">Put it on your website, your Google profile, your Facebook page and your email signature.</p></div>" % e(link))
     return layout("Leads | %s" % tenant["name"],
-                  "<h1>Leads</h1>%s%s<p class=\"chips\">%s</p><div class=\"list\">%s</div>"
+                  "<h1>Leads</h1>%s%s%s<p class=\"chips\">%s</p><div class=\"list\">%s</div>"
                   "<p><a class=\"btn ghost small-btn\" href=\"%s/leads.csv\">Download all as a spreadsheet</a></p>"
-                  % ("".join(flash(n, True) for n in notes), share, chips, rows, base), tenant_nav(tenant, "leads"))
+                  % ("".join(flash(n, True) for n in notes), funnel_card(tenant, funnel), share, chips, rows, base), tenant_nav(tenant, "leads"))
 
 
 def lead_detail(tenant, lead, saved=False):
@@ -164,7 +188,13 @@ def lead_detail(tenant, lead, saved=False):
     states = "".join("<label class=\"pick\"><input type=\"radio\" name=\"status\" value=\"%s\"%s><span>%s</span></label>"
                      % (s, " checked" if lead["status"] == s else "", s.capitalize()) for s in LEAD_STATES)
     delivery = " · ".join(x for x in ("email " + e(lead["email_status"]) if lead["email_status"] else "",
+                                      "confirmation " + e(lead["reply_status"]) if lead.get("reply_status") else "",
                                       "webhook " + e(lead["forward_status"]) if lead["forward_status"] else "") if x)
+    asked = " ".join(x for x in (
+        "<p class=\"small\"><span class=\"badge hot\">Hot</span> They want it done as soon as possible. Ring them first.</p>" if lead.get("hot") else "",
+        "<p>Wants it: <b>%s</b></p>" % e(lead["urgency"]) if lead.get("urgency") else "",
+        "<p>Best time to call: <b>%s</b></p>" % e(lead["contact_time"]) if lead.get("contact_time") else "",
+        "<p class=\"small\">Same phone number as an earlier enquiry (<a href=\"%s/lead/%d\">lead %d</a>).</p>" % (base, lead["repeat_of"], lead["repeat_of"]) if lead.get("repeat_of") else "") if x)
     body = """
 <p><a href="%(base)s">‹ All leads</a></p>
 <h1>%(name)s</h1>
@@ -173,6 +203,7 @@ def lead_detail(tenant, lead, saved=False):
 <div class="card">
   <p class="k">They were shown</p>
   <p class="big">%(low)s – %(high)s <small>%(note)s</small></p>
+  %(asked)s
   <p class="row"><a class="btn" href="tel:%(tel)s">Call %(phone)s</a><a class="btn ghost" href="mailto:%(email)s">Email</a></p>
   <p class="small">%(email)s · received %(when)s%(delivery)s</p>
 </div>
@@ -183,7 +214,7 @@ def lead_detail(tenant, lead, saved=False):
   <label class="f">Your notes<textarea name="notes" maxlength="2000">%(notes)s</textarea></label>
   <button class="btn" type="submit">Save</button>
 </form>""" % {
-        "note": e(price_note(tenant["config"])),
+        "note": e(price_note(tenant["config"])), "asked": asked,
         "base": base, "id": lead["id"], "name": e(lead["name"]), "job": e(lead["job_type"]), "diff": e(lead["difficulty"]),
         "size": e(lead["size"]), "suburb": e(lead["suburb"]), "low": money(lead["low"]), "high": money(lead["high"]),
         "tel": e(tel), "phone": e(lead["phone"]), "email": e(lead["email"]), "when": when(lead["created_at"]),
@@ -197,7 +228,7 @@ def num(v):
     return ("%g" % v) if isinstance(v, float) else str(v)
 
 
-def tenant_settings(tenant, message="", error="", mail_on=False):
+def tenant_settings(tenant, message="", error="", mail_on=False, base_url=""):
     c, base = tenant["config"], "/q/%s/admin" % e(tenant["slug"])
     unit = e(c["trade"]["unit"])
     cell = lambda name, value, label, step="any": ("<label class=\"cell\"><span>%s</span><input name=\"%s\" value=\"%s\" inputmode=\"decimal\" type=\"number\" min=\"0\" step=\"%s\" required></label>"
@@ -243,7 +274,10 @@ def tenant_settings(tenant, message="", error="", mail_on=False):
 <h2>Wording</h2>
 <div class="card">%(f_headline)s%(f_subline)s%(f_note)s%(f_thanks)s</div>
 <h2>Getting your leads</h2>
-<div class="card">%(f_notify)s%(f_webhook)s</div>
+<div class="card">%(f_notify)s%(f_webhook)s
+  <label class="check"><input type="checkbox" name="auto_reply" value="1"%(reply_on)s> Email the customer a confirmation straight away, with the ballpark they were shown%(reply_hint)s</label>
+</div>
+%(brand)s
 <p><button class="btn" type="submit">Save settings</button></p>
 </form>""" % {
         "base": base, "message": flash(message), "error": flash(error, True), "unit": unit,
@@ -263,8 +297,17 @@ def tenant_settings(tenant, message="", error="", mail_on=False):
         "f_notify": field("Email new leads to", "notify_email", tenant["notify_email"], "email",
                           hint="" if mail_on else "Email sending isn't switched on for this service yet. Your leads are still saved here.", extra="maxlength=\"120\""),
         "f_webhook": field("Also send each lead to this web address (optional)", "forward_webhook", tenant["forward_webhook"], "url",
-                           hint="For Zapier, Make or your own system. Must start with https://", extra="maxlength=\"300\"")}
-    return layout("Settings | %s" % tenant["name"], body, tenant_nav(tenant, "settings"))
+                           hint="For Zapier, Make or your own system. Must start with https://", extra="maxlength=\"300\""),
+        "reply_on": " checked" if tenant.get("auto_reply") else "",
+        "reply_hint": "" if mail_on else " (needs email switched on for this service)",
+        "brand": ("<h2>Your colour</h2><div class=\"card\">%s</div>" % field(
+            "Button and highlight colour", "accent", tenant.get("accent", ""), hint="Like #E4572E. Leave empty for the default blue. Light colours read best on the dark page.",
+            extra="maxlength=\"7\" placeholder=\"#3D8BFF\"")) if tenant["tier"] == "full" else ""}
+    snippet = "<script src=\"%s/embed.js\" data-business=\"%s\" async></script>" % (base_url, tenant["slug"])
+    embed = ("<h2>Put it on your website</h2><div class=\"card\"><p class=\"small\">Paste this where you want the quote tool to appear "
+             "(Wix, Squarespace, WordPress, or any page that takes HTML). It fits itself to the space.</p>"
+             "<textarea class=\"mono\" readonly rows=\"5\" aria-label=\"Embed code\">%s</textarea></div>" % e(snippet)) if base_url else ""
+    return layout("Settings | %s" % tenant["name"], embed + body, tenant_nav(tenant, "settings"))
 
 
 # ---------------------------------------------------------------- the owner's console

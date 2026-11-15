@@ -41,9 +41,11 @@ class Client:
         self.base, self.jar = base, {}
         self.opener = urllib.request.build_opener(NoRedirect)
 
-    def call(self, method, path, form=None, files=None, headers=None):
+    def call(self, method, path, form=None, files=None, headers=None, raw=None):
         data, hdrs = None, dict(headers or {})
-        if files is not None:
+        if raw is not None:
+            data, hdrs["Content-Type"] = raw, "application/json"
+        elif files is not None:
             boundary = "----test%d" % time.time_ns()
             parts = []
             for k, v in (form or {}).items():
@@ -630,6 +632,221 @@ class Trades(Base):
         self.assertEqual(self.store.tenant("sunny-solar-batteries")["config"]["pricing"]["rebate"]["perUnit"], 200)
 
 
+class Qualifying(Base):
+    """Telling hot leads from tyre-kickers, and spotting the same person asking twice."""
+
+    def test_a_hot_lead_stands_out_and_what_they_asked_for_is_kept(self):
+        t, pw = self.business("Acme Roofing")
+        self.assertEqual(self.lead("acme-roofing", urgency="asap", contact_time="morning")[0], 200)
+        self.assertEqual(self.lead("acme-roofing", name="Cool Customer", phone="0411 222 333", urgency="later", contact_time="evening")[0], 200)
+        self.assertEqual(self.lead("acme-roofing", name="Unsure Una", phone="0422 333 444", urgency="rubbish", contact_time="")[0], 200)
+        by = {l["name"]: l for l in self.store.leads(t["id"])}
+        self.assertEqual((by["Sam Sample"]["hot"], by["Sam Sample"]["urgency"], by["Sam Sample"]["contact_time"]), (1, "As soon as possible", "Morning"))
+        self.assertEqual((by["Cool Customer"]["hot"], by["Cool Customer"]["urgency"]), (0, "Just exploring"))
+        self.assertEqual((by["Unsure Una"]["hot"], by["Unsure Una"]["urgency"], by["Unsure Una"]["contact_time"]), (0, "", ""))   # an unknown answer is dropped
+
+        c = self.signed_in(t, pw)
+        page = c.text("GET", "/q/acme-roofing/admin")[1]
+        self.assertIn('class="badge hot">Hot</span>', page)
+        self.assertIn("Hot <span>1</span>", page)
+        hot_only = c.text("GET", "/q/acme-roofing/admin?hot=1")[1]
+        self.assertIn("Sam Sample", hot_only)
+        self.assertNotIn("Cool Customer", hot_only)
+        detail = c.text("GET", "/q/acme-roofing/admin/lead/%d" % by["Sam Sample"]["id"])[1]
+        for expected in ("Ring them first", "Wants it: <b>As soon as possible</b>", "Best time to call: <b>Morning</b>"):
+            self.assertIn(expected, detail)
+        self.store.update_lead(t["id"], by["Sam Sample"]["id"], status="won")
+        self.assertIn("Hot <span>0</span>", c.text("GET", "/q/acme-roofing/admin")[1])        # a won lead is no longer hot work
+        csv_text = c.call("GET", "/q/acme-roofing/admin/leads.csv")[1].decode("utf-8-sig")
+        self.assertIn("As soon as possible,Morning,yes", csv_text)
+
+    def test_the_same_number_asking_again_is_flagged_however_it_is_written(self):
+        t, pw = self.business("Acme Roofing")
+        self.lead("acme-roofing", phone="0400 000 000")
+        self.lead("acme-roofing", phone="+61 400-000-000", name="Sam Again")
+        first, second = sorted(self.store.leads(t["id"]), key=lambda l: l["id"])
+        self.assertEqual((first["repeat_of"], second["repeat_of"]), (0, first["id"]))
+        self.lead("acme-roofing", phone="0455 555 555", name="Someone Else")
+        self.assertEqual(max(self.store.leads(t["id"]), key=lambda l: l["id"])["repeat_of"], 0)
+        detail = self.signed_in(t, pw).text("GET", "/q/acme-roofing/admin/lead/%d" % second["id"])[1]
+        self.assertIn("Same phone number as an earlier enquiry", detail)
+        # another business never sees or matches this number
+        other, _ = self.business("Brush Brothers", preset="painting")
+        self.lead("brush-brothers", phone="0400 000 000", type_id="interior", difficulty_id="single", size_id="small")
+        self.assertEqual(self.store.leads(other["id"])[0]["repeat_of"], 0)
+
+    def test_leads_nobody_has_rung_are_called_out(self):
+        t, pw = self.business("Acme Roofing")
+        c = self.signed_in(t, pw)
+        self.lead("acme-roofing")
+        self.assertNotIn("waiting more than a day", c.text("GET", "/q/acme-roofing/admin")[1])
+        with self.store.tx() as db:
+            db.execute("UPDATE leads SET created_at=created_at-172800 WHERE tenant_id=?", (t["id"],))
+        self.assertIn("1 lead has been waiting more than a day", c.text("GET", "/q/acme-roofing/admin")[1])
+        self.store.update_lead(t["id"], self.store.leads(t["id"])[0]["id"], status="contacted")
+        self.assertNotIn("waiting more than a day", c.text("GET", "/q/acme-roofing/admin")[1])
+
+    def test_the_quote_page_is_told_which_questions_to_ask(self):
+        self.business("Acme Roofing")
+        js = self.c.text("GET", "/q/acme-roofing/config.js")[1]
+        cfg = json.loads(js[js.index("{"):js.rindex("}") + 1])
+        self.assertEqual([o["id"] for o in cfg["leadQuestions"]["urgency"]["options"]], ["asap", "month", "later"])
+        self.assertTrue(cfg["leadQuestions"]["urgency"]["options"][0]["hot"])
+        self.assertEqual(cfg["eventsUrl"], "/q/acme-roofing/event")
+        demo = self.c.text("GET", "/q/demo/config.js")[1]
+        self.assertNotIn("eventsUrl", demo)                                              # the public demos aren't counted
+
+
+class Funnel(Base):
+    """Proof the quote page is working: anonymous counts, no cookies, nothing personal."""
+
+    def event(self, slug, kind, option="", headers=None):
+        return self.c.call("POST", "/q/%s/event" % slug, raw=json.dumps({"k": kind, "o": option}).encode(), headers=headers)
+
+    def test_steps_are_counted_and_shown_against_the_step_before(self):
+        t, pw = self.business("Acme Roofing")
+        for _ in range(10):
+            self.assertEqual(self.event("acme-roofing", "view")[0], 204)
+        for _ in range(5):
+            self.event("acme-roofing", "start")
+        for kind_option in ("tile", "tile", "tin", "colorbond"):
+            self.event("acme-roofing", "price", kind_option)
+        self.lead("acme-roofing")
+        f = self.store.funnel(t["id"])
+        self.assertEqual((f["view"], f["start"], f["price"], f["lead"]), (10, 5, 4, 1))
+        self.assertEqual(f["types"], {"tile": 2, "tin": 1, "colorbond": 1})
+        page = self.signed_in(t, pw).text("GET", "/q/acme-roofing/admin")[1]
+        for expected in ("Opened your quote page", "50% of the step before", "80% of the step before", "25% of the step before",
+                         "Most asked about: Tile (2)", "Anonymous counts only. No cookies"):
+            self.assertIn(expected, page)
+
+    def test_nothing_personal_is_kept_and_no_cookie_is_set(self):
+        t, _ = self.business("Acme Roofing")
+        status, body, headers = self.event("acme-roofing", "view")
+        self.assertEqual((status, body, headers.get("Set-Cookie")), (204, b"", None))
+        with self.store.tx() as db:
+            self.assertEqual([r[1] for r in db.execute("PRAGMA table_info(funnel)")], ["tenant_id", "day", "kind", "n"])   # a number per day, no addresses
+
+    def test_junk_and_abuse_are_refused_or_ignored(self):
+        t, _ = self.business("Acme Roofing")
+        self.assertEqual(self.event("acme-roofing", "purchase")[0], 400)
+        self.assertEqual(self.c.call("POST", "/q/acme-roofing/event", raw=b"{nope")[0], 400)
+        self.assertEqual(self.c.call("POST", "/q/acme-roofing/event", raw=b"[1,2]")[0], 400)
+        self.event("acme-roofing", "price", "../../etc/passwd")                           # an option that isn't one of theirs is dropped
+        self.assertEqual(self.store.funnel(t["id"])["types"], {})
+        self.assertEqual(self.store.funnel(t["id"])["price"], 1)                          # ...but the step itself still counts
+        self.assertEqual(self.event("acme-roofing", "view", headers={"Origin": "https://evil.example"})[0], 403)
+        self.store.update_tenant(t["id"], active=False)
+        self.assertEqual(self.event("acme-roofing", "view")[0], 204)
+        self.assertEqual(self.store.funnel(t["id"])["view"], 0)                          # a paused page counts nothing
+        self.assertEqual(self.event("demo", "view")[0], 204)
+        self.assertEqual(self.store.funnel(self.store.tenant("demo")["id"])["view"], 0)   # nor does a demo
+        self.assertEqual(self.c.call("POST", "/q/nobody-here/event", raw=b"{}")[0], 404)
+
+    def test_counting_is_rate_limited_without_telling_a_customer(self):
+        t, _ = self.business("Acme Roofing")
+        codes = {self.event("acme-roofing", "view")[0] for _ in range(310)}
+        self.assertEqual(codes, {204})                                                    # a flood never errors for the visitor...
+        self.assertEqual(self.store.funnel(t["id"])["view"], 300)                         # ...but only the first 300 an hour are counted
+
+    def test_an_empty_funnel_says_how_to_get_visitors(self):
+        t, pw = self.business("Acme Roofing")
+        self.assertIn("No visits yet", self.signed_in(t, pw).text("GET", "/q/acme-roofing/admin")[1])
+
+
+class Embedding(Base):
+    """The quote tool on a business's own website."""
+
+    def test_the_embed_script_is_served_and_only_trusts_its_own_frame(self):
+        status, body, h = self.c.call("GET", "/embed.js")
+        js = body.decode()
+        self.assertEqual((status, h["Content-Type"]), (200, "text/javascript; charset=utf-8"))
+        for expected in ('data-business', '/^[a-z0-9-]{3,40}$/', "e.origin !== origin", "e.source !== frame.contentWindow", "?embed=1"):
+            self.assertIn(expected, js)
+
+    def test_quote_pages_may_be_framed_anywhere_but_nothing_else_may(self):
+        t, pw = self.business("Acme Roofing")
+        quote = self.c.call("GET", "/q/acme-roofing/?embed=1")[2]["Content-Security-Policy"]
+        self.assertIn("frame-ancestors *", quote)
+        self.store.update_tenant(t["id"], active=False)
+        self.assertIn("frame-ancestors *", self.c.call("GET", "/q/acme-roofing/")[2]["Content-Security-Policy"])    # the paused notice too
+        for path in ("/", "/admin", "/q/acme-roofing/admin", "/q/acme-roofing/config.js", "/static/site.css"):
+            policy = self.c.call("GET", path)[2]["Content-Security-Policy"]
+            self.assertIn("frame-ancestors 'self'", policy, path)                         # sign-in and inbox pages can never be framed
+            self.assertNotIn("frame-ancestors *", policy, path)
+
+    def test_the_settings_page_hands_over_the_embed_code(self):
+        t, pw = self.business("Acme Roofing")
+        page = self.signed_in(t, pw).text("GET", "/q/acme-roofing/admin/settings")[1]
+        self.assertIn("&lt;script src=&quot;%s/embed.js&quot; data-business=&quot;acme-roofing&quot; async&gt;&lt;/script&gt;" % self.base, page)
+        self.assertIn("Put it on your website", page)
+
+
+class Colour(Base):
+    def test_a_full_plan_can_wear_its_own_colour_and_stays_readable(self):
+        from qm.colour import contrast, on_accent
+        t, pw = self.business("Top Roofs", tier="full")
+        c = self.signed_in(t, pw)
+        form = Settings.form_for(self, t, accent="#e4572e")
+        self.assertEqual(c.call("POST", "/q/top-roofs/admin/settings", form=form, files={})[0], 303)
+        js = self.c.text("GET", "/q/top-roofs/config.js")[1]
+        cfg = json.loads(js[js.index("{"):js.rindex("}") + 1])
+        self.assertEqual(cfg["theme"]["accent"], "#E4572E")
+        self.assertEqual(cfg["theme"]["onAccent"], on_accent("#E4572E"))
+        self.assertGreaterEqual(contrast(cfg["theme"]["onAccent"], cfg["theme"]["accent"]), 4.5)
+        before = self.store.tenant("top-roofs")["config"]
+        for bad, why in (("blue", "must look like"), ("#123456", "too dark"), ("#1B1D21", "too dark"), ("#GGGGGG", "must look like")):
+            status, page = c.text("POST", "/q/top-roofs/admin/settings", form=Settings.form_for(self, t, accent=bad, jt_tile_labour="99"), files={})
+            self.assertEqual(status, 400, bad)
+            self.assertIn(why, page)
+        self.assertEqual(self.store.tenant("top-roofs")["config"], before)                # a refused colour saves nothing, rates included
+        self.assertEqual(self.store.tenant("top-roofs")["accent"], "#E4572E")
+        form = Settings.form_for(self, t, accent="")
+        c.call("POST", "/q/top-roofs/admin/settings", form=form, files={})
+        js = self.c.text("GET", "/q/top-roofs/config.js")[1]
+        self.assertIn('"accent": "#3D8BFF"', js)                                          # empty goes back to the crew blue
+
+    def test_a_lite_plan_cannot_change_the_colour(self):
+        t, pw = self.business("Acme Roofing", tier="lite")
+        c = self.signed_in(t, pw)
+        self.assertNotIn('name="accent"', c.text("GET", "/q/acme-roofing/admin/settings")[1])
+        c.call("POST", "/q/acme-roofing/admin/settings", form=Settings.form_for(self, t, accent="#E4572E"), files={})
+        js = self.c.text("GET", "/q/acme-roofing/config.js")[1]
+        self.assertIn('"accent": "#3D8BFF"', js)
+
+
+class Migration(unittest.TestCase):
+    def test_a_database_from_before_these_features_is_upgraded_in_place(self):
+        import sqlite3
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "old.db")
+            con = sqlite3.connect(path)
+            con.executescript("""
+CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT NOT NULL);
+CREATE TABLE tenants(id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT NOT NULL UNIQUE, name TEXT NOT NULL, tier TEXT NOT NULL DEFAULT 'lite',
+  active INTEGER NOT NULL DEFAULT 1, demo INTEGER NOT NULL DEFAULT 0, paid_until TEXT NOT NULL DEFAULT '', preset TEXT NOT NULL DEFAULT 'roofing',
+  config_json TEXT NOT NULL, rates_confirmed INTEGER NOT NULL DEFAULT 0, phone TEXT NOT NULL DEFAULT '', licence TEXT NOT NULL DEFAULT '',
+  contact_email TEXT NOT NULL DEFAULT '', notify_email TEXT NOT NULL DEFAULT '', forward_webhook TEXT NOT NULL DEFAULT '',
+  logo BLOB, logo_type TEXT NOT NULL DEFAULT '', pw_hash BLOB NOT NULL, pw_salt BLOB NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE leads(id INTEGER PRIMARY KEY AUTOINCREMENT, tenant_id INTEGER NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  created_at INTEGER NOT NULL, name TEXT NOT NULL, phone TEXT NOT NULL, email TEXT NOT NULL, suburb TEXT NOT NULL, job_type TEXT NOT NULL,
+  difficulty TEXT NOT NULL, size TEXT NOT NULL, low INTEGER NOT NULL, high INTEGER NOT NULL, photos INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'new', notes TEXT NOT NULL DEFAULT '', email_status TEXT NOT NULL DEFAULT '', forward_status TEXT NOT NULL DEFAULT '');
+INSERT INTO tenants(slug,name,config_json,pw_hash,pw_salt,created_at) VALUES('old-biz','Old Biz','{}',x'00',x'00',1);
+INSERT INTO leads(tenant_id,created_at,name,phone,email,suburb,job_type,difficulty,size,low,high) VALUES(1,5,'Old Lead','0400 000 000','a@b.co','X','J','D','S',100,200);""")
+            con.commit()
+            con.close()
+            store = server.Store(path, os.path.join(ROOT, "presets"))
+            old = store.leads(1)[0]
+            self.assertEqual((old["name"], old["hot"], old["urgency"], old["repeat_of"], old["reply_status"]), ("Old Lead", 0, "", 0, ""))
+            tenant = store.tenant("old-biz")
+            self.assertEqual((tenant["accent"], tenant["auto_reply"]), ("", 1))               # confirmation emails default on
+            lead_id = store.add_lead(1, {"name": "New", "phone": "0400 000 000", "email": "n@b.co", "suburb": "Y", "job_type": "J",
+                                         "difficulty": "D", "size": "S", "low": 1, "high": 2, "hot": True})
+            self.assertEqual(store.lead(1, lead_id)["hot"], 1)
+            server.Store(path, os.path.join(ROOT, "presets"))                                  # starting again changes nothing
+
+
 class FakeSmtp(socketserver.StreamRequestHandler):
     """Speaks just enough SMTP to receive one message."""
     inbox = []
@@ -710,6 +927,40 @@ class Delivery(Base):
         self.assertEqual(self.lead("acme-roofing")[0], 200)
         lead = self.wait_for(lambda: next((l for l in self.store.leads(t["id"]) if l["email_status"]), None))
         self.assertTrue(lead["email_status"].startswith("failed"))
+        self.assertEqual(lead["name"], "Sam Sample")
+
+
+    def test_the_homeowner_gets_a_confirmation_and_can_be_switched_off(self):
+        t, _ = self.business("Acme Roofing", phone="08 1111 1111")
+        self.store.update_tenant(t["id"], notify_email="boss@acme.example")
+        self.assertEqual(self.lead("acme-roofing", name="Sam\r\nBcc: everyone@evil.example", contact_time="morning", urgency="asap")[0], 200)
+        lead = self.wait_for(lambda: next((l for l in self.store.leads(t["id"]) if l["reply_status"]), None))
+        self.assertEqual(lead["reply_status"], "sent")
+        self.wait_for(lambda: len(FakeSmtp.inbox) >= 2)
+        mails = {("sam@example.com" if "\r\nTo: sam@example.com\r\n" in m else "boss@acme.example"): m for m in FakeSmtp.inbox}
+        reply = mails["sam@example.com"]
+        for expected in ("Subject: Your quote request to Acme Roofing", "Hi Sam,", "$17,800 to $36,300 including GST",
+                         "best time to call is: morning", "Call 08 1111 1111", "Reply-To: boss@acme.example"):
+            self.assertIn(expected, reply)
+        self.assertFalse([h for h in reply.split("\r\n\r\n")[0].split("\r\n") if h.lower().startswith("bcc")])
+        boss = mails["boss@acme.example"]
+        self.assertIn("Subject: HOT: New quote request", boss)                              # the tradie's email leads with the hot flag
+        self.assertIn("Wants it:  As soon as possible", boss)
+
+        FakeSmtp.inbox.clear()
+        self.store.update_tenant(t["id"], auto_reply=False)
+        self.lead("acme-roofing", name="Second Person", phone="0433 444 555")
+        self.wait_for(lambda: len(FakeSmtp.inbox) >= 1)
+        time.sleep(0.4)
+        self.assertEqual(len(FakeSmtp.inbox), 1)                                            # only the tradie's email
+        self.assertIn("To: boss@acme.example", FakeSmtp.inbox[0])
+
+    def test_no_mail_server_means_no_confirmation_but_the_lead_is_safe(self):
+        t, _ = self.business("Acme Roofing")
+        self.app.smtp = None
+        self.lead("acme-roofing")
+        lead = self.wait_for(lambda: next((l for l in self.store.leads(t["id"]) if l["reply_status"]), None))
+        self.assertEqual(lead["reply_status"], "not sent: email is not set up")
         self.assertEqual(lead["name"], "Sam Sample")
 
 

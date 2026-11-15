@@ -19,6 +19,17 @@ Optional but worth it: email for leads. Add `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER
 to the env file (`/etc/quote-mate.env`, or `data/.env`) and run `deploy.sh` again. Without it, leads are still saved
 in each tradie's inbox, but they won't be told by email.
 
+## 2b. The newer features, and what each one needs
+
+- **Embedding on a tradie's own website** needs nothing from you except HTTPS on your domain. They paste one line from
+  Settings. Test it on one real customer's site (Wix, Squarespace and WordPress all accept it) before promising it to
+  everyone, because I tested it on a plain page only.
+- **The 30-day funnel** works as soon as people use the page.
+- **Hot-lead flags, repeat detection and the "waiting more than a day" warning** work as soon as leads arrive.
+- **Confirmation emails to customers, and lead emails to tradies, both need the SMTP settings.** Without them leads are
+  still saved. With them, send a test lead to yourself first and check the emails don't land in spam: that depends on your
+  mail provider and your domain, which I can't test from here.
+
 ## 3. Check before the first customer
 
 - **Home batteries.** The preset's rebate is **$250 per kWh at the full rate**. I could not verify that figure: I confirmed the

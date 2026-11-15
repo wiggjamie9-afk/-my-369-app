@@ -28,6 +28,23 @@ To put it on the internet, run it behind Caddy or nginx with HTTPS and set `TRUS
 and `PUBLIC_URL=https://your-domain`. Keep both folders (`quote-mate-hosted` and
 `roof-quote-mate`) side by side, or point `QM_TOOL_DIR` at the quote tool.
 
+## What makes it more than a calculator
+
+- **Put it on your own website.** Settings gives each business one line of code. It adds the quote tool to any page, fits
+  itself to the space, and only trusts messages from its own frame. Sign-in, inbox and settings pages can never be framed.
+- **See that it works.** The inbox shows the last 30 days: opened, started, saw a price, sent details, each as a share of
+  the step before, and what people ask about most. Counts are anonymous: no cookies, no addresses, nothing personal.
+- **Qualify the lead.** Under the price the customer says how soon they want it and the best time to call. "As soon as
+  possible" marks a **Hot** lead (and puts HOT in the email subject), the same phone number asking twice is flagged, and
+  leads nobody has rung in a day are called out at the top of the inbox.
+- **Confirm to the customer.** With email switched on, the homeowner gets an instant email with the ballpark they were
+  shown and when to expect a call. A business can switch it off in Settings.
+- **Brand colour.** A full-plan business can choose its own accent colour; it must be readable on the dark page, and the
+  text colour on buttons is picked automatically.
+
+Not built, and why: measuring a roof from satellite images (needs paid imagery and keys), text messages (needs an SMS
+provider), and connections to specific CRMs beyond the webhook (Zapier and Make cover most of them).
+
 ## Branding
 
 The service ships as **48 AI Crew Quoting** with the 48 AI Crew logo:

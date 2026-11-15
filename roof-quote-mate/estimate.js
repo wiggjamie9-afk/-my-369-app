@@ -13,6 +13,16 @@
     if (c.tier !== "lite" && c.tier !== "full") bad.push('tier must be "lite" or "full".');
     if (!c.business || !String(c.business.name || "").trim()) bad.push("business.name is empty.");
     // a full address, or a path on the same site (used when the app is hosted for you)
+    if (c.leadQuestions != null) {
+      var lq = c.leadQuestions;
+      ["urgency", "contactTime"].forEach(function (key) {
+        var q = lq && lq[key];
+        if (q == null) return;
+        if (typeof q !== "object" || !String(q.label || "").trim() || !Array.isArray(q.options) || !q.options.length ||
+            !q.options.every(function (o) { return o && typeof o.id === "string" && o.id && typeof o.label === "string" && o.label; }))
+          bad.push("leadQuestions." + key + " needs a label and a list of options, each with an id and a label.");
+      });
+    }
     var colour = /^#[0-9a-f]{3,8}$/i;
     if (c.theme != null && (typeof c.theme !== "object" || (c.theme.accent != null && !colour.test(c.theme.accent)) ||
         (c.theme.onAccent != null && !colour.test(c.theme.onAccent)))) bad.push("theme colours must look like #3D8BFF.");

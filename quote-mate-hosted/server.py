@@ -35,15 +35,17 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
 
 from qm import deliver, pages                    # noqa: E402
+from qm.colour import check_accent               # noqa: E402
 from qm.estimate import estimate, money          # noqa: E402
-from qm.store import Store, LEAD_STATES          # noqa: E402
+from qm.store import Store, LEAD_STATES, LEAD_QUESTIONS   # noqa: E402
 
 VERSION = "1.0.0"
 TOOL_FILES = {"app.css": "text/css; charset=utf-8", "app.js": "text/javascript; charset=utf-8",
               "estimate.js": "text/javascript; charset=utf-8", "full.js": "text/javascript; charset=utf-8"}
 STATIC_FILES = {"/static/site.css": ("site.css", "text/css; charset=utf-8", "no-cache"),
                 "/static/48-ai-crew-logo.png": ("48-ai-crew-logo.png", "image/png", "public, max-age=86400"),
-                "/static/48-ai-crew-icon.png": ("48-ai-crew-icon.png", "image/png", "public, max-age=86400")}
+                "/static/48-ai-crew-icon.png": ("48-ai-crew-icon.png", "image/png", "public, max-age=86400"),
+                "/embed.js": ("embed.js", "text/javascript; charset=utf-8", "public, max-age=3600")}
 CSP = ("default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; connect-src 'self'; "
        "base-uri 'none'; form-action 'self'; frame-ancestors 'self'")
 MAX_FORM, MAX_LEAD, MAX_PHOTO, MAX_LOGO = 64 * 1024, 18 * 1024 * 1024, 4 * 1024 * 1024, 400 * 1024
@@ -146,12 +148,24 @@ class App:
         if tenant["forward_webhook"]:
             try:
                 deliver.forward(tenant["forward_webhook"], {
-                    k: lead[k] for k in ("id", "name", "phone", "email", "suburb", "job_type", "difficulty", "size", "low", "high", "photos")
+                    k: lead[k] for k in ("id", "name", "phone", "email", "suburb", "job_type", "difficulty", "size", "low", "high", "photos",
+                                         "urgency", "contact_time", "hot", "repeat_of")
                 } | {"business": tenant["name"], "link": url, "created_at": lead["created_at"]}, self.allow_private_forward)
                 forward = "sent"
             except Exception as exc:
                 forward = "failed: %s" % str(exc)[:120]
-        self.store.update_lead(tenant["id"], lead["id"], email_status=email, forward_status=forward)
+        reply = None
+        if tenant["auto_reply"]:                                   # a confirmation to the homeowner, so they know it landed
+            if not self.smtp:
+                reply = "not sent: email is not set up"
+            else:
+                try:
+                    subject, body = deliver.reply_email(tenant, lead)
+                    deliver.send_email(self.smtp, lead["email"], subject, body, reply_to=tenant["notify_email"] or tenant["contact_email"])
+                    reply = "sent"
+                except Exception as exc:
+                    reply = "failed: %s" % str(exc)[:120]
+        self.store.update_lead(tenant["id"], lead["id"], email_status=email, forward_status=forward, reply_status=reply)
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -164,11 +178,13 @@ class Handler(BaseHTTPRequestHandler):
             sys.stderr.write("%s %s\n" % (time.strftime("%H:%M:%S"), fmt % args))
 
     # ---------------------------------------------------------------- replies
-    def send(self, status, body, ctype="text/html; charset=utf-8", headers=None, cache="no-store"):
+    def send(self, status, body, ctype="text/html; charset=utf-8", headers=None, cache="no-store", embeddable=False):
+        """embeddable: a public quote page, which a business may show inside its own website. Everything else refuses framing."""
         body = body if isinstance(body, (bytes, bytearray)) else str(body).encode()
         self.send_response(status)
+        policy = CSP.replace("frame-ancestors 'self'", "frame-ancestors *") if embeddable else CSP
         for k, v in {"Content-Type": ctype, "Content-Length": str(len(body)), "Cache-Control": cache,
-                     "X-Content-Type-Options": "nosniff", "Referrer-Policy": "same-origin", "Content-Security-Policy": CSP,
+                     "X-Content-Type-Options": "nosniff", "Referrer-Policy": "same-origin", "Content-Security-Policy": policy,
                      **(headers or {})}.items():
             if isinstance(v, list):
                 for item in v:
@@ -305,13 +321,15 @@ class Handler(BaseHTTPRequestHandler):
         m, slug = self.command, tenant["slug"]
         if rest == "/lead" and m == "POST":
             return self.lead(tenant)
+        if rest == "/event" and m == "POST":
+            return self.event(tenant)
         if m not in ("GET", "HEAD"):
             raise Halt(405, "Not allowed.")
         if rest == "/":
             if not tenant["active"]:
-                return self.send(200, pages.paused(tenant))
+                return self.send(200, pages.paused(tenant), embeddable=True)
             with open(os.path.join(self.app.tool_dir, "index.html"), "rb") as fh:
-                return self.send(200, fh.read(), cache="no-cache")
+                return self.send(200, fh.read(), cache="no-cache", embeddable=True)
         if rest == "/config.js":
             cfg = self.app.store.public_config(tenant, "/q/%s/lead" % slug)
             body = "window.RQM_CONFIG = %s;\n" % json.dumps(cfg, ensure_ascii=False).replace("</", "<\\/")
@@ -326,6 +344,23 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send(200, bytes(tenant["logo"]), tenant["logo_type"], cache="no-cache")
             raise Halt(404, "No logo.")
         raise Halt(404, "That page doesn't exist.")
+
+    def event(self, tenant):
+        """One anonymous step of the quote page (opened, started, saw a price). Counted per day; nothing personal is kept."""
+        app = self.app
+        if tenant["active"] and not tenant["demo"] and app.allow("event", (tenant["id"], self.visitor()), 300, 3600):
+            try:
+                data = json.loads(self.read(2048) or b"{}")
+            except ValueError:
+                raise Halt(400, "Bad request.")
+            kind = data.get("k") if isinstance(data, dict) else None
+            if kind not in Store.FUNNEL_KINDS:
+                raise Halt(400, "Bad request.")
+            option = data.get("o") if kind == "price" else None
+            if option not in {j["id"] for j in tenant["config"]["jobTypes"]}:
+                option = None
+            app.store.track(tenant["id"], kind, option)
+        self.send(204, b"")
 
     def lead(self, tenant):
         app = self.app
@@ -353,8 +388,13 @@ class Handler(BaseHTTPRequestHandler):
                 kind = image_kind(data)
                 if kind and len(data) <= MAX_PHOTO:
                     photos.append((data, kind[0]))
+        questions = tenant["config"].get("leadQuestions") or LEAD_QUESTIONS
+        pick = lambda key, field: next((o for o in (questions.get(key) or {}).get("options", []) if o["id"] == fields.get(field)), None)
+        urgency, when = pick("urgency", "urgency"), pick("contactTime", "contact_time")
         lead = {"name": name, "phone": phone, "email": email, "suburb": suburb, "job_type": est["type"]["label"],
-                "difficulty": est["difficulty"]["label"], "size": est["size"]["label"], "low": est["low"], "high": est["high"]}
+                "difficulty": est["difficulty"]["label"], "size": est["size"]["label"], "low": est["low"], "high": est["high"],
+                "urgency": urgency["label"] if urgency else "", "contact_time": when["label"] if when else "",
+                "hot": bool(urgency and urgency.get("hot"))}
         lead_id = app.store.add_lead(tenant["id"], lead, photos)
         saved = app.store.lead(tenant["id"], lead_id)
         threading.Thread(target=app.deliver_lead, args=(tenant, saved, self.base_url()), daemon=True).start()
@@ -402,21 +442,27 @@ class Handler(BaseHTTPRequestHandler):
         if rest == "" and m in ("GET", "HEAD"):
             status = self.query().get("status", "")
             status = status if status in LEAD_STATES else ""
+            hot_only = self.query().get("hot") == "1"
             notes = []
+            waiting = store.waiting(tenant["id"])
+            if waiting:
+                notes.append("%d lead%s been waiting more than a day for a reply. Ring %s." % (
+                    waiting, " has" if waiting == 1 else "s have", "them" if waiting > 1 else "them"))
             if not tenant["rates_confirmed"]:
                 notes.append("Your quote page is still showing example rates. Put your own in under Settings.")
             if not tenant["active"]:
                 notes.append("Your quote page is paused.")
-            return self.send(200, pages.leads_list(tenant, store.leads(tenant["id"], status), store.lead_counts(tenant["id"]), status,
-                                                   "%s/q/%s/" % (self.base_url(), slug), notes))
+            return self.send(200, pages.leads_list(tenant, store.leads(tenant["id"], status, hot_only), store.lead_counts(tenant["id"]), status,
+                                                   "%s/q/%s/" % (self.base_url(), slug), notes, funnel=store.funnel(tenant["id"]),
+                                                   hot_only=hot_only, hot_open=store.hot_open(tenant["id"])))
         if rest == "/leads.csv" and m == "GET":
             out = io.StringIO()
             w = csv.writer(out)
-            w.writerow(["Received", "Name", "Phone", "Email", "Suburb", "Job", "Difficulty", "Size", "Ballpark low", "Ballpark high", "Photos", "Status", "Notes"])
+            w.writerow(["Received", "Name", "Phone", "Email", "Suburb", "Job", "Difficulty", "Size", "Ballpark low", "Ballpark high", "Photos", "Wants it", "Best time to call", "Hot", "Status", "Notes"])
             safe = lambda v: "'" + v if isinstance(v, str) and v[:1] in "=+-@\t\r" else v     # spreadsheets run cells that start like formulas
             for l in store.leads(tenant["id"]):
                 w.writerow([safe(x) for x in (time.strftime("%Y-%m-%d %H:%M", time.localtime(l["created_at"])), l["name"], l["phone"], l["email"],
-                                              l["suburb"], l["job_type"], l["difficulty"], l["size"], l["low"], l["high"], l["photos"], l["status"], l["notes"])])
+                                              l["suburb"], l["job_type"], l["difficulty"], l["size"], l["low"], l["high"], l["photos"], l["urgency"], l["contact_time"], "yes" if l["hot"] else "", l["status"], l["notes"])])
             return self.send(200, out.getvalue().encode("utf-8-sig"), "text/csv; charset=utf-8",
                              {"Content-Disposition": 'attachment; filename="%s-leads.csv"' % slug})
         match = re.match(r"^/lead/(\d+)$", rest)
@@ -443,7 +489,8 @@ class Handler(BaseHTTPRequestHandler):
         if rest == "/settings":
             if m == "POST":
                 return self.save_settings(tenant)
-            return self.send(200, pages.tenant_settings(tenant, message="Saved." if self.query().get("saved") else "", mail_on=bool(app.smtp)))
+            return self.send(200, pages.tenant_settings(tenant, message="Saved." if self.query().get("saved") else "", mail_on=bool(app.smtp),
+                                                        base_url=self.base_url()))
         raise Halt(404, "That page doesn't exist.")
 
     def save_settings(self, tenant):
@@ -487,17 +534,19 @@ class Handler(BaseHTTPRequestHandler):
                 kind = image_kind(logo[1])
                 if not kind or len(logo[1]) > MAX_LOGO:
                     raise ValueError("The logo must be a PNG or JPG under 400 KB")
+            accent = check_accent(fields.get("accent", "")) if tenant["tier"] == "full" else ""      # checked before anything is saved
             store.save_config(tenant["id"], cfg)                       # runs the full config check
             store.update_tenant(tenant["id"], name=fields.get("name", tenant["name"]), phone=fields.get("phone", ""),
                                 licence=fields.get("licence", ""), notify_email=fields.get("notify_email", "").strip(),
                                 forward_webhook=fields.get("forward_webhook", "").strip(),
-                                rates_confirmed=fields.get("rates_confirmed") == "1")
+                                rates_confirmed=fields.get("rates_confirmed") == "1", accent=accent,
+                                auto_reply=fields.get("auto_reply") == "1")
             if logo and tenant["tier"] == "full":
                 store.set_logo(tenant["id"], logo[1], kind[1])
             elif fields.get("remove_logo") == "1":
                 store.set_logo(tenant["id"], None, "")
         except ValueError as exc:
-            return self.send(400, pages.tenant_settings(tenant, error=str(exc), mail_on=bool(app.smtp)))
+            return self.send(400, pages.tenant_settings(tenant, error=str(exc), mail_on=bool(app.smtp), base_url=self.base_url()))
         self.redirect("/q/%s/admin/settings?saved=1" % tenant["slug"])
 
     # ---------------------------------------------------------------- the owner's console
