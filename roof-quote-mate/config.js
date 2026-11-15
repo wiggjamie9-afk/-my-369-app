@@ -28,6 +28,10 @@ window.RQM_CONFIG = {
     licence: ""                    // optional, shown in the small print
   },
 
+  /* Optional colours. The page is safety gold (#F5A623) unless you say otherwise. For blue:
+       theme: { accent: "#3D8BFF", onAccent: "#0B1220" },
+     accent is the button and highlight colour; onAccent is the text on top of it. */
+
   /* Optional wording for the yellow notice shown while rates are unconfirmed:
        noticeTitle: "Heads up", ratesNotice: "Example prices only. ...",
      (a hosted service sets these so a homeowner never sees instructions meant for the owner) */

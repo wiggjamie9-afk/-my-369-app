@@ -449,8 +449,38 @@ class Owner(Base):
         self.assertEqual(self.c.call("GET", "/admin")[0], 503)
 
 
+def luminance(hex_colour):
+    channels = [int(hex_colour[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+    lin = [c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4 for c in channels]
+    return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
+
+
+def contrast(a, b):
+    hi, lo = sorted((luminance(a), luminance(b)), reverse=True)
+    return (hi + 0.05) / (lo + 0.05)
+
+
 class Branding(Base):
-    """The 48 AI Crew brand: the name, the logo, and who gets to see it where."""
+    """The 48 AI Crew brand: the name, the logo, the blue, and who gets to see it where."""
+
+    def test_the_accent_is_blue_everywhere_and_stays_readable(self):
+        from qm.store import THEME
+        with open(os.path.join(ROOT, "static", "site.css"), encoding="utf-8") as fh:
+            css = fh.read()
+        with open(os.path.join(os.path.dirname(ROOT), "roof-quote-mate", "app.css"), encoding="utf-8") as fh:
+            tool = fh.read()
+        self.assertIn("--accent: %s; --on-accent: %s;" % (THEME["accent"], THEME["onAccent"]), css)     # the stylesheet and the quote pages agree
+        self.assertNotIn("F5A623", css.upper())                                  # none of the old orange is left on the hosted pages
+        self.assertEqual(tool.upper().count("F5A623"), 1)                         # the quote tool keeps it only as its default value...
+        for slug, tier in (("acme-roofing", "lite"), ("top-roofs", "full")):      # ...and a hosted business overrides it
+            self.business(slug.replace("-", " ").title(), tier=tier)
+            js = self.c.text("GET", "/q/%s/config.js" % slug)[1]
+            cfg = json.loads(js[js.index("{"):js.rindex("}") + 1])
+            self.assertEqual(cfg["theme"], THEME)
+        # text on a blue button, and blue text on the charcoal page, must both be easy to read (WCAG AA is 4.5)
+        self.assertGreaterEqual(contrast(THEME["onAccent"], THEME["accent"]), 4.5)
+        self.assertGreaterEqual(contrast(THEME["accent"], "#1B1D21"), 4.5)
+        self.assertIn(".badge.late { border-color: var(--red); color: var(--red); }", css)   # overdue is a warning, so it is red, not blue
 
     def test_the_logo_is_served_and_the_service_has_the_crew_name(self):
         for path, size in (("/static/48-ai-crew-logo.png", 256), ("/static/48-ai-crew-icon.png", 96)):

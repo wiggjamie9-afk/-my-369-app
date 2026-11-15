@@ -13,6 +13,9 @@
     if (c.tier !== "lite" && c.tier !== "full") bad.push('tier must be "lite" or "full".');
     if (!c.business || !String(c.business.name || "").trim()) bad.push("business.name is empty.");
     // a full address, or a path on the same site (used when the app is hosted for you)
+    var colour = /^#[0-9a-f]{3,8}$/i;
+    if (c.theme != null && (typeof c.theme !== "object" || (c.theme.accent != null && !colour.test(c.theme.accent)) ||
+        (c.theme.onAccent != null && !colour.test(c.theme.onAccent)))) bad.push("theme colours must look like #3D8BFF.");
     if (c.brand != null && (typeof c.brand !== "object" || !String(c.brand.name || "").trim() ||
         (c.brand.logoPath != null && typeof c.brand.logoPath !== "string"))) bad.push("brand needs a name, and logoPath (if given) must be text.");
     if (c.webhookUrl && !/^(https?:\/\/|\/)/i.test(c.webhookUrl)) bad.push("webhookUrl must start with https://");

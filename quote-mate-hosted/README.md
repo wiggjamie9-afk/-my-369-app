@@ -36,6 +36,9 @@ The service ships as **48 AI Crew Quoting** with the 48 AI Crew logo:
   on every lite-plan quote page.
 - The logo is two files in `static/`: `48-ai-crew-logo.png` (256 px, the sales page) and `48-ai-crew-icon.png` (96 px,
   headers, browser tab, home-screen icon). Replace both, keeping the file names, to rebrand.
+- The colour is the logo's blue, `#3D8BFF` (text on it is `#0B1220`). It's set in two places that a test keeps in step:
+  `static/site.css` (the sales page, inboxes and console) and `THEME` in `qm/store.py` (every quote page). An overdue payment
+  is red, not blue, so it still reads as a warning.
 - Plans: a **lite** business's quote page shows this brand. A **full** business's page shows only that business's own name
   and logo, never yours (its logo is uploaded under its Settings).
 

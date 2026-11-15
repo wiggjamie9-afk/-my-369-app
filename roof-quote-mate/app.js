@@ -27,6 +27,12 @@
     return;
   }
 
+  if (config.theme) {                                  // optional colours from config.js (see the notes there)
+    var rootStyle = document.documentElement.style;
+    if (config.theme.accent) rootStyle.setProperty("--accent", config.theme.accent);
+    if (config.theme.onAccent) rootStyle.setProperty("--on-accent", config.theme.onAccent);
+  }
+
   var words = config.words, biz = config.business;
   var full = config.tier === "full" && RQM.full ? RQM.full : null;      // no full.js in the folder = lite
   var demo = !config.webhookUrl;

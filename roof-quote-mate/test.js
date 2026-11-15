@@ -168,6 +168,18 @@ test("a product brand is optional and checked", () => {
   }
 });
 
+test("theme colours are optional and must be real colours", () => {
+  const c = clone(config);
+  c.theme = { accent: "#3D8BFF", onAccent: "#0B1220" };
+  assert.deepStrictEqual(checkConfig(c), []);
+  c.theme = { accent: "#3d8bff" };
+  assert.deepStrictEqual(checkConfig(c), []);
+  for (const bad of [{ accent: "blue" }, { accent: "red; background: url(x)" }, { onAccent: 5 }, "blue"]) {
+    c.theme = bad;
+    assert.ok(checkConfig(c).join(" ").includes("theme colours"), JSON.stringify(bad));
+  }
+});
+
 test("money formatting", () => {
   assert.deepStrictEqual([money(17800), money(950), money(1234567)], ["$17,800", "$950", "$1,234,567"]);
 });

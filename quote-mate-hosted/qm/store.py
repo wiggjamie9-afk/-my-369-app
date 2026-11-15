@@ -52,6 +52,9 @@ CREATE TABLE IF NOT EXISTS enquiries(
   message TEXT NOT NULL DEFAULT '', handled INTEGER NOT NULL DEFAULT 0);
 """
 
+# The 48 AI Crew's colours. static/site.css uses the same two values (a test keeps them in step).
+THEME = {"accent": "#3D8BFF", "onAccent": "#0B1220"}
+
 SITE_DEFAULTS = {
     "service_name": "48 AI Crew Quoting",
     "tagline": "Turn website visitors into quote requests while you're on the tools.",
@@ -231,6 +234,7 @@ class Store:
             "webhookUrl": "" if tenant["demo"] else lead_path,
             "ratesConfirmed": bool(tenant["rates_confirmed"]),
         })
+        cfg["theme"] = dict(THEME)
         if tenant["tier"] != "full":      # lite pages carry the product's brand; full pages carry the business's own
             cfg["brand"] = {"name": self.site()["service_name"], "logoPath": "/static/48-ai-crew-icon.png"}
         if not tenant["demo"]:            # a homeowner sees this until the business confirms its own rates
