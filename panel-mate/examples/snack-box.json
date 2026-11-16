@@ -1,0 +1,8 @@
+{
+  "name": "Healthy Snack Box",
+  "pitch": "A monthly box of 12 healthy snacks - nuts, bars, dried fruit and protein snacks - posted to your door so you stop grabbing junk at work.",
+  "price": 39,
+  "currency": "AUD",
+  "details": "Cancel any time. Postage included. Brands vary month to month.",
+  "price_points": [19, 29, 39, 49, 59]
+}
