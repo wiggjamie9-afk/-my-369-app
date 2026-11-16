@@ -1,0 +1,992 @@
+# 2-roof-quote-mate (standalone roofing lead app)
+# 8 files. Each file starts at a line '===== FILE: path =====' - recreate each at that path.
+
+===== FILE: roof-quote-mate/app.css =====
+/* Roof Quote Mate. Charcoal, safety gold, big buttons. Built for a thumb on a phone in the sun. */
+:root {
+  color-scheme: dark;
+  --bg: #1B1D21; --panel: #25282E; --edge: #3A3E46;
+  --ink: #FFFFFF; --dim: #B4B8C0;
+  --accent: #F5A623; --on-accent: #1B1D21; --red: #FF6B5E; --green: #6FD08C;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; min-height: 100vh; min-height: 100dvh; background: var(--bg); color: var(--ink);
+       font: 18px/1.4 var(--font); display: flex; flex-direction: column; }
+[hidden] { display: none !important; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+.stripe { height: 10px; background: repeating-linear-gradient(-45deg, var(--accent) 0 14px, #111 14px 28px); }
+.brand { display: flex; align-items: center; gap: 12px; padding: calc(14px + env(safe-area-inset-top, 0px)) 20px 14px;
+         border-bottom: 2px solid var(--edge); }
+.brand-logo { height: 44px; width: auto; max-width: 120px; border-radius: 8px; display: block; }
+.brand-name { font-size: 20px; font-weight: 800; letter-spacing: .02em; text-transform: uppercase; }
+
+.setup { background: var(--accent); color: var(--on-accent); padding: 12px 20px; font-size: 15px; font-weight: 600; }
+.setup b { display: block; text-transform: uppercase; letter-spacing: .06em; font-size: 13px; }
+.setup ul { margin: 4px 0 0; padding-left: 20px; font-weight: 500; }
+
+main, .wrap { width: 100%; max-width: 560px; margin: 0 auto; padding: 22px 20px 30px; flex: 1; outline: none; }
+h1 { margin: 0 0 8px; font-size: 32px; line-height: 1.1; font-weight: 900; text-transform: uppercase; letter-spacing: -.01em; text-wrap: balance; }
+h2 { margin: 0 0 16px; font-size: 26px; line-height: 1.15; font-weight: 800; text-wrap: balance; }
+h3 { margin: 0 0 4px; font-size: 20px; font-weight: 800; }
+p { margin: 0 0 16px; }
+.lead-in { color: var(--dim); font-size: 19px; }
+.small { font-size: 15px; color: var(--dim); }
+.accent { color: var(--accent); }
+
+.steps { display: flex; gap: 6px; margin: 0 0 22px; }
+.steps i { flex: 1; height: 8px; border-radius: 4px; background: var(--edge); }
+.steps i.done { background: var(--accent); }
+.back { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; margin: -8px 0 10px; border: 0; background: none;
+        color: var(--dim); font: inherit; font-weight: 600; cursor: pointer; }
+
+.btn { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 72px; padding: 12px 20px;
+       border-radius: 14px; border: 3px solid var(--accent); background: var(--accent); color: var(--on-accent);
+       font: inherit; font-size: 22px; font-weight: 900; text-transform: uppercase; letter-spacing: .02em; cursor: pointer; text-align: center; }
+.btn:active { transform: translateY(2px); }
+.btn:disabled { opacity: .5; cursor: wait; }
+.btn + .small { margin-top: 12px; }
+.btn-outline { background: transparent; color: var(--accent); min-height: 64px; font-size: 19px; }
+
+.options { display: grid; gap: 14px; }
+.option { display: block; width: 100%; min-height: 88px; padding: 16px 20px; border-radius: 14px; border: 3px solid var(--edge);
+          background: var(--panel); color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.option b { display: block; font-size: 24px; font-weight: 800; }
+.option span { display: block; font-size: 16px; color: var(--dim); }
+.option[aria-pressed=true] { border-color: var(--accent); }
+@media (hover: hover) { .option:hover { border-color: var(--accent); } }   /* not on phones, where hover sticks after a tap */
+.option[aria-pressed=true] b { color: var(--accent); }
+
+label.field { display: block; margin: 0 0 16px; font-size: 16px; font-weight: 700; }
+label.field input { display: block; width: 100%; min-height: 64px; margin-top: 6px; padding: 12px 16px; border-radius: 12px;
+                    border: 3px solid var(--edge); background: #121417; color: var(--ink); font: inherit; font-size: 20px; }
+label.field input:focus { border-color: var(--accent); outline: none; }
+label.field input[aria-invalid=true] { border-color: var(--red); }
+.error { color: var(--red); font-weight: 700; margin: -8px 0 16px; font-size: 16px; }
+.trap { position: absolute; left: -9999px; }
+
+.ballpark { margin: 0 0 22px; padding: 20px; border-radius: 16px; background: var(--panel); border: 3px solid var(--accent); }
+.ballpark .k { font-size: 14px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.ballpark .price { margin: 4px 0; font-size: 40px; line-height: 1.05; font-weight: 900; letter-spacing: -.02em; }
+.ballpark .price small { display: block; font-size: 16px; font-weight: 600; letter-spacing: 0; color: var(--dim); margin-top: 4px; }
+.sums { margin: 12px 0; padding: 12px 0 2px; border-top: 2px solid var(--edge); }
+.sums div { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; font-size: 16px; color: var(--dim); }
+.sums b { color: var(--ink); white-space: nowrap; }
+.watch { margin: 12px 0; padding: 12px 14px; border-radius: 10px; background: #1B1D21; border: 2px solid var(--edge); font-size: 16px; }
+.watch b { display: block; margin-bottom: 4px; color: var(--accent); font-size: 14px; letter-spacing: .08em; text-transform: uppercase; }
+.watch ul { margin: 0; padding-left: 20px; } .watch li { margin: 0 0 6px; }
+.ask { margin: 0 0 16px; }
+.ask b { display: block; margin-bottom: 8px; font-size: 16px; }
+.pills { display: flex; flex-wrap: wrap; gap: 10px; }
+.pill { min-height: 52px; padding: 8px 18px; border-radius: 26px; border: 3px solid var(--edge); background: var(--panel); color: var(--ink);
+        font: inherit; font-size: 17px; font-weight: 700; cursor: pointer; }
+.pill[aria-pressed=true] { border-color: var(--accent); color: var(--accent); }
+body.embed { min-height: 0; }
+body.embed .stripe, body.embed .brand { display: none; }       /* on someone's own website, their page is the frame */
+body.embed main { padding-top: 12px; }
+.picked { margin: 12px 0 0; padding: 12px 0 0; border-top: 2px solid var(--edge); font-size: 16px; color: var(--dim); }
+.picked button { border: 0; background: none; color: var(--accent); font: inherit; font-weight: 700; padding: 8px 0; cursor: pointer; text-decoration: underline; }
+
+.photos { margin: 6px 0 22px; padding: 18px; border-radius: 14px; border: 3px dashed var(--edge); }
+.photo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; }
+.photo-grid:empty { display: none; }
+.photo { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: #121417; }
+.photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo-x { position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; border-radius: 50%; border: 0;
+           background: rgba(0, 0, 0, .75); color: #fff; font-size: 22px; line-height: 1; cursor: pointer; }
+
+.tick { width: 84px; height: 84px; border-radius: 50%; background: var(--accent); color: var(--on-accent); display: grid; place-items: center;
+        font-size: 48px; font-weight: 900; margin: 10px 0 20px; }
+.call { display: block; margin-top: 8px; color: var(--accent); font-weight: 800; font-size: 22px; }
+.foot { padding: 14px 20px calc(18px + env(safe-area-inset-bottom, 0px)); text-align: center; font-size: 13px; color: #8A8F99; }
+
+@media (min-width: 600px) { h1 { font-size: 40px; } .ballpark .price { font-size: 52px; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+
+===== FILE: roof-quote-mate/app.js =====
+/* Roof Quote Mate - the app. Reads everything from config.js; has no rates, names or trade words of its own. */
+(function () {
+  "use strict";
+  var RQM = window.RQM, config = window.RQM_CONFIG;
+  var app = document.getElementById("app");
+
+  function el(tag, attrs, kids) {
+    var n = document.createElement(tag);
+    for (var k in attrs || {}) {
+      var v = attrs[k];
+      if (v == null || v === false) continue;
+      if (k === "text") n.textContent = v;
+      else if (k.slice(0, 2) === "on") n.addEventListener(k.slice(2), v);
+      else if (k in n) n[k] = v;
+      else n.setAttribute(k, v);
+    }
+    (kids || []).forEach(function (kid) { if (kid) n.appendChild(typeof kid === "string" ? document.createTextNode(kid) : kid); });
+    return n;
+  }
+  // Embedded on someone's website (a hosted service shows it in an iframe): fit the frame, and tell the page how tall we are
+  var embedded = /[?&]embed=1\b/.test(location.search) && window.parent !== window;
+  if (embedded) document.body.classList.add("embed");
+  function tellParent(message) { try { window.parent.postMessage(message, "*"); } catch (e) { /* not allowed: ignore */ } }
+  function reportHeight() { if (embedded) tellParent({ qm: "height", h: Math.ceil(document.body.getBoundingClientRect().height) }); }
+  if (embedded && typeof ResizeObserver === "function") new ResizeObserver(reportHeight).observe(document.body);
+
+  function show(nodes) {
+    app.textContent = ""; nodes.forEach(function (n) { if (n) app.appendChild(n); });
+    app.focus({ preventScroll: true }); window.scrollTo(0, 0);
+    if (embedded) { tellParent({ qm: "top" }); reportHeight(); }
+  }
+
+  // Anonymous counts for the business (views, starts, prices shown): a hosted service sets config.eventsUrl.
+  // Nothing personal is sent, no cookies are set, and each step is counted once per page load.
+  var counted = {};
+  function track(kind, option) {
+    if (!config.eventsUrl || counted[kind]) return;
+    counted[kind] = true;
+    var body = JSON.stringify({ k: kind, o: option || "" });
+    try {
+      if (navigator.sendBeacon) navigator.sendBeacon(config.eventsUrl, new Blob([body], { type: "application/json" }));
+      else fetch(config.eventsUrl, { method: "POST", body: body, keepalive: true });
+    } catch (e) { /* counting must never get in the way of a customer */ }
+  }
+
+  // ---------------------------------------------------------------- can we run at all?
+  var problems = RQM.checkConfig(config);
+  if (problems.length) {
+    show([el("h2", { text: "Setup needed" }), el("p", { className: "lead-in", text: "config.js has a problem. Fix these and refresh:" }),
+      el("ul", {}, problems.map(function (p) { return el("li", { text: p }); }))]);
+    return;
+  }
+
+  if (config.theme) {                                  // optional colours from config.js (see the notes there)
+    var rootStyle = document.documentElement.style;
+    if (config.theme.accent) rootStyle.setProperty("--accent", config.theme.accent);
+    if (config.theme.onAccent) rootStyle.setProperty("--on-accent", config.theme.onAccent);
+  }
+
+  var words = config.words, biz = config.business;
+  var full = config.tier === "full" && RQM.full ? RQM.full : null;      // no full.js in the folder = lite
+  var demo = !config.webhookUrl;
+
+  // ---------------------------------------------------------------- header, setup notice, footer
+  if (full) full.brand(document.getElementById("brand"), config);
+  else {
+    // lite: the product's own name and logo (config.brand, if given), not the business's
+    var product = config.brand || { name: config.trade.productName };
+    var bar = document.getElementById("brand");
+    bar.textContent = "";
+    if (product.logoPath) {
+      var logo = el("img", { src: product.logoPath, alt: "", className: "brand-logo" });
+      logo.addEventListener("error", function () { logo.remove(); });
+      bar.appendChild(logo);
+    }
+    bar.appendChild(el("span", { className: "brand-name", text: product.name }));
+    document.title = product.name + " | Instant ballpark";
+  }
+
+  var todo = [];
+  if (config.demoNotice) todo.push(config.demoNotice);                  // a hosted demo: say so, and nothing else
+  else if (!config.ratesConfirmed) todo.push(config.ratesNotice || "These are example rates, not real prices. Put yours in config.js, then set ratesConfirmed to true.");
+  if (demo && !config.demoNotice) todo.push("Demo mode: no webhook set, so leads are not sent anywhere. Add webhookUrl in config.js.");
+  if (config.tier === "full" && !RQM.full) todo.push('tier is "full" but full.js is missing, so this is running as lite.');
+  if (todo.length) {
+    var setup = document.getElementById("setup");
+    setup.hidden = false;
+    setup.appendChild(el("b", { text: config.noticeTitle || (config.demoNotice ? "Demo" : "Setup notice (your customers will see this until it's fixed)") }));
+    setup.appendChild(el("ul", {}, todo.map(function (t) { return el("li", { text: t }); })));
+  }
+  document.getElementById("foot").textContent = "Ballpark prices only. " + biz.name + (biz.licence ? " · Licence " + biz.licence : "");
+
+  // ---------------------------------------------------------------- the flow
+  var picks = { type: null, difficulty: null, size: null, suburb: "" };
+  var STEPS = [
+    { key: "type", ask: words.askType, list: config.jobTypes },
+    { key: "difficulty", ask: words.askDifficulty, list: config.difficulty },
+    { key: "size", ask: words.askSize, list: config.sizes },
+    { key: "suburb", ask: words.askSuburb }
+  ];
+
+  function progress(done) {
+    return el("div", { className: "steps", role: "img", "aria-label": "Step " + Math.min(done + 1, STEPS.length) + " of " + STEPS.length },
+      STEPS.map(function (_, i) { return el("i", { className: i < done ? "done" : "" }); }));
+  }
+  function backButton(to) { return el("button", { type: "button", className: "back", text: "‹ Back", onclick: to }); }
+
+  function start() {
+    show([el("h1", { text: words.headline }), el("p", { className: "lead-in", text: words.subline }),
+      el("button", { type: "button", className: "btn", text: "Get my ballpark", onclick: function () { track("start"); step(0); } })]);
+  }
+
+  function step(i) {
+    var s = STEPS[i];
+    var head = [progress(i), i > 0 ? backButton(function () { step(i - 1); }) : backButton(start), el("h2", { text: s.ask })];
+    if (s.list) {
+      show(head.concat([el("div", { className: "options" }, s.list.map(function (o) {
+        return el("button", { type: "button", className: "option", "aria-pressed": String(picks[s.key] === o.id),
+          onclick: function () { picks[s.key] = o.id; step(i + 1); } },
+          [el("b", { text: o.label }), o.hint ? el("span", { text: o.hint }) : null]);
+      }))]));
+      return;
+    }
+    var input = el("input", { type: "text", id: "suburb", value: picks.suburb, placeholder: words.suburbPlaceholder,
+      autocomplete: "address-level2", enterKeyHint: "go", maxLength: 60 });
+    var err = el("p", { className: "error", role: "alert", hidden: true, text: "Pop your suburb in so we know where the job is." });
+    var form = el("form", { noValidate: true, onsubmit: function (e) {
+      e.preventDefault();
+      picks.suburb = input.value.trim().replace(/\s+/g, " ");
+      if (picks.suburb.length < 2) { err.hidden = false; input.setAttribute("aria-invalid", "true"); input.focus(); return; }
+      result();
+    } }, [el("label", { className: "field", htmlFor: "suburb" }, ["Suburb", input]), err,
+      el("button", { type: "submit", className: "btn", text: "Show my ballpark" })]);
+    show(head.concat([form]));
+    input.focus();
+  }
+
+  // ---------------------------------------------------------------- ballpark + lead form
+  function result() {
+    var est = RQM.estimate(config, picks);
+    track("price", est.type.id);
+    var range = RQM.money(est.low) + " – " + RQM.money(est.high);
+    var summary = [est.type.label, est.difficulty.label, est.size.label, picks.suburb].join(" · ");
+    var note = RQM.priceNote(config), rebate = config.pricing.rebate;
+    // things worth knowing, taken from the options they picked (a trade can attach a "watch" line to any option)
+    var watching = [est.type, est.difficulty, est.size].map(function (o) { return o.watch; }).filter(Boolean);
+    var watchBox = watching.length ? el("div", { className: "watch" }, [el("b", { text: words.watchTitle || "Worth checking" }),
+      el("ul", {}, watching.map(function (w) { return el("li", { text: w }); }))]) : null;
+    var rebateLines = rebate && est.rebateHigh > 0 ? el("div", { className: "sums" }, [
+      el("div", {}, [el("span", { text: "Before the rebate" }), el("b", { text: RQM.money(est.grossLow) + " – " + RQM.money(est.grossHigh) })]),
+      el("div", {}, [el("span", { text: rebate.label || "Rebate" }), el("b", { text: "about " + (est.rebateLow === est.rebateHigh ? RQM.money(est.rebateHigh)
+        : RQM.money(est.rebateLow) + " – " + RQM.money(est.rebateHigh)) + " off" })]),
+      rebate.note ? el("p", { className: "small", text: rebate.note }) : null]) : null;
+
+    var f = {};
+    function field(key, label, type, auto, mode) {
+      f[key] = el("input", { type: type, id: key, autocomplete: auto, inputMode: mode, maxLength: 120 });
+      return el("label", { className: "field", htmlFor: key }, [label, f[key]]);
+    }
+    var trap = el("input", { type: "text", name: "company", tabIndex: -1, autocomplete: "off", className: "trap", "aria-hidden": "true" });
+    var err = el("p", { className: "error", role: "alert", hidden: true });
+    var send = el("button", { type: "submit", className: "btn", text: words.sendButton });
+    var photoBox = full && config.photos.max >= 1 ? full.photos(config) : null;      // max 0 = this trade takes no photos
+
+    // optional questions under the price: how soon, and when to call (config.leadQuestions)
+    var answers = {};
+    function question(key) {
+      var q = config.leadQuestions && config.leadQuestions[key];
+      if (!q) return null;
+      var row = el("div", { className: "pills" }), buttons = [];
+      q.options.forEach(function (o) {
+        var b = el("button", { type: "button", className: "pill", "aria-pressed": "false", text: o.label, onclick: function () {
+          answers[key] = answers[key] === o ? null : o;                           // tapping the chosen one again clears it
+          buttons.forEach(function (x, i) { x.setAttribute("aria-pressed", String(answers[key] === q.options[i])); });
+        } });
+        buttons.push(b); row.appendChild(b);
+      });
+      return el("div", { className: "ask", role: "group", "aria-label": q.label }, [el("b", { text: q.label }), row]);
+    }
+    var askUrgency = question("urgency"), askTime = question("contactTime");
+    function fail(input, message) {
+      Object.keys(f).forEach(function (k) { f[k].removeAttribute("aria-invalid"); });
+      err.textContent = message; err.hidden = false;
+      if (input) { input.setAttribute("aria-invalid", "true"); input.focus(); }
+    }
+
+    var form = el("form", { noValidate: true, onsubmit: function (e) {
+      e.preventDefault();
+      var name = f.name.value.trim(), phone = f.phone.value.trim(), email = f.email.value.trim();
+      var digits = phone.replace(/[^\d]/g, "");
+      if (name.length < 2) return fail(f.name, "What's your name?");
+      if (digits.length < 8 || digits.length > 12 || /[^\d\s()+\-.]/.test(phone)) return fail(f.phone, "That phone number doesn't look right.");
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return fail(f.email, "That email doesn't look right.");
+      err.hidden = true;
+      send.disabled = true; send.textContent = "Sending…";
+
+      (photoBox ? photoBox.files() : Promise.resolve([])).then(function (files) {
+        var lead = {
+          name: name, phone: phone, email: email, suburb: picks.suburb,
+          job_type: est.type.label, difficulty: est.difficulty.label, size: est.size.label,
+          type_id: est.type.id, difficulty_id: est.difficulty.id, size_id: est.size.id,
+          size_min: est.size.min, size_max: est.size.max, unit: config.trade.unit,
+          ballpark_low: est.low, ballpark_high: est.high, ballpark: range + (note ? " " + note : ""),
+          urgency: answers.urgency ? answers.urgency.id : "", urgency_label: answers.urgency ? answers.urgency.label : "",
+          contact_time: answers.contactTime ? answers.contactTime.id : "", contact_time_label: answers.contactTime ? answers.contactTime.label : "",
+          photos: files.length, business: biz.name, tier: full ? "full" : "lite",
+          submitted_at: new Date().toISOString(), page: location.href.split("#")[0]
+        };
+        if (trap.value) return { bot: true };                 // a bot filled the hidden box: drop it quietly
+        return sendLead(lead, files);
+      }).then(function (out) { thanks(name, out && out.demo); })
+        .catch(function () {
+          send.disabled = false; send.textContent = words.sendButton;
+          fail(null, "That didn't send. Check your signal and try again" + (biz.phone ? ", or call us on " + biz.phone + "." : "."));
+        });
+    } }, [
+      field("name", "Your name", "text", "name"),
+      field("phone", "Mobile", "tel", "tel", "tel"),
+      field("email", "Email", "email", "email", "email"),
+      askUrgency, askTime, trap, photoBox ? photoBox.node : null, err, send,
+      el("p", { className: "small", text: words.privacyNote ? words.privacyNote.replace("{business}", biz.name)
+        : "Your details go to " + biz.name + " for this quote only." })
+    ]);
+
+    show([progress(STEPS.length), backButton(function () { step(STEPS.length - 1); }),
+      el("div", { className: "ballpark" }, [
+        el("div", { className: "k", text: words.ballparkTitle + " for your " + config.trade.jobName }),
+        el("div", { className: "price" }, [range, note ? el("small", { text: note }) : null]),
+        rebateLines,
+        watchBox,
+        el("p", { className: "small", text: words.ballparkNote }),
+        el("div", { className: "picked" }, [summary + "  ", el("button", { type: "button", text: "Change", onclick: function () { step(0); } })])
+      ]),
+      el("h2", { text: words.leadTitle }), el("p", { className: "lead-in", text: words.leadSub }), form]);
+  }
+
+  /* Post the lead to the webhook as an ordinary form (works with Zapier, Make, n8n and plain servers).
+     Every field is sent on its own, plus one "payload" field holding the lot as JSON. Photos go as photo1..photo4. */
+  function sendLead(lead, files) {
+    if (demo) return Promise.resolve({ demo: true });
+    var body = new FormData();
+    Object.keys(lead).forEach(function (k) { body.append(k, String(lead[k])); });
+    body.append("payload", JSON.stringify(lead));
+    files.forEach(function (file, i) { body.append("photo" + (i + 1), file, file.name); });
+    var stop = typeof AbortController === "function" ? new AbortController() : null;
+    var timer = stop ? setTimeout(function () { stop.abort(); }, 45000) : null;
+    return fetch(config.webhookUrl, { method: "POST", body: body, signal: stop ? stop.signal : undefined })
+      .then(function (res) { if (timer) clearTimeout(timer); if (!res.ok) throw new Error("webhook said " + res.status); return {}; },
+            function (e) { if (timer) clearTimeout(timer); throw e; });
+  }
+
+  function thanks(name, wasDemo) {
+    var first = name.split(/\s+/)[0];
+    show([el("div", { className: "tick", "aria-hidden": "true", text: "✓" }),
+      el("h1", { text: wasDemo ? "Demo: nothing sent" : words.thanksTitle }),
+      el("p", { className: "lead-in", text: wasDemo ? "The form works, but no webhook is set in config.js, so this lead went nowhere."
+        : words.thanksSub + " Cheers, " + first + "." }),
+      !wasDemo && biz.phone ? el("p", {}, ["In a hurry? ", el("a", { className: "call", href: "tel:" + biz.phone.replace(/[^\d+]/g, ""), text: "Call " + biz.phone })]) : null,
+      el("button", { type: "button", className: "btn btn-outline", text: "Start again", onclick: function () {
+        picks = { type: null, difficulty: null, size: null, suburb: "" }; start(); } })]);
+  }
+
+  track("view");
+  start();
+})();
+
+
+===== FILE: roof-quote-mate/config.js =====
+/* ============================================================================
+   ROOF QUOTE MATE - config.js
+   Everything you can change lives in this one file. You never need to open
+   the other files. Save, refresh the page, done.
+
+   Quick setup (5 minutes):
+     1. Put your business name, phone and logo file name under "business".
+     2. Put YOUR rates under "jobTypes", then set ratesConfirmed to true.
+     3. Paste your webhook address into "webhookUrl" (Zapier, Make, n8n,
+        your own server - anything that accepts a form POST).
+     4. Set "tier" to "lite" or "full".
+
+   Until steps 2 and 3 are done the page shows a yellow SETUP notice so you
+   can't put it in front of customers half-finished by accident.
+   ========================================================================= */
+
+window.RQM_CONFIG = {
+
+  /* "lite" = quote + lead form.
+     "full" = the same, plus roof photos and your own name and logo on every
+              screen. (Full needs the file full.js to be in the folder.) */
+  tier: "lite",
+
+  business: {
+    name: "Your Roofing Co",
+    logoPath: "logo.svg",          // a file in this folder: logo.png, logo.jpg, logo.svg
+    phone: "",                     // shown to the customer if a lead fails to send
+    licence: ""                    // optional, shown in the small print
+  },
+
+  /* Optional colours. The page is safety gold (#F5A623) unless you say otherwise. For blue:
+       theme: { accent: "#3D8BFF", onAccent: "#0B1220" },
+     accent is the button and highlight colour; onAccent is the text on top of it. */
+
+  /* Optional wording for the yellow notice shown while rates are unconfirmed:
+       noticeTitle: "Heads up", ratesNotice: "Example prices only. ...",
+     (a hosted service sets these so a homeowner never sees instructions meant for the owner) */
+
+  /* Optional. In "lite" mode the page shows this name and logo instead of yours (a company that
+     sells Roof Quote Mate under its own brand puts its name here). In "full" mode your own
+     business name and logo are used, whatever this says.
+       brand: { name: "Your Quote Brand", logoPath: "brand-logo.png" },  */
+
+  /* Where leads are sent. Leave empty and the app runs in demo mode:
+     it works end to end but sends nothing, and says so. */
+  webhookUrl: "",
+
+  /* The rates below are EXAMPLES so the app has something to show.
+     They are not real prices. Put in your own, then change this to true. */
+  ratesConfirmed: false,
+
+  /* What you sell. Change these words to switch the app to another trade. */
+  trade: {
+    productName: "Roof Quote Mate",    // shown in lite mode
+    jobName: "new roof",               // "Ballpark for your new roof"
+    unit: "m²"                         // what the rates below are per
+  },
+
+  /* One entry per roof type. Rates are dollars per m², before GST. */
+  jobTypes: [
+    { id: "tile",      label: "Tile",      hint: "Concrete or terracotta", labourPerUnit: 60, materialPerUnit: 70 },
+    { id: "colorbond", label: "Colorbond", hint: "Steel sheet roofing",    labourPerUnit: 55, materialPerUnit: 65 },
+    { id: "tin",       label: "Tin",       hint: "Corrugated iron",        labourPerUnit: 45, materialPerUnit: 40 }
+  ],
+
+  /* How much harder (dearer) the job gets. 1 = normal, 1.25 = 25% more. */
+  difficulty: [
+    { id: "single", label: "Single storey",   hint: "Ground floor only",  multiplier: 1 },
+    { id: "double", label: "Double storey",   hint: "Two levels",         multiplier: 1.25 },
+    { id: "triple", label: "Three or more",   hint: "Or a very steep roof", multiplier: 1.5 }
+  ],
+
+  /* Rough sizes. min and max are in the unit above (m²). */
+  sizes: [
+    { id: "small",  label: "Small",    hint: "Up to 120 m² · 2 to 3 bedrooms",  min: 80,  max: 120 },
+    { id: "medium", label: "Medium",   hint: "120 to 200 m² · 3 to 4 bedrooms", min: 120, max: 200 },
+    { id: "large",  label: "Large",    hint: "200 to 320 m² · 5 bedrooms plus", min: 200, max: 320 },
+    { id: "unsure", label: "Not sure", hint: "We'll work it out on site",       min: 80,  max: 320 }
+  ],
+
+  pricing: {
+    gstRegistered: true,      // false = you don't charge GST: nothing is added and GST is never mentioned
+    ratesIncludeGst: false,   // false = the app adds GST and shows prices "including GST"
+    gstRate: 0.10,
+    spread: 0.10,             // widen the range 10% each way to cover unknowns
+    roundTo: 100,             // round to the nearest $100 (low end down, high end up)
+    minimumJob: 3000,         // never show a ballpark below this
+    /* Optional: a rebate taken off the price, sized by the job. Leave as null if there isn't one.
+       Example for a trade with a per-unit subsidy that tapers on bigger jobs:
+         rebate: { label: "Government rebate", perUnit: 250, note: "Paid as a discount on your invoice.",
+                   bands: [ { upTo: 14, share: 1 }, { upTo: 28, share: 0.6 }, { upTo: 50, share: 0.15 } ] }  */
+    rebate: null
+  },
+
+  /* Full tier only. */
+  photos: {
+    max: 4,
+    maxEdgePx: 1600,          // photos are shrunk on the phone before sending
+    quality: 0.82
+  },
+
+  /* Every word the customer reads. Plain words work best. */
+  words: {
+    headline: "What's a new roof going to cost?",
+    subline: "Four quick taps. Ballpark price straight away.",
+    askType: "What's on your roof now?",
+    askDifficulty: "How tall is the house?",
+    askSize: "Roughly how big is the roof?",
+    askSuburb: "What suburb is the job in?",
+    suburbPlaceholder: "e.g. Fremantle",
+    ballparkTitle: "Your ballpark",
+    ballparkNote: "Ballpark only. The exact price depends on the roof's condition, pitch and access.",
+    leadTitle: "Want the exact quote?",
+    leadSub: "Tell us where to send it. No spam, no call centres.",
+    photosTitle: "Add up to 4 photos of the roof",
+    photosSub: "Optional, but it gets you a sharper quote.",
+    sendButton: "Send me the exact quote",
+    // optional: privacyNote (use {business} for your name) and watchTitle; any job type, difficulty or size
+    // can carry a  watch: "..."  line that is listed under the ballpark when the customer picks it
+
+    thanksTitle: "Got it. Thanks, mate.",
+    thanksSub: "We'll be in touch with your exact quote."
+  }
+};
+
+
+===== FILE: roof-quote-mate/estimate.js =====
+/* Roof Quote Mate - the pricing sum and the config check.
+   Pure functions, no page needed, so they can be tested on their own (see test.js).
+   Nothing here mentions roofs: it prices "units x rate x difficulty" for any trade. */
+(function (root) {
+  "use strict";
+
+  function isNum(v) { return typeof v === "number" && isFinite(v); }
+
+  /* List everything wrong with a config, in plain words. Empty list = good to go. */
+  function checkConfig(c) {
+    var bad = [];
+    if (!c || typeof c !== "object") return ["config.js did not load. Check the file is in the folder and has no typos."];
+    if (c.tier !== "lite" && c.tier !== "full") bad.push('tier must be "lite" or "full".');
+    if (!c.business || !String(c.business.name || "").trim()) bad.push("business.name is empty.");
+    // a full address, or a path on the same site (used when the app is hosted for you)
+    if (c.leadQuestions != null) {
+      var lq = c.leadQuestions;
+      ["urgency", "contactTime"].forEach(function (key) {
+        var q = lq && lq[key];
+        if (q == null) return;
+        if (typeof q !== "object" || !String(q.label || "").trim() || !Array.isArray(q.options) || !q.options.length ||
+            !q.options.every(function (o) { return o && typeof o.id === "string" && o.id && typeof o.label === "string" && o.label; }))
+          bad.push("leadQuestions." + key + " needs a label and a list of options, each with an id and a label.");
+      });
+    }
+    var colour = /^#[0-9a-f]{3,8}$/i;
+    if (c.theme != null && (typeof c.theme !== "object" || (c.theme.accent != null && !colour.test(c.theme.accent)) ||
+        (c.theme.onAccent != null && !colour.test(c.theme.onAccent)))) bad.push("theme colours must look like #3D8BFF.");
+    if (c.brand != null && (typeof c.brand !== "object" || !String(c.brand.name || "").trim() ||
+        (c.brand.logoPath != null && typeof c.brand.logoPath !== "string"))) bad.push("brand needs a name, and logoPath (if given) must be text.");
+    if (c.webhookUrl && !/^(https?:\/\/|\/)/i.test(c.webhookUrl)) bad.push("webhookUrl must start with https://");
+    [["jobTypes", ["labourPerUnit", "materialPerUnit"]], ["difficulty", ["multiplier"]], ["sizes", ["min", "max"]]].forEach(function (group) {
+      var list = c[group[0]];
+      if (!Array.isArray(list) || !list.length) { bad.push(group[0] + " needs at least one entry."); return; }
+      var seen = {};
+      list.forEach(function (item, i) {
+        var where = group[0] + " #" + (i + 1) + (item && item.label ? " (" + item.label + ")" : "");
+        if (!item || !item.id || !item.label) { bad.push(where + " needs an id and a label."); return; }
+        if (seen[item.id]) bad.push(where + " uses an id that is already taken: " + item.id);
+        seen[item.id] = true;
+        group[1].forEach(function (key) {
+          if (!isNum(item[key]) || item[key] < 0) bad.push(where + ": " + key + " must be a number, zero or more.");
+        });
+        if (group[0] === "sizes" && isNum(item.min) && isNum(item.max) && item.max < item.min) bad.push(where + ": max is smaller than min.");
+        if (group[0] === "difficulty" && item.multiplier === 0) bad.push(where + ": multiplier can't be 0.");
+        if (item.watch != null && (typeof item.watch !== "string" || item.watch.length > 300)) bad.push(where + ": watch must be text under 300 letters.");
+      });
+    });
+    var p = c.pricing || {};
+    if (!isNum(p.gstRate) || p.gstRate < 0 || p.gstRate > 1) bad.push("pricing.gstRate should be like 0.10.");
+    if (!isNum(p.spread) || p.spread < 0 || p.spread >= 1) bad.push("pricing.spread should be like 0.10.");
+    if (!isNum(p.roundTo) || p.roundTo < 1) bad.push("pricing.roundTo should be 1 or more.");
+    if (!isNum(p.minimumJob) || p.minimumJob < 0) bad.push("pricing.minimumJob must be a number, zero or more.");
+    if (p.rebate) {
+      var last = 0;
+      if (!isNum(p.rebate.perUnit) || p.rebate.perUnit < 0) bad.push("pricing.rebate.perUnit must be a number, zero or more.");
+      if (!Array.isArray(p.rebate.bands) || !p.rebate.bands.length) bad.push("pricing.rebate.bands needs at least one band.");
+      else p.rebate.bands.forEach(function (band, i) {
+        if (!band || !isNum(band.upTo) || band.upTo <= last) bad.push("pricing.rebate band #" + (i + 1) + ": upTo must be bigger than the band before it.");
+        else last = band.upTo;
+        if (!band || !isNum(band.share) || band.share < 0 || band.share > 1) bad.push("pricing.rebate band #" + (i + 1) + ": share must be between 0 and 1.");
+      });
+    }
+    return bad;
+  }
+
+  function find(list, id) {
+    for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+    throw new Error("Unknown choice: " + id);
+  }
+
+  /* ---- exact arithmetic ----
+     Browsers do sums in floating point, where 15 x 55 x 1.4 x 0.9 can land a hair under 1039.5 and
+     round the wrong way. A price must match what the server records, to the dollar, so every
+     figure here is scaled to a whole number (6 decimal places) and worked in BigInt. */
+  var M = 1000000n;
+  function scale(x) { return BigInt(Math.round(x * 1e6)); }
+  function halfUp(n, d) { return (2n * n + d) / (2n * d); }          // n / d rounded to the nearest, halves going up (n >= 0)
+
+  /* A rebate that depends on size, e.g. so many dollars off per unit, paid in full on the first
+     band of units and at a smaller share on the next. Returns dollars x 1e26 (the same scale the price sum uses). */
+  function rebateScaled(c, units) {
+    var r = c.pricing.rebate;
+    if (!r) return 0n;
+    var u = scale(units), from = 0n, counted = 0n;                    // counted: units x share, scaled 1e12
+    r.bands.forEach(function (band) {
+      var upTo = scale(band.upTo), top = u < upTo ? u : upTo;
+      if (top > from) counted += (top - from) * scale(band.share);
+      from = upTo;
+    });
+    var perUnitCents = halfUp(scale(r.perUnit) * 100n, M);
+    return counted * perUnitCents * M * M;                            // (counted / 1e12 x cents / 100 dollars) x 1e26
+  }
+
+  /* The few words that go under a price: "including GST", "after the rebate", both, or nothing
+     (a business that isn't registered for GST must not say it charges GST). */
+  function priceNote(c) {
+    var bits = [];
+    if (c.pricing.priceSuffix) bits.push(c.pricing.priceSuffix);          // e.g. "per week"
+    if (c.pricing.gstRegistered !== false) bits.push("including GST");
+    if (c.pricing.rebate) bits.push("after the rebate");
+    return bits.join(", ");
+  }
+
+  /* picks = { type, difficulty, size } (ids from the config)
+     -> { low, high } in whole dollars: what the customer pays, GST included where it applies and
+     any rebate taken off. Also grossLow/grossHigh (before the rebate) and rebateLow/rebateHigh.
+     The server (qm/estimate.py) does the same sum and a test checks they agree on every choice. */
+  function estimate(c, picks) {
+    var type = find(c.jobTypes, picks.type);
+    var diff = find(c.difficulty, picks.difficulty);
+    var size = find(c.sizes, picks.size);
+    var p = c.pricing;
+
+    var rateCents = halfUp((scale(type.labourPerUnit) + scale(type.materialPerUnit)) * 100n, M);
+    var taxed = !(p.gstRegistered === false || p.ratesIncludeGst);
+    var gst = M + (taxed ? scale(p.gstRate) : 0n);
+    var mult = scale(diff.multiplier);
+    var S = 100n * M * M * M * M;                                     // price sum is dollars x 1e26: 100 cents, four 1e6 factors
+    var gross = function (units, spreadSign) {
+      var spread = spreadSign < 0 ? M - scale(p.spread) : M + scale(p.spread);
+      return scale(units) * rateCents * mult * spread * gst;
+    };
+    var step = scale(p.roundTo);
+    var whole = function (n) { return n < 0n ? 0n : halfUp(n, S) * M; };           // whole dollars, x 1e6
+    var down = function (n) { return (whole(n) / step) * step; };
+    var up = function (n) { var w = whole(n); return ((w + step - 1n) / step) * step; };
+    var near = function (n) { return halfUp(whole(n), step) * step; };
+    var dollars = function (n) { return Number(n) / 1e6; };
+
+    var grossLow = gross(size.min, -1), grossHigh = gross(size.max, 1);
+    var offLow = rebateScaled(c, size.min), offHigh = rebateScaled(c, size.max);
+    var low = dollars(down(grossLow - offLow)), high = dollars(up(grossHigh - offHigh));
+    if (low < p.minimumJob) low = p.minimumJob;
+    if (high < low) high = low;
+    return { low: low, high: high, grossLow: dollars(down(grossLow)), grossHigh: dollars(up(grossHigh)),
+             rebateLow: dollars(near(offLow)), rebateHigh: dollars(near(offHigh)), type: type, difficulty: diff, size: size };
+  }
+
+  function money(dollars) {
+    return "$" + String(Math.round(dollars)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  var api = { checkConfig: checkConfig, estimate: estimate, money: money, priceNote: priceNote };
+  root.RQM = root.RQM || {};
+  for (var k in api) root.RQM[k] = api[k];
+  if (typeof module !== "undefined" && module.exports) module.exports = api;
+})(typeof window !== "undefined" ? window : globalThis);
+
+
+===== FILE: roof-quote-mate/full.js =====
+/* Roof Quote Mate - FULL tier add-ons: roof photos, and the buyer's own branding.
+   The lite package is this same folder with this one file left out. Without it the
+   app runs as lite whatever config.js says, so the tiers can't be swapped by editing a word. */
+(function () {
+  "use strict";
+  var RQM = window.RQM = window.RQM || {};
+
+  function el(tag, attrs, kids) {
+    var n = document.createElement(tag);
+    for (var k in attrs || {}) {
+      if (k === "text") n.textContent = attrs[k];
+      else if (k.slice(0, 2) === "on") n.addEventListener(k.slice(2), attrs[k]);
+      else if (k in n) n[k] = attrs[k];
+      else n.setAttribute(k, attrs[k]);
+    }
+    (kids || []).forEach(function (kid) { if (kid) n.appendChild(kid); });
+    return n;
+  }
+
+  /* The business's name and logo in the header, on every screen. */
+  function brand(header, config) {
+    header.textContent = "";
+    var b = config.business;
+    if (b.logoPath) {
+      var img = el("img", { src: b.logoPath, alt: "", className: "brand-logo" });
+      img.addEventListener("error", function () { img.remove(); });      // no logo file? name only
+      header.appendChild(img);
+    }
+    header.appendChild(el("span", { className: "brand-name", text: b.name }));
+    document.title = b.name + " | Instant ballpark";
+  }
+
+  /* Shrink a phone photo before it is sent, so four photos upload on patchy reception. */
+  function shrink(file, maxEdge, quality) {
+    return new Promise(function (resolve) {
+      var url = URL.createObjectURL(file), img = new Image();
+      img.onload = function () {
+        var scale = Math.min(1, maxEdge / Math.max(img.width, img.height));
+        var canvas = document.createElement("canvas");
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(function (blob) {
+          if (!blob) return resolve(file);
+          resolve(new File([blob], file.name.replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" }));
+        }, "image/jpeg", quality);
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); resolve(file); };   // can't read it: send it as it is
+      img.src = url;
+    });
+  }
+
+  /* The photo picker. Returns { node, files() } where files() gives the shrunk photos. */
+  function photos(config) {
+    var max = config.photos.max, words = config.words, chosen = [];
+    var grid = el("div", { className: "photo-grid" });
+    var note = el("p", { className: "small", role: "status" });
+    var input = el("input", { type: "file", accept: "image/*", multiple: true, id: "photoInput", className: "visually-hidden" });
+    var pick = el("label", { className: "btn btn-outline", htmlFor: "photoInput", text: "Add photos" });
+
+    function draw() {
+      grid.textContent = "";
+      chosen.forEach(function (item, i) {
+        grid.appendChild(el("div", { className: "photo" }, [
+          el("img", { src: item.url, alt: "Roof photo " + (i + 1) }),
+          el("button", { type: "button", className: "photo-x", "aria-label": "Remove photo " + (i + 1), text: "×",
+            onclick: function () { URL.revokeObjectURL(item.url); chosen.splice(i, 1); note.textContent = ""; draw(); } })
+        ]));
+      });
+      pick.textContent = chosen.length ? "Add another (" + chosen.length + " of " + max + ")" : "Add photos";
+      pick.hidden = chosen.length >= max;
+    }
+
+    input.addEventListener("change", function () {
+      var extra = 0;
+      Array.prototype.forEach.call(input.files, function (file) {
+        if (!/^image\//.test(file.type)) return;
+        if (chosen.length >= max) { extra++; return; }
+        chosen.push({ file: file, url: URL.createObjectURL(file) });
+      });
+      note.textContent = extra ? "Only " + max + " photos fit. Left out the last " + extra + "." : "";
+      input.value = "";
+      draw();
+    });
+
+    draw();
+    return {
+      node: el("div", { className: "photos" }, [
+        el("h3", { text: words.photosTitle.replace("4", String(max)) }), el("p", { className: "small", text: words.photosSub }),
+        grid, input, pick, note]),
+      files: function () {
+        return Promise.all(chosen.map(function (item) { return shrink(item.file, config.photos.maxEdgePx, config.photos.quality); }));
+      }
+    };
+  }
+
+  RQM.full = { brand: brand, photos: photos };
+})();
+
+
+===== FILE: roof-quote-mate/index.html =====
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1B1D21">
+<title>Roof Quote Mate | Instant ballpark</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="stripe" aria-hidden="true"></div>
+<header class="brand" id="brand"><span class="brand-name">Roof Quote Mate</span></header>
+<div class="setup" id="setup" hidden></div>
+<main id="app" tabindex="-1"></main>
+<footer class="foot" id="foot"></footer>
+<noscript><p class="wrap">This page needs JavaScript turned on.</p></noscript>
+<script src="config.js"></script>
+<script src="estimate.js"></script>
+<script src="full.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
+
+
+===== FILE: roof-quote-mate/logo.svg =====
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Placeholder logo">
+  <rect width="96" height="96" rx="14" fill="#F5A623"/>
+  <path d="M14 52 48 22l34 30" fill="none" stroke="#1B1D21" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M26 50v24h44V50" fill="none" stroke="#1B1D21" stroke-width="8" stroke-linejoin="round"/>
+</svg>
+
+
+===== FILE: roof-quote-mate/test.js =====
+/* Checks the pricing sum and the config check. Run:  node test.js   (no installs needed) */
+const assert = require("assert");
+global.window = {};
+require("./config.js");
+const { estimate, checkConfig, money, priceNote } = require("./estimate.js");
+const config = global.window.RQM_CONFIG;
+const clone = (o) => JSON.parse(JSON.stringify(o));
+let n = 0;
+const test = (name, fn) => { fn(); n++; console.log("ok  " + name); };
+
+test("the shipped config is valid", () => assert.deepStrictEqual(checkConfig(config), []));
+
+test("colorbond, double storey, medium - worked by hand", () => {
+  // rate 55 + 65 = $120/m2, x1.25 for two storeys = $150/m2
+  // low  120 m2 x 150 = 18,000 less 10% = 16,200 plus GST = 17,820 -> rounds down to 17,800
+  // high 200 m2 x 150 = 30,000 plus 10% = 33,000 plus GST = 36,300 -> already on a hundred
+  const e = estimate(config, { type: "colorbond", difficulty: "double", size: "medium" });
+  assert.deepStrictEqual([e.low, e.high], [17800, 36300]);
+});
+
+test("tin, single storey, small", () => {
+  // $85/m2: low 80 x 85 = 6,800 x 0.9 x 1.1 = 6,732 -> 6,700 ; high 120 x 85 = 10,200 x 1.1 x 1.1 = 12,342 -> 12,400
+  const e = estimate(config, { type: "tin", difficulty: "single", size: "small" });
+  assert.deepStrictEqual([e.low, e.high], [6700, 12400]);
+});
+
+test("every combination gives a sane range", () => {
+  for (const t of config.jobTypes) for (const d of config.difficulty) for (const s of config.sizes) {
+    const e = estimate(config, { type: t.id, difficulty: d.id, size: s.id });
+    assert.ok(Number.isInteger(e.low) && Number.isInteger(e.high), "whole dollars");
+    assert.ok(e.low % config.pricing.roundTo === 0 && e.high % config.pricing.roundTo === 0, "rounded");
+    assert.ok(e.low >= config.pricing.minimumJob && e.high >= e.low, "ordered and above the minimum");
+  }
+});
+
+test("harder jobs and bigger roofs never come out cheaper", () => {
+  const at = (d, s) => estimate(config, { type: "tile", difficulty: d, size: s });
+  assert.ok(at("double", "medium").high > at("single", "medium").high);
+  assert.ok(at("triple", "medium").low > at("double", "medium").low);
+  assert.ok(at("single", "large").low > at("single", "small").low);
+});
+
+test("rates that already include GST are not taxed twice", () => {
+  const c = clone(config); c.pricing.ratesIncludeGst = true; c.pricing.spread = 0;
+  const e = estimate(c, { type: "tile", difficulty: "single", size: "medium" });
+  assert.deepStrictEqual([e.low, e.high], [120 * 130, 200 * 130]);
+});
+
+test("the minimum job charge is a floor", () => {
+  const c = clone(config); c.pricing.minimumJob = 9000;
+  const e = estimate(c, { type: "tin", difficulty: "single", size: "small" });
+  assert.deepStrictEqual([e.low, e.high], [9000, 12400]);
+  c.pricing.minimumJob = 50000;
+  const f = estimate(c, { type: "tin", difficulty: "single", size: "small" });
+  assert.deepStrictEqual([f.low, f.high], [50000, 50000]);
+});
+
+test("decimal rates do not drift", () => {
+  const c = clone(config); c.jobTypes[0].labourPerUnit = 0.1; c.jobTypes[0].materialPerUnit = 0.2;
+  c.pricing = { ratesIncludeGst: true, gstRate: 0.1, spread: 0, roundTo: 1, minimumJob: 0 };
+  c.sizes[0].min = c.sizes[0].max = 1000;
+  const e = estimate(c, { type: "tile", difficulty: "single", size: "small" });
+  assert.deepStrictEqual([e.low, e.high], [300, 300]);              // 0.1 + 0.2 = 0.3, not 0.30000000000000004
+});
+
+test("another trade drops in by config alone", () => {
+  const painter = clone(config);
+  painter.trade = { productName: "Paint Quote Mate", jobName: "repaint", unit: "room" };
+  painter.jobTypes = [{ id: "interior", label: "Inside", labourPerUnit: 450, materialPerUnit: 150 }];
+  painter.difficulty = [{ id: "std", label: "Standard ceilings", multiplier: 1 }];
+  painter.sizes = [{ id: "few", label: "3 to 4 rooms", min: 3, max: 4 }];
+  painter.pricing = { ratesIncludeGst: true, gstRate: 0.1, spread: 0, roundTo: 50, minimumJob: 500 };
+  assert.deepStrictEqual(checkConfig(painter), []);
+  const e = estimate(painter, { type: "interior", difficulty: "std", size: "few" });
+  assert.deepStrictEqual([e.low, e.high], [1800, 2400]);
+});
+
+test("a broken config is explained, not crashed on", () => {
+  const c = clone(config);
+  c.tier = "pro"; c.business.name = " "; c.webhookUrl = "zapier.com/hook"; c.jobTypes[1].labourPerUnit = "55";
+  c.sizes[0].max = 10; c.difficulty[0].multiplier = 0; c.jobTypes[2].id = "tile"; c.pricing.spread = 2;
+  const bad = checkConfig(c).join("\n");
+  for (const expected of ['"lite" or "full"', "business.name", "https://", "labourPerUnit must be a number", "max is smaller than min",
+                          "multiplier can't be 0", "already taken: tile", "pricing.spread"]) assert.ok(bad.includes(expected), expected + "\n" + bad);
+  assert.strictEqual(checkConfig(undefined).length, 1);
+  assert.throws(() => estimate(config, { type: "slate", difficulty: "single", size: "small" }), /Unknown choice/);
+});
+
+test("a lead address can be a full URL or a path on the same site", () => {
+  const c = clone(config);
+  for (const ok of ["https://hooks.example.com/abc", "/q/acme/lead", ""]) { c.webhookUrl = ok; assert.deepStrictEqual(checkConfig(c), [], ok); }
+  for (const bad of ["hooks.example.com/abc", "javascript:alert(1)", "ftp://x"]) { c.webhookUrl = bad; assert.strictEqual(checkConfig(c).length, 1, bad); }
+});
+
+test("a business not registered for GST adds none and never mentions it", () => {
+  const c = clone(config); c.pricing.gstRegistered = false; c.pricing.spread = 0;
+  const e = estimate(c, { type: "tile", difficulty: "single", size: "medium" });
+  assert.deepStrictEqual([e.low, e.high], [120 * 130, 200 * 130]);
+  assert.strictEqual(priceNote(c), "");
+  assert.strictEqual(priceNote(config), "including GST");
+});
+
+test("a banded rebate comes off the price - worked by hand", () => {
+  const c = clone(config);
+  c.jobTypes = [{ id: "bat", label: "Battery", labourPerUnit: 200, materialPerUnit: 700 }];         // $900 per kWh
+  c.difficulty = [{ id: "std", label: "Standard", multiplier: 1 }];
+  c.sizes = [{ id: "family", label: "Family", min: 10, max: 20 }, { id: "huge", label: "Huge", min: 30, max: 60 }];
+  c.pricing = { gstRegistered: true, ratesIncludeGst: true, gstRate: 0.1, spread: 0, roundTo: 100, minimumJob: 0,
+                rebate: { label: "Battery rebate", perUnit: 250, bands: [{ upTo: 14, share: 1 }, { upTo: 28, share: 0.6 }, { upTo: 50, share: 0.15 }] } };
+  assert.deepStrictEqual(checkConfig(c), []);
+  // 10 kWh: 9,000 less 10 x 250 = 2,500 -> 6,500.   20 kWh: 18,000 less (14 + 6 x 0.6 = 17.6) x 250 = 4,400 -> 13,600
+  let e = estimate(c, { type: "bat", difficulty: "std", size: "family" });
+  assert.deepStrictEqual([e.low, e.high, e.grossLow, e.grossHigh, e.rebateLow, e.rebateHigh], [6500, 13600, 9000, 18000, 2500, 4400]);
+  // 30 kWh: (14 + 8.4 + 2 x 0.15 = 22.7) x 250 = 5,675.   60 kWh: capped at 50 -> (14 + 8.4 + 3.3 = 25.7) x 250 = 6,425
+  e = estimate(c, { type: "bat", difficulty: "std", size: "huge" });
+  assert.deepStrictEqual([e.low, e.high, e.rebateLow, e.rebateHigh], [21300, 47600, 5700, 6400]);
+  assert.strictEqual(priceNote(c), "including GST, after the rebate");
+  c.pricing.rebate.bands[1].upTo = 10;
+  assert.ok(checkConfig(c).join(" ").includes("bigger than the band before it"));
+  c.pricing.rebate.bands[1] = { upTo: 28, share: 1.5 };
+  assert.ok(checkConfig(c).join(" ").includes("share must be between 0 and 1"));
+});
+
+test("an option can carry a watch line, and a bad one is refused", () => {
+  const c = clone(config);
+  c.difficulty[0].watch = "Check this before you go ahead.";
+  assert.deepStrictEqual(checkConfig(c), []);
+  c.difficulty[0].watch = 5;
+  assert.ok(checkConfig(c).join(" ").includes("watch must be text"));
+  c.difficulty[0].watch = "x".repeat(301);
+  assert.ok(checkConfig(c).join(" ").includes("watch must be text"));
+});
+
+test("a price can be labelled, e.g. per week", () => {
+  const c = clone(config); c.pricing.priceSuffix = "per week"; c.pricing.gstRegistered = false;
+  assert.strictEqual(priceNote(c), "per week");
+  c.pricing.gstRegistered = true;
+  assert.strictEqual(priceNote(c), "per week, including GST");
+});
+
+test("sums are exact: a half-dollar rounds up, never down by a floating-point hair", () => {
+  // 15 hours x $55 x 1.4 x 0.9 is exactly $1,039.50. In floating point it can come out at 1039.4999999999998.
+  const c = clone(config);
+  c.jobTypes = [{ id: "a", label: "A", labourPerUnit: 55, materialPerUnit: 0 }];
+  c.difficulty = [{ id: "d", label: "D", multiplier: 1.4 }];
+  c.sizes = [{ id: "s", label: "S", min: 15, max: 25 }];
+  c.pricing = { gstRegistered: false, ratesIncludeGst: false, gstRate: 0.1, spread: 0.1, roundTo: 1, minimumJob: 0, rebate: null };
+  let e = estimate(c, { type: "a", difficulty: "d", size: "s" });
+  assert.deepStrictEqual([e.low, e.high], [1040, 2118]);            // 1,039.50 -> 1,040 ; 25 x 77 x 1.1 = 2,117.50 -> 2,118
+  c.pricing.roundTo = 5;
+  e = estimate(c, { type: "a", difficulty: "d", size: "s" });
+  assert.deepStrictEqual([e.low, e.high], [1040, 2120]);            // the whole-dollar figure is rounded first, then taken down or up to a 5
+  c.jobTypes[0].labourPerUnit = 1.005;                              // a rate with a half-cent: $1.005 -> 101 cents, not 100
+  c.sizes[0].min = c.sizes[0].max = 1000; c.difficulty[0].multiplier = 1; c.pricing.spread = 0; c.pricing.roundTo = 1;
+  e = estimate(c, { type: "a", difficulty: "d", size: "s" });
+  assert.deepStrictEqual([e.low, e.high], [1010, 1010]);
+});
+
+test("a product brand is optional and checked", () => {
+  const c = clone(config);
+  c.brand = { name: "48 AI Crew Quoting", logoPath: "/static/logo.png" };
+  assert.deepStrictEqual(checkConfig(c), []);
+  c.brand = { name: "No logo is fine" };
+  assert.deepStrictEqual(checkConfig(c), []);
+  for (const bad of [{ name: " " }, { logoPath: "x.png" }, { name: "x", logoPath: 5 }, "text"]) {
+    c.brand = bad;
+    assert.ok(checkConfig(c).join(" ").includes("brand needs a name"), JSON.stringify(bad));
+  }
+});
+
+test("theme colours are optional and must be real colours", () => {
+  const c = clone(config);
+  c.theme = { accent: "#3D8BFF", onAccent: "#0B1220" };
+  assert.deepStrictEqual(checkConfig(c), []);
+  c.theme = { accent: "#3d8bff" };
+  assert.deepStrictEqual(checkConfig(c), []);
+  for (const bad of [{ accent: "blue" }, { accent: "red; background: url(x)" }, { onAccent: 5 }, "blue"]) {
+    c.theme = bad;
+    assert.ok(checkConfig(c).join(" ").includes("theme colours"), JSON.stringify(bad));
+  }
+});
+
+test("lead questions are optional and must be well formed", () => {
+  const c = clone(config);
+  c.leadQuestions = { urgency: { label: "When?", options: [{ id: "asap", label: "Soon", hot: true }] }, contactTime: { label: "Call when?", options: [{ id: "am", label: "Morning" }] } };
+  assert.deepStrictEqual(checkConfig(c), []);
+  c.leadQuestions = { urgency: { label: "When?", options: [] } };
+  assert.ok(checkConfig(c).join(" ").includes("leadQuestions.urgency"));
+  c.leadQuestions = { contactTime: { label: "", options: [{ id: "a", label: "A" }] } };
+  assert.ok(checkConfig(c).join(" ").includes("leadQuestions.contactTime"));
+  c.leadQuestions = { urgency: { label: "When?", options: [{ id: "a" }] } };
+  assert.ok(checkConfig(c).join(" ").includes("leadQuestions.urgency"));
+});
+
+test("money formatting", () => {
+  assert.deepStrictEqual([money(17800), money(950), money(1234567)], ["$17,800", "$950", "$1,234,567"]);
+});
+
+console.log("\n" + n + " checks passed");
+
+
