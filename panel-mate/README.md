@@ -31,11 +31,20 @@ Mock answers are made up by the program and the report says so in red.
 2. Copy `examples/snack-box.json`, edit name, pitch and price.
 3. `python3 panel.py run my-idea.json --size 1000 --yes`
 
-A full run is 1,200 model calls. **That spends your money.** Check Anthropic's current pricing first.
+A 1,000 run is 1,200 model calls. **That spends your money.** Check Anthropic's current pricing first.
 The program will not run without `--yes`, and refuses more than `--max-calls` (default 2,500).
 Start with `--size 100` to see how it behaves.
 
 Default model is `claude-haiku-5-5` (cheapest). Change with `--model`.
+
+## A 10,000-customer panel
+```
+python3 panel.py run my-idea.json --size 10000 --workers 24 --max-calls 10500 --yes
+```
+- That is 10,000 customers plus a 500-customer control check = **10,500 model calls, about 9 times a 1,000 run**. The `--max-calls` flag is a deliberate safety catch: you have to raise it on purpose. Check Anthropic's pricing and set a spending limit on your API account first.
+- Time depends on your account's rate limits. As a rough guess (not measured), 10,500 calls at 24 at a time is under an hour. If it stops, run the same command again: it resumes where it left off and does not pay twice for answers it already has.
+- Do a `--size 100` run first, then a 1,000 run, then 10,000.
+- **What 10,000 buys you:** a tighter result (about 0.5 points of simulation noise instead of about 1.5) and groups big enough to read, such as one state or age band. **What it does not buy you:** accuracy. A bigger panel of the same simulated customers repeats the same biases, so 10,000 simulated people are still not 10,000 real ones.
 
 ## Using it well
 - Run it twice with two versions of your pitch or price and compare. The difference matters more than the level.

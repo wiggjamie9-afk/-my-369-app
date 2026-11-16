@@ -234,7 +234,7 @@ def run_arm(cfg, people, offer, path, workers, label):
                 out.write(json.dumps(r) + "\n")
                 out.flush()
                 count[0] += 1
-                if count[0] % 50 == 0:
+                if count[0] % max(50, len(pending) // 20) == 0:
                     print("  %s: %d/%d" % (label, count[0], len(pending)), file=sys.stderr)
             return r
         with cf.ThreadPoolExecutor(max_workers=max(1, workers)) as ex:
@@ -405,7 +405,8 @@ def write_outputs(outdir, offer, agg, control_agg, results, people, meta):
 def cmd_run(a):
     offer = load_idea(a.idea)
     people = make_personas(a.size, a.seed)
-    control_n = min(a.control_size, a.size) if a.control else 0
+    control_size = a.control_size if a.control_size is not None else max(200, a.size // 20)
+    control_n = min(control_size, a.size) if a.control else 0
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     cfg = Config(model=a.model, api_key=api_key, base_url=os.environ.get("ANTHROPIC_BASE_URL", API_URL), mock=a.mock)
     total = a.size + control_n
@@ -415,7 +416,7 @@ def cmd_run(a):
         if not api_key:
             raise SystemExit("Set ANTHROPIC_API_KEY first, or use --mock to try it free with fake answers.")
         if total > a.max_calls:
-            raise SystemExit("That is %d calls, above --max-calls %d. Lower --size or raise the cap." % (total, a.max_calls))
+            raise SystemExit("That is %d calls, above the safety cap of %d. If you mean it, add --max-calls %d." % (total, a.max_calls, total))
         if not a.yes:
             raise SystemExit("This will spend money on your API account. Check Anthropic's current pricing, then add --yes to run.")
     os.makedirs(a.out, exist_ok=True)
@@ -445,11 +446,11 @@ def main(argv=None):
     r.add_argument("--size", type=int, default=1000)
     r.add_argument("--seed", type=int, default=48)
     r.add_argument("--model", default=DEFAULT_MODEL)
-    r.add_argument("--workers", type=int, default=8, help="calls in flight at once")
+    r.add_argument("--workers", type=int, default=8, help="calls in flight at once (try 16-32 for big panels if your API limits allow)")
     r.add_argument("--out", default="panel-out")
     r.add_argument("--mock", action="store_true", help="fake answers, no API, free")
     r.add_argument("--no-control", dest="control", action="store_false")
-    r.add_argument("--control-size", type=int, default=200)
+    r.add_argument("--control-size", type=int, default=None, help="default: 5%% of the panel, at least 200")
     r.add_argument("--max-calls", type=int, default=2500)
     r.add_argument("--yes", action="store_true", help="confirm you are happy to spend on the API")
     r.set_defaults(func=cmd_run)
