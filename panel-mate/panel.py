@@ -62,26 +62,56 @@ SYSTEM = ("You are role-playing ONE specific Australian consumer, described belo
           "Reply with a single JSON object and nothing else.")
 
 
+TRADES = [("an electrician", 12), ("a plumber", 12), ("a carpenter or builder", 14), ("a painter", 9), ("a roofer", 6),
+          ("a landscaper or gardener", 10), ("an air-con or refrigeration tech", 6), ("a tiler or concreter", 7),
+          ("a handyman", 10), ("a cleaner", 7), ("a mechanic", 7)]
+STAFF = [("a sole trader", 55), ("running a small team of 2-5", 33), ("running a business with 6-15 staff", 12)]
+TECH = [("someone who hates apps and prefers the phone", 25), ("fine with apps but impatient", 50), ("keen on new tech", 25)]
+ADMIN = [("someone who hates quoting and paperwork", 30), ("reasonably organised with admin", 40),
+         ("someone who has another person do the admin", 15), ("already paying for job-management software", 15)]
+
+SYSTEM_BUSINESS = ("You are role-playing ONE specific Australian small-business owner, described below, who has just come across an offer "
+                   "for a tool or service for their business. You are busy, time-poor and have been burned by software that over-promised. "
+                   "Stay in character, not as a helpful assistant. Your default answer is PASS unless it solves a problem you have right now, "
+                   "is easy to start, and clearly pays for itself. Do not be polite or encouraging. "
+                   "Do not invent facts about the product beyond what the offer says. Reply with a single JSON object and nothing else.")
+
+
 def pick(rng, table):
     return rng.choices([t[0] for t in table], weights=[t[1] for t in table])[0]
 
 
-def make_personas(n, seed=48):
+def make_personas(n, seed=48, audience="consumer"):
     rng = random.Random(seed)
     people = []
     for i in range(n):
+        if audience == "business":
+            band = rng.choices(AGE_BANDS[1:5], weights=[b[1] for b in AGE_BANDS[1:5]])[0]
+            age = rng.randint(band[2], band[3])
+            people.append({"id": i + 1, "kind": "business", "age": age, "age_band": band[0], "state": pick(rng, STATES),
+                           "trade": pick(rng, TRADES), "staff": pick(rng, STAFF), "years": rng.randint(1, max(1, age - 20)),
+                           "tech": pick(rng, TECH), "admin": pick(rng, ADMIN)})
+            continue
         band = rng.choices(AGE_BANDS, weights=[b[1] for b in AGE_BANDS])[0]
         age = rng.randint(band[2], band[3])
         table = HOUSEHOLDS_YOUNG if age < 25 else HOUSEHOLDS_OLDER if age >= 65 else HOUSEHOLDS_MID
         income = pick(rng, INCOMES)
-        people.append({"id": i + 1, "age": age, "age_band": band[0], "state": pick(rng, STATES),
+        people.append({"id": i + 1, "kind": "consumer", "age": age, "age_band": band[0], "state": pick(rng, STATES),
                        "household": pick(rng, table), "income": income,
                        "budget": pick(rng, BUDGET_BY_INCOME[income]), "style": pick(rng, STYLES),
                        "trust": pick(rng, TRUST)})
     return people
 
 
+def system_for(p):
+    return SYSTEM_BUSINESS if p.get("kind") == "business" else SYSTEM
+
+
 def persona_text(p):
+    if p.get("kind") == "business":
+        return ("You are a %d-year-old %s in %s, Australia, %s, and have been in business for %d years. "
+                "You are %s. On admin you are %s."
+                % (p["age"], p["trade"], p["state"], p["staff"], p["years"], p["tech"], p["admin"]))
     return ("You are a %d-year-old living in %s, Australia. You are %s. Household income is %s a year, so money is %s. "
             "You are %s. Towards small online brands you have not heard of you are %s."
             % (p["age"], p["state"], p["household"], p["income"], p["budget"], p["style"], p["trust"]))
@@ -136,8 +166,8 @@ class Config:
         self.retries, self.backoff, self.mock = retries, backoff, mock
 
 
-def call_model(cfg, system, user):
-    body = json.dumps({"model": cfg.model, "max_tokens": 400, "system": system,
+def call_model(cfg, system, user, max_tokens=400):
+    body = json.dumps({"model": cfg.model, "max_tokens": max_tokens, "system": system,
                        "messages": [{"role": "user", "content": user}]}).encode()
     headers = {"content-type": "application/json", "x-api-key": cfg.api_key, "anthropic-version": "2023-06-01"}
     last = "unknown"
@@ -168,9 +198,10 @@ def mock_answer(p, offer):
     """Deterministic fake answers so the pipeline can be tried for free. Not real opinions."""
     rng = random.Random("%s|%s|%s" % (p["id"], offer["name"], offer["price"]))
     score = 0.30 - float(offer["price"]) / 200.0
-    score += {"tight": -0.08, "ok": 0.0, "comfortable": 0.05}[p["budget"]]
-    score += 0.06 if "impulse" in p["style"] else -0.06 if "sceptic" in p["style"] else 0.0
-    score -= 0.05 if p["trust"] == "distrustful" else 0.0
+    score += {"tight": -0.08, "ok": 0.0, "comfortable": 0.05}[p.get("budget", "ok")]
+    style = p.get("style", p.get("tech", ""))
+    score += 0.06 if ("impulse" in style or "keen" in style) else -0.06 if ("sceptic" in style or "hates" in style) else 0.0
+    score -= 0.05 if p.get("trust") == "distrustful" else 0.0
     p_buy = min(max(score, 0.01), 0.40)
     r = rng.random()
     price = float(offer["price"])
@@ -190,10 +221,10 @@ def ask(cfg, p, offer, fingerprint):
         if cfg.mock:
             ans = mock_answer(p, offer)
         else:
-            text = call_model(cfg, SYSTEM, persona_text(p) + "\n\n" + offer_text(offer) + "\n\n" + SCHEMA)
+            text = call_model(cfg, system_for(p), persona_text(p) + "\n\n" + offer_text(offer) + "\n\n" + SCHEMA)
             ans = parse_answer(text)
             if ans is None:
-                text = call_model(cfg, SYSTEM, persona_text(p) + "\n\n" + offer_text(offer) + "\n\n" + SCHEMA
+                text = call_model(cfg, system_for(p), persona_text(p) + "\n\n" + offer_text(offer) + "\n\n" + SCHEMA
                                   + "\n\nYour last reply was not valid JSON. Reply with the JSON object only.")
                 ans = parse_answer(text)
             if ans is None:
@@ -254,6 +285,16 @@ def interval(p, n):
     return 1.96 * math.sqrt(p * (1 - p) / n) if n else 0.0
 
 
+DIM_LABELS = {"age_band": "Age", "income": "Household income", "household": "Household", "style": "Shopping style",
+              "state": "State", "trade": "Trade", "staff": "Business size", "tech": "Tech comfort", "admin": "Admin habits"}
+
+
+def dims_for(people):
+    if people and people[0].get("kind") == "business":
+        return ("age_band", "trade", "staff", "tech", "admin", "state")
+    return ("age_band", "income", "household", "style", "state")
+
+
 def aggregate(results, people, price_points):
     by_id = {p["id"]: p for p in people}
     ok = [r for r in results if r.get("ok")]
@@ -274,7 +315,7 @@ def aggregate(results, people, price_points):
     non_buyers = sum(obj.values())
     agg["objections"] = sorted(([k, v, v / non_buyers] for k, v in obj.items()), key=lambda x: -x[1])
     segs = {}
-    for dim in ("age_band", "income", "household", "style", "state"):
+    for dim in dims_for(people):
         groups = {}
         for r in ok:
             groups.setdefault(by_id[r["id"]][dim], []).append(r)
@@ -307,6 +348,10 @@ def pct(x):
 
 
 def render_report(offer, agg, control, meta):
+    return page(render_body(offer, agg, control, meta))
+
+
+def render_body(offer, agg, control, meta, title=True):
     e = html.escape
     verdict = control_verdict(control)
     warn = verdict is not None and verdict.startswith("WARNING")
@@ -318,10 +363,10 @@ def render_report(offer, agg, control, meta):
                 'people will buy. Test with real customers before spending real money.</div>')
     if verdict:
         rows.append('<div class="banner %s">%s</div>' % ("bad" if warn else "good", e(verdict)))
-    rows.append("<h1>%s</h1><p class='sub'>%s %s &middot; %d answered, %d failed &middot; model %s</p>"
-                % (e(offer["name"]), e(offer.get("currency", "AUD")), e(money(offer["price"])), agg["n"], agg["errors"], e(meta["model"])))
+    rows.append(("<h1>%s</h1>" % e(offer["name"]) if title else "") + "<p class='sub'>%s %s &middot; %d answered, %d failed &middot; model %s</p>"
+                % (e(offer.get("currency", "AUD")), e(money(offer["price"])), agg["n"], agg["errors"], e(meta["model"])))
     if not agg["n"]:
-        return page("".join(rows) + "<p>No usable answers.</p>")
+        return "".join(rows) + "<p>No usable answers.</p>"
     rows.append('<div class="tiles">'
                 '<div class="tile"><b>%s</b><span>would BUY<br>&plusmn;%.0f pts simulation noise</span></div>'
                 '<div class="tile"><b>%s</b><span>MAYBE</span></div>'
@@ -336,8 +381,8 @@ def render_report(offer, agg, control, meta):
     for k, v, share in agg["objections"]:
         rows.append('<div class="bar"><span>%s</span><i style="width:%.0f%%"></i><em>%s</em></div>' % (e(k.replace("_", " ")), 100 * share, pct(share)))
     rows.append("<h2>Who bought</h2><p class='sub'>Groups under 30 people are greyed out: too small to read anything into.</p>")
-    for dim, label in (("age_band", "Age"), ("income", "Household income"), ("household", "Household"), ("style", "Shopping style"), ("state", "State")):
-        rows.append("<h3>%s</h3><table>" % label)
+    for dim in agg["segments"]:
+        rows.append("<h3>%s</h3><table>" % e(DIM_LABELS.get(dim, dim)))
         for s in agg["segments"][dim]:
             rows.append('<tr class="%s"><td>%s</td><td>%d</td><td>BUY %s</td><td>BUY+MAYBE %s</td></tr>'
                         % ("small" if s["n"] < 30 else "", e(s["label"]), s["n"], pct(s["buy"]), pct(s["interest"])))
@@ -348,7 +393,7 @@ def render_report(offer, agg, control, meta):
     rows += ["<blockquote>%s</blockquote>" % e(q) for q in agg["quotes_pass"]] or ["<p>None.</p>"]
     rows.append("<p class='sub'>Panel drawn with a fixed seed from illustrative Australian-shaped weights (not census-exact). "
                 "Customer details come from the program, not the model.</p>")
-    return page("".join(rows))
+    return "".join(rows)
 
 
 def page(body):
@@ -381,6 +426,9 @@ def load_idea(path):
 
 
 def control_offer(idea):
+    if idea.get("audience") == "business":
+        return {"name": "CONTROL: empty app", "pitch": "A plain unbranded app with no features. It does nothing.",
+                "price": round(idea["price"] * 5), "currency": idea.get("currency", "AUD")}
     return {"name": "CONTROL: empty box", "pitch": "A plain cardboard box with nothing inside. No brand, no extras.",
             "price": round(idea["price"] * 5), "currency": idea.get("currency", "AUD")}
 
@@ -391,20 +439,25 @@ def write_outputs(outdir, offer, agg, control_agg, results, people, meta):
         fh.write(render_report(offer, agg, control_agg, meta))
     with open(os.path.join(outdir, "summary.json"), "w", encoding="utf-8") as fh:
         json.dump({"offer": offer, "meta": meta, "panel": agg, "control": control_agg}, fh, indent=2)
+    write_csv(outdir, results, people)
+
+
+def write_csv(outdir, results, people):
+    os.makedirs(outdir, exist_ok=True)
     by_id = {p["id"]: p for p in people}
     with open(os.path.join(outdir, "answers.csv"), "w", newline="", encoding="utf-8") as fh:
         w = csv.writer(fh)
-        w.writerow(["id", "age", "state", "household", "income", "style", "decision", "max_price", "stars", "objection", "reason"])
+        dims = dims_for(people)
+        w.writerow(["id", "age"] + list(dims) + ["decision", "max_price", "stars", "objection", "reason"])
         for r in results:
             if r.get("ok"):
                 p = by_id[r["id"]]
-                w.writerow([p["id"], p["age"], p["state"], p["household"], p["income"], p["style"],
-                            r["decision"], r["max_price"], r["stars"], r["objection"], r["reason"]])
+                w.writerow([p["id"], p["age"]] + [p[d] for d in dims] + [r["decision"], r["max_price"], r["stars"], r["objection"], r["reason"]])
 
 
 def cmd_run(a):
     offer = load_idea(a.idea)
-    people = make_personas(a.size, a.seed)
+    people = make_personas(a.size, a.seed, offer.get("audience", "consumer"))
     control_size = a.control_size if a.control_size is not None else max(200, a.size // 20)
     control_n = min(control_size, a.size) if a.control else 0
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")

@@ -51,6 +51,41 @@ python3 panel.py run my-idea.json --size 10000 --workers 24 --max-calls 10500 --
 - Read the "why people said no" and the quotes. That is where the value is.
 - Then test with 5 to 10 real people before you spend anything. A simulated panel cannot replace that.
 
+## Swarm 1001: check a whole business, not just the pitch
+`swarm.py` is the full check. **1,000 customers + 1 judge = 1,001 nodes**, plus the extras below.
+For apps and software it simulates **small-business owners** (tradies and similar) instead of shoppers,
+because general shoppers are the wrong test for tradie software.
+
+| Part | What it does | AI? |
+|---|---|---|
+| Customers (1,000) | Simulated buyers or business owners say BUY / MAYBE / PASS and why | yes |
+| Control check | Same panel on a deliberately bad offer; flags an over-agreeable panel | yes |
+| Money check | GST, fees, refunds, postage, ad cost, break-even, and for subscriptions lifetime value vs cost to win a customer. Whole cents, no floats | **no, plain maths** |
+| Red team, claims auditor, compliance flagger, pricing critic, clarity | Five specialists, one call each | yes, unverified opinions |
+| Review reader (optional) | Reads REAL competitor reviews you supply (`reviews_file`, one per line) in batches of 40 | yes, on real data |
+| Judge (1) | Writes the plain-English summary. It cannot change the verdict | yes |
+
+**The verdict is decided by fixed rules, not the AI.** In order: INCOMPLETE (missing cost numbers), STOP (you lose money per
+order, or a customer is worth less than they cost to win), UNRELIABLE (control check failed or didn't run), HOLD (a medium or
+high confidence serious compliance flag), FIX (under 3% would buy), PROMISING. The 3% and the compliance cut-off are rules of
+thumb in `swarm.py`; change them if you disagree. **It never says "go".** PROMISING means "test with 5 to 10 real people".
+
+```
+python3 swarm.py run examples/businesses/snack-box.json --mock        # free, fake AI answers, real maths
+python3 swarm.py batch examples/businesses --mock                     # every business in a folder, ranked
+ANTHROPIC_API_KEY=... python3 swarm.py batch my-businesses --yes --max-calls 10000
+```
+Business file fields: `name, pitch, price` (required), `type` (`product` or `subscription`, where price is per month),
+`audience` (`consumer` or `business`), `details`, the cost fields shown in `examples/businesses/`, and optional `reviews_file`.
+**Costs are entered ex-GST. The example numbers are placeholders: replace them with your real ones.** The sample snack box
+returns STOP because those placeholder costs lose $6.09 an order; that is the maths working, not a bug.
+
+Calls per business: customers + control + 5 specialists + review batches + 1 judge. The guard counts all of them across a batch
+before it spends anything. Specialist and review results are cached, so a re-run only pays for the judge.
+
+What the money check does not do: it does not know your real costs, tax position or competitors, and the refund and
+payment-fee treatment is simplified. The compliance specialist is not a lawyer.
+
 ## Tests
-`python3 -m unittest discover -s tests` (19 tests, including a fake API server for retries and key errors).
+`python3 -m unittest discover -s tests` (35 tests, including a fake API server for retries, key errors and call counts).
 Real model answers have not been tested here, because no API key was available.

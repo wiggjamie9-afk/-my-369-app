@@ -1,0 +1,17 @@
+{
+  "name": "Healthy Snack Box",
+  "type": "product",
+  "audience": "consumer",
+  "pitch": "A monthly box of 12 healthy snacks - nuts, bars, dried fruit and protein snacks - posted to your door so you stop grabbing junk at work.",
+  "details": "Cancel any time. Postage included. Brands vary month to month. PLACEHOLDER COST NUMBERS: edit to your real costs.",
+  "price": 39,
+  "unit_cost": 16,
+  "freight_cost": 9.5,
+  "packaging_cost": 2,
+  "payment_fee_pct": 1.75,
+  "payment_fee_fixed": 0.3,
+  "returns_pct": 3,
+  "ad_cost_per_order": 12,
+  "monthly_fixed_costs": 800,
+  "gst_registered": true
+}

@@ -1,0 +1,16 @@
+{
+  "name": "48 AI Crew Quoting",
+  "type": "subscription",
+  "audience": "business",
+  "pitch": "A quote widget for your website plus a lead inbox. Customers get a ballpark price in a minute, you get their details and photos. Set up in an afternoon, no tech skills needed.",
+  "details": "Monthly plan, cancel any time. Works for roofers, painters and other trades. PLACEHOLDER NUMBERS: edit these to your real plan.",
+  "price": 79,
+  "unit_cost": 6,
+  "payment_fee_pct": 1.75,
+  "payment_fee_fixed": 0.3,
+  "returns_pct": 2,
+  "ad_cost_per_order": 150,
+  "churn_pct": 5,
+  "monthly_fixed_costs": 120,
+  "gst_registered": true
+}

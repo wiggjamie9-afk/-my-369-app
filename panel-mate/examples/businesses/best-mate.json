@@ -1,0 +1,16 @@
+{
+  "name": "Best Mate (voice tradie quoting)",
+  "type": "subscription",
+  "audience": "business",
+  "pitch": "Talk to your phone about the job and get a clean, priced quote you can review and send. Built for tradies who hate paperwork.",
+  "details": "Monthly plan. PLACEHOLDER NUMBERS: edit these to your real plan.",
+  "price": 49,
+  "unit_cost": 9,
+  "payment_fee_pct": 1.75,
+  "payment_fee_fixed": 0.3,
+  "returns_pct": 2,
+  "ad_cost_per_order": 120,
+  "churn_pct": 6,
+  "monthly_fixed_costs": 200,
+  "gst_registered": true
+}
