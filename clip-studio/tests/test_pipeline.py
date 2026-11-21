@@ -53,6 +53,31 @@ class FakeOllama(http.server.BaseHTTPRequestHandler):
         self.send_response(200); self.send_header("Content-Length", str(len(body))); self.end_headers(); self.wfile.write(body)
 
 
+class FakeOpenAI(http.server.BaseHTTPRequestHandler):
+    """Stands in for Jan's Local API Server (OpenAI-compatible)."""
+    seen, reject_json = [], False
+
+    def log_message(self, *a):
+        pass
+
+    def _send(self, code, obj):
+        body = json.dumps(obj).encode()
+        self.send_response(code); self.send_header("Content-Length", str(len(body))); self.end_headers(); self.wfile.write(body)
+
+    def do_GET(self):
+        self.path.endswith("/models") and self._send(200, {"data": [{"id": "qwen3-4b-instruct"}, {"id": "llama-8b"}, {"id": "nomic-embed"}]})
+
+    def do_POST(self):
+        req = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+        FakeOpenAI.seen.append({"auth": self.headers.get("Authorization"), "req": req})
+        if FakeOpenAI.reject_json and "response_format" in req:
+            return self._send(400, {"error": "response_format unsupported"})
+        content = req["messages"][0]["content"]
+        text = content if isinstance(content, str) else content[0]["text"]
+        out = {"score": 9, "hook": "Jan says watch this", "reason": "great payoff"} if "SECOND" in text else {"score": 2, "hook": "meh", "reason": "filler"}
+        self._send(200, {"choices": [{"message": {"content": json.dumps(out)}}]})
+
+
 class Job:
     progress, message = 0.0, ""
 
@@ -71,12 +96,18 @@ class Pipeline(unittest.TestCase):
         threading.Thread(target=srv.serve_forever, daemon=True).start()
         cls.srv = srv
         E.OLLAMA = f"http://127.0.0.1:{srv.server_port}"
+        jan = http.server.ThreadingHTTPServer(("127.0.0.1", 0), FakeOpenAI)
+        threading.Thread(target=jan.serve_forever, daemon=True).start()
+        cls.jan = jan
+        E.OPENAI_URL = f"http://127.0.0.1:{jan.server_port}/v1"
         E.ram_gb = lambda: 32.0
 
     @classmethod
     def tearDownClass(cls):
         cls.srv.shutdown()
         cls.srv.server_close()
+        cls.jan.shutdown()
+        cls.jan.server_close()
 
     def test_01_audio_analysis_finds_both_bursts(self):
         r = S.analyze(Job(), "vid.mp4", clip_len=12, count=2)
@@ -170,6 +201,94 @@ class Pipeline(unittest.TestCase):
         self.assertIn(caps["encoder"], ["libx264"] + E.HW_ENCODERS)
         self.assertIn("qwen3:8b", caps["llm_models"])
         self.assertNotIn("nomic-embed-text", caps["llm_models"])
+
+    # ---- Jan / OpenAI-compatible backend
+    def test_11_jan_models_chat_and_json_retry(self):
+        models = E.list_models()
+        self.assertIn("jan:qwen3-4b-instruct", models)
+        self.assertIn("qwen3:8b", models)                                  # Ollama models still listed
+        self.assertEqual(E.backends(), {"ollama": 4, "jan": 3})
+        self.assertAlmostEqual(E.est_size("jan:qwen3-4b-instruct"), 2.4e9, delta=1e8)
+        E.ram_gb = lambda: 8.0
+        try:
+            self.assertTrue(E.fits("jan:qwen3-4b-instruct"))
+            self.assertFalse(E.fits("jan:llama-8b"))                      # ~4.8 GB > 40% of 8 GB
+        finally:
+            E.ram_gb = lambda: 32.0
+        text, _ = E.split_models(models)
+        self.assertNotIn("jan:nomic-embed", text)
+        FakeOpenAI.seen.clear(); FakeOpenAI.reject_json = True            # server rejects response_format -> retry without
+        try:
+            j = E.chat_json("jan:qwen3-4b-instruct", "SECOND clip text")
+        finally:
+            FakeOpenAI.reject_json = False
+        self.assertEqual(j["hook"], "Jan says watch this")
+        self.assertEqual(len(FakeOpenAI.seen), 2)
+        self.assertIn("response_format", FakeOpenAI.seen[0]["req"])
+        self.assertNotIn("response_format", FakeOpenAI.seen[1]["req"])
+        self.assertTrue(FakeOpenAI.seen[1]["auth"].startswith("Bearer "))
+        self.assertEqual(FakeOpenAI.seen[1]["req"]["model"], "qwen3-4b-instruct")   # prefix stripped
+
+    def test_12_jan_vision_sends_image_parts_and_deep_rank_uses_jan(self):
+        FakeOpenAI.seen.clear()
+        E.chat_json("jan:qwen3-4b-instruct", "describe", images=["QUJD"])
+        content = FakeOpenAI.seen[-1]["req"]["messages"][0]["content"]
+        self.assertEqual(content[1]["image_url"]["url"], "data:image/jpeg;base64,QUJD")
+
+        def fake_tr(path, a, b, model=None, job=None, tmp=None):
+            text = "SECOND the payoff nobody expected!" if a > 20 else "welcome to the stream"
+            return [{"start": a + 1, "end": b - 1, "text": text, "words": []}]
+        E.transcribe_range, E.whisper_engine = fake_tr, lambda: "fake"
+        r = S.analyze(Job(), "vid.mp4", clip_len=12, count=2, deep=True, llm="jan:qwen3-4b-instruct")
+        self.assertEqual(r["engines"]["llm"], "jan:qwen3-4b-instruct")
+        self.assertEqual(r["clips"][0]["hook"], "Jan says watch this")
+        self.assertGreater(r["clips"][0]["start"], 20)
+
+    # ---- OpenFilm export
+    def test_13_openfilm_project(self):
+        from html.parser import HTMLParser
+        spec = {"source": "vid.mp4", "start": 8, "end": 14, "format": "9:16", "layout": "crop",
+                "keyframes": [{"t": 8, "x": .3}, {"t": 11, "x": .7}, {"t": 14, "x": .5}],
+                "captions": {"enabled": True, "upper": True, "segments": [
+                    {"start": 9, "end": 11, "text": "hello  there", "words": []}, {"start": 20, "end": 22, "text": "outside", "words": []}]}}
+        r = S.do_openfilm(Job(), spec)
+        folder = Path(r["folder"])
+        self.assertTrue((folder / "assets" / "source.mp4").is_file())          # link resolves
+        html = (folder / "film.html").read_text()
+        tags = []
+
+        class P(HTMLParser):
+            def handle_starttag(self, tag, attrs):
+                tags.append((tag, dict(attrs)))
+        P().feed(html)
+        names = {t for t, _ in tags}
+        self.assertLessEqual(names, {"html", "head", "meta", "style", "body", "section", "track", "video"})  # nothing undocumented
+        meta = next(a for t, a in tags if t == "meta")
+        self.assertEqual((meta["name"], meta["content"]), ("viewport", "width=1080, height=1920"))
+        vid = next(a for t, a in tags if t == "video")
+        self.assertEqual(vid["src"], "assets/source.mp4#t=8.000,14.000")
+        self.assertEqual(vid["at"], "0")
+        self.assertIn("animation: pan 6.000s linear both", vid["style"])
+        self.assertIn("@keyframes pan", html)
+        self.assertIn("50.00%", html)                                           # keyframe at t=11 of 8..14
+        trk = next(a for t, a in tags if t == "track")
+        self.assertEqual((trk["kind"], trk["src"]), ("captions", "captions.vtt"))
+        vtt = (folder / "captions.vtt").read_text().splitlines()
+        self.assertEqual(vtt[0], "WEBVTT")
+        self.assertIn("00:00:01.000 --> 00:00:03.000", vtt)
+        self.assertIn("HELLO THERE", vtt)
+        self.assertNotIn("OUTSIDE", "\n".join(vtt))                            # outside the clip: dropped
+        self.assertEqual(r["captions"], 1)
+        self.assertIn("openfilm@latest open", r["open_cmd"])
+
+    def test_14_openfilm_other_formats_and_errors(self):
+        r = S.do_openfilm(Job(), {"source": "vid.mp4", "start": 0, "end": 5, "format": "16:9", "layout": "blur"})
+        html = (Path(r["folder"]) / "film.html").read_text()
+        self.assertIn("width=1920, height=1080", html)
+        self.assertNotIn("@keyframes", html)
+        self.assertNotIn("<track", html)                                       # no captions -> no track
+        with self.assertRaises(S.ApiError):
+            S.do_openfilm(Job(), {"source": "song.mp3", "start": 0, "end": 5})
 
 
 if __name__ == "__main__":

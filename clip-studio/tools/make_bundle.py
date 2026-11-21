@@ -5,7 +5,7 @@ import base64
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-FILES = ["server.py", "engines.py", "web/index.html", "run.sh", "run.bat", "README.md",
+FILES = ["server.py", "engines.py", "openfilm_export.py", "web/index.html", "run.sh", "run.bat", "README.md",
          "requirements-optional.txt", ".gitignore", "tests/test_pipeline.py"]
 
 TEMPLATE = '''#!/usr/bin/env python3

@@ -3,7 +3,8 @@
 Everything here is optional and auto-detected; the core app works without any of it:
   * GPU / hardware video encoders (NVENC, VideoToolbox, QSV, AMF) with automatic fallback to x264
   * Whisper transcription (faster-whisper, openai-whisper, whisper.cpp)
-  * Local LLM + vision scoring through Ollama (e.g. Qwen models) with a rule-based fallback
+  * Local LLM + vision scoring through Ollama or any OpenAI-compatible local server such as Jan
+    (models from the latter appear as "jan:<id>"), with a rule-based fallback
 """
 import base64
 import importlib.util
@@ -14,12 +15,19 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import urllib.error
 import urllib.request
 
 OLLAMA = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434")
 if not OLLAMA.startswith("http"):
     OLLAMA = "http://" + OLLAMA
-_opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))  # Ollama is local: never via a proxy
+_opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))  # local servers: never via a proxy
+
+# Jan (https://jan.ai) -> Settings > Local API Server (default http://127.0.0.1:1337/v1). Works with LM Studio,
+# llama.cpp's server, etc. too: point CLIP_STUDIO_OPENAI_URL at their /v1 URL.
+OPENAI_URL = os.environ.get("CLIP_STUDIO_OPENAI_URL", "http://127.0.0.1:1337/v1").rstrip("/")
+OPENAI_KEY = os.environ.get("CLIP_STUDIO_OPENAI_KEY", "clip-studio")  # Jan accepts a placeholder; set yours if you enabled a key
+JAN = "jan:"
 
 _cache, _models = {}, {}
 
@@ -143,9 +151,41 @@ def ollama_models(timeout=0.8):
     return [m["name"] for m in tags]
 
 
+_backends = {"ollama": 0, "jan": 0}
+
+
+def openai_models(timeout=0.8):
+    """Models from an OpenAI-compatible local server (Jan etc.), prefixed with 'jan:'."""
+    try:
+        req = urllib.request.Request(OPENAI_URL + "/models", headers={"Authorization": "Bearer " + OPENAI_KEY})
+        with _opener.open(req, timeout=timeout) as r:
+            return [JAN + m["id"] for m in json.load(r).get("data", []) if "id" in m]
+    except Exception:
+        return []
+
+
+def list_models():
+    """All installed models from every local backend (Ollama + Jan/OpenAI-compatible)."""
+    o, j = ollama_models(), openai_models()
+    _backends["ollama"], _backends["jan"] = len(o), len(j)
+    return o + j
+
+
+def backends():
+    return dict(_backends)
+
+
+def est_size(model):
+    """Bytes: exact for Ollama; for others estimate ~0.6 GB per billion params (4-bit) from the name."""
+    if _sizes.get(model):
+        return _sizes[model]
+    m = re.search(r"(?<![\w.])(\d+(?:\.\d+)?)b(?![a-z])", model.lower())
+    return int(float(m.group(1)) * 0.6e9) if m else 0
+
+
 def fits(model):
     """Model weights should use at most ~40% of RAM (the rest is for macOS/Windows, Whisper and the app)."""
-    return _sizes.get(model, 0) <= (ram_gb() or 16) * 0.4 * 2 ** 30
+    return est_size(model) <= (ram_gb() or 16) * 0.4 * 2 ** 30
 
 
 def split_models(models):
@@ -155,7 +195,7 @@ def split_models(models):
 
 
 def _best_fitting(models, prefer_qwen=True):
-    pool = sorted([m for m in models if fits(m)], key=lambda m: -_sizes.get(m, 0))
+    pool = sorted([m for m in models if fits(m)], key=lambda m: -est_size(m))
     if prefer_qwen:
         q = [m for m in pool if "qwen" in m.lower()]
         pool = q or pool
@@ -169,7 +209,7 @@ def default_llm(text_models):
         return forced
     if not text_models:
         return None
-    return _best_fitting(text_models) or sorted(text_models, key=lambda m: _sizes.get(m, 0))[0]
+    return _best_fitting(text_models) or sorted(text_models, key=est_size)[0]
 
 
 def default_vision(vision_models):
@@ -180,7 +220,47 @@ def default_vision(vision_models):
     return _best_fitting(vision_models, prefer_qwen=False)
 
 
+def _extract_json(content):
+    content = re.sub(r"<think>.*?</think>", "", content or "", flags=re.S)
+    m = re.search(r"\{.*\}", content, re.S)
+    if not m:
+        raise EngineError("model did not return JSON")
+    try:
+        return json.loads(m.group(0))
+    except ValueError:
+        raise EngineError("model returned invalid JSON")
+
+
+def _chat_openai(model, prompt, images, timeout):
+    if images:
+        content = [{"type": "text", "text": prompt}] + [
+            {"type": "image_url", "image_url": {"url": "data:image/jpeg;base64," + i}} for i in images]
+    else:
+        content = prompt
+    body = {"model": model, "messages": [{"role": "user", "content": content}], "temperature": 0.2, "stream": False}
+    headers = {"Content-Type": "application/json", "Authorization": "Bearer " + OPENAI_KEY}
+    last = None
+    for with_json in (True, False):  # some servers reject response_format: retry without it
+        payload = dict(body, **({"response_format": {"type": "json_object"}} if with_json else {}))
+        req = urllib.request.Request(OPENAI_URL + "/chat/completions", data=json.dumps(payload).encode(), headers=headers)
+        try:
+            with _opener.open(req, timeout=timeout) as r:
+                return json.load(r)["choices"][0]["message"]["content"]
+        except urllib.error.HTTPError as e:
+            last = e
+            e.close()
+            if e.code not in (400, 422):
+                break
+        except Exception as e:
+            last = e
+            break
+    raise EngineError(f"OpenAI-compatible server request failed: {last}")
+
+
 def chat_json(model, prompt, images=None, timeout=240):
+    """Ask a local model for a JSON answer. Models named 'jan:<id>' go to the OpenAI-compatible server."""
+    if model.startswith(JAN):
+        return _extract_json(_chat_openai(model[len(JAN):], prompt, images, timeout))
     msg = {"role": "user", "content": prompt}
     if images:
         msg["images"] = images
@@ -192,14 +272,7 @@ def chat_json(model, prompt, images=None, timeout=240):
             content = json.load(r)["message"]["content"]
     except Exception as e:
         raise EngineError(f"ollama request failed: {e}")
-    content = re.sub(r"<think>.*?</think>", "", content, flags=re.S)
-    m = re.search(r"\{.*\}", content, re.S)
-    if not m:
-        raise EngineError("model did not return JSON")
-    try:
-        return json.loads(m.group(0))
-    except ValueError:
-        raise EngineError("model returned invalid JSON")
+    return _extract_json(content)
 
 
 # --------------------------------------------------------------------------- scoring

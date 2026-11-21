@@ -23,6 +23,10 @@ Needs **Python 3.9+** and **ffmpeg 5+** on PATH. Everything else is optional and
 
 Shortcuts: `Space` play · `I`/`O` in/out · `K` keyframe · `←/→` frame step (`Shift` = 5 s) · wheel zoom timeline.
 
+## Jan and OpenFilm
+- **Jan** ([jan.ai](https://jan.ai), offline ChatGPT alternative) works as the AI backend for speech-aware ranking. In Jan: *Settings → Local API Server → Start* (default `http://127.0.0.1:1337/v1`). Its models show up as `jan:<model>` next to Ollama's in the AI dropdown; the header chips show which backends were found. Works with any OpenAI-compatible local server (LM Studio, llama.cpp): set `CLIP_STUDIO_OPENAI_URL` (and `CLIP_STUDIO_OPENAI_KEY` if you enabled a key). Model size is estimated from the name (`…-4b-…` ≈ 2.4 GB) for the memory-fit check.
+- **OpenFilm** ([openfilm/openfilm](https://github.com/openfilm/openfilm), MIT, an AI video agent + editor): **Send to OpenFilm** writes a project folder under `data/films/` (`film.html` + captions + a link to your source) so you can keep editing it there or hand it to a coding agent. Open it with `npx -y openfilm@latest open <folder>` (needs Node 22.2+; the app prints the exact command). Carried over: trim, canvas size, reframe pan, captions. Not carried over: hook title, watermark, progress bar, punch-in zoom, blurred background. **Written from OpenFilm's published draft spec (protocol 0.1) and not yet opened in OpenFilm itself**, so tell us if its strict reader rejects anything.
+
 ## Optional extras (install what you want)
 - `pip install -r requirements-optional.txt` → yt-dlp, faster-whisper, OpenCV.
 - **AI ranking:** install [Ollama](https://ollama.com), then e.g. `ollama pull qwen3:8b` (text) and any vision model. Set `CLIP_STUDIO_LLM` / `CLIP_STUDIO_VISION` to pin models, `OLLAMA_HOST` for a remote box.

@@ -26,12 +26,13 @@ from urllib.parse import parse_qs, unquote, urlparse
 
 ROOT = Path(__file__).resolve().parent
 DATA = Path(os.environ.get("CLIP_STUDIO_DATA", ROOT / "data")).resolve()
-MEDIA, EXPORTS, CACHE = DATA / "media", DATA / "exports", DATA / "cache"
+MEDIA, EXPORTS, CACHE, FILMS = DATA / "media", DATA / "exports", DATA / "cache", DATA / "films"
 WEB = ROOT / "web"
-for d in (MEDIA, EXPORTS, CACHE):
+for d in (MEDIA, EXPORTS, CACHE, FILMS):
     d.mkdir(parents=True, exist_ok=True)
 
 import engines as E
+import openfilm_export as OF
 
 VIDEO_EXT = {".mp4", ".mkv", ".mov", ".webm", ".avi", ".m4v", ".flv", ".ts"}
 AUDIO_EXT = {".mp3", ".wav", ".m4a", ".flac", ".ogg", ".aac", ".opus"}
@@ -129,12 +130,13 @@ def probe(path):
 
 
 def capabilities():
-    text, vision = E.split_models(E.ollama_models())
+    text, vision = E.split_models(E.list_models())
     return {"ffmpeg": bool(shutil.which("ffmpeg") and shutil.which("ffprobe")),
             "encoder": E.pick_encoder(), "gpu": E.gpu_info(),
             "yt_dlp": bool(shutil.which("yt-dlp") or importlib.util.find_spec("yt_dlp")),
             "whisper": E.whisper_engine(), "opencv": bool(importlib.util.find_spec("cv2")),
             "ram_gb": round(E.ram_gb(), 1) if E.ram_gb() else None,
+            "backends": E.backends(),
             "llm": E.default_llm(text), "llm_models": text,
             "vision": E.default_vision(vision), "vision_models": vision}
 
@@ -231,7 +233,7 @@ class Sub:
 
 def deep_rank(job, path, info, clips, count, llm, vision, whisper_model, lo=0.35, hi=0.98):
     """Re-rank audio candidates by what is said (and optionally shown)."""
-    text_models, vision_models = E.split_models(E.ollama_models())
+    text_models, vision_models = E.split_models(E.list_models())
     if llm in (None, "", "auto"):
         llm_name = E.default_llm(text_models)
     elif llm == "off":
@@ -663,6 +665,15 @@ def do_export(job, spec):
             "width": ow, "height": oh}
 
 
+def do_openfilm(job, spec):
+    """Write an OpenFilm project folder (film.html) for the current clip. See openfilm_export.py."""
+    path = media_path(spec["source"])
+    try:
+        return OF.export_film(FILMS, path, probe(path), spec, FORMATS)
+    except ValueError as e:
+        raise ApiError(str(e))
+
+
 # --------------------------------------------------------------------------- http
 def list_media():
     items = []
@@ -789,6 +800,7 @@ class Handler(BaseHTTPRequestHandler):
                                                      end=b["end"], model=b.get("model")),
                 "/api/track": lambda: start_job("track", track, name=b["name"], start=b["start"], end=b["end"]),
                 "/api/export": lambda: start_job("export", do_export, spec=b),
+                "/api/openfilm": lambda: start_job("openfilm", do_openfilm, spec=b),
             }
             if path not in routes:
                 return self._json({"error": "not found"}, 404)

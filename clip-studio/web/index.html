@@ -223,6 +223,8 @@ kbd{font:11px var(--mono);border:1px solid var(--line);border-radius:4px;padding
     </div>
 
     <button id="export" class="pri" style="padding:12px;font-size:16px" disabled>Export 1080×1920 MP4</button>
+    <button id="ofBtn" disabled>Send to OpenFilm (editable project)</button>
+    <div class="hint" id="ofOut"></div>
   </div>
 </div>
 
@@ -276,15 +278,16 @@ function syncButtons() {
   $('#auto').textContent = S.busy.has('/api/auto') ? 'Producing…' : 'Auto-produce top';
   $('#trans').disabled = !has || S.busy.has('/api/transcribe');
   $('#export').disabled = !has || S.busy.has('/api/export');
+  $('#ofBtn').disabled = !has || !!(S.info && S.info.audio_only) || S.busy.has('/api/openfilm');
   $('#export').textContent = S.busy.has('/api/export') ? 'Rendering…' : 'Export 1080×1920 MP4';
   $('#imp').disabled = S.busy.has('/api/import');
 }
 
 // ---------- capabilities
-const HINTS = {yt_dlp: 'pip install yt-dlp  (URL import)', whisper: 'pip install faster-whisper  (transcripts)', opencv: 'pip install opencv-python-headless  (face tracking; motion fallback is used otherwise)', ffmpeg: 'install ffmpeg', gpu: 'no NVIDIA GPU found: uses CPU (or Apple/Intel/AMD encoders if available)', llm: 'install Ollama and pull a model, e.g. ollama pull qwen3:8b  (speech-aware ranking)', vision: 'ollama pull a vision model (e.g. a qwen-vl model) for visual scoring'};
+const HINTS = {yt_dlp: 'pip install yt-dlp  (URL import)', whisper: 'pip install faster-whisper  (transcripts)', opencv: 'pip install opencv-python-headless  (face tracking; motion fallback is used otherwise)', ffmpeg: 'install ffmpeg', gpu: 'no NVIDIA GPU found: uses CPU (or Apple/Intel/AMD encoders if available)', llm: 'install Ollama and pull a model (e.g. ollama pull qwen3:4b), or start Jan\'s Local API Server  (speech-aware ranking)', ollama: 'Ollama not running (ollama.com)', jan: 'Jan: Settings > Local API Server > Start (default http://127.0.0.1:1337)', vision: 'ollama pull a vision model (e.g. a qwen-vl model) for visual scoring'};
 api('/api/capabilities').then(c => {
   S.hw = c;
-  const chips = [['ffmpeg', c.ffmpeg, ''], ['encoder', true, c.encoder], ['ram', true, c.ram_gb ? c.ram_gb + ' GB' : ''], ['gpu', !!c.gpu, c.gpu ? c.gpu.name : ''], ['yt_dlp', c.yt_dlp, ''], ['whisper', !!c.whisper, c.whisper || ''], ['opencv', c.opencv, ''], ['llm', !!c.llm, c.llm || ''], ['vision', !!c.vision, c.vision || '']];
+  const chips = [['ffmpeg', c.ffmpeg, ''], ['encoder', true, c.encoder], ['ram', true, c.ram_gb ? c.ram_gb + ' GB' : ''], ['gpu', !!c.gpu, c.gpu ? c.gpu.name : ''], ['yt_dlp', c.yt_dlp, ''], ['whisper', !!c.whisper, c.whisper || ''], ['opencv', c.opencv, ''], ['ollama', c.backends.ollama > 0, c.backends.ollama ? c.backends.ollama + ' models' : ''], ['jan', c.backends.jan > 0, c.backends.jan ? c.backends.jan + ' models' : ''], ['llm', !!c.llm, c.llm || ''], ['vision', !!c.vision, c.vision || '']];
   $('#caps').innerHTML = chips.map(([k, ok, d]) => `<span class="chip ${ok ? 'ok' : 'no'}" title="${ok ? '' : esc(HINTS[k] || '')}">${k.replace('_', '-')}${d ? ': ' + esc(d) : ''} ${ok ? '✓' : '✗'}</span>`).join('');
   $('#llm').innerHTML = '<option value="auto">AI: auto' + (c.llm ? ' (' + esc(c.llm) + ')' : '') + '</option><option value="off">AI: off (rules)</option>' + c.llm_models.map(m => `<option>${esc(m)}</option>`).join('');
   $('#vis').disabled = !c.vision;
@@ -545,13 +548,23 @@ function buildSettings() {
       font: $('#font').value, size: +$('#capSize').value, y: +$('#capY').value}
   };
 }
-$('#export').onclick = async () => {
+function exportPayload() {
   const a = S.inT, b = S.outT, rel = S.kfs.filter(k => k.t > a && k.t < b);
   const kfs = S.layout === 'crop' ? [{t: a, x: interp('x', a), z: interp('z', a)}, ...rel, {t: b, x: interp('x', b), z: interp('z', b)}] : [];
   const st = buildSettings();
   st.captions.segments = S.caps.filter(c => c.end > a && c.start < b);
-  const r = await runJob('/api/export', {...st, source: S.cur, start: a, end: b, keyframes: kfs}, 'Rendering');
+  return {...st, source: S.cur, start: a, end: b, keyframes: kfs};
+}
+$('#export').onclick = async () => {
+  const r = await runJob('/api/export', exportPayload(), 'Rendering');
   if (r) { await loadExports(); $('#rv').src = r.url; setTab('out'); $('#rv').play().catch(() => {}); }
+};
+$('#ofBtn').onclick = async () => {
+  const r = await runJob('/api/openfilm', exportPayload(), 'Exporting for OpenFilm');
+  if (!r) return;
+  $('#ofOut').innerHTML = `Project: <code>${esc(r.folder)}</code><br>Open it in OpenFilm (needs Node 22.2+):<br><code>${esc(r.open_cmd)}</code> <button class="sm" id="ofCopy">Copy</button><br>${r.notes.map(esc).join('. ')}.`;
+  $('#ofCopy').onclick = () => navigator.clipboard && navigator.clipboard.writeText(r.open_cmd).then(() => status('Command copied.'));
+  status('OpenFilm project written.');
 };
 async function loadExports() {
   const list = await api('/api/exports');
