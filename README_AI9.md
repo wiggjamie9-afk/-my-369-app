@@ -10,3 +10,6 @@ Run: `python -m unittest discover -s tests -t .` and `python -m ai9.recall_test`
 After Jamie edits DNA.md: `python -m ai9.dna lock`.
 
 Status: HindsightBackend is unverified (no key yet). Recall test so far = local backend, no real model.
+
+## Stage 2 (built offline, local store only)
+`ai9/loops.py` seven rings, `ai9/jobs.py` runner, `ai9/schedule.cron` timings (not installed). Rings need list/delete on the backend, so Hindsight cannot run them yet.

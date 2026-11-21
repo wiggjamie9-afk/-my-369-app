@@ -32,6 +32,10 @@ class Memory:
     recall_count: int = 0
     score: float = 1.0  # used by Stage 2 "fade"
     id: str = ""
+    status: str = "active"   # active | rolled | superseded (Stage 2)
+    cluster: str = ""        # set by the link ring
+    is_dna: bool = False     # DNA is never faded/merged/superseded
+    fade_seen: int = 0       # recall_count at the last fade pass
 
     def __post_init__(self):
         if not self.id:
@@ -65,10 +69,21 @@ class LocalBackend:
         self.items[m.id] = m
         self._flush()
 
+    def all(self) -> list[Memory]:
+        return list(self.items.values())
+
+    def delete(self, mid: str) -> None:
+        self.items.pop(mid, None)
+
+    def commit(self) -> None:
+        self._flush()
+
     def search(self, query: str, k: int = 5) -> list[Memory]:
         q = _tokens(query)
         scored = []
         for m in self.items.values():
+            if m.status != "active":
+                continue
             overlap = len(q & _tokens(m.what + " " + m.who))
             if overlap:
                 scored.append((overlap * m.score, m))

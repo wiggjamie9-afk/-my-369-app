@@ -1,0 +1,7 @@
+# AI9 seven-ring loops. Install with: crontab ai9/schedule.cron   (not installed automatically)
+*/5 * * * *  cd /app && python -m ai9.jobs save
+0 */3 * * *  cd /app && python -m ai9.jobs rollup
+15 */3 * * * cd /app && python -m ai9.jobs dedupe
+30 */3 * * * cd /app && python -m ai9.jobs conflict
+45 */3 * * * cd /app && python -m ai9.jobs link
+0 4 * * *    cd /app && python -m ai9.jobs fade

@@ -26,9 +26,10 @@ def default_important(text: str) -> bool:
 
 
 class AI9:
-    def __init__(self, backend: Backend, llm: LLM, judge_important=default_important, k: int = 5):
+    def __init__(self, backend: Backend, llm: LLM, judge_important=default_important, k: int = 5, queue=None):
         self.dna = dna.load()               # refuses to start if tampered
         self.backend, self.llm, self.judge, self.k = backend, llm, judge_important, k
+        self.queue = queue                  # Stage 2: if set, saves wait for the checker twin
         self.log: list[str] = []            # audit trail of recall/save calls
 
     def recall(self, query: str) -> list[Memory]:
@@ -42,7 +43,8 @@ class AI9:
         except Refused as e:
             self.log.append(f"refused:{e}")
             return False
-        self.backend.add(Memory(who=who, what=clean, source=source))
+        m = Memory(who=who, what=clean, source=source)
+        (self.queue.append if self.queue is not None else self.backend.add)(m)
         self.log.append("save")
         return True
 
