@@ -1,4 +1,7 @@
-# Core app = Python 3.9+ stdlib + ffmpeg. Everything below is optional and auto-detected.
+# Core app = Python 3.9+ stdlib + ffmpeg 5+. Everything below is optional and auto-detected.
 yt-dlp                    # URL import
-faster-whisper            # transcripts with word-level timestamps (captions that highlight each word)
+faster-whisper            # transcripts with word-level timestamps (needed for speech-aware ranking + captions)
 opencv-python-headless    # face-aware auto-reframe (falls back to a motion tracker without it)
+# AI scoring is not a pip package: install Ollama (https://ollama.com) and pull a model, e.g.
+#   ollama pull qwen3:8b        (text ranking)   — check ollama.com/library for current tags
+# plus any vision model (e.g. a qwen-vl model) if you want visual scoring.

@@ -31,7 +31,12 @@ WEB = ROOT / "web"
 for d in (MEDIA, EXPORTS, CACHE):
     d.mkdir(parents=True, exist_ok=True)
 
+import engines as E
+
 VIDEO_EXT = {".mp4", ".mkv", ".mov", ".webm", ".avi", ".m4v", ".flv", ".ts"}
+AUDIO_EXT = {".mp3", ".wav", ".m4a", ".flac", ".ogg", ".aac", ".opus"}
+MEDIA_EXT = VIDEO_EXT | AUDIO_EXT
+FORMATS = {"9:16": (1080, 1920), "1:1": (1080, 1080), "4:5": (1080, 1350), "16:9": (1920, 1080)}
 
 
 # --------------------------------------------------------------------------- jobs
@@ -99,14 +104,20 @@ def probe(path):
     if out.returncode:
         raise ApiError("ffprobe could not read that file")
     j = json.loads(out.stdout)
-    v = next((s for s in j["streams"] if s["codec_type"] == "video"), None)
-    if not v:
-        raise ApiError("no video stream")
+    v = next((s for s in j["streams"] if s["codec_type"] == "video"
+              and not (s.get("disposition") or {}).get("attached_pic")), None)
+    if not v:  # audio-only file (cover art doesn't count): exported as an audio visualizer
+        if not any(s["codec_type"] == "audio" for s in j["streams"]):
+            raise ApiError("no video or audio stream")
+        info = {"duration": float(j["format"].get("duration") or 0), "width": 1920, "height": 1080, "fps": 30.0,
+                "has_audio": True, "audio_only": True}
+        _probe_cache[key] = info
+        return info
     num, _, den = v.get("r_frame_rate", "30/1").partition("/")
     fps = float(num) / float(den or 1) if float(den or 1) else 30.0
     info = {"duration": float(j["format"].get("duration") or v.get("duration") or 0),
             "width": int(v["width"]), "height": int(v["height"]), "fps": round(fps, 3),
-            "has_audio": any(s["codec_type"] == "audio" for s in j["streams"])}
+            "has_audio": any(s["codec_type"] == "audio" for s in j["streams"]), "audio_only": False}
     # honor rotation metadata (phone footage)
     rot = abs(int((v.get("tags") or {}).get("rotate", 0)))
     for sd in v.get("side_data_list", []) or []:
@@ -118,17 +129,13 @@ def probe(path):
 
 
 def capabilities():
-    whisper = None
-    if importlib.util.find_spec("faster_whisper"):
-        whisper = "faster-whisper"
-    elif importlib.util.find_spec("whisper"):
-        whisper = "openai-whisper"
-    elif shutil.which("whisper-cli") and os.environ.get("WHISPER_CPP_MODEL"):
-        whisper = "whisper.cpp"
+    text, vision = E.split_models(E.ollama_models())
     return {"ffmpeg": bool(shutil.which("ffmpeg") and shutil.which("ffprobe")),
+            "encoder": E.pick_encoder(), "gpu": E.gpu_info(),
             "yt_dlp": bool(shutil.which("yt-dlp") or importlib.util.find_spec("yt_dlp")),
-            "whisper": whisper,
-            "opencv": bool(importlib.util.find_spec("cv2"))}
+            "whisper": E.whisper_engine(), "opencv": bool(importlib.util.find_spec("cv2")),
+            "llm": E.default_llm(text), "llm_models": text,
+            "vision": E.default_vision(vision), "vision_models": vision}
 
 
 # --------------------------------------------------------------------------- import
@@ -176,6 +183,7 @@ def audio_energy(path, duration, job, win=0.5, lo=0.0, hi=0.6):
         if duration:
             job.progress = lo + (hi - lo) * min(1, len(db) * win / duration)
     p.wait()
+    p.stdout.close()
     return db
 
 
@@ -192,19 +200,98 @@ def scene_cuts(path, duration, job, lo=0.6, hi=0.98, thresh=0.28):
             if duration:
                 job.progress = lo + (hi - lo) * min(1, cuts[-1] / duration)
     p.wait()
+    p.stderr.close()
     return cuts
 
 
-def analyze(job, name, clip_len=25.0, count=8):
+class Sub:
+    """Maps a sub-task's 0..1 progress into a slice of its parent job."""
+
+    def __init__(self, parent, lo, hi):
+        self._p, self._lo, self._hi, self._prog = parent, lo, hi, 0.0
+
+    @property
+    def progress(self):
+        return self._prog
+
+    @progress.setter
+    def progress(self, v):
+        self._prog = v
+        self._p.progress = self._lo + (self._hi - self._lo) * max(0.0, min(1.0, v))
+
+    @property
+    def message(self):
+        return self._p.message
+
+    @message.setter
+    def message(self, m):
+        self._p.message = m
+
+
+def deep_rank(job, path, info, clips, count, llm, vision, whisper_model, lo=0.35, hi=0.98):
+    """Re-rank audio candidates by what is said (and optionally shown)."""
+    text_models, vision_models = E.split_models(E.ollama_models())
+    if llm in (None, "", "auto"):
+        llm_name = E.default_llm(text_models)
+    elif llm == "off":
+        llm_name = None
+    else:
+        llm_name = llm if llm in text_models else None
+    vname = E.default_vision(vision_models) if (vision and not info.get("audio_only")) else None
+    eng = E.whisper_engine()
+    engines = {"transcript": eng, "llm": llm_name or "heuristic", "vision": vname, "notes": []}
+    if not eng:
+        engines["notes"].append("no transcript engine installed: ranked by audio only (pip install faster-whisper)")
+    can_transcribe = bool(eng)
+    scores = [c["score"] for c in clips]
+    s_lo, s_hi = min(scores), max(scores)
+    for i, c in enumerate(clips):
+        job.progress = lo + (hi - lo) * i / max(1, len(clips))
+        job.message = f"Reading clip {i + 1}/{len(clips)}"
+        segs, ts, vs = [], None, None
+        if can_transcribe:
+            try:
+                segs = E.transcribe_range(path, c["start"], c["end"], whisper_model, None, CACHE)
+            except Exception as e:
+                can_transcribe = False
+                engines["notes"].append(f"transcription failed: {str(e)[:120]}")
+        text = " ".join(s["text"] for s in segs).strip()
+        if text:
+            ts = E.score_text(text, c["end"] - c["start"], llm_name)
+        if vname:
+            job.message = f"Watching clip {i + 1}/{len(clips)}"
+            vs = E.vision_score(vname, path, c["start"], c["end"])
+        audio_n = 10.0 * (c["score"] - s_lo) / ((s_hi - s_lo) or 1.0)
+        parts = [(0.35, audio_n)]
+        if ts:
+            parts.append((0.50, ts["score"]))
+        if vs:
+            parts.append((0.15, vs["score"]))
+        total = sum(w * v for w, v in parts) / sum(w for w, _ in parts)
+        c.update({"audio_score": round(audio_n, 2), "score": round(total, 2), "segments": segs})
+        if ts:
+            c.update({"text_score": ts["score"], "hook": ts["hook"]})
+            if ts["reason"]:
+                c["reasons"] = c["reasons"] + [ts["reason"]]
+        if vs:
+            c["vision_score"] = vs["score"]
+            if vs["reason"]:
+                c["reasons"] = c["reasons"] + [vs["reason"]]
+    clips.sort(key=lambda c: -c["score"])
+    return clips[:count], engines
+
+
+def analyze(job, name, clip_len=25.0, count=8, deep=False, llm="auto", vision=False, whisper_model=None):
     path = media_path(name)
     info = probe(path)
     dur = info["duration"]
+    count = max(1, int(count))
     clip_len = max(5.0, min(float(clip_len), 90.0, dur or 90.0))
     job.message = "Scanning audio energy"
     win = 0.5
-    db = audio_energy(path, dur, job, win) if info["has_audio"] else [0.0] * int(dur / win)
+    db = audio_energy(path, dur, job, win, 0.0, 0.25 if deep else 0.6) if info["has_audio"] else [0.0] * int(dur / win)
     job.message = "Detecting scene cuts"
-    cuts = scene_cuts(path, dur, job)
+    cuts = [] if info.get("audio_only") else scene_cuts(path, dur, job, 0.25 if deep else 0.6, 0.35 if deep else 0.98)
     if not db:
         raise ApiError("could not read audio")
     med = statistics.median(db)
@@ -221,6 +308,7 @@ def analyze(job, name, clip_len=25.0, count=8):
         score = 0.45 * peak + 0.9 * mean + 0.12 * nc
         cands.append((score, i, peak, mean, nc, seg.index(peak)))
     cands.sort(reverse=True)
+    limit = count * 3 if deep else count
     picked, clips = [], []
     for score, i, peak, mean, nc, pk in cands:
         t0, t1 = i * win, (i + nwin) * win
@@ -237,64 +325,55 @@ def analyze(job, name, clip_len=25.0, count=8):
         if nc >= max(3, clip_len / 6):
             reasons.append("fast cuts")
         clips.append({"start": round(start, 2), "end": round(min(dur, start + clip_len), 2),
-                      "score": round(score, 2), "peak": round(peak_t, 2),
-                      "reasons": reasons or ["energy"]})
-        if len(clips) >= int(count):
+                      "score": round(score, 2), "peak": round(peak_t, 2), "reasons": reasons or ["energy"]})
+        if len(clips) >= limit:
             break
-    return {"duration": dur, "window": win, "energy": [round(d, 1) for d in db], "cuts": cuts, "clips": clips}
+    engines = None
+    if deep and clips:
+        clips, engines = deep_rank(job, path, info, clips, count, llm, vision, whisper_model)
+    return {"duration": dur, "window": win, "energy": [round(d, 1) for d in db], "cuts": cuts, "clips": clips,
+            "engines": engines}
+
+
+def auto_produce(job, name, count=3, clip_len=25, deep=True, llm="auto", vision=False, settings=None):
+    """One click: find the best moments, caption + reframe each, and export them all."""
+    settings = dict(settings or {})
+    info = probe(media_path(name))
+    res = analyze(Sub(job, 0.0, 0.3), name, clip_len, count, deep, llm, vision)
+    clips = res["clips"]
+    if not clips:
+        raise ApiError("no highlights found")
+    outs = []
+    for i, c in enumerate(clips):
+        lo = 0.3 + 0.7 * i / len(clips)
+        span = 0.7 / len(clips)
+        job.message = f"Clip {i + 1}/{len(clips)}"
+        spec = dict(settings, source=name, start=c["start"], end=c["end"])
+        caps = dict(settings.get("captions") or {})
+        segs = c.get("segments") or []
+        if not segs and caps.get("enabled", True) and E.whisper_engine():
+            try:
+                segs = E.transcribe_range(media_path(name), c["start"], c["end"], None, Sub(job, lo, lo + 0.3 * span), CACHE)
+            except Exception:
+                segs = []
+        caps["segments"] = segs
+        spec["captions"] = caps
+        if c.get("hook") and not (settings.get("title") or {}).get("text"):
+            spec["title"] = {"text": c["hook"], "duration": 2.5}
+        if spec.get("layout", "crop") == "crop" and not info.get("audio_only"):
+            try:
+                spec["keyframes"] = track(Sub(job, lo + 0.3 * span, lo + 0.5 * span), name, c["start"], c["end"])["keyframes"]
+            except Exception:
+                spec["keyframes"] = []
+        out = do_export(Sub(job, lo + 0.5 * span, lo + span), spec)
+        outs.append(dict(out, start=c["start"], end=c["end"], hook=c.get("hook", ""), score=c["score"]))
+    return {"clips": outs, "engines": res["engines"]}
 
 
 # --------------------------------------------------------------------------- transcription
-_models = {}
-
-
-def extract_wav(path, start, end, out):
-    r = subprocess.run(["ffmpeg", "-y", "-v", "error", "-ss", str(start), "-t", str(end - start), "-i", str(path),
-                        "-vn", "-ac", "1", "-ar", "16000", str(out)], capture_output=True, text=True)
-    if r.returncode:
-        raise ApiError("audio extract failed: " + r.stderr[-200:])
-
-
-def transcribe(job, name, start, end, model="base"):
-    caps = capabilities()["whisper"]
-    if not caps:
-        raise ApiError("No transcription engine found. pip install faster-whisper  "
-                       "(or openai-whisper, or set WHISPER_CPP_MODEL with whisper-cli on PATH)")
-    path = media_path(name)
-    start, end = float(start), float(end)
-    segs = []
-    with tempfile.TemporaryDirectory(dir=CACHE) as td:
-        wav = Path(td) / "a.wav"
-        job.message, job.progress = "Extracting audio", 0.05
-        extract_wav(path, start, end, wav)
-        job.message, job.progress = f"Transcribing ({caps})", 0.15
-        if caps == "faster-whisper":
-            from faster_whisper import WhisperModel
-            m = _models.setdefault(("fw", model), WhisperModel(model, compute_type="int8"))
-            it, _ = m.transcribe(str(wav), word_timestamps=True, vad_filter=True)
-            for s in it:
-                segs.append({"start": s.start + start, "end": s.end + start, "text": s.text.strip(),
-                             "words": [{"start": w.start + start, "end": w.end + start, "word": w.word.strip()}
-                                       for w in (s.words or [])]})
-                job.progress = min(0.95, 0.15 + 0.8 * (s.end / max(1e-3, end - start)))
-        elif caps == "openai-whisper":
-            import whisper
-            m = _models.setdefault(("ow", model), whisper.load_model(model))
-            r = m.transcribe(str(wav), word_timestamps=True)
-            for s in r["segments"]:
-                segs.append({"start": s["start"] + start, "end": s["end"] + start, "text": s["text"].strip(),
-                             "words": [{"start": w["start"] + start, "end": w["end"] + start,
-                                        "word": w["word"].strip()} for w in s.get("words", [])]})
-        else:  # whisper.cpp (segment-level only)
-            of = Path(td) / "out"
-            r = subprocess.run(["whisper-cli", "-m", os.environ["WHISPER_CPP_MODEL"], "-f", str(wav), "-oj",
-                                "-of", str(of)], capture_output=True, text=True)
-            if r.returncode:
-                raise ApiError("whisper.cpp failed: " + r.stderr[-200:])
-            for s in json.loads((of.with_suffix(".json")).read_text())["transcription"]:
-                segs.append({"start": s["offsets"]["from"] / 1000 + start, "end": s["offsets"]["to"] / 1000 + start,
-                             "text": s["text"].strip(), "words": []})
-    return {"segments": [s for s in segs if s["text"]]}
+def transcribe(job, name, start, end, model=None):
+    segs = E.transcribe_range(media_path(name), float(start), float(end), model or None, job, CACHE)
+    return {"segments": segs}
 
 
 # --------------------------------------------------------------------------- tracking
@@ -342,6 +421,7 @@ def track(job, name, start, end, fps=3):
         i += 1
         job.progress = min(0.95, i / total)
     p.wait()
+    p.stdout.close()
     # fill gaps, smooth (EMA), thin to <= ~1 keyframe/sec
     last = 0.5
     for k, v in enumerate(xs):
@@ -447,26 +527,33 @@ def caption_events(segments, t0, t1, words_per, upper, hi_col):
     return events
 
 
-def build_ass(spec, t0, t1):
+def build_ass(spec, t0, t1, ow, oh):
     cap = spec.get("captions") or {}
+    k = ow / 1080
     font = cap.get("font") or "Arial"
     hi = ass_color(cap.get("highlight") or "#ffe14a")
-    size = int(cap.get("size") or 88)
-    margin_v = int(1920 * (1 - float(cap.get("y", 0.72))))
+    size = int(int(cap.get("size") or 88) * k)
+    margin_v = int(oh * (1 - float(cap.get("y", 0.72))))
+    mx, outl, shad = int(70 * k), max(1, int(9 * k)), max(1, int(3 * k))
     lines = [
-        "[Script Info]", "ScriptType: v4.00+", "PlayResX: 1080", "PlayResY: 1920", "WrapStyle: 0", "",
+        "[Script Info]", "ScriptType: v4.00+", f"PlayResX: {ow}", f"PlayResY: {oh}", "WrapStyle: 0", "",
         "[V4+ Styles]",
         "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, "
         "Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, "
         "MarginR, MarginV, Encoding",
-        f"Style: Cap,{font},{size},&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,9,3,2,70,70,{margin_v},1",
-        f"Style: Title,{font},{int(size * 1.1)},&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,10,4,8,60,60,230,1",
+        f"Style: Cap,{font},{size},&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,{outl},{shad},2,{mx},{mx},{margin_v},1",
+        f"Style: Title,{font},{int(size * 1.1)},&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,{outl + 1},{shad + 1},8,{mx},{mx},{int(230 * oh / 1920)},1",
+        f"Style: Mark,{font},{int(40 * k)},&H80FFFFFF,&H80FFFFFF,&H80000000,&H80000000,1,0,0,0,100,100,0,0,1,{max(1, int(3 * k))},0,9,{mx},{int(40 * k)},{int(60 * k)},1",
         "", "[Events]", "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"]
     n = 0
     title = spec.get("title") or {}
     if title.get("text"):
         d = float(title.get("duration", 2.5))
         lines.append(f"Dialogue: 1,{ass_time(0)},{ass_time(d)},Title,,0,0,0,,{{\\fad(150,250)}}{ass_text(title['text'].upper())}")
+        n += 1
+    mark = ((spec.get("brand") or {}).get("text") or "").strip()
+    if mark:
+        lines.append(f"Dialogue: 2,{ass_time(0)},{ass_time(t1 - t0)},Mark,,0,0,0,,{ass_text(mark)}")
         n += 1
     if cap.get("enabled", True):
         for s, e, text in caption_events(cap.get("segments") or [], t0, t1, int(cap.get("words_per", 3)),
@@ -476,75 +563,107 @@ def build_ass(spec, t0, t1):
     return "\n".join(lines) + "\n", n
 
 
-def build_graph(spec, info, has_ass):
+def build_graph(spec, info, has_ass, ow, oh, dur):
     iw, ih = info["width"], info["height"]
-    ow, oh = 1080, 1920
-    kfs = spec.get("keyframes") or []
-    t0 = float(spec["start"])
-    rel = [{"t": float(k["t"]) - t0, "x": k.get("x", 0.5), "z": k.get("z", 1.0)} for k in kfs]
-    if spec.get("layout") == "blur":
-        chain = (f"[0:v]split[a][b];[a]scale={ow}:{oh}:force_original_aspect_ratio=increase,crop={ow}:{oh},"
-                 f"boxblur=30:5,eq=brightness=-0.12[bg];[b]scale={ow}:-2[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2")
+    parts = []
+    if info.get("audio_only"):  # song mode: gradient equalizer bars on a dark canvas
+        bins = ow // 24
+        parts += [
+            f"[0:a]showfreqs=mode=bar:s={bins}x{bins * 2}:fscale=log:ascale=log:win_size=4096:rate=30:averaging=3:"
+            f"colors=white,scale={bins * 24}:{oh}:flags=neighbor,drawgrid=width=24:height=0:thickness=5:color=black,"
+            f"format=gray[m]",
+            f"gradients=s={ow}x{oh}:c0=0xff2e88:c1=0x3de8d0:x0=0:y0={oh}:x1=0:y1={oh * 35 // 100}:speed=0.00001:rate=30,"
+            f"format=yuva420p[g]",
+            "[g][m]alphamerge=shortest=1[fx]",
+            f"color=c=0x0b0713:s={ow}x{oh}:r=30,format=yuv420p[bg]",
+            "[bg][fx]overlay=shortest=1:format=auto,vignette=PI/5,format=yuv420p[v0]"]
     else:
-        cw = int(min(iw, ih * 9 / 16)) // 2 * 2
-        ch = int(cw * 16 / 9) // 2 * 2
-        ch = min(ch, ih)
-        cx = piecewise(rel, "x", 0.5)
-        x = f"max(0,min({iw - cw},({cx})*{iw}-{cw / 2}))"
-        chain = f"[0:v]crop={cw}:{ch}:x='{x}':y='({ih - ch})/2',scale={ow}:{oh}:flags=lanczos"
-    if any(abs(k["z"] - 1.0) > 1e-3 for k in rel):
-        z = piecewise(rel, "z", 1.0)
-        chain += (f",scale=w='trunc({ow}*({z})/2)*2':h='trunc({oh}*({z})/2)*2':eval=frame,"
-                  f"crop={ow}:{oh}")
-    chain += ",setsar=1,format=yuv420p"
-    if has_ass:
-        chain += ",ass=subs.ass"
-    return chain + "[v]"
+        t0 = float(spec["start"])
+        rel = [{"t": float(k["t"]) - t0, "x": k.get("x", 0.5), "z": k.get("z", 1.0)} for k in (spec.get("keyframes") or [])]
+        if spec.get("layout") == "blur":
+            chain = (f"[0:v]split[a][b];[a]scale={ow}:{oh}:force_original_aspect_ratio=increase,crop={ow}:{oh},"
+                     f"boxblur=30:5,eq=brightness=-0.12[bg];[b]scale={ow}:{oh}:force_original_aspect_ratio=decrease[fg];"
+                     f"[bg][fg]overlay=(W-w)/2:(H-h)/2")
+        else:
+            ar = ow / oh
+            cw = int(min(iw, ih * ar)) // 2 * 2
+            ch = min(int(cw / ar) // 2 * 2, ih // 2 * 2)
+            cx = piecewise(rel, "x", 0.5)
+            x = f"max(0,min({iw - cw},({cx})*{iw}-{cw / 2}))"
+            chain = f"[0:v]crop={cw}:{ch}:x='{x}':y='({ih - ch})/2',scale={ow}:{oh}:flags=lanczos"
+        if any(abs(k["z"] - 1.0) > 1e-3 for k in rel):
+            z = piecewise(rel, "z", 1.0)
+            chain += (f",scale=w='trunc({ow}*({z})/2)*2':h='trunc({oh}*({z})/2)*2':eval=frame,crop={ow}:{oh}")
+        parts.append(chain + ",setsar=1,format=yuv420p[v0]")
+    cur = "v0"
+    if (spec.get("brand") or {}).get("progress"):  # retention-style progress bar along the bottom
+        parts.append(f"color=c=0xff2e88:s={ow}x{max(8, oh // 140)}:r=30[pb]")
+        parts.append(f"[{cur}][pb]overlay=x='-w+w*t/{fmt(dur)}':y=H-h:shortest=1[v1]")
+        cur = "v1"
+    parts.append(f"[{cur}]{'ass=subs.ass' if has_ass else 'null'}[v]")
+    return ";".join(parts)
+
+
+def run_ffmpeg(cmd, cwd, job, dur):
+    p = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    err = []
+    th = threading.Thread(target=lambda: err.extend(p.stderr.readlines()), daemon=True)
+    th.start()
+    for line in p.stdout:
+        m = re.match(r"out_time_(?:us|ms)=(\d+)", line)
+        if m:
+            job.progress = min(0.99, int(m.group(1)) / 1e6 / dur)
+    rc = p.wait()
+    th.join(2)
+    p.stdout.close()
+    p.stderr.close()
+    return rc, "".join(err)
 
 
 def do_export(job, spec):
     path = media_path(spec["source"])
     info = probe(path)
+    ow, oh = FORMATS.get(spec.get("format", "9:16"), FORMATS["9:16"])
     t0 = max(0.0, float(spec["start"]))
     t1 = min(float(spec["end"]), info["duration"])
     if t1 - t0 < 0.5:
         raise ApiError("clip is too short")
-    spec["start"] = t0
+    spec = dict(spec, start=t0)
     out_name = f"{safe_stem(path.stem)[:40]}_{int(t0)}-{int(t1)}_{uuid.uuid4().hex[:4]}.mp4"
+    out = EXPORTS / out_name
     with tempfile.TemporaryDirectory(dir=CACHE) as td:
         td = Path(td)
-        ass_text_, n_events = build_ass(spec, t0, t1)
+        ass_text_, n_events = build_ass(spec, t0, t1, ow, oh)
         has_ass = n_events > 0
         if has_ass:
             (td / "subs.ass").write_text(ass_text_, encoding="utf-8")
-        (td / "graph.txt").write_text(build_graph(spec, info, has_ass), encoding="utf-8")
-        cmd = ["ffmpeg", "-y", "-v", "error", "-nostats", "-progress", "pipe:1",
-               "-ss", fmt(t0), "-t", fmt(t1 - t0), "-i", str(path),
-               "-filter_complex_script", "graph.txt", "-map", "[v]", "-map", "0:a:0?"]
+        (td / "graph.txt").write_text(build_graph(spec, info, has_ass, ow, oh, t1 - t0), encoding="utf-8")
+        base = ["ffmpeg", "-y", "-v", "error", "-nostats", "-progress", "pipe:1",
+                "-ss", fmt(t0), "-t", fmt(t1 - t0), "-i", str(path),
+                "-filter_complex_script", "graph.txt", "-map", "[v]", "-map", "0:a:0?"]
         if spec.get("loudnorm", True) and info["has_audio"]:
-            cmd += ["-af", "loudnorm=I=-14:TP=-1.5:LRA=11"]
-        cmd += ["-c:v", "libx264", "-preset", spec.get("preset", "veryfast"), "-crf", str(spec.get("crf", 18)),
-                "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart",
-                str(EXPORTS / out_name)]
-        job.message = "Rendering 1080x1920"
-        p = subprocess.Popen(cmd, cwd=td, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        err = []
-        threading.Thread(target=lambda: err.extend(p.stderr.readlines()), daemon=True).start()
-        for line in p.stdout:
-            m = re.match(r"out_time_(?:us|ms)=(\d+)", line)
-            if m:
-                job.progress = min(0.99, int(m.group(1)) / 1e6 / (t1 - t0))
-        if p.wait():
-            (EXPORTS / out_name).unlink(missing_ok=True)
-            raise ApiError("ffmpeg failed: " + "".join(err)[-400:])
-    return {"file": out_name, "url": f"/exports/{out_name}", "captions": has_ass}
+            base += ["-af", "loudnorm=I=-14:TP=-1.5:LRA=11"]
+        enc = E.pick_encoder()
+        job.message = f"Rendering {ow}x{oh} ({enc})"
+        rc, err = 1, ""
+        for attempt in ([enc, "libx264"] if enc != "libx264" else ["libx264"]):
+            cmd = base + E.encoder_args(attempt, spec.get("preset", "veryfast"), int(spec.get("crf", 18))) + \
+                ["-t", fmt(t1 - t0), "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", str(out)]
+            rc, err = run_ffmpeg(cmd, td, job, t1 - t0)
+            if rc == 0:
+                break
+        if rc:
+            out.unlink(missing_ok=True)
+            raise ApiError("ffmpeg failed: " + err[-400:])
+    return {"file": out_name, "url": f"/exports/{out_name}", "captions": has_ass, "encoder": attempt,
+            "width": ow, "height": oh}
 
 
 # --------------------------------------------------------------------------- http
 def list_media():
     items = []
     for p in sorted(MEDIA.iterdir(), key=lambda p: -p.stat().st_mtime):
-        if p.suffix.lower() in VIDEO_EXT:
+        if p.suffix.lower() in MEDIA_EXT:
             try:
                 items.append({"name": p.name, "size": p.stat().st_size, **probe(p)})
             except ApiError:
@@ -655,10 +774,15 @@ class Handler(BaseHTTPRequestHandler):
             path = urlparse(self.path).path
             routes = {
                 "/api/import": lambda: start_job("import", do_import, url=b.get("url", "")),
-                "/api/analyze": lambda: start_job("analyze", analyze, name=b["name"],
-                                                  clip_len=b.get("clip_len", 25), count=b.get("count", 8)),
+                "/api/analyze": lambda: start_job("analyze", analyze, name=b["name"], clip_len=b.get("clip_len", 25),
+                                                  count=b.get("count", 8), deep=bool(b.get("deep")),
+                                                  llm=b.get("llm", "auto"), vision=bool(b.get("vision"))),
+                "/api/auto": lambda: start_job("auto", auto_produce, name=b["name"], count=b.get("count", 3),
+                                               clip_len=b.get("clip_len", 25), deep=b.get("deep", True),
+                                               llm=b.get("llm", "auto"), vision=bool(b.get("vision")),
+                                               settings=b.get("settings") or {}),
                 "/api/transcribe": lambda: start_job("transcribe", transcribe, name=b["name"], start=b["start"],
-                                                     end=b["end"], model=b.get("model", "base")),
+                                                     end=b["end"], model=b.get("model")),
                 "/api/track": lambda: start_job("track", track, name=b["name"], start=b["start"], end=b["end"]),
                 "/api/export": lambda: start_job("export", do_export, spec=b),
             }
@@ -674,7 +798,7 @@ class Handler(BaseHTTPRequestHandler):
             return self._json({"error": "not found"}, 404)
         name = safe_stem(Path(parse_qs(u.query).get("name", ["upload.mp4"])[0]).stem) + \
             Path(parse_qs(u.query).get("name", ["upload.mp4"])[0]).suffix.lower()
-        if Path(name).suffix not in VIDEO_EXT:
+        if Path(name).suffix not in MEDIA_EXT:
             return self._json({"error": "unsupported file type"}, 400)
         left = int(self.headers.get("Content-Length") or 0)
         dest = MEDIA / name
