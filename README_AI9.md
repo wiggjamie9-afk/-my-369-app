@@ -13,3 +13,6 @@ Status: HindsightBackend is unverified (no key yet). Recall test so far = local 
 
 ## Stage 2 (built offline, local store only)
 `ai9/loops.py` seven rings, `ai9/jobs.py` runner, `ai9/schedule.cron` timings (not installed). Rings need list/delete on the backend, so Hindsight cannot run them yet.
+
+## Stage 3 (harness only - NOT run)
+`ai9/bench.py` + `bench/README.md`. Needs Jamie's 50 real questions and notes. `python -m ai9.bench estimate` first; `run` refuses without an approved budget. Tests use simulated models, so no real result exists.

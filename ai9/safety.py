@@ -28,8 +28,8 @@ SECRET_PATTERNS = [
 
 PHONE = re.compile(r"(?<!\w)(\+?\d[\d\s().\-]{7,}\d)(?!\w)")
 CALLER_NAME = [
-    re.compile(r"(?i)\b(caller|customer|client|contact)(\s+name)?\s*(is|=|:)\s*[A-Z][\w'\-]+(\s+[A-Z][\w'\-]+)*"),
-    re.compile(r"(?i)\b(my name is|this is|called by|spoke (to|with)|call from)\s+[A-Z][\w'\-]+(\s+[A-Z][\w'\-]+)?"),
+    re.compile(r"(?i)\b(caller|customer|client|contact)(\s+name)?\s*(is|=|:)\s*(?-i:[A-Z][\w'\-]+(\s+[A-Z][\w'\-]+)*)"),
+    re.compile(r"(?i)\b(my name is|this is|called by|spoke (to|with)|call from)\s+(?-i:[A-Z][\w'\-]+(\s+[A-Z][\w'\-]+)?)"),
 ]
 
 

@@ -40,6 +40,11 @@ class Rings(unittest.TestCase):
         self.assertEqual(loops.ring_dedupe(b), {"merged": 1})
         self.assertEqual(len(b.items), 1); self.assertEqual(a.recall_count, 5)
 
+    def test_dedupe_does_not_merge_conflicting_numbers(self):
+        b = be(); b.add(Memory("j", "The callout fee is 90 dollars", "s", when="2026-01-01T00:00:00+00:00"))
+        b.add(Memory("j", "The callout fee is 120 dollars", "s", when="2026-06-01T00:00:00+00:00"))
+        self.assertEqual(loops.ring_dedupe(b), {"merged": 0})
+
     def test_fade_lowers_unused_never_dna(self):
         b = be(); u = Memory("j", "unused fact here", "s"); d = Memory("j", "dna fact here", "s", is_dna=True)
         used = Memory("j", "used fact here", "s", recall_count=1)

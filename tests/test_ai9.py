@@ -27,6 +27,9 @@ class Safety(unittest.TestCase):
         with self.assertRaises(Refused):
             sanitize("Caller: Bob Smith")
 
+    def test_ordinary_sentence_not_mistaken_for_name(self):
+        self.assertEqual(sanitize("This is the fee we charge"), "This is the fee we charge")
+
     def test_plain_fact_untouched(self):
         self.assertEqual(sanitize("We open at 8am."), "We open at 8am.")
 

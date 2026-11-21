@@ -96,7 +96,9 @@ def ring_dedupe(backend, threshold: float = 0.8) -> dict:
         if a.id in gone:
             continue
         for b in items[i + 1:]:
-            if b.id not in gone and _jac(_tokens(a.what), _tokens(b.what)) >= threshold:
+            if b.id not in gone and _jac(_tokens(a.what), _tokens(b.what)) >= threshold \
+                    and set(_NUM.findall(a.what)) == set(_NUM.findall(b.what)) \
+                    and bool(_NEG.search(a.what)) == bool(_NEG.search(b.what)):   # differing facts are conflicts, not dupes
                 a.recall_count += b.recall_count          # keep the older, absorb the newer
                 gone.add(b.id); backend.delete(b.id); merged += 1
     backend.commit()
