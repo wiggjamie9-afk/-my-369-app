@@ -134,6 +134,7 @@ def capabilities():
             "encoder": E.pick_encoder(), "gpu": E.gpu_info(),
             "yt_dlp": bool(shutil.which("yt-dlp") or importlib.util.find_spec("yt_dlp")),
             "whisper": E.whisper_engine(), "opencv": bool(importlib.util.find_spec("cv2")),
+            "ram_gb": round(E.ram_gb(), 1) if E.ram_gb() else None,
             "llm": E.default_llm(text), "llm_models": text,
             "vision": E.default_vision(vision), "vision_models": vision}
 
@@ -237,9 +238,12 @@ def deep_rank(job, path, info, clips, count, llm, vision, whisper_model, lo=0.35
         llm_name = None
     else:
         llm_name = llm if llm in text_models else None
-    vname = E.default_vision(vision_models) if (vision and not info.get("audio_only")) else None
+    want_vision = bool(vision) and not info.get("audio_only")
+    vname = E.default_vision(vision_models) if want_vision else None
     eng = E.whisper_engine()
     engines = {"transcript": eng, "llm": llm_name or "heuristic", "vision": vname, "notes": []}
+    if want_vision and not vname:
+        engines["notes"].append("visual scoring skipped: no vision model installed that fits in memory")
     if not eng:
         engines["notes"].append("no transcript engine installed: ranked by audio only (pip install faster-whisper)")
     can_transcribe = bool(eng)

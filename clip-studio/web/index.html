@@ -284,12 +284,13 @@ function syncButtons() {
 const HINTS = {yt_dlp: 'pip install yt-dlp  (URL import)', whisper: 'pip install faster-whisper  (transcripts)', opencv: 'pip install opencv-python-headless  (face tracking; motion fallback is used otherwise)', ffmpeg: 'install ffmpeg', gpu: 'no NVIDIA GPU found: uses CPU (or Apple/Intel/AMD encoders if available)', llm: 'install Ollama and pull a model, e.g. ollama pull qwen3:8b  (speech-aware ranking)', vision: 'ollama pull a vision model (e.g. a qwen-vl model) for visual scoring'};
 api('/api/capabilities').then(c => {
   S.hw = c;
-  const chips = [['ffmpeg', c.ffmpeg, ''], ['encoder', true, c.encoder], ['gpu', !!c.gpu, c.gpu ? c.gpu.name : ''], ['yt_dlp', c.yt_dlp, ''], ['whisper', !!c.whisper, c.whisper || ''], ['opencv', c.opencv, ''], ['llm', !!c.llm, c.llm || ''], ['vision', !!c.vision, c.vision || '']];
+  const chips = [['ffmpeg', c.ffmpeg, ''], ['encoder', true, c.encoder], ['ram', true, c.ram_gb ? c.ram_gb + ' GB' : ''], ['gpu', !!c.gpu, c.gpu ? c.gpu.name : ''], ['yt_dlp', c.yt_dlp, ''], ['whisper', !!c.whisper, c.whisper || ''], ['opencv', c.opencv, ''], ['llm', !!c.llm, c.llm || ''], ['vision', !!c.vision, c.vision || '']];
   $('#caps').innerHTML = chips.map(([k, ok, d]) => `<span class="chip ${ok ? 'ok' : 'no'}" title="${ok ? '' : esc(HINTS[k] || '')}">${k.replace('_', '-')}${d ? ': ' + esc(d) : ''} ${ok ? '✓' : '✗'}</span>`).join('');
   $('#llm').innerHTML = '<option value="auto">AI: auto' + (c.llm ? ' (' + esc(c.llm) + ')' : '') + '</option><option value="off">AI: off (rules)</option>' + c.llm_models.map(m => `<option>${esc(m)}</option>`).join('');
   $('#vis').disabled = !c.vision;
   const miss = [!c.whisper && 'a transcription engine (pip install faster-whisper)', !c.llm && 'Ollama + a model for AI scoring (rule-based scoring is used otherwise)'].filter(Boolean);
   $('#engHint').textContent = miss.length ? 'Speech-aware ranking works better with: ' + miss.join('; ') + '.' : 'Transcript + AI ranking ready.';
+  if (c.ram_gb && c.ram_gb <= 8) $('#engHint').textContent += ' Low memory (' + c.ram_gb + ' GB): only AI models that fit are auto-picked; vision scoring is skipped unless a small vision model is installed.';
 });
 
 // ---------- media bin

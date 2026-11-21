@@ -29,6 +29,9 @@ Shortcuts: `Space` play · `I`/`O` in/out · `K` keyframe · `←/→` frame ste
 - **Transcription model:** defaults to `small` on CPU, `medium`/`large-v3` on an NVIDIA GPU (by VRAM). Override with `CLIP_STUDIO_WHISPER`. Without faster-whisper: openai-whisper or whisper.cpp (`WHISPER_CPP_MODEL`) also work.
 - `CLIP_STUDIO_ENCODER=libx264` forces software encoding; `CLIP_STUDIO_DATA` moves the data folder.
 
+## Low-memory machines (e.g. 8 GB MacBook)
+The app reads your RAM and only auto-picks AI models whose weights fit in ~40% of it, so macOS/Windows, Whisper and the app keep room. On 8 GB that means a ~4B text model (e.g. `ollama pull qwen3:4b`; check ollama.com/library for current tags), Whisper `small`, and vision scoring skipped unless you install a small vision model. You can still pick any installed model by hand in the dropdown. Close other heavy apps while ranking.
+
 ## Tests
 `python3 -m unittest discover -s tests` — synthetic-media end-to-end tests (analysis, formats, visualizer, auto-produce). A fake Ollama server checks the AI plumbing, not model quality.
 

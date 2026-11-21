@@ -35,7 +35,8 @@ class FakeOllama(http.server.BaseHTTPRequestHandler):
         pass
 
     def do_GET(self):
-        body = json.dumps({"models": [{"name": "qwen3:8b"}, {"name": "qwen3-vl:8b"}, {"name": "nomic-embed-text"}]}).encode()
+        body = json.dumps({"models": [{"name": "qwen3:8b", "size": 5.2e9}, {"name": "qwen3:4b", "size": 2.5e9},
+                                    {"name": "qwen3-vl:8b", "size": 6.1e9}, {"name": "nomic-embed-text", "size": 2.7e8}]}).encode()
         self.send_response(200); self.send_header("Content-Length", str(len(body))); self.end_headers(); self.wfile.write(body)
 
     def do_POST(self):
@@ -70,6 +71,7 @@ class Pipeline(unittest.TestCase):
         threading.Thread(target=srv.serve_forever, daemon=True).start()
         cls.srv = srv
         E.OLLAMA = f"http://127.0.0.1:{srv.server_port}"
+        E.ram_gb = lambda: 32.0
 
     @classmethod
     def tearDownClass(cls):
@@ -146,6 +148,21 @@ class Pipeline(unittest.TestCase):
         self.assertEqual(len(r["clips"]), 2)
         for c in r["clips"]:
             self.assertEqual(probe_wh(S.EXPORTS / c["file"]), (1080, 1920))
+
+    def test_10_low_memory_machine_picks_small_models(self):
+        E.ram_gb = lambda: 8.0                       # e.g. an 8 GB MacBook
+        try:
+            text, vision = E.split_models(E.ollama_models())
+            self.assertEqual(E.default_llm(text), "qwen3:4b")      # 8B (5.2 GB) does not fit in 40% of 8 GB
+            self.assertIsNone(E.default_vision(vision))            # 6.1 GB vision model skipped
+            self.assertEqual(E.default_whisper_model(), "small")
+            E.whisper_engine = lambda: None
+            r = S.analyze(Job(), "vid.mp4", clip_len=12, count=2, deep=True, vision=True)
+            self.assertTrue(any("visual scoring skipped" in n for n in r["engines"]["notes"]))
+            E.ram_gb = lambda: 4.0
+            self.assertEqual(E.default_whisper_model(), "base")
+        finally:
+            E.ram_gb = lambda: 32.0
 
     def test_09_capabilities(self):
         caps = S.capabilities()

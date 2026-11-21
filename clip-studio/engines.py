@@ -12,6 +12,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import urllib.request
 
@@ -97,12 +98,54 @@ VISION_PAT = re.compile(r"(vl|vision|llava|minicpm-v|gemma3|moondream|bakllava)"
 EMBED_PAT = re.compile(r"(embed|bge|nomic|minilm)", re.I)
 
 
+_sizes = {}
+
+
+def ram_gb():
+    """Total physical memory in GB (None if unknown)."""
+    def probe():
+        try:
+            if sys.platform == "darwin":
+                return int(subprocess.run(["sysctl", "-n", "hw.memsize"], capture_output=True, text=True,
+                                          timeout=3).stdout) / 2 ** 30
+            if sys.platform.startswith("linux"):
+                with open("/proc/meminfo") as f:
+                    for line in f:
+                        if line.startswith("MemTotal"):
+                            return int(line.split()[1]) / 2 ** 20
+            if os.name == "nt":
+                import ctypes
+
+                class MS(ctypes.Structure):
+                    _fields_ = [("dwLength", ctypes.c_ulong), ("dwMemoryLoad", ctypes.c_ulong),
+                                ("ullTotalPhys", ctypes.c_ulonglong), ("ullAvailPhys", ctypes.c_ulonglong),
+                                ("ullTotalPageFile", ctypes.c_ulonglong), ("ullAvailPageFile", ctypes.c_ulonglong),
+                                ("ullTotalVirtual", ctypes.c_ulonglong), ("ullAvailVirtual", ctypes.c_ulonglong),
+                                ("ullAvailExtendedVirtual", ctypes.c_ulonglong)]
+                st = MS()
+                st.dwLength = ctypes.sizeof(MS)
+                ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(st))
+                return st.ullTotalPhys / 2 ** 30
+        except Exception:
+            pass
+        return None
+    return _once("ram", probe)
+
+
 def ollama_models(timeout=0.8):
     try:
         with _opener.open(OLLAMA + "/api/tags", timeout=timeout) as r:
-            return [m["name"] for m in json.load(r).get("models", [])]
+            tags = json.load(r).get("models", [])
     except Exception:
         return []
+    for m in tags:
+        _sizes[m["name"]] = m.get("size", 0)
+    return [m["name"] for m in tags]
+
+
+def fits(model):
+    """Model weights should use at most ~40% of RAM (the rest is for macOS/Windows, Whisper and the app)."""
+    return _sizes.get(model, 0) <= (ram_gb() or 16) * 0.4 * 2 ** 30
 
 
 def split_models(models):
@@ -111,18 +154,30 @@ def split_models(models):
     return text, vision
 
 
+def _best_fitting(models, prefer_qwen=True):
+    pool = sorted([m for m in models if fits(m)], key=lambda m: -_sizes.get(m, 0))
+    if prefer_qwen:
+        q = [m for m in pool if "qwen" in m.lower()]
+        pool = q or pool
+    return pool[0] if pool else None
+
+
 def default_llm(text_models):
+    """Best installed text model that fits in memory (prefers Qwen); the smallest one if none fit."""
     forced = os.environ.get("CLIP_STUDIO_LLM")
     if forced:
         return forced
-    for m in text_models:
-        if "qwen" in m.lower():
-            return m
-    return text_models[0] if text_models else None
+    if not text_models:
+        return None
+    return _best_fitting(text_models) or sorted(text_models, key=lambda m: _sizes.get(m, 0))[0]
 
 
 def default_vision(vision_models):
-    return os.environ.get("CLIP_STUDIO_VISION") or (vision_models[0] if vision_models else None)
+    """Best installed vision model that fits in memory, else None (vision is skipped rather than swapping)."""
+    forced = os.environ.get("CLIP_STUDIO_VISION")
+    if forced:
+        return forced
+    return _best_fitting(vision_models, prefer_qwen=False)
 
 
 def chat_json(model, prompt, images=None, timeout=240):
@@ -234,7 +289,7 @@ def default_whisper_model():
     g = gpu_info()
     if g:
         return "large-v3" if g["vram_mb"] >= 8000 else "medium"
-    return "small"
+    return "base" if (ram_gb() or 16) < 6 else "small"
 
 
 def _fw_load(name, force_cpu=False):
