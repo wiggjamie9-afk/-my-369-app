@@ -96,7 +96,7 @@ class HindsightBackend:
     """
 
     def __init__(self, base_url=None, bank_id=None, api_key=None, counts_path="ai9_counts.json"):
-        self.base = (base_url or os.environ["HINDSIGHT_BASE_URL"]).rstrip("/")
+        self.base = (base_url or os.environ.get("HINDSIGHT_BASE_URL", "https://api.hindsight.vectorize.io")).rstrip("/")
         self.bank = bank_id or os.environ.get("HINDSIGHT_BANK_ID", "ai9-shared")
         self.key = api_key or os.environ["HINDSIGHT_API_KEY"]
         self.counts_path = counts_path
