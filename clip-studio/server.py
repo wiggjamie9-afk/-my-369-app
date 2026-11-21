@@ -33,6 +33,7 @@ for d in (MEDIA, EXPORTS, CACHE, FILMS):
 
 import engines as E
 import openfilm_export as OF
+import carousel as CA
 
 VIDEO_EXT = {".mp4", ".mkv", ".mov", ".webm", ".avi", ".m4v", ".flv", ".ts"}
 AUDIO_EXT = {".mp3", ".wav", ".m4a", ".flac", ".ogg", ".aac", ".opus"}
@@ -674,6 +675,22 @@ def do_openfilm(job, spec):
         raise ApiError(str(e))
 
 
+def do_carousel(job, spec):
+    try:
+        return CA.build_carousel(job, spec, media_path, EXPORTS, "/exports")
+    except (ValueError, RuntimeError) as e:
+        raise ApiError(str(e))
+
+
+def do_carousel_draft(job, notes="", n=7, topic="", llm="auto"):
+    text_models, _ = E.split_models(E.list_models())
+    model = None if llm == "off" else (llm if llm in text_models else E.default_llm(text_models) if llm in (None, "", "auto") else None)
+    try:
+        return CA.draft_slides(notes, n, model, topic)
+    except ValueError as e:
+        raise ApiError(str(e))
+
+
 # --------------------------------------------------------------------------- http
 def list_media():
     items = []
@@ -801,6 +818,9 @@ class Handler(BaseHTTPRequestHandler):
                 "/api/track": lambda: start_job("track", track, name=b["name"], start=b["start"], end=b["end"]),
                 "/api/export": lambda: start_job("export", do_export, spec=b),
                 "/api/openfilm": lambda: start_job("openfilm", do_openfilm, spec=b),
+                "/api/carousel": lambda: start_job("carousel", do_carousel, spec=b),
+                "/api/carousel-draft": lambda: start_job("carousel-draft", do_carousel_draft, notes=b.get("notes", ""),
+                                                         n=b.get("n", 7), topic=b.get("topic", ""), llm=b.get("llm", "auto")),
             }
             if path not in routes:
                 return self._json({"error": "not found"}, 404)

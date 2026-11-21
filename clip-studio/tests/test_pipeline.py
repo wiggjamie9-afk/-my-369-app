@@ -43,7 +43,10 @@ class FakeOllama(http.server.BaseHTTPRequestHandler):
         req = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         FakeOllama.seen.append(req)
         prompt = req["messages"][0]["content"]
-        if req["messages"][0].get("images"):
+        if "carousel slide copy" in prompt:
+            out = {"slides": [{"kind": "text", "title": "Hook", "body": "a"}, {"kind": "text", "title": "Two", "body": "b"},
+                              {"kind": "text", "title": "Three", "body": "c"}, {"kind": "text", "title": "End", "body": "d"}]}
+        elif req["messages"][0].get("images"):
             out = {"score": 6, "reason": "clear action"}
         elif "SECOND" in prompt:  # the clip we want ranked first
             out = {"score": 9.5, "hook": "Wait for the ending", "reason": "strong payoff"}
@@ -289,6 +292,45 @@ class Pipeline(unittest.TestCase):
         self.assertNotIn("<track", html)                                       # no captions -> no track
         with self.assertRaises(S.ApiError):
             S.do_openfilm(Job(), {"source": "song.mp3", "start": 0, "end": 5})
+
+    # ---- carousel
+    def test_15_carousel_png_zip_video(self):
+        import zipfile
+        r = S.do_carousel(Job(), {"format": "4:5", "handle": "@me", "video": True, "seconds": 1, "slides": [
+            {"kind": "cover", "title": "Big claim", "body": "sub"},
+            {"kind": "text", "title": "Point", "body": "Some body text that wraps over a couple of lines for sure, yes."},
+            {"kind": "text", "body": "Frame slide", "source": "vid.mp4", "t": 5},
+            {"kind": "cta", "title": "Follow"}]})
+        self.assertEqual(len(r["slides"]), 4)
+        d = Path(r["folder"])
+        for i in range(1, 5):
+            self.assertEqual(probe_wh(d / f"slide_{i:02d}.png"), (1080, 1350))
+        self.assertEqual(probe_wh(d / Path(r["video"]).name), (1080, 1350))
+        with zipfile.ZipFile(d / Path(r["zip"]).name) as z:
+            names = z.namelist()
+            self.assertEqual(sorted(n for n in names if n.endswith(".png")), [f"slide_0{i}.png" for i in range(1, 5)])
+            self.assertEqual([n for n in names if n.endswith(".mp4")], [Path(r["video"]).name])
+        self.assertTrue(r["slides"][0].startswith("/exports/carousel_"))
+
+    def test_16_carousel_limits_and_errors(self):
+        with self.assertRaises(S.ApiError):
+            S.do_carousel(Job(), {"slides": []})
+        with self.assertRaises(S.ApiError):
+            S.do_carousel(Job(), {"slides": [{"title": str(i)} for i in range(11)]})
+        with self.assertRaises(S.ApiError):
+            S.do_carousel(Job(), {"slides": [{"title": "x", "source": "nope.mp4"}]})
+
+    def test_17_carousel_draft_llm_and_template(self):
+        notes = "Map: bigger than expected\nStory: I want more detail\nLaunch: hoping for no bugs"
+        t = S.do_carousel_draft(Job(), notes=notes, n=5, topic="GTA 6 thoughts", llm="off")
+        self.assertEqual(t["engine"], "template")
+        self.assertEqual([x["kind"] for x in t["slides"]], ["cover", "text", "text", "text", "cta"])
+        self.assertEqual(t["slides"][1]["title"], "Map")
+        r = S.do_carousel_draft(Job(), notes=notes, n=4, llm="qwen3:8b")
+        self.assertEqual(r["engine"], "qwen3:8b")
+        self.assertEqual([x["kind"] for x in r["slides"]], ["cover", "text", "text", "cta"])  # first/last forced
+        with self.assertRaises(S.ApiError):
+            S.do_carousel_draft(Job(), notes="", topic="", llm="off")
 
 
 if __name__ == "__main__":
