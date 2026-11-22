@@ -35,9 +35,10 @@ def build_script(brief, hook: str) -> str:
     return " ".join(x for x in (hook, facts, brief.cta) if x)
 
 
-def run_batch(brief, provider, out_dir: str, ai=None, n: int = 3, approved_budget: float = 0.0, llm=None) -> dict:
+def run_batch(brief, provider, out_dir: str, ai=None, n: int = 3, approved_budget: float = 0.0, llm=None,
+              trends=None, captions: bool = False) -> dict:
     os.makedirs(out_dir, exist_ok=True)
-    hooks, rejected = write_hooks(brief, n, llm)
+    hooks, rejected = write_hooks(brief, n, llm, trends)
     made, blocked = [], [{"hook": h, "why": p} for h, p in rejected]
     for i, hook in enumerate(hooks):
         script = build_script(brief, hook)
@@ -47,6 +48,9 @@ def run_batch(brief, provider, out_dir: str, ai=None, n: int = 3, approved_budge
         vid = f"{brief.brand}-{i:02d}".replace(" ", "_")
         path = os.path.join(out_dir, f"{vid}.mp4")
         info = make_video(script, path, provider, ai, vid, approved_budget)
+        if captions:
+            from video.captions import burn_captions
+            path = burn_captions(path, plan_shots(script), path.replace(".mp4", ".cap.mp4"))
         final = _label(path)
         meta = {"id": vid, "hook": hook, "script": script, "file": final, "ai_generated": True, **info}
         with open(os.path.join(out_dir, f"{vid}.json"), "w") as f:      # disclosure sidecar

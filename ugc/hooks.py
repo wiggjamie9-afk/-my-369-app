@@ -14,10 +14,11 @@ TEMPLATES = [
 ]
 
 
-def write_hooks(brief, n: int = 5, llm=None) -> tuple[list[str], list[tuple[str, list[str]]]]:
+def write_hooks(brief, n: int = 5, llm=None, trends=None) -> tuple[list[str], list[tuple[str, list[str]]]]:
     """Returns (clean_hooks, rejected[(hook, problems)])."""
     raw = llm(f"Write {n} short ad hooks for {brief.product}. Voice: {brief.voice}. "
               f"Audience: {brief.audience}. Never claim personal experience.") if llm else \
+        [f"{tr.name}: here is how it applies to {brief.product}." for tr in (trends or [])] + \
         [t.format(**vars(brief)) for t in TEMPLATES]
     clean, bad = [], []
     for h in raw[:max(n * 2, n)]:

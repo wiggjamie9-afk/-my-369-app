@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+ai9_memory.json
+ai9_queue.json
+ai9_counts.json

@@ -41,3 +41,10 @@ Flow: `Brief -> write_hooks -> compliance lint -> cost gate -> generate (9:16) -
 - NOT done: MuAPI is unverified live (no key; poll path `RESULT_PATH` is a guess; credit rates are the repo's own units - set `usd_per_credit` from real pricing). Trend research, voice/lip-sync, captions, A/B test + budget-mover, publishing, a Hindsight-backed memory: none built.
 - Legal: lint is a safety net, not legal advice. Presenters must demonstrate/explain, never claim personal experience. Platform AI-label rules (TikTok/Meta) not researched.
 - Fill `ugc/brief.example.json` -> your brief. Run: `factory.run_batch(Brief.load(path), provider, out_dir, ai, n=3, approved_budget=USD)`.
+
+## Added later (offline, tested): testing, publishing gate, trends, voice, captions
+- `ugc/testing.py` ranks ads by Wilson lower bound (small samples cannot win) and PROPOSES budget moves; a named human must approve; nothing here spends money.
+- `ugc/publish.py` approval queue: refuses non-AI-labelled or non-compliant ads, never posts without a named approver; only `DryRunPublisher` exists - real TikTok/Meta/Shorts adapters + their AI-label rules are TODO.
+- `ugc/research.py` trend import (offline, no scraping) feeding `write_hooks(trends=...)`.
+- `ugc/voice.py` interface + silent stand-in + mux; real TTS = TODO (needs key). `video/captions.py` burns timed captions (verified with ffmpeg drawtext).
+- Still needs keys/live checks: Hindsight, MuAPI, TTS/lip-sync, real LLM hooks, real checker model. Step-by-step: `KIMI_BUILD_BRIEF.md`.

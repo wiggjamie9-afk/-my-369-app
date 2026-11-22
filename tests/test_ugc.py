@@ -15,6 +15,11 @@ def brief(**kw):
     d.update(kw); return Brief(**d)
 
 
+def _j(path):
+    with open(path) as f:
+        return json.load(f)
+
+
 def ai():
     return AI9(LocalBackend(os.path.join(tempfile.mkdtemp(), "m.json")), lambda s, u: "ok")
 
@@ -43,7 +48,7 @@ class Factory(unittest.TestCase):
         self.assertEqual(len(r["made"]), 3)
         for m in r["made"]:
             self.assertTrue(os.path.exists(m["file"]))
-            self.assertTrue(json.load(open(os.path.join(d, m["id"] + ".json")))["ai_generated"])
+            self.assertTrue(_j(os.path.join(d, m["id"] + ".json"))["ai_generated"])
 
     def test_bad_llm_hooks_are_blocked_not_made(self):
         llm = lambda p: ["I tried this and loved it", "Meet the boiler cover and how it fits."]

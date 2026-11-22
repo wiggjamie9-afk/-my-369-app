@@ -20,4 +20,5 @@ class Brief:
 
     @classmethod
     def load(cls, path: str) -> "Brief":
-        return cls(**json.load(open(path)))
+        with open(path) as f:
+            return cls(**json.load(f))
