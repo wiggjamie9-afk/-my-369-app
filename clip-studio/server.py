@@ -27,13 +27,15 @@ from urllib.parse import parse_qs, unquote, urlparse
 ROOT = Path(__file__).resolve().parent
 DATA = Path(os.environ.get("CLIP_STUDIO_DATA", ROOT / "data")).resolve()
 MEDIA, EXPORTS, CACHE, FILMS = DATA / "media", DATA / "exports", DATA / "cache", DATA / "films"
+CLIENTS = DATA / "clients"
 WEB = ROOT / "web"
-for d in (MEDIA, EXPORTS, CACHE, FILMS):
+for d in (MEDIA, EXPORTS, CACHE, FILMS, CLIENTS):
     d.mkdir(parents=True, exist_ok=True)
 
 import engines as E
 import openfilm_export as OF
 import carousel as CA
+import planner as PL
 
 VIDEO_EXT = {".mp4", ".mkv", ".mov", ".webm", ".avi", ".m4v", ".flv", ".ts"}
 AUDIO_EXT = {".mp3", ".wav", ".m4a", ".flac", ".ogg", ".aac", ".opus"}
@@ -691,6 +693,94 @@ def do_carousel_draft(job, notes="", n=7, topic="", llm="auto"):
         raise ApiError(str(e))
 
 
+def _pick_model(llm):
+    text_models, _ = E.split_models(E.list_models())
+    if llm == "off":
+        return None
+    if llm in text_models:
+        return llm
+    return E.default_llm(text_models) if llm in (None, "", "auto") else None
+
+
+def do_client_generate(job, cid, weeks=4, start=None, llm="auto"):
+    try:
+        client = PL.load_client(CLIENTS, cid)
+    except KeyError:
+        raise ApiError("unknown client")
+    job.message = "Planning posts"
+    try:
+        posts, engine = PL.generate(client["brief"], int(weeks), start, _pick_model(llm))
+    except ValueError as e:
+        raise ApiError(str(e))
+    kept = [p for p in client["posts"] if p["status"] != "draft"]  # never overwrite approved/scheduled work
+    client["posts"] = sorted(kept + posts, key=lambda p: (p["date"], p["time"]))
+    PL.save_client(CLIENTS, client)
+    return {"engine": engine, "count": len(posts), "kept": len(kept)}
+
+
+def do_post_carousel(job, cid, post_id, fmt="1:1"):
+    try:
+        client = PL.load_client(CLIENTS, cid)
+        post = next(p for p in client["posts"] if p["id"] == post_id)
+    except (KeyError, StopIteration):
+        raise ApiError("unknown client or post")
+    slides = post.get("slides") or [{"kind": "cover", "title": post["hook"], "body": ""},
+                                    {"kind": "text", "title": "", "body": post["caption"][:220]},
+                                    {"kind": "cta", "title": "Follow for more", "body": client["brief"].get("cta", "")}]
+    if any(PL.PLACEHOLDER.search(f"{x.get('title', '')} {x.get('body', '')}") for x in slides):
+        raise ApiError("fill in every [ADD: ...] before building the carousel")
+    spec = {"format": fmt, "handle": client["brief"].get("handle", ""), "accent": client["brief"].get("accent", "#ff2e88"),
+            "slides": slides}
+    res = do_carousel(job, spec)
+    post.setdefault("assets", []).append({"kind": "carousel", "urls": res["slides"], "zip": res["zip"]})
+    PL.save_client(CLIENTS, client)
+    return res
+
+
+def clients_api(method, path, query, body):
+    """Returns (status, payload, content_type, filename). payload is a dict for JSON, else text."""
+    parts = [x for x in path.split("/") if x]
+    try:
+        if method == "GET" and parts == ["api", "clients"]:
+            return 200, PL.list_clients(CLIENTS), "json", None
+        if method == "POST" and parts == ["api", "client"]:
+            brief = body.get("brief") or {}
+            if not str(brief.get("business", "")).strip():
+                raise ApiError("business name is required")
+            brief["facts"] = [f.strip() for f in brief.get("facts", []) if str(f).strip()]
+            if body.get("id"):
+                client = PL.load_client(CLIENTS, body["id"])
+                client["brief"] = brief
+            else:
+                client = PL.new_client(brief)
+            return 200, PL.save_client(CLIENTS, client), "json", None
+        if len(parts) >= 3 and parts[:2] == ["api", "client"]:
+            cid = parts[2]
+            client = PL.load_client(CLIENTS, cid)
+            tail = parts[3] if len(parts) > 3 else ""
+            if method == "GET" and tail == "":
+                return 200, client, "json", None
+            if method == "GET" and tail == "export.csv":
+                return 200, PL.to_csv(client, "all" not in query), "text/csv", f"{cid}_calendar.csv"
+            if method == "GET" and tail == "export.md":
+                return 200, PL.to_markdown(client), "text/markdown", f"{cid}_approval.md"
+            if method == "POST" and tail == "post":
+                post = PL.update_post(client, body.get("post_id", ""), body.get("patch") or {})
+                PL.save_client(CLIENTS, client)
+                return 200, post, "json", None
+            if method == "POST" and tail == "generate":
+                return 200, start_job("planner", do_client_generate, cid=cid, weeks=body.get("weeks", 4),
+                                      start=body.get("start"), llm=body.get("llm", "auto")).to_dict(), "json", None
+            if method == "POST" and tail == "carousel":
+                return 200, start_job("carousel", do_post_carousel, cid=cid, post_id=body.get("post_id", ""),
+                                      fmt=body.get("format", "1:1")).to_dict(), "json", None
+        return 404, {"error": "not found"}, "json", None
+    except KeyError:
+        return 404, {"error": "unknown client or post"}, "json", None
+    except (ApiError, ValueError) as e:
+        return 400, {"error": str(e)}, "json", None
+
+
 # --------------------------------------------------------------------------- http
 def list_media():
     items = []
@@ -777,10 +867,26 @@ class Handler(BaseHTTPRequestHandler):
             return self._json({"error": "not found"}, 404)
         self._file(p, download)
 
+    def _clients(self, method, u, q, body=None):
+        code, payload, ctype, fname = clients_api(method, u.path, q, body or {})
+        if ctype == "json":
+            return self._json(payload, code)
+        data = payload.encode("utf-8")
+        self.send_response(code)
+        self.send_header("Content-Type", ctype + "; charset=utf-8")
+        self.send_header("Content-Length", str(len(data)))
+        self.send_header("Content-Disposition", f'attachment; filename="{fname}"')
+        self.end_headers()
+        self.wfile.write(data)
+
     def do_GET(self):
         u = urlparse(self.path)
         q = parse_qs(u.query)
         try:
+            if u.path == "/planner":
+                return self._file(WEB / "planner.html")
+            if u.path.startswith("/api/client"):
+                return self._clients("GET", u, q)
             if u.path in ("/", "/index.html"):
                 return self._file(WEB / "index.html")
             if u.path == "/api/capabilities":
@@ -804,6 +910,8 @@ class Handler(BaseHTTPRequestHandler):
         try:
             b = self._body()
             path = urlparse(self.path).path
+            if path.startswith("/api/client"):
+                return self._clients("POST", urlparse(self.path), {}, b)
             routes = {
                 "/api/import": lambda: start_job("import", do_import, url=b.get("url", "")),
                 "/api/analyze": lambda: start_job("analyze", analyze, name=b["name"], clip_len=b.get("clip_len", 25),

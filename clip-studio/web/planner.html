@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Content Planner</title>
+<link rel="icon" href="data:,">
+<style>
+:root{--bg:#0b0713;--panel:#140e1f;--panel2:#1a1328;--line:#2a2040;--txt:#ece7f5;--mute:#8b80a3;--pink:#ff2e88;--cyan:#3de8d0;--gold:#ffd24a;--warn:#ff7a45;--ok:#34d399;
+--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--display:Impact,"Arial Narrow Bold",sans-serif}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+header{display:flex;align-items:flex-end;gap:16px;padding:16px 20px 10px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+h1{margin:0;font:400 32px/1 var(--display);letter-spacing:.5px}h1 em{color:var(--pink);font-style:italic}
+a{color:var(--cyan)}
+.tag{font:11px var(--mono);color:var(--mute);letter-spacing:.08em;text-transform:uppercase}
+.app{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:12px;padding:12px 20px 80px}
+@media (max-width:900px){.app{grid-template-columns:1fr}}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.panel>h2{margin:0 0 8px;font:11px var(--mono);letter-spacing:.1em;color:var(--mute);text-transform:uppercase;display:flex;justify-content:space-between;gap:8px}
+label{display:block;font:11px var(--mono);color:var(--mute);margin:8px 0 3px;text-transform:uppercase;letter-spacing:.06em}
+input[type=text],input[type=number],input[type=date],select,textarea{width:100%;background:#0a0711;border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+textarea{resize:vertical;min-height:70px}
+button{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 11px;cursor:pointer}
+button:hover:not(:disabled){border-color:var(--pink)}button:disabled{opacity:.45;cursor:not-allowed}
+button.pri{background:var(--pink);border-color:var(--pink);color:#fff;font-weight:700}
+button.sm{padding:2px 8px;font-size:12px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row>*{flex:1;min-width:0}.row>button{flex:none}
+.hint{color:var(--mute);font-size:12px}
+.plat{display:flex;flex-wrap:wrap;gap:6px}.plat label{display:flex;gap:5px;align-items:center;margin:0;font:12px var(--mono);text-transform:none;letter-spacing:0;color:var(--txt);border:1px solid var(--line);border-radius:99px;padding:3px 9px}
+.plat input{width:auto}
+.week{font:11px var(--mono);color:var(--mute);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px}
+.post{border:1px solid var(--line);border-radius:8px;margin-bottom:6px;background:var(--panel2)}
+.post>.head{display:grid;grid-template-columns:96px 1fr auto;gap:10px;align-items:center;padding:8px 10px;cursor:pointer}
+.post .when{font:12px var(--mono);color:var(--mute)}
+.post .hk{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip{font:11px var(--mono);border:1px solid var(--line);border-radius:99px;padding:1px 8px;color:var(--mute)}
+.chip.ok{color:var(--ok);border-color:#1b5a46}.chip.warn{color:var(--warn);border-color:#5a3320}.chip.fmt{color:var(--cyan);border-color:#1d5a52}
+.post .edit{padding:4px 10px 10px;border-top:1px solid var(--line)}
+.need{color:var(--warn);font:12px var(--mono);margin-top:6px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid var(--line)}.kv:last-child{border:0}
+.good{color:var(--ok)}.bad{color:var(--warn)}
+#bar{position:fixed;left:0;right:0;bottom:0;background:#0d0817ee;border-top:1px solid var(--line);padding:8px 20px;display:flex;gap:14px;align-items:center}
+#msg{font:12px var(--mono);color:var(--mute);flex:1}#msg.err{color:var(--warn)}
+.thumbs{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.thumbs img{height:90px;border-radius:6px;border:1px solid var(--line)}
+</style>
+</head>
+<body>
+<header>
+  <div><div class="tag">Clip Studio / client work</div><h1>CONTENT PLANNER <em>/ calendar</em></h1></div>
+  <div class="tag"><a href="/">← Clip Studio</a> · brief → 30-day calendar → your approval → export</div>
+</header>
+
+<div class="app">
+  <div class="col">
+    <div class="panel">
+      <h2><span>Clients</span><button class="sm" id="newClient">+ New</button></h2>
+      <select id="clientSel" aria-label="Client"></select>
+    </div>
+
+    <div class="panel">
+      <h2>Brief</h2>
+      <label for="bBiz">Business name</label><input type="text" id="bBiz">
+      <div class="row"><div><label for="bNiche">Type of business</label><input type="text" id="bNiche" placeholder="plumber, dentist, gym"></div><div><label for="bService">Main service</label><input type="text" id="bService"></div></div>
+      <div class="row"><div><label for="bCity">City / area</label><input type="text" id="bCity"></div><div><label for="bHandle">Handle</label><input type="text" id="bHandle" placeholder="@name"></div></div>
+      <label for="bAud">Who are they talking to?</label><input type="text" id="bAud">
+      <div class="row"><div><label for="bTone">Tone</label><input type="text" id="bTone" placeholder="friendly, plain"></div><div><label for="bCta">Call to action</label><input type="text" id="bCta" placeholder="Call us to book."></div></div>
+      <label>Platforms</label><div class="plat" id="plats"></div>
+      <label for="bPW">Posts per week</label><input type="number" id="bPW" min="1" max="14" value="4">
+      <label for="bFacts">Real facts from the owner (one per line)</label>
+      <textarea id="bFacts" rows="7" placeholder="We fix leaking taps same day in Perth north&#10;Licensed gas fitter, 12 years in business&#10;Free quotes on fence repairs&#10;FAQ: Do you work weekends? Yes, Saturdays until 2pm."></textarea>
+      <div class="hint">Services, offers, prices they're happy to show, FAQs, proof. The planner never invents facts. Missing ones become [ADD: …] prompts, and a post with one can't be approved.</div>
+      <button class="pri" id="saveBrief" style="margin-top:10px;width:100%">Save brief</button>
+    </div>
+
+    <div class="panel">
+      <h2>Generate</h2>
+      <div class="row"><div><label for="gWeeks">Weeks</label><input type="number" id="gWeeks" value="4" min="1" max="8"></div><div><label for="gStart">Start date</label><input type="date" id="gStart"></div></div>
+      <label for="gAI">Writer</label><select id="gAI"><option value="auto">AI: auto (local model if running)</option><option value="off">Template (no AI)</option></select>
+      <button class="pri" id="gen" style="margin-top:10px;width:100%">Generate calendar</button>
+      <div class="hint" style="margin-top:6px">Approved and scheduled posts are kept; only drafts are replaced. AI writing is limited to your facts, but always read it before approving.</div>
+    </div>
+
+    <div class="panel">
+      <h2>Agency math</h2>
+      <div class="row"><div><label for="aPrice">Price per client / mo</label><input type="number" id="aPrice" value="750"></div><div><label for="aClients">Clients</label><input type="number" id="aClients" value="5"></div></div>
+      <div class="row"><div><label for="aHours">Hours per client / mo</label><input type="number" id="aHours" value="8" step="0.5"></div><div><label for="aRate">Your hourly value</label><input type="number" id="aRate" value="40"></div></div>
+      <div class="row"><div><label for="aTools">Tools / mo (scheduler etc.)</label><input type="number" id="aTools" value="29"></div><div><label for="aAI">AI + other / mo</label><input type="number" id="aAI" value="20"></div></div>
+      <div id="aOut" class="panel" style="margin-top:10px;background:var(--panel2)"></div>
+      <div class="hint" style="margin-top:6px">Placeholders. Check each tool's current pricing, and count the time you really spend (calls, edits, approvals, reporting).</div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="panel">
+      <h2><span id="calTitle">Calendar</span><span class="row" style="flex:none"><a class="hint" id="dlCsv" href="#">Download CSV (approved)</a> · <a class="hint" id="dlMd" href="#">Approval doc</a></span></h2>
+      <div class="row" style="margin-bottom:6px"><span class="chip" id="cnt"></span></div>
+      <div id="cal"><div class="hint">Save a brief, then generate a calendar.</div></div>
+    </div>
+    <div class="panel hint">
+      <b>Not included:</b> publishing. Export the CSV into your scheduler (Buffer, Metricool, Blotato or similar; check which import formats each accepts), or connect a publishing API with your own account and keys as a separate step. Always get the client's written approval of the calendar, tell them where AI is used, and use their real photos and videos. Platforms reduce reach and monetisation for repetitive, unoriginal posts.
+    </div>
+  </div>
+</div>
+<div id="bar"><div id="msg">Ready.</div></div>
+
+<script>
+(function () {
+'use strict';
+var $ = function (s, r) { return (r || document).querySelector(s); };
+var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+var PLATFORMS = ['instagram', 'facebook', 'tiktok', 'youtube', 'linkedin', 'threads', 'pinterest', 'bluesky', 'x'];
+var FORMATS = ['carousel', 'clip', 'photo', 'text'];
+var C = null, open = {};
+function status(m, e) { var x = $('#msg'); x.textContent = m; x.className = e ? 'err' : ''; }
+function api(path, body) {
+  return fetch(path, body ? { method: 'POST', body: JSON.stringify(body) } : {}).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || r.statusText); return j; }); });
+}
+function job(path, body, label) {
+  status(label + '…');
+  return api(path, body).then(function poll(j) {
+    if (j.status === 'running') return new Promise(function (res) { setTimeout(res, 500); }).then(function () { return api('/api/jobs/' + j.id); }).then(poll);
+    if (j.status === 'error') throw new Error(j.error);
+    return j.result;
+  });
+}
+var PH = /\[ADD:[^\]]*\]/;
+function needs(p) { var t = [p.hook, p.caption].concat((p.slides || []).map(function (s) { return (s.title || '') + ' ' + (s.body || ''); })).join(' '); return PH.test(t); }
+
+/* ---------- clients ---------- */
+function loadList(selectId) {
+  return api('/api/clients').then(function (list) {
+    var sel = $('#clientSel');
+    sel.innerHTML = '<option value="">Choose a client…</option>' + list.map(function (c) { return '<option value="' + c.id + '">' + esc(c.business) + ' (' + c.approved + '/' + c.posts + ' approved)</option>'; }).join('');
+    if (selectId) { sel.value = selectId; }
+  });
+}
+function fillBrief(b) {
+  b = b || {};
+  $('#bBiz').value = b.business || ''; $('#bNiche').value = b.niche || ''; $('#bService').value = b.service || ''; $('#bCity').value = b.city || '';
+  $('#bHandle').value = b.handle || ''; $('#bAud').value = b.audience || ''; $('#bTone').value = b.tone || ''; $('#bCta').value = b.cta || '';
+  $('#bPW').value = b.posts_per_week || 4; $('#bFacts').value = (b.facts || []).join('\n');
+  var pl = b.platforms || ['instagram', 'facebook'];
+  document.querySelectorAll('#plats input').forEach(function (i) { i.checked = pl.indexOf(i.value) >= 0; });
+}
+function readBrief() {
+  return {
+    business: $('#bBiz').value.trim(), niche: $('#bNiche').value.trim(), service: $('#bService').value.trim(), city: $('#bCity').value.trim(),
+    handle: $('#bHandle').value.trim(), audience: $('#bAud').value.trim(), tone: $('#bTone').value.trim(), cta: $('#bCta').value.trim(),
+    posts_per_week: +$('#bPW').value || 4, facts: $('#bFacts').value.split('\n').map(function (x) { return x.trim(); }).filter(Boolean),
+    platforms: Array.prototype.map.call(document.querySelectorAll('#plats input:checked'), function (i) { return i.value; })
+  };
+}
+function setClient(c) {
+  C = c; fillBrief(c ? c.brief : null); renderCal();
+  var on = !!c; ['gen'].forEach(function (id) { $('#' + id).disabled = !on; });
+  $('#dlCsv').href = on ? '/api/client/' + c.id + '/export.csv' : '#'; $('#dlMd').href = on ? '/api/client/' + c.id + '/export.md' : '#';
+}
+$('#clientSel').onchange = function () { var id = this.value; if (!id) { setClient(null); return; } api('/api/client/' + id).then(setClient).catch(function (e) { status(e.message, true); }); };
+$('#newClient').onclick = function () { $('#clientSel').value = ''; setClient(null); $('#bBiz').focus(); status('New client: fill the brief and save it.'); };
+$('#saveBrief').onclick = function () {
+  api('/api/client', { id: C ? C.id : undefined, brief: readBrief() }).then(function (c) { setClient(c); return loadList(c.id); }).then(function () { status('Brief saved.'); }).catch(function (e) { status(e.message, true); });
+};
+$('#gen').onclick = function () {
+  if (!C) return; var b = $('#gen'); b.disabled = true;
+  api('/api/client', { id: C.id, brief: readBrief() }).then(function () {
+    return job('/api/client/' + C.id + '/generate', { weeks: +$('#gWeeks').value || 4, start: $('#gStart').value || null, llm: $('#gAI').value }, 'Planning posts');
+  }).then(function (r) { return api('/api/client/' + C.id).then(function (c) { setClient(c); return loadList(c.id); }).then(function () { status('Planned ' + r.count + ' posts (' + r.engine + '), kept ' + r.kept + ' approved. Fill every [ADD: …] before approving.'); }); })
+    .catch(function (e) { status(e.message, true); }).then(function () { b.disabled = !C; });
+};
+
+/* ---------- calendar ---------- */
+function weekKey(d) { var x = new Date(d + 'T12:00:00'); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x.toISOString().slice(0, 10); }
+function renderCal() {
+  var el = $('#cal');
+  if (!C || !C.posts.length) { el.innerHTML = '<div class="hint">' + (C ? 'No posts yet. Press “Generate calendar”.' : 'Save a brief, then generate a calendar.') + '</div>'; $('#cnt').textContent = ''; $('#calTitle').textContent = 'Calendar'; return; }
+  $('#calTitle').textContent = 'Calendar · ' + C.brief.business;
+  var ap = C.posts.filter(function (p) { return p.status !== 'draft'; }).length, gaps = C.posts.filter(needs).length;
+  $('#cnt').textContent = ap + ' of ' + C.posts.length + ' approved · ' + gaps + ' need input';
+  var last = '', h = '';
+  C.posts.forEach(function (p) {
+    var wk = weekKey(p.date); if (wk !== last) { h += '<div class="week">Week of ' + wk + '</div>'; last = wk; }
+    var n = needs(p), isOpen = !!open[p.id];
+    h += '<div class="post" data-id="' + p.id + '"><div class="head" data-t="toggle"><span class="when">' + p.date.slice(5) + ' ' + p.time + '</span><span class="hk">' + esc(p.hook) + '</span><span class="row" style="flex:none;gap:4px"><span class="chip fmt">' + p.format + '</span>' + (n ? '<span class="chip warn">needs input</span>' : '') + '<span class="chip ' + (p.status !== 'draft' ? 'ok' : '') + '">' + p.status + '</span></span></div>';
+    if (isOpen) {
+      h += '<div class="edit"><label>Hook</label><input type="text" data-f="hook" value="' + esc(p.hook) + '"><label>Caption</label><textarea data-f="caption" rows="6">' + esc(p.caption) + '</textarea>' +
+        '<div class="row"><div><label>Hashtags (space separated)</label><input type="text" data-f="hashtags" value="' + esc(p.hashtags.join(' ')) + '"></div><div><label>Date</label><input type="date" data-f="date" value="' + p.date + '"></div><div><label>Time</label><input type="text" data-f="time" value="' + p.time + '"></div></div>' +
+        '<div class="row"><div><label>Format</label><select data-f="format">' + FORMATS.map(function (f) { return '<option' + (f === p.format ? ' selected' : '') + '>' + f + '</option>'; }).join('') + '</select></div><div><label>Real photo / video to use</label><input type="text" data-f="asset_note" value="' + esc(p.asset_note || '') + '"></div></div>' +
+        ((p.slides || []).length ? '<label>Carousel slides</label>' + p.slides.map(function (s, i) { return '<div class="row" style="margin-bottom:4px"><input type="text" data-s="' + i + '" data-k="title" value="' + esc(s.title) + '" placeholder="Title"><input type="text" data-s="' + i + '" data-k="body" value="' + esc(s.body) + '" placeholder="Body"></div>'; }).join('') : '') +
+        (n ? '<div class="need">Needs your input: replace every [ADD: …] with a real detail from the client.</div>' : '') +
+        '<div class="row" style="margin-top:10px"><button data-t="save">Save</button>' + (p.status === 'draft' ? '<button class="pri" data-t="approve"' + (n ? ' disabled' : '') + '>Approve</button>' : '<button data-t="unapprove">Back to draft</button>') + (p.format === 'carousel' ? '<button data-t="car"' + (n ? ' disabled' : '') + '>Build carousel images</button>' : '') + '<span style="flex:1"></span></div>' +
+        ((p.assets || []).length ? '<div class="thumbs">' + p.assets.map(function (a) { return (a.urls || []).map(function (u) { return '<a href="' + u + '" target="_blank"><img src="' + u + '" alt=""></a>'; }).join(''); }).join('') + '</div>' : '') + '</div>';
+    }
+    h += '</div>';
+  });
+  el.innerHTML = h;
+}
+function readEdit(card) {
+  var id = card.dataset.id, p = C.posts.filter(function (x) { return x.id === id; })[0], patch = {};
+  card.querySelectorAll('[data-f]').forEach(function (i) { patch[i.dataset.f] = i.dataset.f === 'hashtags' ? i.value.split(/[\s,]+/).map(function (t) { return t.replace(/^#/, ''); }).filter(Boolean) : i.value; });
+  var sl = (p.slides || []).map(function (s) { return { kind: s.kind, title: s.title, body: s.body }; });
+  card.querySelectorAll('[data-s]').forEach(function (i) { sl[+i.dataset.s][i.dataset.k] = i.value; });
+  if (sl.length) patch.slides = sl; return { id: id, patch: patch };
+}
+function savePost(id, patch) { return api('/api/client/' + C.id + '/post', { post_id: id, patch: patch }).then(function (np) { C.posts = C.posts.map(function (x) { return x.id === id ? np : x; }); }); }
+$('#cal').addEventListener('click', function (e) {
+  var t = e.target.closest('[data-t]'); if (!t) return; var card = e.target.closest('.post'), id = card.dataset.id, act = t.dataset.t;
+  if (act === 'toggle') { open[id] = !open[id]; renderCal(); return; }
+  var r = readEdit(card);
+  var run = act === 'save' ? savePost(id, r.patch).then(function () { status('Saved.'); })
+    : act === 'approve' ? savePost(id, Object.assign(r.patch, { status: 'approved' })).then(function () { status('Approved.'); })
+    : act === 'unapprove' ? savePost(id, { status: 'draft' }).then(function () { status('Back to draft.'); })
+    : savePost(id, r.patch).then(function () { return job('/api/client/' + C.id + '/carousel', { post_id: id, format: '1:1' }, 'Building carousel'); }).then(function () { return api('/api/client/' + C.id).then(function (c) { C = c; }); }).then(function () { status('Carousel images built.'); });
+  run.then(function () { renderCal(); loadList(C.id); }).catch(function (er) { status(er.message, true); });
+});
+
+/* ---------- agency math ---------- */
+function agency() {
+  var v = function (id) { return parseFloat($('#' + id).value) || 0; };
+  var rev = v('aPrice') * v('aClients'), time = v('aHours') * v('aClients'), cost = v('aTools') + v('aAI'), labour = time * v('aRate'), profit = rev - cost - labour;
+  var eff = time ? (rev - cost) / time : 0;
+  $('#aOut').innerHTML = '<div class="kv"><span>Revenue / month</span><b>$' + rev.toFixed(0) + '</b></div><div class="kv"><span>Tools + AI</span><b>$' + cost.toFixed(0) + '</b></div><div class="kv"><span>Your time (' + time.toFixed(0) + ' h)</span><b>$' + labour.toFixed(0) + '</b></div><div class="kv"><span>Profit after your time</span><b class="' + (profit >= 0 ? 'good' : 'bad') + '">$' + profit.toFixed(0) + '</b></div><div class="kv"><span>What you really earn per hour</span><b class="' + (eff >= v('aRate') ? 'good' : 'bad') + '">$' + eff.toFixed(0) + '</b></div>';
+}
+['aPrice', 'aClients', 'aHours', 'aRate', 'aTools', 'aAI'].forEach(function (id) { $('#' + id).addEventListener('input', agency); });
+
+/* ---------- boot ---------- */
+$('#plats').innerHTML = PLATFORMS.map(function (p) { return '<label><input type="checkbox" value="' + p + '"' + (p === 'instagram' || p === 'facebook' ? ' checked' : '') + '>' + p + '</label>'; }).join('');
+var d = new Date(); $('#gStart').value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+api('/api/capabilities').then(function (c) { (c.llm_models || []).forEach(function (m) { var o = document.createElement('option'); o.value = m; o.textContent = m; $('#gAI').appendChild(o); }); });
+$('#gen').disabled = true; agency(); loadList();
+})();
+</script>
+</body>
+</html>
