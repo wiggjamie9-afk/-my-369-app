@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clipping</title>
+<link rel="icon" href="data:,">
+<style>
+:root{--bg:#0b0713;--panel:#140e1f;--panel2:#1a1328;--line:#2a2040;--txt:#ece7f5;--mute:#8b80a3;--pink:#ff2e88;--cyan:#3de8d0;--gold:#ffd24a;--warn:#ff7a45;--ok:#34d399;
+--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--display:Impact,"Arial Narrow Bold",sans-serif}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+header{display:flex;align-items:flex-end;gap:16px;padding:16px 20px 10px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+h1{margin:0;font:400 32px/1 var(--display)}h1 em{color:var(--pink);font-style:italic}
+a{color:var(--cyan)}.tag{font:11px var(--mono);color:var(--mute);letter-spacing:.08em;text-transform:uppercase}
+.wrap{padding:12px 20px 90px;display:grid;gap:12px;max-width:1100px;margin:0 auto}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.panel>h2{margin:0 0 8px;font:11px var(--mono);letter-spacing:.1em;color:var(--mute);text-transform:uppercase;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+label{display:block;font:11px var(--mono);color:var(--mute);margin:8px 0 3px;text-transform:uppercase;letter-spacing:.06em}
+input[type=text],input[type=number],input[type=date],select,textarea{width:100%;background:#0a0711;border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+textarea{resize:vertical;min-height:54px}
+button{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 11px;cursor:pointer}
+button:hover:not(:disabled){border-color:var(--pink)}button:disabled{opacity:.45;cursor:not-allowed}
+button.pri{background:var(--pink);border-color:var(--pink);color:#fff;font-weight:700}button.sm{padding:2px 8px;font-size:12px}
+.row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}.row>*{flex:1;min-width:140px}.row>button{flex:none;min-width:0}
+.hint{color:var(--mute);font-size:12px}
+.chip{font:11px var(--mono);border:1px solid var(--line);border-radius:99px;padding:1px 8px;color:var(--mute);white-space:nowrap}
+.chip.ok{color:var(--ok);border-color:#1b5a46}.chip.warn{color:var(--warn);border-color:#5a3320}.chip.blue{color:var(--cyan);border-color:#1d5a52}
+table{width:100%;border-collapse:collapse;font-size:13px}th{font:11px var(--mono);color:var(--mute);text-align:left;text-transform:uppercase;padding:4px 6px}
+td{padding:6px;border-top:1px solid var(--line);vertical-align:top}
+.scroll{overflow-x:auto}
+.item{border:1px solid var(--line);border-radius:8px;background:var(--panel2);margin-bottom:8px;padding:8px 10px}
+.item .head{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px solid var(--line)}.kv:last-child{border:0}
+.err{color:var(--warn);font:12px var(--mono);margin-top:6px}
+#bar{position:fixed;left:0;right:0;bottom:0;background:#0d0817ee;border-top:1px solid var(--line);padding:8px 20px;display:flex;gap:14px;align-items:center}
+#msg{font:12px var(--mono);color:var(--mute);flex:1}#msg.err{color:var(--warn)}
+.prog{width:200px;height:6px;background:#241a35;border-radius:9px;overflow:hidden}.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--pink),var(--cyan))}
+</style>
+</head>
+<body>
+<header>
+  <div><div class="tag">Clip Studio / permission first</div><h1>CLIPPING <em>/ rights · queue</em></h1></div>
+  <div class="tag"><a href="/">← Clip Studio</a> · <a href="/planner">Content Planner</a> · every clip needs a permission on record before it can go up</div>
+</header>
+<div class="wrap">
+
+  <div class="panel">
+    <h2><span>YouTube connection</span><span id="ytChips"></span></h2>
+    <div class="row">
+      <button id="ytConnect" class="pri">Connect YouTube</button><button id="ytDisc">Disconnect</button>
+      <div class="hint" style="flex:3">One-time setup: in Google Cloud, enable “YouTube Data API v3”, create an OAuth client of type <b>Desktop app</b>, and save its JSON as <code>data/youtube_client.json</code>. Uploads go up <b>private</b>: Google restricts videos from API projects that haven't passed its audit to private, so you review and publish in YouTube Studio. This connection has only been tested against a local fake of Google, not the real service.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2><span>1 · Rights ledger</span><span class="hint">What you're allowed to use, and proof</span></h2>
+    <div class="row">
+      <div><label for="rBasis">Permission</label><select id="rBasis"></select></div>
+      <div><label for="rSource">Footage (file or description)</label><input type="text" id="rSource" placeholder="StreamerX VOD, 12 Nov"></div>
+      <div><label for="rOwner">Owner</label><input type="text" id="rOwner" placeholder="StreamerX"></div>
+    </div>
+    <div class="row">
+      <div style="flex:2"><label for="rProof">Proof (link, message, campaign page)</label><input type="text" id="rProof" placeholder="https://… or “DM from @streamerx, 1 Nov”"></div>
+      <div><label for="rCredit">Credit line to add</label><input type="text" id="rCredit" placeholder="Clip from StreamerX"></div>
+      <div><label for="rExp">Expires</label><input type="date" id="rExp"></div>
+    </div>
+    <div class="row"><div><label>Covers</label><span id="rPlats"></span></div><button class="pri" id="rAdd">Add to ledger</button></div>
+    <div class="scroll" style="margin-top:10px"><table><thead><tr><th>Footage</th><th>Owner</th><th>Permission</th><th>Covers</th><th>Expires</th><th></th></tr></thead><tbody id="rRows"></tbody></table></div>
+  </div>
+
+  <div class="panel">
+    <h2><span>2 · Campaigns and earnings</span><span id="tot" class="chip"></span></h2>
+    <div class="row">
+      <div><label for="cName">Campaign</label><input type="text" id="cName" placeholder="GTA 6 launch week"></div>
+      <div><label for="cMkt">Marketplace</label><input type="text" id="cMkt" placeholder="Whop, Vyro, direct"></div>
+      <div><label for="cRate">Rate per 1,000 views</label><input type="number" id="cRate" step="0.01" value="1"></div>
+      <div><label for="cFlat">Flat fee per clip</label><input type="number" id="cFlat" step="0.01" value="0"></div>
+      <div><label for="cRights">Permission</label><select id="cRights"></select></div>
+      <button class="pri" id="cAdd">Add</button>
+    </div>
+    <div class="hint" style="margin-top:6px">Rates are whatever the campaign pays. Read its rules: many require verified views, original edits or specific hashtags.</div>
+    <div class="scroll" style="margin-top:8px"><table><thead><tr><th>Campaign</th><th>Clips</th><th>Live</th><th>Views</th><th>Earned</th><th>Per hour</th><th></th></tr></thead><tbody id="cRows"></tbody></table></div>
+  </div>
+
+  <div class="panel">
+    <h2><span>3 · Publishing queue</span><span class="row" style="flex:none"><button id="qNew">+ Add a clip</button><button id="qAll" class="pri">Upload all approved (max 5)</button></span></h2>
+    <div id="queue"></div>
+  </div>
+</div>
+<div id="bar"><div id="msg">Ready.</div><div class="prog"><i id="pb"></i></div></div>
+
+<script>
+(function () {
+'use strict';
+var $ = function (s, r) { return (r || document).querySelector(s); };
+var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+var PLATS = ['youtube', 'tiktok', 'instagram', 'facebook'];
+var D = { rights: [], bases: {}, camps: [], queue: [], exports: [], yt: {} };
+function status(m, e) { var x = $('#msg'); x.textContent = m; x.className = e ? 'err' : ''; }
+function api(path, body) { return fetch(path, body !== undefined ? { method: 'POST', body: JSON.stringify(body) } : {}).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || r.statusText); return j; }); }); }
+function job(path, body, label) {
+  status(label + '…');
+  return api(path, body).then(function poll(j) {
+    $('#pb').style.width = (j.progress * 100) + '%';
+    if (j.status === 'running') return new Promise(function (res) { setTimeout(res, 600); }).then(function () { return api('/api/jobs/' + j.id); }).then(poll);
+    $('#pb').style.width = '0';
+    if (j.status === 'error') throw new Error(j.error);
+    return j.result;
+  });
+}
+function load() {
+  return Promise.all([api('/api/rights'), api('/api/campaigns'), api('/api/queue'), api('/api/exports'), api('/api/youtube/status')]).then(function (r) {
+    D.rights = r[0].rows; D.bases = r[0].bases; D.camps = r[1].rows; D.csum = r[1].summary; D.queue = r[2].rows; D.exports = r[3]; D.yt = r[4]; render();
+  }).catch(function (e) { status(e.message, true); });
+}
+function rightsLabel(id) { var r = D.rights.filter(function (x) { return x.id === id; })[0]; return r ? r.source + ' (' + (D.bases[r.basis] || r.basis) + ')' : ''; }
+function expired(r) { return r.expires && r.expires < new Date().toISOString().slice(0, 10); }
+
+function render() {
+  $('#ytChips').innerHTML = '<span class="chip ' + (D.yt.configured ? 'ok' : 'warn') + '">client file ' + (D.yt.configured ? 'found' : 'missing') + '</span> <span class="chip ' + (D.yt.connected ? 'ok' : 'warn') + '">' + (D.yt.connected ? 'connected' : 'not connected') + '</span>';
+  $('#ytConnect').disabled = !D.yt.configured; $('#ytDisc').disabled = !D.yt.connected;
+  $('#rBasis').innerHTML = Object.keys(D.bases).map(function (k) { return '<option value="' + k + '">' + esc(D.bases[k]) + '</option>'; }).join('');
+  $('#rPlats').innerHTML = PLATS.map(function (p) { return '<label style="display:inline-flex;gap:4px;margin:0 8px 0 0;text-transform:none;font-size:12px"><input type="checkbox" class="rp" value="' + p + '"' + (p === 'youtube' ? ' checked' : '') + '>' + p + '</label>'; }).join('');
+  $('#rRows').innerHTML = D.rights.map(function (r) {
+    return '<tr><td>' + esc(r.source) + '<div class="hint">' + esc(r.proof) + '</div></td><td>' + esc(r.owner || 'me') + '</td><td>' + esc(D.bases[r.basis]) + '</td><td>' + r.platforms.join(', ') + '</td><td>' + (r.expires ? '<span class="chip ' + (expired(r) ? 'warn' : '') + '">' + r.expires + '</span>' : '—') + '</td><td><button class="sm" data-del-r="' + r.id + '">Remove</button></td></tr>';
+  }).join('') || '<tr><td colspan="6" class="hint">Nothing yet. Add what you are allowed to clip, with proof, before you queue anything.</td></tr>';
+  var opts = '<option value="">No permission linked</option>' + D.rights.map(function (r) { return '<option value="' + r.id + '">' + esc(r.source) + '</option>'; }).join('');
+  $('#cRights').innerHTML = opts;
+  $('#cRows').innerHTML = (D.csum.campaigns || []).map(function (c) { return '<tr><td>' + esc(c.name) + '</td><td>' + c.clips + '</td><td>' + c.live + '</td><td>' + c.views.toLocaleString() + '</td><td>' + c.currency + ' ' + c.earnings.toFixed(2) + '</td><td>' + (c.per_hour == null ? '—' : c.currency + ' ' + c.per_hour.toFixed(2)) + '</td><td><button class="sm" data-del-c="' + c.id + '">Remove</button></td></tr>'; }).join('') || '<tr><td colspan="7" class="hint">No campaigns yet.</td></tr>';
+  var t = D.csum.total || {}; $('#tot').textContent = (t.clips || 0) + ' clips · ' + (t.views || 0).toLocaleString() + ' views · ' + (t.earnings || 0).toFixed(2) + ' earned' + (t.per_hour != null ? ' · ' + t.per_hour.toFixed(2) + '/h' : '');
+  renderQueue();
+}
+function renderQueue() {
+  var camps = '<option value="">No campaign</option>' + D.camps.map(function (c) { return '<option value="' + c.id + '">' + esc(c.name) + '</option>'; }).join('');
+  var files = D.exports.map(function (e) { return e.name; });
+  $('#queue').innerHTML = D.queue.length ? D.queue.map(function (q) {
+    var locked = q.status === 'uploaded' || q.status === 'posted';
+    return '<div class="item" data-id="' + q.id + '"><div class="head"><b>' + esc(q.title || '(no title)') + '</b><span><span class="chip ' + (q.status === 'approved' ? 'ok' : q.status === 'failed' ? 'warn' : locked ? 'blue' : '') + '">' + q.status + '</span> <span class="chip">' + q.privacy + (q.publish_at ? ' · ' + q.publish_at : '') + '</span></span></div>' +
+      '<div class="row"><div><label>Exported clip</label><select data-f="export_file"' + (locked ? ' disabled' : '') + '><option value="">Choose…</option>' + files.map(function (f) { return '<option' + (f === q.export_file ? ' selected' : '') + '>' + esc(f) + '</option>'; }).join('') + '</select></div>' +
+      '<div><label>Permission (required)</label><select data-f="rights_id"' + (locked ? ' disabled' : '') + '>' + ('<option value="">Choose…</option>' + D.rights.map(function (r) { return '<option value="' + r.id + '"' + (r.id === q.rights_id ? ' selected' : '') + '>' + esc(r.source) + '</option>'; }).join('')) + '</select></div>' +
+      '<div><label>Campaign</label><select data-f="campaign_id">' + camps.replace('value="' + q.campaign_id + '"', 'value="' + q.campaign_id + '" selected') + '</select></div></div>' +
+      '<label>Title</label><input type="text" data-f="title" value="' + esc(q.title) + '"' + (locked ? ' disabled' : '') + '><label>Description (credit is added automatically)</label><textarea data-f="description"' + (locked ? ' disabled' : '') + '>' + esc(q.description) + '</textarea>' +
+      '<div class="row"><div><label>Tags</label><input type="text" data-f="tags" value="' + esc((q.tags || []).join(' ')) + '"' + (locked ? ' disabled' : '') + '></div><div><label>Privacy</label><select data-f="privacy"' + (locked ? ' disabled' : '') + '>' + ['private', 'unlisted', 'public'].map(function (p) { return '<option' + (p === q.privacy ? ' selected' : '') + '>' + p + '</option>'; }).join('') + '</select></div><div><label>Schedule (UTC, optional)</label><input type="text" data-f="publish_at" placeholder="2026-12-01T09:00:00Z" value="' + esc(q.publish_at) + '"' + (locked ? ' disabled' : '') + '></div></div>' +
+      (locked ? '<div class="row"><div><label>Views so far</label><input type="number" data-f="views" value="' + q.views + '"></div><div><label>Hours you spent</label><input type="number" step="0.25" data-f="hours_spent" value="' + q.hours_spent + '"></div></div>' : '') +
+      (q.url ? '<div class="hint" style="margin-top:6px">On YouTube: <a href="' + esc(q.url) + '" target="_blank" rel="noopener">' + esc(q.url) + '</a> (private until you publish it in YouTube Studio)</div>' : '') +
+      (q.error ? '<div class="err">' + esc(q.error) + '</div>' : '') +
+      '<div class="row" style="margin-top:8px"><button data-t="save">Save</button>' + (q.status === 'draft' || q.status === 'failed' ? '<button class="pri" data-t="approve">Approve</button>' : '') + (q.status === 'approved' ? '<button data-t="unapprove">Back to draft</button><button class="pri" data-t="upload"' + (D.yt.connected ? '' : ' disabled title="Connect YouTube first"') + '>Upload to YouTube (private)</button>' : '') + (q.status === 'uploaded' ? '<button data-t="posted">Mark as live</button>' : '') + (!locked ? '<button data-t="delete">Delete</button>' : '') + '</div></div>';
+  }).join('') : '<div class="hint">Nothing queued. Export a clip in Clip Studio, then add it here with its permission.</div>';
+}
+function readItem(el) {
+  var d = { id: el.dataset.id }; el.querySelectorAll('[data-f]').forEach(function (i) { if (!i.disabled) d[i.dataset.f] = i.value; }); return d;
+}
+$('#queue').addEventListener('click', function (e) {
+  var t = e.target.closest('[data-t]'); if (!t) return; var el = e.target.closest('.item'), id = el.dataset.id, a = t.dataset.t;
+  var save = function () { return api('/api/queue', readItem(el)); };
+  var run;
+  if (a === 'save') run = save().then(function () { status('Saved.'); });
+  else if (a === 'approve') run = save().then(function () { return api('/api/queue/' + id + '/approve', {}); }).then(function () { status('Approved. Rights entry is valid and the credit will be added.'); });
+  else if (a === 'unapprove') run = api('/api/queue/' + id + '/unapprove', {}).then(function () { status('Back to draft.'); });
+  else if (a === 'delete') run = api('/api/queue/' + id + '/delete', {}).then(function () { status('Deleted.'); });
+  else if (a === 'posted') run = api('/api/queue', { id: id, status: 'posted' }).then(function () { status('Marked as live.'); });
+  else if (a === 'upload') { t.disabled = true; run = job('/api/queue/' + id + '/upload', {}, 'Uploading').then(function (r) { status('Uploaded as ' + r.privacy + ': ' + r.url + '. Review and publish it in YouTube Studio.'); }); }
+  run.catch(function (er) { status(er.message, true); }).then(load);
+});
+$('#queue').addEventListener('change', function (e) { var el = e.target.closest('.item'); if (el && /^(views|hours_spent)$/.test(e.target.dataset.f || '')) api('/api/queue', readItem(el)).then(load); });
+$('#qNew').onclick = function () { api('/api/queue', { title: '', privacy: 'private' }).then(load).then(function () { status('New clip added. Choose the exported file and its permission.'); }); };
+$('#qAll').onclick = function () { if (!window.confirm('Upload up to 5 approved clips to YouTube as private?')) return; job('/api/queue/upload-all', {}, 'Uploading approved clips').then(function (r) { status('Uploaded ' + r.uploaded.length + (r.failed.length ? ', failed: ' + r.failed.join('; ') : '') + '. All private until you publish.'); }).catch(function (er) { status(er.message, true); }).then(load); };
+$('#rAdd').onclick = function () {
+  api('/api/rights', { basis: $('#rBasis').value, source: $('#rSource').value, owner: $('#rOwner').value, proof: $('#rProof').value, credit_text: $('#rCredit').value, expires: $('#rExp').value,
+    platforms: Array.prototype.map.call(document.querySelectorAll('.rp:checked'), function (i) { return i.value; }) })
+    .then(function () { ['rSource', 'rOwner', 'rProof', 'rCredit', 'rExp'].forEach(function (id) { $('#' + id).value = ''; }); status('Added to the ledger.'); return load(); }).catch(function (e) { status(e.message, true); });
+};
+$('#rRows').addEventListener('click', function (e) { var b = e.target.closest('[data-del-r]'); if (b) api('/api/rights/delete', { id: b.dataset.delR }).then(load).catch(function (er) { status(er.message, true); }); });
+$('#cAdd').onclick = function () { api('/api/campaigns', { name: $('#cName').value, marketplace: $('#cMkt').value, rate_per_1000: $('#cRate').value, flat_fee: $('#cFlat').value, rights_id: $('#cRights').value }).then(function () { $('#cName').value = ''; status('Campaign added.'); return load(); }).catch(function (e) { status(e.message, true); }); };
+$('#cRows').addEventListener('click', function (e) { var b = e.target.closest('[data-del-c]'); if (b) api('/api/campaigns/delete', { id: b.dataset.delC }).then(load); });
+$('#ytConnect').onclick = function () { api('/api/youtube/auth').then(function (r) { window.open(r.url, '_blank'); status('Approve access in the new tab, then come back and refresh.'); }).catch(function (e) { status(e.message, true); }); };
+$('#ytDisc').onclick = function () { api('/api/youtube/disconnect', {}).then(load); };
+window.addEventListener('focus', load);
+load();
+})();
+</script>
+</body>
+</html>

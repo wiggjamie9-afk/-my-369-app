@@ -28,14 +28,17 @@ ROOT = Path(__file__).resolve().parent
 DATA = Path(os.environ.get("CLIP_STUDIO_DATA", ROOT / "data")).resolve()
 MEDIA, EXPORTS, CACHE, FILMS = DATA / "media", DATA / "exports", DATA / "cache", DATA / "films"
 CLIENTS = DATA / "clients"
+RIGHTS = DATA / "rights"
 WEB = ROOT / "web"
-for d in (MEDIA, EXPORTS, CACHE, FILMS, CLIENTS):
+for d in (MEDIA, EXPORTS, CACHE, FILMS, CLIENTS, RIGHTS):
     d.mkdir(parents=True, exist_ok=True)
 
 import engines as E
 import openfilm_export as OF
 import carousel as CA
 import planner as PL
+import rights as RT
+import youtube as YTB
 
 VIDEO_EXT = {".mp4", ".mkv", ".mov", ".webm", ".avi", ".m4v", ".flv", ".ts"}
 AUDIO_EXT = {".mp3", ".wav", ".m4a", ".flac", ".ogg", ".aac", ".opus"}
@@ -781,6 +784,106 @@ def clients_api(method, path, query, body):
         return 400, {"error": str(e)}, "json", None
 
 
+STORE = RT.Store(RIGHTS)
+YT = YTB.YouTube(DATA)
+
+
+def export_exists(name):
+    p = (EXPORTS / name).resolve()
+    return EXPORTS in p.parents and p.is_file() and p.suffix.lower() == ".mp4"
+
+
+def do_queue_upload(job, item_id):
+    """Upload one approved clip to YouTube (private by default). Credit text from the rights entry is added."""
+    rows = STORE.read("queue")
+    it = next((i for i in rows if i["id"] == item_id), None)
+    if not it:
+        raise ApiError("unknown queue item")
+    if it["status"] != "approved":
+        raise ApiError("approve the clip first (it needs a title and a valid rights entry)")
+    ok, why = RT.rights_ok(RT.get_rights(STORE, it["rights_id"]), "youtube")  # re-check at upload time: permissions can expire
+    if not ok:
+        raise ApiError(why)
+    path = (EXPORTS / it["export_file"]).resolve()
+    if EXPORTS not in path.parents or not path.is_file():
+        raise ApiError("the exported clip is missing")
+    meta = YTB.build_meta(it["title"], RT.full_description(STORE, it), it["tags"], it["privacy"], it["publish_at"])
+    job.message = "Uploading to YouTube"
+    try:
+        vid = YT.upload(path, meta, lambda f: setattr(job, "progress", min(0.98, f)))
+    except YTB.YouTubeError as e:
+        RT.set_result(STORE, item_id, status="failed", error=str(e)[:300])
+        raise ApiError(str(e))
+    RT.set_result(STORE, item_id, status="uploaded", youtube_id=vid, url=f"https://youtu.be/{vid}", error="")
+    return {"id": vid, "url": f"https://youtu.be/{vid}", "privacy": meta["status"]["privacyStatus"]}
+
+
+def do_queue_upload_all(job, limit=5):
+    todo = [i["id"] for i in STORE.read("queue") if i["status"] == "approved"][: int(limit)]
+    if not todo:
+        raise ApiError("nothing approved to upload")
+    done, failed = [], []
+    for n, iid in enumerate(todo):
+        job.message = f"Uploading {n + 1}/{len(todo)}"
+        sub = Job("sub")
+        try:
+            done.append(do_queue_upload(sub, iid)["url"])
+        except ApiError as e:
+            failed.append(f"{iid}: {e}")
+        job.progress = (n + 1) / len(todo)
+    return {"uploaded": done, "failed": failed}
+
+
+def clipping_api(method, path, query, body, host=""):
+    """Rights ledger, campaigns, publishing queue, YouTube connection. Returns (status, payload, content_type)."""
+    parts = [x for x in path.split("/") if x]
+    try:
+        if parts[:2] == ["api", "rights"]:
+            if method == "GET":
+                return 200, {"bases": RT.BASES, "rows": STORE.read("rights")}, "json"
+            if parts == ["api", "rights", "delete"]:
+                RT.delete_rights(STORE, body.get("id", ""))
+                return 200, {"ok": True}, "json"
+            return 200, RT.add_rights(STORE, body), "json"
+        if parts[:2] == ["api", "campaigns"]:
+            if method == "GET":
+                return 200, {"rows": STORE.read("campaigns"), "summary": RT.summary(STORE)}, "json"
+            if parts == ["api", "campaigns", "delete"]:
+                RT.delete_campaign(STORE, body.get("id", ""))
+                return 200, {"ok": True}, "json"
+            return 200, RT.add_campaign(STORE, body), "json"
+        if parts[:2] == ["api", "queue"]:
+            if method == "GET":
+                return 200, {"rows": STORE.read("queue"), "summary": RT.summary(STORE)}, "json"
+            if len(parts) == 2:
+                return 200, RT.save_item(STORE, body, export_exists), "json"
+            if parts[2] == "upload-all":
+                return 200, start_job("upload", do_queue_upload_all).to_dict(), "json"
+            iid, act = parts[2], parts[3] if len(parts) > 3 else ""
+            if act == "approve":
+                return 200, RT.approve_item(STORE, iid, export_exists), "json"
+            if act == "unapprove":
+                return 200, RT.unapprove_item(STORE, iid), "json"
+            if act == "delete":
+                RT.delete_item(STORE, iid)
+                return 200, {"ok": True}, "json"
+            if act == "upload":
+                return 200, start_job("upload", do_queue_upload, item_id=iid).to_dict(), "json"
+        if parts[:2] == ["api", "youtube"]:
+            if parts == ["api", "youtube", "status"]:
+                return 200, YT.status(), "json"
+            if parts == ["api", "youtube", "auth"]:
+                return 200, {"url": YT.auth_url(f"http://{host}/oauth/youtube/callback")}, "json"
+            if parts == ["api", "youtube", "disconnect"]:
+                YT.disconnect()
+                return 200, {"ok": True}, "json"
+        return 404, {"error": "not found"}, "json"
+    except KeyError:
+        return 404, {"error": "unknown item"}, "json"
+    except (RT.RightsError, YTB.YouTubeError, ApiError) as e:
+        return 400, {"error": str(e)}, "json"
+
+
 # --------------------------------------------------------------------------- http
 def list_media():
     items = []
@@ -883,6 +986,24 @@ class Handler(BaseHTTPRequestHandler):
         u = urlparse(self.path)
         q = parse_qs(u.query)
         try:
+            if u.path == "/clipping":
+                return self._file(WEB / "clipping.html")
+            if u.path == "/oauth/youtube/callback":
+                msg = "YouTube is connected. You can close this tab."
+                try:
+                    YT.exchange(q.get("code", [""])[0], q.get("state", [""])[0])
+                except YTB.YouTubeError as e:
+                    msg = "Connection failed: " + str(e)
+                data = f"<!doctype html><meta charset=utf-8><title>YouTube</title><body style='font:16px system-ui;padding:2em'>{msg.replace('<', '&lt;')}<p><a href='/clipping'>Back to Clipping</a></p>".encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(data)))
+                self.end_headers()
+                self.wfile.write(data)
+                return
+            if u.path.startswith(("/api/rights", "/api/campaigns", "/api/queue", "/api/youtube")):
+                code, payload, _ = clipping_api("GET", u.path, q, {}, self.headers.get("Host", "127.0.0.1"))
+                return self._json(payload, code)
             if u.path == "/planner":
                 return self._file(WEB / "planner.html")
             if u.path.startswith("/api/client"):
@@ -912,6 +1033,9 @@ class Handler(BaseHTTPRequestHandler):
             path = urlparse(self.path).path
             if path.startswith("/api/client"):
                 return self._clients("POST", urlparse(self.path), {}, b)
+            if path.startswith(("/api/rights", "/api/campaigns", "/api/queue", "/api/youtube")):
+                code, payload, _ = clipping_api("POST", path, {}, b, self.headers.get("Host", "127.0.0.1"))
+                return self._json(payload, code)
             routes = {
                 "/api/import": lambda: start_job("import", do_import, url=b.get("url", "")),
                 "/api/analyze": lambda: start_job("analyze", analyze, name=b["name"], clip_len=b.get("clip_len", 25),
