@@ -1,0 +1,495 @@
+<title>48 AI Crew</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout concept: one iPhone-width column on the mock's night-navy ground, four tabs, bottom sheets for everything else.
+   Palette: ink navy, panel navy, signal blue, job amber, ok green, alert rose. Type: Space Grotesk heads, Inter body. */
+:root{
+  color-scheme:dark;
+  --ink:#070b17; --panel:#0d1424; --raise:#131d35; --line:#1f2b47;
+  --text:#eaf0ff; --mute:#8d9bbd; --blue:#4f8cff; --amber:#fbbf24; --green:#34d399; --rose:#fb7185;
+  --font-body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-head:'Space Grotesk','Inter',system-ui,sans-serif;
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--ink);color:var(--text);font:14px/1.45 var(--font-body);-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.shell{max-width:460px;margin:0 auto;height:100%;display:flex;flex-direction:column;background:var(--ink);box-shadow:0 0 0 1px var(--line);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.proto{font:600 10px/1 var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--amber);padding:6px 0 4px;text-align:center}
+main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:12px}
+h1{font:700 28px/1.1 var(--font-head);margin:6px 0 2px}
+h2{font:600 11px/1.2 var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin:18px 0 8px}
+.sub{color:var(--mute);font-size:12px}
+.row{display:flex;gap:8px;align-items:center}
+.between{justify-content:space-between}
+.grow{flex:1;min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px}
+.card.hot{border-color:var(--blue);background:linear-gradient(180deg,#0f1a33,var(--panel))}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:3px 10px;font-size:11px;font-weight:600;border:1px solid var(--line);background:var(--raise);color:var(--mute)}
+.pill.on{color:var(--green);border-color:#134e3f;background:#0a2a22}
+.pill.amber{color:var(--amber);border-color:#5a4410;background:#2a2108}
+.pill.rose{color:var(--rose);border-color:#5b1f2c;background:#2a0e15}
+.pill.blue{color:var(--blue);border-color:#1d3c74;background:#0d1b38}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block}
+.btn{border:1px solid var(--line);background:var(--raise);border-radius:10px;padding:9px 12px;font-weight:600;font-size:13px}
+.btn:active{transform:translateY(1px)}
+.btn.blue{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.amber{background:var(--amber);border-color:var(--amber);color:#2a1f00}
+.btn.ghost{background:transparent}
+.btn.sm{padding:5px 9px;font-size:12px;border-radius:8px}
+.btn:disabled{opacity:.45}
+.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.actions .btn{padding:8px 4px;text-align:center}
+.job{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer;background:none;border-left:0;border-right:0;border-top:0;width:100%;text-align:left}
+.job:last-child{border-bottom:0}
+.job time{font:600 12px var(--font-body);color:var(--mute);width:52px;flex:none;font-variant-numeric:tabular-nums}
+.job b{display:block;font-weight:600}
+.job small{color:var(--mute)}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);padding:6px 0 8px;gap:2px}
+.tab{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;font-size:11px;font-weight:600;color:var(--mute);position:relative;border-radius:10px}
+.tab svg{width:22px;height:22px}
+.tab[aria-selected=true]{color:var(--blue)}
+.badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--rose);color:#fff;border-radius:99px;font-size:10px;min-width:16px;height:16px;line-height:16px;text-align:center;padding:0 4px}
+.inbox{position:relative;overflow:hidden;border-radius:14px;margin-bottom:8px}
+.inbox .card{touch-action:pan-y;transition:transform .18s}
+.inbox .hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;padding-right:18px;background:#2a0e15;color:var(--rose);font-weight:600}
+.call{width:40px;height:40px;border-radius:50%;background:var(--blue);display:grid;place-items:center;border:0;flex:none}
+.call svg{width:18px;height:18px;fill:#fff}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.cal .dow{font-size:11px;color:var(--mute);padding:4px 0}
+.cal button{background:none;border:0;border-radius:10px;height:40px;position:relative;font-variant-numeric:tabular-nums}
+.cal button.today{box-shadow:inset 0 0 0 1px var(--blue)}
+.cal button.sel{background:var(--blue);color:#fff}
+.cal button.has::after{content:"";position:absolute;bottom:5px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--amber)}
+.cal button.sel.has::after{background:#fff}
+.cal button.mute{color:#3b4766}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--raise);border:1px solid var(--line);border-radius:10px;padding:3px;gap:3px}
+.seg button{border:0;background:none;border-radius:8px;padding:7px 4px;font-weight:600;font-size:12px;color:var(--mute)}
+.seg button[aria-pressed=true]{background:var(--blue);color:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--raise);border-radius:99px;padding:5px 11px;font-size:12px;font-weight:600;color:var(--mute)}
+.chip[aria-pressed=true]{background:var(--blue);border-color:var(--blue);color:#fff}
+.stage{display:grid;place-items:center;padding:18px 12px 12px;text-align:center;border-radius:18px;border:1px solid var(--amber);background:radial-gradient(120% 90% at 50% 0%,#17274d 0%,var(--panel) 70%)}
+.avatar{width:132px;height:132px;border-radius:50%;border:2px solid var(--blue);background:linear-gradient(160deg,#16284f,#0b1226);display:grid;place-items:center;position:relative}
+.avatar svg{width:100%;height:100%}
+.avatar>svg{width:104px;height:104px}
+.avatar .mouth{transform-origin:50px 71px;transform:scaleY(.35)}
+.avatar.talk .mouth{animation:talk .32s infinite alternate}
+@keyframes talk{to{transform:scaleY(1.2)}}
+@media (prefers-reduced-motion:reduce){.avatar.talk .mouth{animation:none;transform:scaleY(.9)}}
+.stage h3{font:700 22px var(--font-head);margin:10px 0 0}
+.meter{height:8px;background:var(--raise);border-radius:99px;overflow:hidden;margin:8px 0 4px}
+.meter i{display:block;height:100%;background:var(--amber);border-radius:99px}
+.meter i.over{background:var(--rose)}
+.quote{border-left:3px solid var(--blue);padding:2px 0 2px 10px;color:var(--text)}
+label{display:block;font-size:11px;font-weight:600;color:var(--mute);margin:10px 0 4px;letter-spacing:.04em;text-transform:uppercase}
+input[type=text],input[type=number],input[type=tel],input[type=time],input[type=date],select,textarea{width:100%;background:var(--ink);border:1px solid var(--line);border-radius:10px;padding:9px 10px}
+textarea{resize:vertical;min-height:60px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+/* sheet */
+#sheet{position:fixed;inset:0;background:rgba(3,6,14,.7);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+#sheet .panel{width:100%;max-width:460px;max-height:92%;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-bottom:0;border-radius:20px 20px 0 0;
+  padding:12px max(16px,env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(16px,env(safe-area-inset-left,0px))}
+#sheet header{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 0 10px}
+#sheet header h3{font:700 18px var(--font-head);margin:0}
+#sheet .body{overflow-y:auto;padding-bottom:16px}
+/* chat */
+.chat{display:flex;flex-direction:column;gap:8px;min-height:200px}
+.msg{max-width:86%;padding:8px 11px;border-radius:14px;font-size:13.5px}
+.msg.jane{background:var(--raise);border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:4px}
+.msg.me{background:var(--blue);align-self:flex-end;border-bottom-right-radius:4px}
+.msg.note{align-self:center;background:none;color:var(--mute);font-size:12px;text-align:center}
+.send{display:flex;gap:8px;margin-top:10px}
+.send input{flex:1}
+/* splash */
+#splash{position:fixed;inset:0;z-index:30;background:radial-gradient(90% 60% at 50% 30%,#12234a,var(--ink));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:24px}
+.mark{font:700 20px var(--font-head);letter-spacing:.3em;color:var(--blue);text-align:center}
+.mark b{display:block;font-size:118px;letter-spacing:0;line-height:.95;color:var(--text);text-shadow:0 0 38px rgba(79,140,255,.55)}
+.mark span{letter-spacing:.4em;font-size:14px;color:var(--mute)}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(86px + env(safe-area-inset-bottom,0px));background:var(--raise);border:1px solid var(--line);border-radius:12px;padding:9px 14px;z-index:40;font-weight:600;font-size:13px;max-width:min(92vw,420px)}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)}
+.kv:last-child{border-bottom:0}
+.kv b{font-variant-numeric:tabular-nums}
+.good{color:var(--green)}.bad{color:var(--rose)}.warn{color:var(--amber)}
+.plan{display:block;width:100%;text-align:left;background:var(--raise);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.plan[aria-pressed=true]{border-color:var(--blue);box-shadow:inset 0 0 0 1px var(--blue)}
+.plan b{font:700 16px var(--font-head)}
+</style>
+
+<div class="shell" id="shell">
+  <div class="proto">Prototype · sample data · not connected to real calls</div>
+  <main id="screen" aria-live="polite"></main>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Main">
+    <button class="tab" role="tab" data-tab="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4M16 3v4M4 11h16"/></svg>Today</button>
+    <button class="tab" role="tab" data-tab="inbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13l2.5-7h11L20 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M4 13h4l1 2h6l1-2h4"/></svg>Inbox<span class="badge" id="inboxBadge" hidden>0</span></button>
+    <button class="tab" role="tab" data-tab="bookings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="16" rx="3"/><path d="M3.5 9.5h17M8 14h2M12 14h2M16 14h.01M8 17.5h2"/></svg>Bookings</button>
+    <button class="tab" role="tab" data-tab="jane"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c1-4 4-6 8-6s7 2 8 6"/></svg>Jane</button>
+  </nav>
+</div>
+<div id="sheet" hidden><div class="panel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"><header><h3 id="sheetTitle"></h3><button class="btn sm" id="sheetClose">Close</button></header><div class="body" id="sheetBody"></div></div></div>
+<div id="splash"><div class="mark">THE<b>48</b><span>AI CREW</span></div><button class="btn blue" id="splashGo" style="padding:12px 26px;font-size:15px">Open my desk</button><div class="sub" style="max-width:280px;text-align:center">Prototype with sample data. Nothing here places or answers real calls.</div></div>
+<div id="toast" hidden></div>
+
+<script>
+(function () {
+'use strict';
+var $ = function (s, r) { return (r || document).querySelector(s); };
+var pad = function (n) { return String(n).padStart(2, '0'); };
+var iso = function (d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+var uid = function () { return Math.random().toString(36).slice(2, 9); };
+var KEY = '48ai.proto.v1';
+
+/* ---------- plans (editable defaults; the first is the mock's plan) ---------- */
+var PLANS = [
+  { id: 'mock', name: 'Jane Pro (mock)', price: 49.99, minutes: 600, note: 'As drawn in the mock' },
+  { id: 'starter', name: 'Starter', price: 59, minutes: 150, note: 'Suggested entry plan' },
+  { id: 'pro', name: 'Pro', price: 129, minutes: 400, note: 'Suggested; test A$99-149' },
+  { id: 'company', name: 'Company (4 users)', price: 199, minutes: 800, note: 'Suggested; shared pool' }
+];
+
+/* ---------- state ---------- */
+function seed() {
+  var t = new Date(), tm = new Date(t.getTime() + 864e5);
+  var today = iso(t), tomorrow = iso(tm);
+  return {
+    biz: { name: "Wigg's Plumbing & Gas", owner: 'Wigg', phone: '0400 123 456', abn: '51 824 753 556', does: 'Plumber, gas fitting', area: 'Perth north, 25 km radius' },
+    mode: 'on', lang: 'en', planId: 'mock', minutesUsed: 412, avatarUsed: 6,
+    tab: 'today', selDate: today, cal: { y: t.getFullYear(), m: t.getMonth() }, splashSeen: false,
+    jobs: [
+      { id: uid(), date: today, time: '08:00', customer: 'Sarah Williams', job: 'Leaking tap, kitchen sink', address: '14 Karrinyup Rd, Karrinyup', phone: '0400 000 001', status: 'Booked', callId: 'c1' },
+      { id: uid(), date: today, time: '09:30', customer: 'Mei Chen', job: 'Mow + edge', address: 'Duncraig', phone: '0400 000 002', status: 'Booked', callId: 'c2' },
+      { id: uid(), date: today, time: '11:00', customer: 'Dave Collins', job: 'Quote: fence repair', address: 'Balga', phone: '0400 000 003', status: 'Quoted', callId: '' },
+      { id: uid(), date: today, time: '13:30', customer: 'Rob Nguyen', job: 'AC service', address: 'Morley', phone: '0400 000 004', status: 'New', callId: '' },
+      { id: uid(), date: tomorrow, time: '10:30', customer: 'Tom Baker', job: 'Switchboard check', address: 'Warwick', phone: '0400 000 005', status: 'Booked', callId: '' }
+    ],
+    inbox: [
+      { id: uid(), name: 'Mick Thompson', need: 'Wants a quote for a full rewire, this week if possible', phone: '0400 000 006', urgent: true, when: '9:12 AM' },
+      { id: uid(), name: 'Priya Sharma', need: 'Aircon not cooling. Call back after 10 please', phone: '0400 000 007', urgent: false, when: '8:47 AM' },
+      { id: uid(), name: 'Dave Collins', need: 'Happy with the fence price, ready to book', phone: '0400 000 003', urgent: false, when: 'Yesterday' }
+    ],
+    calls: [
+      { id: 'c1', date: today, name: 'Sarah Williams', outcome: 'Booked', minutes: 2.1, sample: true, transcript: [['Jane', "G'day, you've reached Wigg's Plumbing & Gas. I'm Jane, an AI assistant. This call may be recorded to help book your job. How can I help?"], ['Caller', 'My kitchen tap is leaking.'], ['Jane', "No worries. What's your name?"], ['Caller', 'Sarah Williams.'], ['Jane', 'Booked for 8:00 AM at 14 Karrinyup Rd. Wigg will text to confirm.']] },
+      { id: 'c2', date: today, name: 'Mei Chen', outcome: 'Booked', minutes: 1.6, sample: true, transcript: [['Jane', 'Sample call: transcript not stored in this prototype.']] },
+      { id: 'c3', date: today, name: 'Mick Thompson', outcome: 'Callback', minutes: 1.2, sample: true, transcript: [['Jane', 'Sample call: transcript not stored in this prototype.']] },
+      { id: 'c4', date: today, name: 'Priya Sharma', outcome: 'Callback', minutes: 1.0, sample: true, transcript: [['Jane', 'Sample call: transcript not stored in this prototype.']] },
+      { id: 'c5', date: today, name: 'Unknown', outcome: 'Message', minutes: 0.4, sample: true, transcript: [['Jane', 'Sample call: transcript not stored in this prototype.']] },
+      { id: 'c6', date: today, name: 'Rob Nguyen', outcome: 'Booked', minutes: 1.8, sample: true, transcript: [['Jane', 'Sample call: transcript not stored in this prototype.']] }
+    ]
+  };
+}
+var S;
+function load() { try { var r = localStorage.getItem(KEY); if (r) return JSON.parse(r); } catch (e) {} return seed(); }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+S = load();
+
+/* ---------- helpers ---------- */
+function plan() { return PLANS.filter(function (p) { return p.id === S.planId; })[0] || PLANS[0]; }
+function t12(t) { var p = t.split(':'), h = +p[0]; return (h % 12 || 12) + ':' + p[1] + ' ' + (h < 12 ? 'AM' : 'PM'); }
+function niceDate(d) { var x = new Date(d + 'T12:00:00'); return x.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'short' }); }
+function jobsOn(d) { return S.jobs.filter(function (j) { return j.date === d; }).sort(function (a, b) { return a.time < b.time ? -1 : 1; }); }
+var STATUS = { Booked: 'on', Quoted: 'amber', New: 'blue', Done: '' };
+var ICON_PHONE = '<svg viewBox="0 0 24 24"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11 11 0 0 0 3.5.6 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.2.2 2.4.6 3.5a1 1 0 0 1-.25 1z"/></svg>';
+var toastT;
+function toast(msg) { var t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { t.hidden = true; }, 2600); }
+function mapsUrl(a) { return 'https://maps.apple.com/?q=' + encodeURIComponent(a + ', Perth WA'); }
+
+/* ---------- sheet ---------- */
+function openSheet(title, html, mount) {
+  $('#sheetTitle').textContent = title; $('#sheetBody').innerHTML = html; $('#sheet').hidden = false;
+  $('#sheetBody').scrollTop = 0; if (mount) mount($('#sheetBody'));
+  $('#sheetClose').focus();
+}
+function closeSheet() { $('#sheet').hidden = true; $('#sheetBody').innerHTML = ''; stopSpeak(); if (sim && sim.active) endCall(true); render(); }
+$('#sheetClose').addEventListener('click', closeSheet);
+$('#sheet').addEventListener('click', function (e) { if (e.target === $('#sheet')) closeSheet(); });
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('#sheet').hidden) closeSheet(); });
+
+/* ---------- screens ---------- */
+function greeting(lang) {
+  var b = S.biz.name, L = {
+    en: "G'day, you've reached " + b + ". I'm Jane, an AI assistant. This call may be recorded to help book your job. How can I help?",
+    es: 'Hola, ha llamado a ' + b + '. Soy Jane, una asistente de IA. Esta llamada puede grabarse para ayudar a reservar su trabajo. ¿En qué puedo ayudarle?',
+    zh: '您好，这里是' + b + '。我是 Jane，一个 AI 助理。本次通话可能会被录音，以便为您安排服务。请问有什么可以帮您？',
+    it: 'Buongiorno, ha chiamato ' + b + ". Sono Jane, un'assistente AI. La chiamata potrebbe essere registrata per aiutarla a prenotare il lavoro. Come posso aiutarla?",
+    vi: 'Xin chào, quý khách đã gọi ' + b + '. Tôi là Jane, trợ lý AI. Cuộc gọi có thể được ghi âm để hỗ trợ đặt lịch. Tôi có thể giúp gì cho quý khách?'
+  };
+  return L[lang] || L.en;
+}
+function renderToday() {
+  var td = iso(new Date()), list = jobsOn(td), nextJ = list.filter(function (j) { return j.status !== 'Done'; })[0];
+  var calls = S.calls.filter(function (c) { return c.date === td; }).length, booked = list.filter(function (j) { return j.status === 'Booked'; }).length;
+  var d = new Date();
+  var h = '<div class="row between" style="margin-top:4px"><div><h1>Today</h1><div class="sub">' + d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' }) + ' · Perth · ☀ 24° <span class="pill" style="padding:1px 7px;font-size:10px">sample</span></div></div><button class="btn sm" data-act="biz" aria-label="Your business">Your business</button></div>';
+  h += '<div style="margin:12px 0"><span class="pill ' + (S.mode === 'off' ? '' : 'on') + '"><span class="dot"></span>Jane is ' + (S.mode === 'off' ? 'OFF' : S.mode === 'after' ? 'ON after hours' : 'ON') + ' · ' + calls + ' calls · ' + booked + ' booked</span></div>';
+  h += '<h2>Next job</h2>';
+  if (nextJ) {
+    h += '<div class="card hot"><div class="row between"><b style="font-size:17px">' + t12(nextJ.time) + '</b><span class="pill ' + STATUS[nextJ.status] + '">' + nextJ.status + '</span></div>' +
+      '<div style="font:600 17px var(--font-head);margin-top:4px">' + esc(nextJ.customer) + '</div><div class="sub">' + esc(nextJ.job) + '</div><div class="sub">' + esc(nextJ.address) + '</div>' +
+      '<div class="actions"><button class="btn" data-act="callback" data-id="' + nextJ.id + '">Call back</button><a class="btn" style="text-decoration:none;color:inherit" target="_blank" rel="noopener" href="' + mapsUrl(nextJ.address) + '">Maps</a><button class="btn" data-act="play" data-id="' + nextJ.id + '">Play call</button><button class="btn" data-act="done" data-id="' + nextJ.id + '">Done</button></div></div>';
+  } else { h += '<div class="card sub">No more jobs today. Jane keeps taking calls.</div>'; }
+  h += '<h2>Today’s run</h2><div class="card" style="padding:2px 12px">';
+  h += list.length ? list.map(function (j) { return '<button class="job" data-act="job" data-id="' + j.id + '"><time>' + t12(j.time) + '</time><span class="grow"><b>' + esc(j.job) + '</b><small>' + esc(j.customer) + ' · ' + esc(j.address) + '</small></span><span class="pill ' + STATUS[j.status] + '">' + j.status + '</span></button>'; }).join('') : '<div class="sub" style="padding:14px 0">Nothing booked today.</div>';
+  h += '</div>';
+  h += '<div class="sub" style="margin-top:12px">Everything on this screen is sample data until real call answering is connected.</div>';
+  return h;
+}
+function renderInbox() {
+  var h = '<h1>Inbox</h1><div class="sub">Needs a callback · ' + S.inbox.length + ' waiting</div><div style="height:12px"></div>';
+  if (!S.inbox.length) return h + '<div class="card sub">All clear. New callback requests from Jane land here.</div>';
+  h += S.inbox.map(function (m) {
+    return '<div class="inbox" data-id="' + m.id + '"><div class="hint">Clear</div><div class="card"><div class="row"><div class="grow"><div class="row"><b>' + esc(m.name) + '</b>' + (m.urgent ? '<span class="pill rose">URGENT</span>' : '') + '<span class="sub" style="margin-left:auto">' + esc(m.when) + '</span></div><div class="sub">' + esc(m.need) + '</div><div class="sub">' + esc(m.phone) + '</div></div>' +
+      '<button class="call" data-act="callin" data-id="' + m.id + '" aria-label="Call ' + esc(m.name) + '">' + ICON_PHONE + '</button></div><div style="margin-top:8px"><button class="btn sm ghost" data-act="clear" data-id="' + m.id + '">Clear</button></div></div></div>';
+  }).join('') + '<div class="sub" style="text-align:center">Swipe left on a card to clear it.</div>';
+  return h;
+}
+function renderBookings() {
+  var c = S.cal, first = new Date(c.y, c.m, 1), days = new Date(c.y, c.m + 1, 0).getDate(), off = (first.getDay() + 6) % 7, today = iso(new Date());
+  var h = '<div class="row between" style="margin-top:4px"><div><h1>Bookings</h1><div class="sub">Jobs Jane has locked in</div></div><button class="btn sm" data-act="addbook">+ Add</button></div>';
+  h += '<div class="card" style="margin-top:12px"><div class="row between" style="margin-bottom:6px"><button class="btn sm" data-act="prev" aria-label="Previous month">‹</button><b>' + first.toLocaleDateString('en-AU', { month: 'long', year: 'numeric' }) + '</b><button class="btn sm" data-act="next" aria-label="Next month">›</button></div><div class="cal">';
+  ['M', 'T', 'W', 'T', 'F', 'S', 'S'].forEach(function (d) { h += '<div class="dow">' + d + '</div>'; });
+  for (var i = 0; i < off; i++) h += '<button class="mute" tabindex="-1" aria-hidden="true"></button>';
+  for (var d = 1; d <= days; d++) {
+    var key = c.y + '-' + pad(c.m + 1) + '-' + pad(d);
+    h += '<button data-act="pick" data-date="' + key + '" class="' + (key === today ? 'today ' : '') + (key === S.selDate ? 'sel ' : '') + (jobsOn(key).length ? 'has' : '') + '" aria-label="' + key + '">' + d + '</button>';
+  }
+  h += '</div></div><h2>' + niceDate(S.selDate) + '</h2><div class="card" style="padding:2px 12px">';
+  var list = jobsOn(S.selDate);
+  h += list.length ? list.map(function (j) { return '<button class="job" data-act="job" data-id="' + j.id + '"><time>' + t12(j.time) + '</time><span class="grow"><b>' + esc(j.customer) + '</b><small>' + esc(j.job) + ' · ' + esc(j.address) + '</small></span><span class="pill ' + STATUS[j.status] + '">' + j.status + '</span></button>'; }).join('') : '<div class="sub" style="padding:14px 0">Nothing booked this day.</div>';
+  return h + '</div>';
+}
+var AVATAR = '<svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3d3bd"/><stop offset="1" stop-color="#e2b79b"/></linearGradient></defs><path d="M16 96c4-20 18-28 34-28s30 8 34 28z" fill="#1d3a73"/><circle cx="50" cy="44" r="23" fill="url(#sk)"/><path d="M26 42c0-18 12-26 26-24 14 2 22 12 20 26-4-10-12-14-20-14s-20 2-26 12z" fill="#7a4a2b"/><circle cx="42" cy="46" r="2.4" fill="#2a1a12"/><circle cx="58" cy="46" r="2.4" fill="#2a1a12"/><ellipse class="mouth" cx="50" cy="60" rx="6" ry="3.2" fill="#9b3d3d"/><path d="M24 46a26 26 0 0 1 52 0" fill="none" stroke="#4f8cff" stroke-width="4"/><rect x="20" y="42" width="7" height="14" rx="3.5" fill="#4f8cff"/><rect x="73" y="42" width="7" height="14" rx="3.5" fill="#4f8cff"/><path d="M26 56c2 10 12 14 22 14" fill="none" stroke="#4f8cff" stroke-width="2.5" stroke-linecap="round"/></svg>';
+var LANGS = [['en', 'EN-AU', ''], ['es', 'ES', 'beta'], ['zh', 'ZH', 'beta'], ['it', 'IT', 'beta'], ['vi', 'VI', 'beta']];
+function renderJane() {
+  var p = plan(), pct = Math.min(100, S.minutesUsed / p.minutes * 100), left = Math.max(0, 30 - S.avatarUsed);
+  var h = '<div style="height:8px"></div><div class="stage"><div class="avatar" id="av">' + AVATAR + '</div><h3>Jane</h3><div class="sub">AI receptionist · answers as ' + esc(S.biz.name) + '</div>' +
+    '<div class="row" style="margin-top:8px"><span class="pill ' + (S.mode === 'off' ? '' : 'on') + '"><span class="dot"></span>' + (S.mode === 'off' ? 'OFFLINE' : 'ONLINE') + '</span><span class="pill amber">' + left + ' of 30 avatar min free</span></div>' +
+    '<div class="sub" style="margin-top:8px;max-width:300px">Illustrated preview. The live video avatar comes from a licensed vendor in the real app.</div></div>';
+  h += '<h2>Jane answers</h2><div class="seg" role="group" aria-label="When Jane answers">' + [['on', 'On'], ['after', 'After hours'], ['off', 'Off']].map(function (m) { return '<button data-act="mode" data-v="' + m[0] + '" aria-pressed="' + (S.mode === m[0]) + '">' + m[1] + '</button>'; }).join('') + '</div>';
+  h += '<button class="btn amber" data-act="test" style="width:100%;margin-top:12px;padding:12px;font-size:15px">Test Jane</button>';
+  h += '<h2>Call forwarding</h2><div class="card"><div class="row between"><div class="grow"><b>Forward unanswered calls to Jane</b><div class="sub">Needs Jane’s phone number. That comes with real call answering.</div></div><span class="pill amber">Not live</span></div></div>';
+  h += '<h2>Jane’s greeting</h2><div class="card"><div class="quote">' + esc(greeting(S.lang)) + '</div><div style="height:10px"></div><div class="chips" role="group" aria-label="Language">' + LANGS.map(function (l) { return '<button class="chip" data-act="lang" data-v="' + l[0] + '" aria-pressed="' + (S.lang === l[0]) + '">' + l[1] + (l[2] ? ' · beta' : '') + '</button>'; }).join('') + '</div>' +
+    '<div class="sub" style="margin-top:8px">Greeting always says she is an AI and that calls may be recorded. Translations need a native speaker’s review. In this prototype only the greeting is translated.</div></div>';
+  h += '<h2>Plan</h2><div class="card"><div class="row between"><b>' + esc(p.name) + '</b><b>A$' + p.price.toFixed(2).replace(/\.00$/, '') + '/mo</b></div><div class="meter"><i class="' + (pct >= 100 ? 'over' : '') + '" style="width:' + pct + '%"></i></div><div class="sub">' + Math.floor(S.minutesUsed) + ' of ' + p.minutes + ' call minutes used this month</div><button class="btn sm" data-act="plans" style="margin-top:10px">Manage plan and margin check</button></div>';
+  return h;
+}
+function render() {
+  var scr = $('#screen'), tab = S.tab;
+  scr.innerHTML = tab === 'today' ? renderToday() : tab === 'inbox' ? renderInbox() : tab === 'bookings' ? renderBookings() : renderJane();
+  document.querySelectorAll('.tab').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.tab === tab)); });
+  var n = S.inbox.length, bd = $('#inboxBadge'); bd.hidden = !n; bd.textContent = n;
+  bindSwipe(); save();
+}
+
+/* ---------- inbox swipe ---------- */
+function bindSwipe() {
+  document.querySelectorAll('.inbox').forEach(function (el) {
+    var card = el.querySelector('.card'), x0 = null, dx = 0;
+    card.addEventListener('pointerdown', function (e) { if (e.target.closest('button')) return; x0 = e.clientX; dx = 0; card.style.transition = 'none'; });
+    card.addEventListener('pointermove', function (e) { if (x0 === null) return; dx = Math.min(0, e.clientX - x0); card.style.transform = 'translateX(' + dx + 'px)'; });
+    function end() { if (x0 === null) return; card.style.transition = ''; if (dx < -90) { clearInbox(el.dataset.id); } else { card.style.transform = ''; } x0 = null; }
+    card.addEventListener('pointerup', end); card.addEventListener('pointercancel', end);
+  });
+}
+function clearInbox(id) { S.inbox = S.inbox.filter(function (m) { return m.id !== id; }); render(); toast('Cleared'); }
+
+/* ---------- actions ---------- */
+function jobById(id) { return S.jobs.filter(function (j) { return j.id === id; })[0]; }
+function showTranscript(callId) {
+  var c = S.calls.filter(function (x) { return x.id === callId; })[0];
+  if (!c) { toast('No recording for this job'); return; }
+  openSheet('Call with ' + c.name, '<div class="sub" style="margin-bottom:8px">' + (c.sample ? 'Sample call. ' : '') + 'This prototype keeps a text transcript, not audio. Outcome: ' + esc(c.outcome) + ' · ' + c.minutes.toFixed(1) + ' min</div><div class="chat">' + c.transcript.map(function (l) { return '<div class="msg ' + (l[0] === 'Jane' ? 'jane' : 'me') + '"><b style="font-size:11px;opacity:.7">' + esc(l[0]) + '</b><br>' + esc(l[1]) + '</div>'; }).join('') + '</div>');
+}
+function jobSheet(id) {
+  var j = jobById(id); if (!j) return;
+  openSheet(j.customer, '<div class="kv"><span class="sub">When</span><b>' + niceDate(j.date) + ', ' + t12(j.time) + '</b></div><div class="kv"><span class="sub">Job</span><b>' + esc(j.job) + '</b></div><div class="kv"><span class="sub">Address</span><b>' + esc(j.address) + '</b></div><div class="kv"><span class="sub">Phone</span><b>' + esc(j.phone) + '</b></div><div class="kv"><span class="sub">Status</span><span class="pill ' + STATUS[j.status] + '">' + j.status + '</span></div>' +
+    '<div class="actions" style="grid-template-columns:repeat(2,1fr)"><a class="btn" style="text-decoration:none;color:inherit;text-align:center" target="_blank" rel="noopener" href="' + mapsUrl(j.address) + '">Open in Maps</a><button class="btn" data-sheet="play">Call transcript</button><button class="btn" data-sheet="done">Mark done</button><button class="btn" data-sheet="del">Delete</button></div><div class="sub" style="margin-top:10px">Phone number: ' + esc(j.phone) + ' (tap-to-call works in the real app).</div>',
+    function (b) {
+      b.addEventListener('click', function (e) {
+        var a = e.target.getAttribute('data-sheet'); if (!a) return;
+        if (a === 'done') { j.status = 'Done'; closeSheet(); toast('Marked done'); }
+        else if (a === 'del') { S.jobs = S.jobs.filter(function (x) { return x.id !== j.id; }); closeSheet(); toast('Deleted'); }
+        else if (a === 'play') { showTranscript(j.callId); }
+      });
+    });
+}
+function addBooking() {
+  openSheet('Add booking', '<label for="bTime">Time</label><input id="bTime" type="time" value="09:00"><label for="bCust">Customer</label><input id="bCust" type="text"><label for="bJob">Job</label><input id="bJob" type="text"><label for="bAddr">Address</label><input id="bAddr" type="text"><label for="bPhone">Phone</label><input id="bPhone" type="tel"><button class="btn blue" id="bSave" style="width:100%;margin-top:14px;padding:11px">Save booking</button>', function (b) {
+    $('#bSave', b).addEventListener('click', function () {
+      var c = $('#bCust', b).value.trim(), jb = $('#bJob', b).value.trim();
+      if (!c || !jb) { toast('Add a customer and a job'); return; }
+      S.jobs.push({ id: uid(), date: S.selDate, time: $('#bTime', b).value || '09:00', customer: c, job: jb, address: $('#bAddr', b).value.trim() || 'No address', phone: $('#bPhone', b).value.trim(), status: 'Booked', callId: '' });
+      closeSheet(); toast('Booked for ' + niceDate(S.selDate));
+    });
+  });
+}
+function bizSheet() {
+  var f = [['name', 'Business name'], ['owner', 'Your first name'], ['phone', 'Phone'], ['abn', 'ABN'], ['does', 'What you do'], ['area', 'Service area']];
+  openSheet('Your business', f.map(function (x) { return '<label for="f_' + x[0] + '">' + x[1] + '</label><input id="f_' + x[0] + '" type="text" value="' + esc(S.biz[x[0]]) + '">'; }).join('') + '<div class="sub" style="margin-top:10px">Jane builds her greeting from these details.</div><div class="quote" style="margin-top:10px" id="gprev">' + esc(greeting('en')) + '</div><button class="btn rose" id="reset" style="width:100%;margin-top:16px;color:var(--rose)">Reset prototype to sample data</button>', function (b) {
+    f.forEach(function (x) { $('#f_' + x[0], b).addEventListener('input', function (e) { S.biz[x[0]] = e.target.value; $('#gprev', b).textContent = greeting('en'); save(); }); });
+    $('#reset', b).addEventListener('click', function () { S = seed(); S.splashSeen = true; save(); closeSheet(); toast('Reset'); });
+  });
+}
+
+/* ---------- plans + margin check ---------- */
+function plansSheet() {
+  var cur = plan(), st = { price: cur.price, mins: cur.minutes, used: Math.round(cur.minutes * 0.7), cpm: 0.10, av: 30, avc: 0.30, apple: 0.15, fixed: 2 };
+  function calc() {
+    var net = st.price / 1.1 * (1 - st.apple), cost = st.used * st.cpm + st.av * st.avc + st.fixed, m = net - cost, pc = net ? m / net * 100 : 0;
+    var full = net - (st.mins * st.cpm + st.av * st.avc + st.fixed), be = st.used ? (net - st.av * st.avc - st.fixed) / st.used : 0;
+    var verdict = m < 0 ? ['Losing money', 'bad'] : pc < 15 ? ['Weak', 'warn'] : pc < 40 ? ['Thin', 'warn'] : ['Healthy', 'good'];
+    return '<div class="kv"><span>You keep after GST and Apple</span><b>A$' + net.toFixed(2) + '</b></div><div class="kv"><span>Your cost per customer</span><b>A$' + cost.toFixed(2) + '</b></div><div class="kv"><span>Margin</span><b class="' + verdict[1] + '">A$' + m.toFixed(2) + ' (' + pc.toFixed(0) + '%) · ' + verdict[0] + '</b></div><div class="kv"><span>Break-even cost per minute</span><b>A$' + Math.max(0, be).toFixed(3) + '</b></div><div class="kv"><span>If they use every included minute</span><b class="' + (full < 0 ? 'bad' : 'good') + '">A$' + full.toFixed(2) + '</b></div>';
+  }
+  var h = '<div class="sub" style="margin-bottom:8px">Pick the plan shown in the app. The first one is the plan drawn in the mock.</div>' + PLANS.map(function (p) { return '<button class="plan" data-plan="' + p.id + '" aria-pressed="' + (p.id === S.planId) + '"><div class="row between"><b>' + esc(p.name) + '</b><b>A$' + String(p.price).replace(/\.0+$/, '') + '/mo</b></div><div class="sub">' + p.minutes + ' call minutes · ' + esc(p.note) + '</div></button>'; }).join('') +
+    '<h2>Margin check (owner only)</h2><div class="sub">Costs below are placeholders. Replace them with what a real test call costs you.</div><div class="grid2"><div><label for="mPrice">Price A$ (incl. GST)</label><input id="mPrice" type="number" step="0.01" value="' + st.price + '"></div><div><label for="mMins">Minutes included</label><input id="mMins" type="number" value="' + st.mins + '"></div><div><label for="mUsed">Minutes used</label><input id="mUsed" type="number" value="' + st.used + '"></div><div><label for="mCpm">Cost per minute A$</label><input id="mCpm" type="number" step="0.01" value="' + st.cpm + '"></div><div><label for="mAv">Avatar minutes</label><input id="mAv" type="number" value="' + st.av + '"></div><div><label for="mAvc">Avatar cost per min A$</label><input id="mAvc" type="number" step="0.01" value="' + st.avc + '"></div><div><label for="mApple">Apple cut</label><select id="mApple"><option value="0.15">15%</option><option value="0.3">30%</option></select></div><div><label for="mFixed">Fixed cost per user A$</label><input id="mFixed" type="number" step="0.5" value="' + st.fixed + '"></div></div><div id="mOut" class="card" style="margin-top:12px">' + calc() + '</div>';
+  openSheet('Plans and margin', h, function (b) {
+    b.addEventListener('click', function (e) {
+      var pb = e.target.closest('[data-plan]'); if (!pb) return;
+      S.planId = pb.dataset.plan; var p = plan(); st.price = p.price; st.mins = p.minutes; st.used = Math.round(p.minutes * 0.7);
+      $('#mPrice', b).value = st.price; $('#mMins', b).value = st.mins; $('#mUsed', b).value = st.used; $('#mOut', b).innerHTML = calc();
+      b.querySelectorAll('[data-plan]').forEach(function (x) { x.setAttribute('aria-pressed', String(x.dataset.plan === S.planId)); }); save();
+    });
+    b.addEventListener('input', function (e) {
+      var map = { mPrice: 'price', mMins: 'mins', mUsed: 'used', mCpm: 'cpm', mAv: 'av', mAvc: 'avc', mFixed: 'fixed', mApple: 'apple' }, k = map[e.target.id]; if (!k) return;
+      st[k] = parseFloat(e.target.value) || 0; $('#mOut', b).innerHTML = calc();
+    });
+  });
+}
+
+/* ---------- Jane call simulator ---------- */
+var sim = null, speakOn = false;
+function stopSpeak() { try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {} var a = $('#av'); if (a) a.classList.remove('talk'); }
+function speak(text) {
+  if (!speakOn) return;
+  try { var u = new SpeechSynthesisUtterance(text); u.lang = 'en-AU'; u.rate = 1.02; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); } catch (e) {}
+}
+var EMERG_DANGER = /(gas leak|smell(s|ing)? gas|smell of gas|fire|smoke|sparks?|electrocut|shock(ed)?|burning smell)/i;
+var EMERG_WATER = /(burst|flood(ing|ed)?|water (everywhere|pouring)|sewage|overflow(ing)?)/i;
+function parseWhen(t) {
+  t = t.toLowerCase(); var now = new Date(), d = new Date(now), hour = null;
+  var days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'], i = -1;
+  days.forEach(function (x, k) { if (new RegExp('\\b' + x + '\\b').test(t)) i = k; });
+  if (/tomorrow/.test(t)) d.setDate(d.getDate() + 1);
+  else if (i >= 0) d.setDate(now.getDate() + ((i - now.getDay() + 7) % 7 || 7));
+  else if (/\b(today|asap|now)\b/.test(t) && now.getHours() < 15) { /* today */ } else d.setDate(d.getDate() + 1);
+  var m = t.match(/\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/);
+  if (m) { hour = +m[1] % 12 + (m[3] === 'pm' ? 12 : 0); }
+  else if (/morning/.test(t)) hour = 9; else if (/arvo|afternoon/.test(t)) hour = 14; else if (/evening|after work/.test(t)) hour = 17; else hour = 9;
+  return { date: iso(d), hour: Math.max(8, Math.min(16, hour)) };
+}
+function freeSlot(date, hour) {
+  var d = new Date(date + 'T12:00:00'), h = hour, tries = 0;
+  while (tries++ < 60) {
+    var key = iso(d), clash = S.jobs.some(function (j) { return j.date === key && +j.time.slice(0, 2) === h && j.status !== 'Done'; });
+    if (!clash && d.getDay() !== 0) return { date: key, time: pad(h) + ':00' };
+    h++; if (h > 16) { h = 8; d.setDate(d.getDate() + 1); }
+  }
+  return { date: date, time: pad(hour) + ':00' };
+}
+function say(line) { sim.log.push(['Jane', line]); addMsg('jane', line); speak(line); var a = $('#av2'); if (a) { a.classList.add('talk'); setTimeout(function () { a.classList.remove('talk'); }, Math.min(3500, 600 + line.length * 28)); } }
+function addMsg(who, text) { var c = $('#chatBox'); if (!c) return; var d = document.createElement('div'); d.className = 'msg ' + who; d.textContent = text; c.appendChild(d); var body = $('#sheetBody'); body.scrollTop = body.scrollHeight; }
+function note(text) { addMsg('note', text); }
+function owner() { return S.biz.owner || 'the owner'; }
+function startCall() {
+  var p = plan();
+  sim = { active: true, stage: 'need', d: {}, log: [], mins: 0, urgent: false, fails: 0, outcome: 'Message', startedAt: Date.now() };
+  openSheet('Test Jane', '<div class="row between" style="margin-bottom:8px"><div class="row"><div class="avatar" id="av2" style="width:52px;height:52px;border-width:1px"><div style="width:42px;height:42px">' + AVATAR + '</div></div><span class="pill on"><span class="dot"></span>Simulated call</span></div><button class="btn sm" id="spk" aria-pressed="false">🔊 Voice off</button></div><div class="chat" id="chatBox" aria-live="polite"></div><div class="chips" style="margin-top:10px" id="quick"></div><form class="send" id="sendF"><input id="sendI" type="text" placeholder="Type what the caller says" autocomplete="off" aria-label="Caller message"><button class="btn blue" type="submit">Send</button></form><div class="row" style="margin-top:10px"><button class="btn sm" id="endBtn">End call</button><span class="sub" id="timer">0.0 min</span></div><div class="sub" style="margin-top:10px">Scripted rules, not a live AI model. It shows the call flow Jane must follow. Push-to-talk needs the native app.</div>', function (b) {
+    $('#spk', b).addEventListener('click', function (e) { speakOn = !speakOn; e.target.setAttribute('aria-pressed', String(speakOn)); e.target.textContent = speakOn ? '🔊 Voice on' : '🔊 Voice off'; if (!speakOn) stopSpeak(); });
+    $('#endBtn', b).addEventListener('click', function () { endCall(false); });
+    $('#sendF', b).addEventListener('submit', function (e) { e.preventDefault(); var i = $('#sendI', b), t = i.value.trim(); if (t) { i.value = ''; callerSays(t); } });
+    $('#quick', b).innerHTML = ['Tap is leaking', 'Burst pipe, water everywhere!', 'I smell gas', 'How much for a quote?', 'Are you a robot?', 'Can I talk to a person?'].map(function (q) { return '<button class="chip" type="button">' + esc(q) + '</button>'; }).join('');
+    $('#quick', b).addEventListener('click', function (e) { var c = e.target.closest('.chip'); if (c) callerSays(c.textContent); });
+  });
+  if (S.minutesUsed >= p.minutes) {
+    note('Plan minutes used up'); say("Sorry, this line is out of minutes. I'm passing you to " + owner() + " now.");
+    S.inbox.unshift({ id: uid(), name: 'Forwarded caller', need: 'Call forwarded because the plan’s minutes ran out', phone: 'Unknown', urgent: true, when: 'Just now' });
+    sim.outcome = 'Forwarded'; finish(); return;
+  }
+  say(greeting(S.lang));
+  if (S.lang !== 'en') note('Beta: this prototype only translates the greeting. The rest continues in English.');
+  tick();
+}
+function tick() { var t = $('#timer'); if (t && sim) t.textContent = sim.mins.toFixed(1) + ' min'; if (sim && sim.mins >= 8 && sim.active) { say("I need to wrap up now. I'll ask " + owner() + ' to call you back.'); addCallback('Call ended at the 8-minute limit'); finish(); } }
+function addCallback(need) {
+  var d = sim.d; S.inbox.unshift({ id: uid(), name: d.name || 'Unknown caller', need: need || d.need || 'Wants a callback', phone: d.phone || 'Not given', urgent: sim.urgent, when: 'Just now' }); sim.outcome = 'Callback';
+}
+function callerSays(text) {
+  if (!sim || !sim.active) return;
+  sim.log.push(['Caller', text]); addMsg('me', text); sim.mins += 0.4; var d = sim.d, low = text.toLowerCase();
+  setTimeout(function () { if (!sim || !sim.active) return; reply(text, low, d); tick(); var a = $('#av'); }, 350);
+}
+function reply(text, low, d) {
+  if (sim.stage === 'done') {
+    if (/^(no|nope|nah|that's (all|it)|thanks|thank you|bye|cheers)/.test(low)) { say('Thanks for calling ' + S.biz.name + '. Bye for now!'); finish(); } else { say("I've passed that on to " + owner() + '. Anything else?'); } return;
+  }
+  if (/\b(robot|bot|ai|artificial|machine|real person|real human|are you real)\b/.test(low) && /\?|are you|is this/.test(low)) { say("Yes, I'm an AI assistant for " + S.biz.name + '. I can book a job or take a message, and ' + owner() + ' will follow up.'); return; }
+  if (/\b(speak|talk|put me through|get)\b.*\b(person|human|owner|someone|plumber|boss|manager)\b/.test(low)) { sim.stage = 'cb_name'; say("No worries. I'll ask " + owner() + ' to call you back. What’s your name?'); return; }
+  if (/\b(how much|price|cost|quote|rates?|charge)\b/.test(low) && sim.stage === 'need') { d.need = 'Quote request'; d.quote = true; say("I can't give prices over the phone. " + owner() + " confirms them after seeing the job. I'll book a quote visit. What's your name?"); sim.stage = 'name'; return; }
+  if (/\b(how much|price|cost|rates?|charge)\b/.test(low)) { say("I can't give prices over the phone. " + owner() + ' will confirm.'); return; }
+  if (sim.stage === 'need') {
+    if (EMERG_DANGER.test(low)) { sim.urgent = true; say("If anyone is in danger or you smell gas, leave the building and call 000 now. I'm marking this urgent for " + owner() + '.'); d.need = text; sim.stage = 'name'; say('Can I take your name so he can call you straight back?'); return; }
+    if (EMERG_WATER.test(low)) { sim.urgent = true; d.need = text; say("That sounds urgent. If it's safe, turn the water off at the mains. I'm flagging it for " + owner() + '. What’s your name?'); sim.stage = 'name'; return; }
+    if (text.trim().length < 4) { sim.fails++; if (sim.fails >= 2) { sim.stage = 'cb_name'; say("Sorry, I'm having trouble hearing you. I'll take a callback request. What's your name?"); } else say('Sorry, could you say that again?'); return; }
+    d.need = text; say('Got it. What’s your name?'); sim.stage = 'name'; return;
+  }
+  if (sim.stage === 'name' || sim.stage === 'cb_name') { d.name = text.replace(/^(my name is|it's|its|this is|i'm|im|i am)\s+/i, '').replace(/[.!]+$/, '').trim().slice(0, 40); say('Thanks ' + d.name + '. ' + (sim.stage === 'cb_name' ? "What's the best number to reach you?" : 'What’s the address or suburb for the job?')); sim.stage = sim.stage === 'cb_name' ? 'cb_phone' : 'address'; return; }
+  if (sim.stage === 'address') { d.address = text.slice(0, 60); say("And the best number to reach you on?"); sim.stage = 'phone'; return; }
+  if (sim.stage === 'phone' || sim.stage === 'cb_phone') {
+    var m = text.match(/(\+?\d[\d\s-]{7,})/); if (!m) { say("Sorry, I didn't catch a number. Could you say it again?"); return; }
+    d.phone = m[1].trim();
+    if (sim.stage === 'cb_phone') { addCallback('Asked for a callback'); say('Done. ' + owner() + ' will call you back on ' + d.phone + '. Anything else?'); sim.stage = 'done'; return; }
+    if (sim.urgent) { addCallback(d.need); say("I've marked it urgent and told " + owner() + '. He’ll call you straight back on ' + d.phone + '. Anything else?'); sim.stage = 'done'; return; }
+    say('When suits you? For example, tomorrow morning.'); sim.stage = 'when'; return;
+  }
+  if (sim.stage === 'when') {
+    var w = parseWhen(low), s = freeSlot(w.date, w.hour), id = uid(), callId = 'sim' + id;
+    S.jobs.push({ id: id, date: s.date, time: s.time, customer: d.name || 'Caller', job: d.quote ? 'Quote visit' : d.need.slice(0, 50), address: d.address || 'To confirm', phone: d.phone, status: d.quote ? 'Quoted' : 'Booked', callId: callId });
+    sim.callId = callId; sim.outcome = 'Booked';
+    say('All booked: ' + (d.quote ? 'a quote visit' : d.need.slice(0, 50)) + ' at ' + (d.address || 'your address') + ' on ' + niceDate(s.date) + ' at ' + t12(s.time) + '. I have your number as ' + d.phone + ". " + owner() + ' will text to confirm. Anything else?');
+    sim.stage = 'done'; S.selDate = s.date;
+  }
+}
+function finish() { endCall(false, true); }
+function endCall(silent, skipSay) {
+  if (!sim || !sim.active) return; sim.active = false; stopSpeak();
+  if (!skipSay && !silent) { sim.log.push(['Jane', 'Call ended.']); }
+  var mins = Math.max(0.3, Math.round(sim.mins * 10) / 10); S.minutesUsed += mins;
+  S.calls.unshift({ id: sim.callId || ('c' + uid()), date: iso(new Date()), name: sim.d.name || 'Test caller', outcome: sim.outcome, minutes: mins, sample: false, transcript: sim.log.slice() });
+  note('Call ended · ' + mins.toFixed(1) + ' min counted · outcome: ' + sim.outcome);
+  var cb = $('#endBtn'); if (cb) cb.disabled = true; var si = $('#sendI'); if (si) si.disabled = true;
+  save(); toast(sim.outcome === 'Booked' ? 'Job added to Bookings' : sim.outcome === 'Callback' ? 'Callback added to Inbox' : 'Call logged');
+}
+
+/* ---------- events ---------- */
+$('#tabs').addEventListener('click', function (e) { var b = e.target.closest('.tab'); if (b) { S.tab = b.dataset.tab; render(); $('#screen').scrollTop = 0; } });
+$('#screen').addEventListener('click', function (e) {
+  var a = e.target.closest('[data-act]'); if (!a) return; var act = a.dataset.act, id = a.dataset.id;
+  if (act === 'job') jobSheet(id);
+  else if (act === 'done') { var j = jobById(id); if (j) { j.status = 'Done'; render(); toast('Marked done'); } }
+  else if (act === 'callback') { var jb = jobById(id); toast('Call back ' + jb.customer + ' on ' + jb.phone); }
+  else if (act === 'play') { var j2 = jobById(id); showTranscript(j2.callId); }
+  else if (act === 'callin') { var m = S.inbox.filter(function (x) { return x.id === id; })[0]; if (m) toast('Call ' + m.name + ' on ' + m.phone); }
+  else if (act === 'clear') clearInbox(id);
+  else if (act === 'pick') { S.selDate = a.dataset.date; render(); }
+  else if (act === 'prev') { S.cal.m--; if (S.cal.m < 0) { S.cal.m = 11; S.cal.y--; } render(); }
+  else if (act === 'next') { S.cal.m++; if (S.cal.m > 11) { S.cal.m = 0; S.cal.y++; } render(); }
+  else if (act === 'addbook') addBooking();
+  else if (act === 'biz') bizSheet();
+  else if (act === 'mode') { S.mode = a.dataset.v; render(); toast('Jane is ' + (S.mode === 'off' ? 'off' : S.mode === 'on' ? 'on' : 'on after hours')); }
+  else if (act === 'lang') { S.lang = a.dataset.v; render(); }
+  else if (act === 'test') startCall();
+  else if (act === 'plans') plansSheet();
+});
+function boot() {
+  if (S.splashSeen) $('#splash').hidden = true;
+  $('#splashGo').addEventListener('click', function () { S.splashSeen = true; $('#splash').hidden = true; save(); });
+  render();
+}
+boot();
+})();
+</script>
