@@ -28,6 +28,9 @@ The **Carousel** panel turns slide copy (+ optional frames from *your own* foota
 - **Posting on YouTube:** Create → Create post → Image. Third-party guides say a post can hold up to 10 images; Google's help page still says 5, so check the composer. The feed may crop images, so keep text away from the edges (1:1 is the safe choice).
 - **Rights and monetisation (GTA or any game):** Rockstar's [policy](https://support.rockstargames.com/en-US/articles/7bNaeoMFTV0iUDGhStTXvz) covers *non-commercial* fan use, removes isolated cutscenes and leaked pre-release footage, and doesn't clearly license monetised videos (Take-Two asks you to email them). YouTube [wants reused clips to be meaningfully different](https://support.google.com/youtube/answer/1311392) (commentary, review) and demonetises mass-produced slideshows with only superficial differences. Use your own captures, write real commentary, and don't rely on "clipping = money" claims.
 
+## Let an AI agent build content with it (MCP)
+`mcp_server.py` lets an MCP-capable agent (Claude Desktop, Claude Code, others) drive Clip Studio: find highlights, make clips, build carousels, plan calendars, and queue private drafts. **Agents propose, you approve:** an agent can't create rights entries, approve, upload or delete. See **AGENT_PLAYBOOK.md** for setup, prompts and your daily routine. Tested against my own protocol harness, not a real MCP client.
+
 ## Clipping: rights ledger, campaigns, queue, YouTube upload
 Open **/clipping**. The rule: **a clip can't be approved until it traces to a permission on record that is valid today and covers the platform.**
 - **Rights ledger:** what you may use and the proof (own footage, written permission, a clipping campaign's terms, a licence, Creative Commons, public domain). Non-own entries need an owner and proof; Creative Commons needs its credit line; entries can expire. The credit line is added to the video description automatically.
