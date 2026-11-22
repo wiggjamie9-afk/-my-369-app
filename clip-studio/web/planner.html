@@ -85,6 +85,16 @@ button.sm{padding:2px 8px;font-size:12px}
     </div>
 
     <div class="panel">
+      <h2>48 AI Crew kit</h2>
+      <div class="hint">One client + 4-week calendar + a 7-slide carousel for each niche, using only true statements about Jane. Launch status and price stay [ADD: …] until you fill them in.</div>
+      <label for="kHandle">Handle</label><input type="text" id="kHandle" placeholder="@48aicrew">
+      <label for="kCta">Call to action</label><input type="text" id="kCta" value="Message us to find out more.">
+      <label>Niches</label><div class="plat" id="kNiches"></div>
+      <button class="pri" id="kBuild" style="margin-top:10px;width:100%">Build kit</button>
+      <div id="kOut" class="thumbs"></div>
+    </div>
+
+    <div class="panel">
       <h2>Agency math</h2>
       <div class="row"><div><label for="aPrice">Price per client / mo</label><input type="number" id="aPrice" value="750"></div><div><label for="aClients">Clients</label><input type="number" id="aClients" value="5"></div></div>
       <div class="row"><div><label for="aHours">Hours per client / mo</label><input type="number" id="aHours" value="8" step="0.5"></div><div><label for="aRate">Your hourly value</label><input type="number" id="aRate" value="40"></div></div>
@@ -225,6 +235,18 @@ function agency() {
   $('#aOut').innerHTML = '<div class="kv"><span>Revenue / month</span><b>$' + rev.toFixed(0) + '</b></div><div class="kv"><span>Tools + AI</span><b>$' + cost.toFixed(0) + '</b></div><div class="kv"><span>Your time (' + time.toFixed(0) + ' h)</span><b>$' + labour.toFixed(0) + '</b></div><div class="kv"><span>Profit after your time</span><b class="' + (profit >= 0 ? 'good' : 'bad') + '">$' + profit.toFixed(0) + '</b></div><div class="kv"><span>What you really earn per hour</span><b class="' + (eff >= v('aRate') ? 'good' : 'bad') + '">$' + eff.toFixed(0) + '</b></div>';
 }
 ['aPrice', 'aClients', 'aHours', 'aRate', 'aTools', 'aAI'].forEach(function (id) { $('#' + id).addEventListener('input', agency); });
+
+/* ---------- 48 AI Crew kit ---------- */
+var KN = {trades: 'Trades', cleaning: 'Cleaning', landscaping: 'Landscaping', pest: 'Pest control', property: 'Property mgmt', auto: 'Auto repair', salon: 'Salons', health: 'Health', legal: 'Legal', movers: 'Movers'};
+$('#kNiches').innerHTML = Object.keys(KN).map(function (k) { return '<label><input type="checkbox" value="' + k + '"' + (k === 'trades' ? ' checked' : '') + '>' + KN[k] + '</label>'; }).join('');
+$('#kBuild').onclick = function () {
+  var ns = Array.prototype.map.call(document.querySelectorAll('#kNiches input:checked'), function (i) { return i.value; }); if (!ns.length) { status('Pick a niche.', true); return; }
+  var b = $('#kBuild'); b.disabled = true;
+  job('/api/kit', { niches: ns, handle: $('#kHandle').value.trim(), cta: $('#kCta').value.trim(), weeks: +$('#gWeeks').value || 4, llm: $('#gAI').value }, 'Building kit').then(function (r) {
+    $('#kOut').innerHTML = r.niches.map(function (n) { return '<div style="flex-basis:100%" class="hint"><b>' + esc(KN[n.niche]) + '</b>: ' + n.posts + ' posts, ' + n.needs_input + ' need input</div>' + (n.carousel || []).slice(0, 3).map(function (u) { return '<a href="' + u + '" target="_blank"><img src="' + u + '" alt=""></a>'; }).join(''); }).join('');
+    status('Kit built. Open each client, fill the [ADD: …] items, then approve.'); return loadList();
+  }).catch(function (e) { status(e.message, true); }).then(function () { b.disabled = false; });
+};
 
 /* ---------- boot ---------- */
 $('#plats').innerHTML = PLATFORMS.map(function (p) { return '<label><input type="checkbox" value="' + p + '"' + (p === 'instagram' || p === 'facebook' ? ' checked' : '') + '>' + p + '</label>'; }).join('');

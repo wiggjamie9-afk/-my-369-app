@@ -37,6 +37,7 @@ import engines as E
 import openfilm_export as OF
 import carousel as CA
 import planner as PL
+import kit as KIT
 import rights as RT
 import youtube as YTB
 
@@ -740,6 +741,27 @@ def do_post_carousel(job, cid, post_id, fmt="1:1"):
     return res
 
 
+def do_kit(job, niches=None, handle="", cta="Message us to find out more.", weeks=4, start=None, carousels=True, llm="auto"):
+    """48 AI Crew marketing kit: a planner client (calendar) and an optional carousel per niche."""
+    ids = [n for n in (niches or KIT.niche_ids()) if n in KIT.NICHES]
+    if not ids:
+        raise ApiError("pick at least one niche")
+    if "[ADD" in cta:
+        raise ApiError("write the call to action first")
+    model, out = _pick_model(llm), []
+    for i, n in enumerate(ids):
+        job.message = f"{KIT.NICHES[n][0]}"
+        job.progress = i / len(ids)
+        client, engine = KIT.make_client(CLIENTS, n, handle, cta, int(weeks), start, model)
+        row = {"niche": n, "client_id": client["id"], "posts": len(client["posts"]), "engine": engine,
+               "needs_input": sum(1 for p in client["posts"] if PL.has_placeholder(p))}
+        if carousels:
+            spec = {"format": "1:1", "handle": handle, "accent": "#ff2e88", "slides": KIT.slides_for(n, cta)}
+            row["carousel"] = do_carousel(Sub(job, i / len(ids), (i + 1) / len(ids)), spec)["slides"]
+        out.append(row)
+    return {"niches": out}
+
+
 def clients_api(method, path, query, body):
     """Returns (status, payload, content_type, filename). payload is a dict for JSON, else text."""
     parts = [x for x in path.split("/") if x]
@@ -1031,6 +1053,11 @@ class Handler(BaseHTTPRequestHandler):
         try:
             b = self._body()
             path = urlparse(self.path).path
+            if path == "/api/kit":
+                return self._json(start_job("kit", do_kit, niches=b.get("niches"), handle=b.get("handle", ""),
+                                            cta=b.get("cta") or "Message us to find out more.", weeks=b.get("weeks", 4),
+                                            start=b.get("start"), carousels=bool(b.get("carousels", True)),
+                                            llm=b.get("llm", "auto")).to_dict())
             if path.startswith("/api/client"):
                 return self._clients("POST", urlparse(self.path), {}, b)
             if path.startswith(("/api/rights", "/api/campaigns", "/api/queue", "/api/youtube")):

@@ -5,8 +5,8 @@ import base64
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-FILES = ["server.py", "engines.py", "openfilm_export.py", "carousel.py", "planner.py", "rights.py", "youtube.py", "mcp_server.py", "web/index.html", "web/planner.html", "web/clipping.html", "run.sh", "run.bat", "README.md", "AGENT_PLAYBOOK.md",
-         "requirements-optional.txt", ".gitignore", "tests/test_pipeline.py", "tests/test_planner.py", "tests/test_clipping.py", "tests/test_mcp.py"]
+FILES = ["server.py", "engines.py", "openfilm_export.py", "carousel.py", "planner.py", "kit.py", "rights.py", "youtube.py", "mcp_server.py", "web/index.html", "web/planner.html", "web/clipping.html", "run.sh", "run.bat", "README.md", "AGENT_PLAYBOOK.md",
+         "requirements-optional.txt", ".gitignore", "tests/test_pipeline.py", "tests/test_planner.py", "tests/test_clipping.py", "tests/test_mcp.py", "tests/test_kit.py"]
 
 TEMPLATE = '''#!/usr/bin/env python3
 """Clip Studio - single-file bundle.
