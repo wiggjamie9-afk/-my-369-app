@@ -33,3 +33,11 @@ Editing/assembly: ffmpeg (base layer, used here); MoviePy (Python); Remotion (Re
 
 ## Rules to keep
 Never save passwords/keys/caller names or numbers. Never spend credits without an approved estimate. Only Jamie edits DNA.
+
+## UGC ad factory (`ugc/`) - added after the Instagram "AI UGC agents" post
+Re-engineered from the MIT-licensed [Open-AI-UGC](https://github.com/Anil-matcha/Open-AI-UGC) (credit in `NOTICE`). That repo is a web app (login, Stripe, UI) around ONE paid API, MuAPI; it has no agents, hooks, research, testing or memory. We kept only the API/model idea.
+Flow: `Brief -> write_hooks -> compliance lint -> cost gate -> generate (9:16) -> AI label + sidecar json -> record_result feeds AI9`.
+- Done/tested offline: brief, hook writer (template or LLM), compliance lint (blocks fake first-person testimonials, unverified claims %/guarantee/cure etc.), MuapiProvider (submit/poll/download against a fake HTTP), factory, AI label (visible if ffmpeg has drawtext, always a sidecar), results -> memory.
+- NOT done: MuAPI is unverified live (no key; poll path `RESULT_PATH` is a guess; credit rates are the repo's own units - set `usd_per_credit` from real pricing). Trend research, voice/lip-sync, captions, A/B test + budget-mover, publishing, a Hindsight-backed memory: none built.
+- Legal: lint is a safety net, not legal advice. Presenters must demonstrate/explain, never claim personal experience. Platform AI-label rules (TikTok/Meta) not researched.
+- Fill `ugc/brief.example.json` -> your brief. Run: `factory.run_batch(Brief.load(path), provider, out_dir, ai, n=3, approved_budget=USD)`.

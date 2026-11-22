@@ -1,0 +1,4 @@
+Portions of ugc/muapi.py (endpoint names, payload shape, credit-rate table) were derived by
+reading Open-AI-UGC (https://github.com/Anil-matcha/Open-AI-UGC), MIT License,
+Copyright (c) 2026 Anil Chandra Naidu Matcha. No source code was copied verbatim; the
+MIT notice is retained here as a courtesy and in case of substantial derivation.

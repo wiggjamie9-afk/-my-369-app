@@ -15,13 +15,16 @@ W, H, FPS = 1280, 720, 24
 class SlateProvider:
     paid = False
 
+    def __init__(self, w: int = W, h: int = H):
+        self.w, self.h = w, h
+
     def estimate_cost(self, shots) -> float:
         return 0.0
 
     def generate(self, shot, out: str) -> str:
         h = hashlib.sha256(shot.prompt.encode()).hexdigest()[:6]
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error",
-                        "-f", "lavfi", "-i", f"color=c=0x{h}:s={W}x{H}:d={shot.seconds}:r={FPS}",
+                        "-f", "lavfi", "-i", f"color=c=0x{h}:s={self.w}x{self.h}:d={shot.seconds}:r={FPS}",
                         "-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo",
                         "-shortest", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", out], check=True)
         return out
