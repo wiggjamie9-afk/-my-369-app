@@ -48,3 +48,8 @@ Flow: `Brief -> write_hooks -> compliance lint -> cost gate -> generate (9:16) -
 - `ugc/research.py` trend import (offline, no scraping) feeding `write_hooks(trends=...)`.
 - `ugc/voice.py` interface + silent stand-in + mux; real TTS = TODO (needs key). `video/captions.py` burns timed captions (verified with ffmpeg drawtext).
 - Still needs keys/live checks: Hindsight, MuAPI, TTS/lip-sync, real LLM hooks, real checker model. Step-by-step: `KIMI_BUILD_BRIEF.md`.
+
+## Live wiring (added; offline-tested only)
+`ai9/llm.py` (Anthropic + OpenAI-compatible adapters, token usage tracked), `ai9/live.py` (`build_ai9()` from env vars; fails loudly naming the missing variable; checker twin refuses to be the same model as the agent), `ai9/chat.py` (`python -m ai9.chat`).
+Env: `ANTHROPIC_API_KEY`, optional `AI9_MODEL`, `HINDSIGHT_API_KEY`, and for the real checker `CHECKER_MODEL` + `CHECKER_BASE_URL` + `CHECKER_API_KEY`. Without CHECKER_* it falls back to the rule checker, which is NOT the different-model twin.
+Adding keys is now the only step before the live recall test: `python3 -m ai9.recall_test hindsight` (still uses the echo model; swap in `AnthropicLLM` for a real-model score).
