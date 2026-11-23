@@ -1,0 +1,175 @@
+<title>48 AI Margin Calculator</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout: inputs on the left, results sticky on the right; stacks on phones. Palette follows the 48 AI app: ink navy, signal blue, amber. */
+:root{
+  --bg:#f4f6fb; --panel:#ffffff; --raise:#eef1f8; --line:#d8deec; --text:#0f1730; --mute:#5b6786;
+  --blue:#2f6df0; --amber:#b7791f; --green:#12805c; --rose:#c0392b;
+  --font-body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif; --font-head:'Space Grotesk','Inter',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#070b17; --panel:#0d1424; --raise:#131d35; --line:#1f2b47; --text:#eaf0ff; --mute:#8d9bbd;
+  --blue:#4f8cff; --amber:#fbbf24; --green:#34d399; --rose:#fb7185; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#070b17; --panel:#0d1424; --raise:#131d35; --line:#1f2b47; --text:#eaf0ff; --mute:#8d9bbd;
+  --blue:#4f8cff; --amber:#fbbf24; --green:#34d399; --rose:#fb7185; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 var(--font-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 40px}
+.wrap{max-width:1020px;margin:0 auto}
+h1{font:700 28px/1.1 var(--font-head);margin:4px 0 4px;text-wrap:balance}
+.sub{color:var(--mute);margin:0 0 16px;max-width:62ch}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);gap:16px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+.panel+.panel{margin-top:12px}
+h2{font:600 11px/1.2 var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin:0 0 10px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+label{display:block;font-size:12px;font-weight:600;color:var(--mute);margin-bottom:4px}
+input,select{width:100%;background:var(--raise);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 9px;font:inherit;font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.hint{font-size:12px;color:var(--mute);margin-top:8px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.kv:last-child{border:0}.kv span:first-child{color:var(--mute)}
+.big{font:700 34px/1 var(--font-head);font-variant-numeric:tabular-nums}
+.pill{display:inline-block;border-radius:99px;padding:3px 10px;font-size:12px;font-weight:600;border:1px solid var(--line)}
+.good{color:var(--green)}.warn{color:var(--amber)}.bad{color:var(--rose)}
+.sticky{position:sticky;top:12px}
+@media (max-width:860px){.sticky{position:static}}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:520px;font-variant-numeric:tabular-nums}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);text-align:right;padding:6px 8px;font-weight:600}
+th:first-child,td:first-child{text-align:left}
+td{padding:7px 8px;border-top:1px solid var(--line);text-align:right}
+tr.cur td{background:var(--raise);font-weight:600}
+.note{font-size:12px;color:var(--mute)}
+</style>
+
+<div class="wrap">
+  <h1>48 AI margin calculator</h1>
+  <p class="sub">What you keep per customer after GST and Apple's cut, and what the business earns at a given number of customers. Every figure starts as an example. Replace the cost inputs with what your calls and GPU really cost.</p>
+
+  <div class="grid">
+    <div>
+      <div class="panel">
+        <h2>Plan</h2>
+        <div class="fields">
+          <div><label for="price">Price A$ / month (inc. GST)</label><input id="price" type="number" step="0.01" value="79"></div>
+          <div><label for="callMins">Call minutes included</label><input id="callMins" type="number" value="100"></div>
+          <div><label for="avMins">Avatar minutes included</label><input id="avMins" type="number" value="30"></div>
+          <div><label for="gst">GST in the price</label><select id="gst"><option value="1">Yes (10%)</option><option value="0">No</option></select></div>
+          <div><label for="apple">Apple's cut</label><select id="apple"><option value="0.30">30% (cautious)</option><option value="0.15">15%</option></select></div>
+        </div>
+        <div class="hint">Apple's rate depends on your programme and subscription age. Check the current terms in App Store Connect.</div>
+      </div>
+
+      <div class="panel">
+        <h2>How customers use it</h2>
+        <div class="fields">
+          <div><label for="callUse">Call minutes used (% of included)</label><input id="callUse" type="number" value="70"></div>
+          <div><label for="avUse">Avatar minutes used (% of included)</label><input id="avUse" type="number" value="60"></div>
+          <div><label for="topUptake">Customers buying an avatar top-up (%)</label><input id="topUptake" type="number" value="10"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Your costs</h2>
+        <div class="fields">
+          <div><label for="callCpm">Cost per call minute A$</label><input id="callCpm" type="number" step="0.01" value="0.10"></div>
+          <div><label for="avCpm">Cost per avatar minute A$</label><input id="avCpm" type="number" step="0.01" value="0.10"></div>
+          <div><label for="fixedUser">Other cost per customer A$</label><input id="fixedUser" type="number" step="0.5" value="2"></div>
+          <div><label for="gpuFixed">Rented GPU, idle cost / month A$</label><input id="gpuFixed" type="number" value="150"></div>
+          <div><label for="otherFixed">Other fixed costs / month A$</label><input id="otherFixed" type="number" value="100"></div>
+        </div>
+        <div class="hint">Cost per avatar minute = hourly GPU rate ÷ sessions it handles at once ÷ 60. The idle cost covers hours the GPU runs with nobody talking.</div>
+      </div>
+
+      <div class="panel">
+        <h2>Avatar top-up</h2>
+        <div class="fields">
+          <div><label for="topPrice">Top-up price A$ (inc. GST)</label><input id="topPrice" type="number" step="0.01" value="18"></div>
+          <div><label for="topMins">Minutes per top-up</label><input id="topMins" type="number" value="30"></div>
+          <div><label for="cust">Customers</label><input id="cust" type="number" value="50"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sticky">
+      <div class="panel" aria-live="polite">
+        <h2>Per customer, per month</h2>
+        <div class="big" id="profit">—</div>
+        <div style="margin-top:6px"><span class="pill" id="verdict">—</span></div>
+        <div style="margin-top:10px" id="rows"></div>
+      </div>
+      <div class="panel" aria-live="polite">
+        <h2>The whole business</h2>
+        <div id="biz"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:16px">
+    <h2>Compare prices (same costs and usage)</h2>
+    <div class="scroll"><table><thead><tr><th>Price A$</th><th>You keep</th><th>Cost</th><th>Profit / customer</th><th>Margin</th><th>Break-even cost / call min</th></tr></thead><tbody id="cmp"></tbody></table></div>
+    <p class="note" style="margin:10px 0 0">The highlighted row is the price you entered. Break-even is the highest cost per call minute at which that price still covers its costs.</p>
+  </div>
+
+  <div class="panel" style="margin-top:12px">
+    <h2>Read this</h2>
+    <p class="note" style="margin:0">This is an estimate from the numbers you type. It ignores your own time, tax, refunds, failed calls, Apple's price rounding, and customers who cancel. Check Apple's and each provider's current terms.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+'use strict';
+var $ = function (id) { return document.getElementById(id); };
+var num = function (id) { var v = parseFloat($(id).value); return isFinite(v) && v >= 0 ? v : 0; };
+var money = function (x) { return (x < 0 ? '-A$' : 'A$') + Math.abs(x).toFixed(2); };
+var pct = function (x) { return (isFinite(x) ? x.toFixed(0) : '0') + '%'; };
+
+function model(price, usageCall, usageAv) {
+  var gst = $('gst').value === '1' ? 1.1 : 1, apple = parseFloat($('apple').value);
+  var keep = function (gross) { return gross / gst * (1 - apple); };
+  var callMins = num('callMins'), avMins = num('avMins');
+  var callUsed = callMins * usageCall, avUsed = avMins * usageAv;
+  var uptake = num('topUptake') / 100, topMins = num('topMins');
+  var net = keep(price), topNet = uptake * keep(num('topPrice'));
+  var callCost = callUsed * num('callCpm'), avCost = avUsed * num('avCpm'), topCost = uptake * topMins * num('avCpm'), other = num('fixedUser');
+  var revenue = net + topNet, cost = callCost + avCost + topCost + other, profit = revenue - cost;
+  var breakEven = callUsed > 0 ? (revenue - avCost - topCost - other) / callUsed : 0;
+  return { net: net, topNet: topNet, callCost: callCost, avCost: avCost, topCost: topCost, other: other, revenue: revenue, cost: cost, profit: profit, margin: revenue ? profit / revenue * 100 : 0, breakEven: breakEven };
+}
+function verdictOf(m) { return m.profit < 0 ? ['Losing money', 'bad'] : m.margin < 25 ? ['Thin', 'warn'] : m.margin < 45 ? ['Fair', 'warn'] : ['Healthy', 'good']; }
+
+function render() {
+  var price = num('price'), m = model(price, num('callUse') / 100, num('avUse') / 100), w = model(price, 1, 1), v = verdictOf(m);
+  var pe = $('profit'); pe.textContent = money(m.profit); pe.className = 'big ' + v[1];
+  var ve = $('verdict'); ve.textContent = v[0] + ' · ' + pct(m.margin) + ' margin'; ve.className = 'pill ' + v[1];
+  $('rows').innerHTML =
+    kv('You keep from the plan (after GST and Apple)', money(m.net)) +
+    kv('Plus avatar top-ups, on average', money(m.topNet)) +
+    kv('Call minutes cost', '-' + money(m.callCost).replace('A$', 'A$')) +
+    kv('Avatar minutes cost', '-' + money(m.avCost)) +
+    kv('Top-up minutes cost', '-' + money(m.topCost)) +
+    kv('Other per-customer cost', '-' + money(m.other)) +
+    kv('Break-even cost per call minute', money(m.breakEven)) +
+    kv('If a customer uses every minute', '<span class="' + (w.profit < 0 ? 'bad' : 'good') + '">' + money(w.profit) + '</span>');
+  var n = num('cust'), fixed = num('gpuFixed') + num('otherFixed'), monthly = m.profit * n - fixed;
+  var beCust = m.profit > 0 ? Math.ceil(fixed / m.profit) : null;
+  $('biz').innerHTML =
+    kv('Customers', n) + kv('Profit from customers', money(m.profit * n)) + kv('Fixed costs (GPU idle and other)', '-' + money(fixed)) +
+    kv('Monthly profit before tax and your time', '<span class="' + (monthly < 0 ? 'bad' : 'good') + '">' + money(monthly) + '</span>') +
+    kv('Customers needed to cover fixed costs', beCust === null ? 'Not at this price' : beCust);
+  var prices = [49, 69, 79, 99, 129]; if (prices.indexOf(price) < 0 && price > 0) { prices.push(price); prices.sort(function (a, b) { return a - b; }); }
+  $('cmp').innerHTML = prices.map(function (p) {
+    var x = model(p, num('callUse') / 100, num('avUse') / 100);
+    return '<tr' + (p === price ? ' class="cur"' : '') + '><td>' + money(p) + '</td><td>' + money(x.revenue) + '</td><td>' + money(x.cost) + '</td><td class="' + verdictOf(x)[1] + '">' + money(x.profit) + '</td><td>' + pct(x.margin) + '</td><td>' + money(x.breakEven) + '</td></tr>';
+  }).join('');
+}
+function kv(a, b) { return '<div class="kv"><span>' + a + '</span><span>' + b + '</span></div>'; }
+document.querySelectorAll('input,select').forEach(function (el) { el.addEventListener('input', render); });
+render();
+})();
+</script>
